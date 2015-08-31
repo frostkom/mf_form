@@ -1,0 +1,149 @@
+@media all
+{
+	.widefat thead th, /*.nowrap, */.row-actions li
+	{
+		white-space: nowrap;
+	}
+
+	/*.hide, */.tr_range, .tr_check, .tr_placeholder, .tr_text, .tr_select
+	{
+		display: none;
+	}
+
+	.alignleft, .alignright
+	{
+		width: 50%;
+	}
+
+	.toggler
+	{
+		cursor: pointer;
+	}
+
+	.mf_settings .alignleft
+	{
+		margin-right: 3%;
+		width: 47%;
+	}
+
+		.mf_settings .form_textfield input, .mf_settings select, .mf_settings textarea, .mf_settings .form_password input
+		{
+			width: 100%;
+		}
+
+		.mf_form .alignleft, .mf_form .alignright
+		{
+			clear: none;
+		}
+
+		.postbox.active, .postbox.active h3
+		{
+			background: #fff6bf;
+			border-color: #ffd324;
+		}
+
+	.form_row
+	{
+		border: .1em solid transparent;
+		position: relative;
+		padding: .5em;
+	}
+
+		.form_row.active, .form_row:hover
+		{
+			border-radius: .5em;
+			margin: .5em;
+		}
+
+		.form_row.active
+		{
+			background: #fff6bf;
+			border-color: #ffd324;
+			overflow: hidden;
+		}
+
+		.form_row:hover:not(.active)
+		{
+			background: #eee;
+			border-color: #ccc;
+			min-height: 100px;
+		}
+
+		.form_buttons
+		{
+			display: none;
+		}
+
+			.form_row:hover:not(.active) .form_buttons
+			{
+				background: rgba(200, 200, 200, .5);
+				border-radius: 0 0 0 .5em;
+				display: block;
+				padding: 1em;
+				position: absolute;
+				right: 0;
+				top: 0;
+			}
+
+		.tr_range, .tr_check, .tr_text, .tr_select
+		{
+			display: none;
+		}
+
+		.tr_range input
+		{
+			margin-right: 1%;
+			width: 24%;
+		}
+
+		.tr_select
+		{
+			margin-bottom: 10px;
+		}
+
+			.select_rows > div
+			{
+				overflow: hidden;
+			}
+
+				.select_rows > div .form_textfield
+				{
+					float: left;
+				}
+
+					.select_rows > div .form_textfield:first-child
+					{
+						margin-right: 1%;
+						width: 10%;
+					}
+
+					.select_rows > div .form_textfield:last-child
+					{
+						width: 39%;
+					}
+
+						.select_rows > div .form_textfield input
+						{
+							width: 100%;
+						}
+
+			#add_option
+			{
+				color: #169328;
+				cursor: pointer;
+				font-size: 1.2em;
+			}
+
+	.flot_pie
+	{
+		float: left;
+		height: 300px;
+		margin-bottom: 20px;
+		width: 400px;
+	}
+
+	.deleted, .deleted a
+	{
+		color: #ccc;
+	}
+}
