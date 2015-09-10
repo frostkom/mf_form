@@ -19,6 +19,7 @@ $intQueryEmailConfirm = isset($_POST['intQueryEmailConfirm']) ? 1 : 0;
 $strQueryEmailConfirmPage = check_var('strQueryEmailConfirmPage');
 $intQueryShowAnswers = isset($_POST['intQueryShowAnswers']) ? 1 : 0;
 $strQueryName = check_var('strQueryName');
+$strQueryURL = check_var('strQueryURL');
 $strQueryAnswerURL = check_var('strQueryAnswerURL');
 $strQueryEmail = check_var('strQueryEmail', 'email');
 $intQueryEmailNotify = check_var('intQueryEmailNotify');
@@ -29,6 +30,7 @@ $strQueryButtonSymbol = check_var('strQueryButtonSymbol');
 $intQueryPaymentProvider = check_var('intQueryPaymentProvider');
 $strQueryPaymentHmac = check_var('strQueryPaymentHmac');
 $strQueryPaymentMerchant = check_var('strQueryPaymentMerchant');
+$strQueryPaymentPassword = check_var('strQueryPaymentPassword');
 $strQueryPaymentCurrency = check_var('strQueryPaymentCurrency');
 $intQueryPaymentCheck = check_var('intQueryPaymentCheck');
 $intQueryPaymentAmount = check_var('intQueryPaymentAmount');
@@ -44,6 +46,11 @@ $strQueryTypeMax = check_var('strQueryTypeMax', '', true, 100);
 $strQueryTypeDefault = check_var('strQueryTypeDefault', '', true, 1);
 
 $error_text = $done_text = "";
+
+if($intQueryID > 0)
+{
+	$obj_form = new mf_form($intQueryID);
+}
 
 echo "<div class='wrap'>";
 
@@ -71,11 +78,9 @@ echo "<div class='wrap'>";
 
 		if($db_info != '')
 		{
-			$obj_form = new mf_form();
+			$strQueryURL = $obj_form->get_post_name();
 
-			$strQueryName = $obj_form->get_form_name($intQueryID);
-
-			$file = sanitize_title_with_dashes(sanitize_title($strQueryName))."_".date("YmdHis").".sql";
+			$file = $strQueryURL."_".date("YmdHis").".sql";
 
 			$success = set_file_content(array('file' => $folder."/uploads/".$file, 'mode' => 'a', 'content' => trim($db_info)));
 
@@ -147,7 +152,7 @@ echo "<div class='wrap'>";
 		}
 	}
 
-	else if(isset($_POST['btnQueryCreate']))
+	else if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce'], 'form_update'))
 	{
 		if($strQueryName == '')
 		{
@@ -163,13 +168,14 @@ echo "<div class='wrap'>";
 				$post_data = array(
 					'ID' => $intPostID,
 					//'post_type' => 'mf_form',
-					//'post_status' => 'publish',
+					'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
 					'post_title' => $strQueryName,
+					'post_name' => $strQueryURL
 				);
 
 				wp_update_post($post_data);
 
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '".$wpdb->blogid."', queryImproveUX = '%d', queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentCurrency = %s, queryPaymentCheck = '%d', queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryImproveUX, $intQueryEmailConfirm, $strQueryEmailConfirmPage, $intQueryShowAnswers, $strQueryName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentCurrency, $intQueryPaymentCheck, $intQueryPaymentAmount, $intQueryID));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '".$wpdb->blogid."', queryImproveUX = '%d', queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentCheck = '%d', queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryImproveUX, $intQueryEmailConfirm, $strQueryEmailConfirmPage, $intQueryShowAnswers, $strQueryName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentCheck, $intQueryPaymentAmount, $intQueryID)); //, queryURL = %s, $strQueryURL
 			}
 
 			else
@@ -185,7 +191,7 @@ echo "<div class='wrap'>";
 				{
 					$post_data = array(
 						'post_type' => 'mf_form',
-						'post_status' => 'publish',
+						'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
 						'post_title' => $strQueryName,
 					);
 
@@ -279,13 +285,15 @@ echo "<div class='wrap'>";
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0' WHERE queryID = '%d'", $intQueryID));
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryImproveUX, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryImproveUX, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //postID, , queryURL
 		$r = $result[0];
+		//$intPostID = $r->postID;
 		$intQueryImproveUX = $r->queryImproveUX;
 		$intQueryEmailConfirm = $r->queryEmailConfirm;
 		$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
 		$intQueryShowAnswers = $r->queryShowAnswers;
 		$strQueryName = $r->queryName;
+		//$strQueryURL = $r->queryURL;
 		$strQueryAnswerURL = $r->queryAnswerURL;
 		$strQueryEmail = $r->queryEmail;
 		$intQueryEmailNotify = $r->queryEmailNotify;
@@ -296,10 +304,13 @@ echo "<div class='wrap'>";
 		$intQueryPaymentProvider = $r->queryPaymentProvider;
 		$strQueryPaymentHmac = $r->queryPaymentHmac;
 		$strQueryPaymentMerchant = $r->queryPaymentMerchant;
+		$strQueryPaymentPassword = $r->queryPaymentPassword;
 		$strQueryPaymentCurrency = $r->queryPaymentCurrency;
 		$intQueryPaymentCheck = $r->queryPaymentCheck;
 		$intQueryPaymentAmount = $r->queryPaymentAmount;
 		$strQueryCreated = $r->queryCreated;
+
+		$strQueryURL = $obj_form->get_post_name();
 	}
 
 	if($intQuery2TypeID > 0)
@@ -421,8 +432,8 @@ echo "<div class='wrap'>";
 
 					if($intQuery2TypeID > 0)
 					{
-						echo "<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>"
-							.show_submit(array('text' => __("Cancel", 'lang_forms'), 'type' => "button", 'class' => "preview button"))
+						echo "&nbsp;<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>"
+							.show_submit(array('text' => __("Cancel", 'lang_forms'), 'type' => "button", 'class' => "button"))
 						."</a>";
 					}
 
@@ -454,6 +465,8 @@ echo "<div class='wrap'>";
 
 					if($intQueryID > 0)
 					{
+						echo show_textfield(array('name' => 'strQueryURL', 'text' => __("Permalink", 'lang_forms'), 'value' => $strQueryURL, 'maxlength' => 100, 'required' => 1));
+
 						$arr_data = array();
 
 						$arr_data[] = array("", "-- ".__("Choose page here", 'lang_forms')." --");
@@ -621,11 +634,29 @@ echo "<div class='wrap'>";
 
 							$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
 							$arr_data[] = array(1, __("DIBS", 'lang_forms'));
+							$arr_data[] = array(3, __("Paypal", 'lang_forms'));
 							$arr_data[] = array(2, __("Skrill", 'lang_forms'));
 
-							echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentProvider', 'compare' => $intQueryPaymentProvider, 'text' => __("Provider", 'lang_forms')))
-							.show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Merchant ID", 'lang_forms')." / ".__("Merchant E-mail", 'lang_forms'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 20))
-							.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("HMAC key", 'lang_forms')." / ".__("Secret word", 'lang_forms'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
+							echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentProvider', 'compare' => $intQueryPaymentProvider, 'text' => __("Provider", 'lang_forms')));
+
+							if($intQueryPaymentProvider == 1)
+							{
+								echo show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Merchant ID", 'lang_forms'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 100))
+								.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("HMAC key", 'lang_forms'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
+							}
+
+							else if($intQueryPaymentProvider == 3)
+							{
+								echo show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Username", 'lang_forms'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 100))
+								.show_textfield(array('name' => 'strQueryPaymentPassword', 'text' => __("Password", 'lang_forms'), 'value' => $strQueryPaymentPassword, 'maxlength' => 100))
+								.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("Signature", 'lang_forms'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
+							}
+
+							else if($intQueryPaymentProvider == 2)
+							{
+								echo show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Merchant E-mail", 'lang_forms'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 100))
+								.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("Secret word", 'lang_forms'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
+							}
 
 							if($intQueryPaymentProvider > 0 && $strQueryPaymentMerchant != '' && $strQueryPaymentHmac != '')
 							{
@@ -633,38 +664,40 @@ echo "<div class='wrap'>";
 
 								$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
 
-								if($intQueryPaymentProvider == 1)
+								switch($intQueryPaymentProvider)
 								{
-									$arr_data[] = array(208, __("Danish Krone", 'lang_forms')." (DKK)");
-									$arr_data[] = array(978, __("Euro", 'lang_forms')." (EUR)");
-									$arr_data[] = array(840, __("US Dollar", 'lang_forms')." (USD)");
-									$arr_data[] = array(826, __("English Pound", 'lang_forms')." (GBP)");
-									$arr_data[] = array(752, __("Swedish Krona", 'lang_forms')." (SEK)");
-									$arr_data[] = array(036, __("Australian Dollar", 'lang_forms')." (AUD)");
-									$arr_data[] = array(124, __("Canadian Dollar", 'lang_forms')." (CAD)");
-									$arr_data[] = array(352, __("Icelandic Krona", 'lang_forms')." (ISK)");
-									$arr_data[] = array(392, __("Japanese Yen", 'lang_forms')." (JPY)");
-									$arr_data[] = array(554, __("New Zealand Dollar", 'lang_forms')." (NZD)");
-									$arr_data[] = array(578, __("Norwegian Krone", 'lang_forms')." (NOK)");
-									$arr_data[] = array(756, __("Swiss Franc", 'lang_forms')." (CHF)");
-									$arr_data[] = array(949, __("Turkish Lira", 'lang_forms')." (TRY)");
-								}
+									case 1:
+										$arr_data[] = array(208, __("Danish Krone", 'lang_forms')." (DKK)");
+										$arr_data[] = array(978, __("Euro", 'lang_forms')." (EUR)");
+										$arr_data[] = array(840, __("US Dollar", 'lang_forms')." (USD)");
+										$arr_data[] = array(826, __("English Pound", 'lang_forms')." (GBP)");
+										$arr_data[] = array(752, __("Swedish Krona", 'lang_forms')." (SEK)");
+										$arr_data[] = array(036, __("Australian Dollar", 'lang_forms')." (AUD)");
+										$arr_data[] = array(124, __("Canadian Dollar", 'lang_forms')." (CAD)");
+										$arr_data[] = array(352, __("Icelandic Krona", 'lang_forms')." (ISK)");
+										$arr_data[] = array(392, __("Japanese Yen", 'lang_forms')." (JPY)");
+										$arr_data[] = array(554, __("New Zealand Dollar", 'lang_forms')." (NZD)");
+										$arr_data[] = array(578, __("Norwegian Krone", 'lang_forms')." (NOK)");
+										$arr_data[] = array(756, __("Swiss Franc", 'lang_forms')." (CHF)");
+										$arr_data[] = array(949, __("Turkish Lira", 'lang_forms')." (TRY)");
+									break;
 
-								else if($intQueryPaymentProvider == 2)
-								{
-									$arr_data[] = array("DKK", __("Danish Krone", 'lang_forms')." (DKK)");
-									$arr_data[] = array("EUR", __("Euro", 'lang_forms')." (EUR)");
-									$arr_data[] = array("USD", __("US Dollar", 'lang_forms')." (USD)");
-									$arr_data[] = array("GBP", __("English Pound", 'lang_forms')." (GBP)");
-									$arr_data[] = array("SEK", __("Swedish Krona", 'lang_forms')." (SEK)");
-									$arr_data[] = array("AUD", __("Australian Dollar", 'lang_forms')." (AUD)");
-									$arr_data[] = array("CAD", __("Canadian Dollar", 'lang_forms')." (CAD)");
-									$arr_data[] = array("ISK", __("Icelandic Krona", 'lang_forms')." (ISK)");
-									$arr_data[] = array("JPY", __("Japanese Yen", 'lang_forms')." (JPY)");
-									$arr_data[] = array("NZD", __("New Zealand Dollar", 'lang_forms')." (NZD)");
-									$arr_data[] = array("NOK", __("Norwegian Krone", 'lang_forms')." (NOK)");
-									$arr_data[] = array("CHF", __("Swiss Franc", 'lang_forms')." (CHF)");
-									$arr_data[] = array("TRY", __("Turkish Lira", 'lang_forms')." (TRY)");
+									case 2:
+									case 3:
+										$arr_data[] = array("DKK", __("Danish Krone", 'lang_forms')." (DKK)");
+										$arr_data[] = array("EUR", __("Euro", 'lang_forms')." (EUR)");
+										$arr_data[] = array("USD", __("US Dollar", 'lang_forms')." (USD)");
+										$arr_data[] = array("GBP", __("English Pound", 'lang_forms')." (GBP)");
+										$arr_data[] = array("SEK", __("Swedish Krona", 'lang_forms')." (SEK)");
+										$arr_data[] = array("AUD", __("Australian Dollar", 'lang_forms')." (AUD)");
+										$arr_data[] = array("CAD", __("Canadian Dollar", 'lang_forms')." (CAD)");
+										$arr_data[] = array("ISK", __("Icelandic Krona", 'lang_forms')." (ISK)");
+										$arr_data[] = array("JPY", __("Japanese Yen", 'lang_forms')." (JPY)");
+										$arr_data[] = array("NZD", __("New Zealand Dollar", 'lang_forms')." (NZD)");
+										$arr_data[] = array("NOK", __("Norwegian Krone", 'lang_forms')." (NOK)");
+										$arr_data[] = array("CHF", __("Swiss Franc", 'lang_forms')." (CHF)");
+										$arr_data[] = array("TRY", __("Turkish Lira", 'lang_forms')." (TRY)");
+									break;
 								}
 
 								$arr_data = array_sort(array('array' => $arr_data, 'on' => 1));
@@ -722,10 +755,23 @@ echo "<div class='wrap'>";
 					</div>";
 				}
 
-				echo "<div class='clear'></div>"
-				.show_submit(array('name' => "btnQueryCreate", 'text' => ($intQueryID > 0 ? __("Update", 'lang_forms') : __("Add", 'lang_forms')), 'class' => "button-primary"))
-				.input_hidden(array('name' => "intQueryID", 'value' => $intQueryID))
-			."</form>
+				echo "<div class='clear'>";
+
+					if($intQueryID > 0)
+					{
+						echo show_submit(array('name' => "btnFormPublish", 'text' =>  __("Publish", 'lang_forms'), 'class' => "button-primary"))."&nbsp;"
+						.show_submit(array('name' => "btnFormDraft", 'text' => __("Save Draft", 'lang_forms'), 'class' => "button"));
+					}
+
+					else
+					{
+						echo show_submit(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_forms'), 'class' => "button-primary"));
+					}
+
+					echo input_hidden(array('name' => "intQueryID", 'value' => $intQueryID))
+					.wp_nonce_field('form_update', '_wpnonce', true, false)
+				."</div>
+			</form>
 		</div>
 	</div>
 </div>";

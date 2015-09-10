@@ -70,7 +70,7 @@ jQuery(function($)
 
 			$(this).removeClass('has_required_email').off('click', has_required_email);
 
-			this_form.find('.form_button > p').removeClass('hide');
+			this_form.find('.form_button > div.updated').removeClass('hide');
 
 			return false;
 		}
@@ -86,7 +86,7 @@ jQuery(function($)
 
 		this_form.find('.form_button button').addClass('has_required_email').on('click', has_required_email);
 
-		this_form.find('.form_button > p').addClass('hide');
+		this_form.find('.form_button > div.updated').addClass('hide');
 
 		return false;
 	});

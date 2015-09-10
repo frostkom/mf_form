@@ -2,7 +2,7 @@
 /*
 Plugin Name: MF Forms
 Plugin URI: 
-Version: 2.5.3
+Version: 2.6.3
 Author: Martin Fors
 Author URI: www.frostkom.se
 */
@@ -79,6 +79,7 @@ function activate_form()
 		queryPaymentProvider INT DEFAULT NULL,
 		queryPaymentHmac VARCHAR(200) DEFAULT NULL,
 		queryPaymentMerchant VARCHAR(100) DEFAULT NULL,
+		queryPaymentPassword VARCHAR(100) DEFAULT NULL,
 		queryPaymentCurrency VARCHAR(3),
 		queryPaymentCheck INT DEFAULT NULL,
 		queryPaymentAmount INT DEFAULT NULL,
@@ -94,6 +95,7 @@ function activate_form()
 		answerID INT unsigned NOT NULL AUTO_INCREMENT,
 		queryID INT unsigned NOT NULL,
 		answerIP varchar(15) DEFAULT NULL,
+		answerToken VARCHAR(100) DEFAULT NULL,
 		userID INT unsigned DEFAULT NULL,
 		answerCreated datetime DEFAULT NULL,
 		PRIMARY KEY (answerID),
@@ -178,6 +180,7 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentAmount'] = "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryPaymentCheck";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentHmac'] = "ALTER TABLE [table] ADD [column] VARCHAR(200) DEFAULT NULL AFTER queryButtonText";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentMerchant'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER queryPaymentHmac";
+	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentPassword'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER queryPaymentMerchant";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailConfirmPage'] = "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryEmailConfirm";
 	$arr_add_column[$wpdb->base_prefix."query"]['blogID'] = "ALTER TABLE [table] ADD [column] INT AFTER queryID";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER queryEmailName";
@@ -186,6 +189,8 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentCurrency'] = "ALTER TABLE [table] ADD [column] VARCHAR(3) AFTER queryPaymentMerchant";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryButtonSymbol'] = "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText";
 	$arr_add_column[$wpdb->base_prefix."query"]['postID'] = "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER blogID";
+
+	$arr_add_column[$wpdb->base_prefix."query2answer"]['answerToken'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER answerIP";
 
 	$arr_add_column[$wpdb->base_prefix."query_check"]['checkPattern'] = "ALTER TABLE [table] ADD [column] VARCHAR(200) AFTER checkCode";
 

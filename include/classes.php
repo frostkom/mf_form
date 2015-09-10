@@ -15,6 +15,28 @@ class mf_form
 		}
 	}
 
+	function is_published($data = array())
+	{
+		global $wpdb;
+
+		if(isset($data['query_id']) && $data['query_id'] > 0)
+		{
+			$this->id = $data['query_id'];
+		}
+
+		if($this->id > 0)
+		{
+			$post_status = $wpdb->get_var($wpdb->prepare("SELECT post_status FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->posts." ON ".$wpdb->base_prefix."query.postID = ".$wpdb->posts.".ID WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+		}
+
+		else
+		{
+			$post_status = $wpdb->get_var($wpdb->prepare("SELECT post_status FROM ".$wpdb->posts." WHERE ID = '%d'", $data['post_id']));
+		}
+
+		return $post_status == 'publish' ? true : false;
+	}
+
 	function get_form_name($id = 0)
 	{
 		global $wpdb;
@@ -25,6 +47,28 @@ class mf_form
 		}
 
 		return $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+	}
+
+	function get_post_name($data = array())
+	{
+		global $wpdb;
+
+		if(isset($data['query_id']) && $data['query_id'] > 0)
+		{
+			$this->id = $data['query_id'];
+		}
+
+		if($this->id > 0)
+		{
+			$post_name = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->posts." ON ".$wpdb->base_prefix."query.postID = ".$wpdb->posts.".ID WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+		}
+
+		else
+		{
+			$post_name = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM ".$wpdb->posts." WHERE ID = '%d'", $data['post_id']));
+		}
+
+		return $post_name != '' ? $post_name : "field";
 	}
 }
 

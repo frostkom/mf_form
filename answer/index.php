@@ -159,14 +159,18 @@ echo "<div class='wrap'>
 		echo show_table_header($arr_header)
 		."<tbody>";
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT queryURL FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));
+			/*$result = $wpdb->get_results($wpdb->prepare("SELECT queryURL FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));
 
 			foreach($result as $r)
 			{
 				$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";
-			}
+			}*/
 
-			$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
+			$obj_form = new mf_form($intQueryID);
+
+			$strQueryPrefix = $obj_form->get_post_name()."_";
+
+			$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
 			$rows = $wpdb->num_rows;
 
 			if($rows == 0)
@@ -182,6 +186,7 @@ echo "<div class='wrap'>
 					$intQueryID = $r->queryID;
 					$strAnswerCreated = $r->answerCreated;
 					$strAnswerIP = $r->answerIP;
+					$strAnswerToken = $r->answerToken;
 
 					echo "<tr id='answer_".$intAnswerID."'".">";
 
@@ -330,6 +335,11 @@ echo "<div class='wrap'>
 							."<div class='row-actions'>"
 								.__("ID", 'lang_forms').": ".$intAnswerID
 								." | ".__("IP", 'lang_forms').": ".$strAnswerIP;
+
+								if($strAnswerToken != '')
+								{
+									echo " | ".__("Token", 'lang_forms').": ".$strAnswerToken;
+								}
 
 								if($has_payment == false)
 								{

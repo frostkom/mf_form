@@ -24,7 +24,7 @@ if(isset($_GET['btnQueryCopy']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'form_
 
 	if($rows > 0)
 	{
-		$fields = ", queryImproveUX, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, blogID";
+		$fields = ", queryImproveUX, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, blogID"; //, queryPaymentCheck, queryPaymentAmount has to be checked for new values since the queryType2ID is new for this form
 
 		$obj_form = new mf_form();
 
@@ -405,11 +405,16 @@ echo "<div class='wrap'>
 										<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID, 'form_copy')."'>".__("Copy", 'lang_forms')."</a> | 											
 										<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link'>".__("Delete", 'lang_forms')."</a>";
 
-										$post_url = get_permalink($intPostID);
-										
-										if($post_url != '')
+										$obj_form = new mf_form();
+
+										if($obj_form->is_published(array('post_id' => $intPostID)))
 										{
-											echo " | <a href='".$post_url."'>".__("Show form", 'lang_forms')."</a>";
+											$post_url = get_permalink($intPostID);
+											
+											if($post_url != '')
+											{
+												echo " | <a href='".$post_url."'>".__("View form", 'lang_forms')."</a>";
+											}
 										}
 									}
 

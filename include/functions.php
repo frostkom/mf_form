@@ -416,12 +416,12 @@ function show_query_form($data)
 			{
 				$email_from = $email_content = $error_text = "";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryName, queryURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentCheck, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryName, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentCheck, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //, queryURL
 				$r = $result[0];
 				$intQueryEmailConfirm = $r->queryEmailConfirm;
 				$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
 				$strQueryName = $r->queryName;
-				$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";
+				//$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";
 				$strQueryEmail = $r->queryEmail;
 				$intQueryEmailNotify = $r->queryEmailNotify;
 				$strQueryEmailName = $r->queryEmailName;
@@ -429,6 +429,10 @@ function show_query_form($data)
 				$intQueryPaymentProvider = $r->queryPaymentProvider;
 				$intQueryPaymentCheck = $r->queryPaymentCheck;
 				$intQueryPaymentAmount = $r->queryPaymentAmount;
+
+				$obj_form = new mf_form($intQueryID);
+
+				$strQueryPrefix = $obj_form->get_post_name()."_";
 
 				$intQueryPaymentCheck_value = $dblQueryPaymentAmount_value = 0;
 
@@ -713,15 +717,19 @@ function show_query_form($data)
 			}
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryURL, queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryImproveUX FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id']));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryImproveUX FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id'])); //queryURL, 
 		$r = $result[0];
-		$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";
+		//$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";
 		$intQueryShowAnswers = $r->queryShowAnswers;
 		$strQueryAnswerURL = $r->queryAnswerURL;
 		$strQueryButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_forms');
 		$strQueryButtonSymbol = $r->queryButtonSymbol != '' ? "<i class='fa fa-".$r->queryButtonSymbol."'></i> " : "";
 		$intQueryPaymentProvider = $r->queryPaymentProvider;
 		$intQueryImproveUX = $r->queryImproveUX;
+
+		$obj_form = new mf_form($data['query_id']);
+
+		$strQueryPrefix = $obj_form->get_post_name()."_";
 
 		if($strQueryAnswerURL != '' && preg_match("/_/", $strQueryAnswerURL))
 		{
@@ -1042,7 +1050,7 @@ function show_query_form($data)
 
 							if($has_required_email)
 							{
-								$out .= "<p class='hide'>".__("Does the e-mail address look right?", 'lang_forms')." ".$strQueryButtonText." ".__("or", 'lang_forms')." <a href='#' class='show_none_email'>".__("Change", 'lang_forms')."</a></p>";
+								$out .= "<div class='updated hide'><p>".__("Does the e-mail address look right?", 'lang_forms')." ".$strQueryButtonText." ".__("or", 'lang_forms')." <a href='#' class='show_none_email'>".__("Change", 'lang_forms')."</a></p></div>";
 							}
 
 							$out .= show_submit(array('name' => "btnFormSubmit", 'text' => $strQueryButtonSymbol.$strQueryButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))

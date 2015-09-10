@@ -8,9 +8,13 @@ $intAnswerID = check_var('intAnswerID');
 
 if(isset($_POST['btnQueryUpdate']))
 {
-	$result = $wpdb->get_results($wpdb->prepare("SELECT queryURL FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
+	/*$result = $wpdb->get_results($wpdb->prepare("SELECT queryURL FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
 	$r = $result[0];
-	$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";
+	$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";*/
+
+	$obj_form = new mf_form($intQueryID);
+
+	$strQueryPrefix = $obj_form->get_post_name()."_";
 
 	$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeID != '13' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC", $intQueryID));
 
