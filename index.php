@@ -2,10 +2,13 @@
 /*
 Plugin Name: MF Forms
 Plugin URI: 
-Version: 2.6.3
+Version: 2.7.1
 Author: Martin Fors
 Author URI: www.frostkom.se
 */
+
+register_activation_hook(__FILE__, 'activate_form');
+register_deactivation_hook(__FILE__, 'deactivate_form');
 
 add_action('init', 'init_form');
 add_action('widgets_init', 'widgets_form');
@@ -48,14 +51,14 @@ function message_form()
 	}
 }
 
-register_activation_hook(__FILE__, 'activate_form');
-register_deactivation_hook(__FILE__, 'deactivate_form');
-
 load_plugin_textdomain('lang_forms', false, dirname(plugin_basename(__FILE__)).'/lang/');
 
 function activate_form()
 {
 	global $wpdb;
+
+	require_plugin("mf_base/index.php", "MF Base", __FILE__);
+	//require_plugin("meta-box/meta-box.php", "Meta Box", __FILE__);
 
 	$default_charset = DB_CHARSET != '' ? DB_CHARSET : "utf8";
 

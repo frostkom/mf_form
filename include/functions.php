@@ -2,7 +2,6 @@
 
 function init_form()
 {
-	wp_enqueue_style('font-awesome', "//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css");
 	wp_enqueue_style('style_forms', plugins_url()."/mf_form/include/style.css");
 
 	mf_enqueue_script('script_forms', plugins_url()."/mf_form/include/script.js", array('plugins_url' => plugins_url()));
