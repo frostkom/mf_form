@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MF Forms\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-10 09:20+0100\n"
+"POT-Creation-Date: 2015-09-15 08:38+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: Martin Fors\n"
@@ -15,119 +15,119 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../index.php:41
+#: ../index.php:44
 msgid "in"
 msgstr "i"
 
-#: ../index.php:44
+#: ../index.php:47
 msgid "There were unsent messages"
 msgstr "Det finns oskickade meddelanden"
 
-#: ../index.php:219
+#: ../index.php:222
 msgid "Number"
 msgstr "Nummer"
 
-#: ../index.php:220
+#: ../index.php:223
 msgid "E-mail"
 msgstr "E-post"
 
-#: ../index.php:221
+#: ../index.php:224
 msgid "Phone no"
 msgstr "Telefonnummer"
 
-#: ../index.php:222
+#: ../index.php:225
 msgid "Decimal number"
 msgstr "Decimaltal"
 
-#: ../index.php:223
+#: ../index.php:226
 msgid "URL"
 msgstr "URL"
 
-#: ../index.php:225
+#: ../index.php:228
 msgid "Checkbox"
 msgstr "Kryssruta"
 
-#: ../index.php:226
+#: ../index.php:229
 msgid "Range"
 msgstr "Spann"
 
-#: ../index.php:227
+#: ../index.php:230
 msgid "Input field"
 msgstr "Textrad"
 
-#: ../index.php:228
+#: ../index.php:231
 msgid "Textarea"
 msgstr "Textfält"
 
-#: ../index.php:229
+#: ../index.php:232
 #: ../create/index.php:370
 msgid "Text"
 msgstr "Text"
 
-#: ../index.php:230
-#: ../include/functions.php:978
+#: ../index.php:233
+#: ../include/functions.php:977
 msgid "Space"
 msgstr "mellanrum"
 
-#: ../index.php:231
+#: ../index.php:234
 msgid "Datepicker"
 msgstr "Datumväljare"
 
-#: ../index.php:232
+#: ../index.php:235
 msgid "Radio button"
 msgstr "Flervalsalternativ"
 
-#: ../index.php:233
+#: ../index.php:236
 msgid "Referer URL"
 msgstr "Referens-URL"
 
-#: ../index.php:234
+#: ../index.php:237
 msgid "Dropdown"
 msgstr "Rullgardin"
 
-#: ../index.php:235
+#: ../index.php:238
 msgid "Multiple selection"
 msgstr "Rullgardin (flerval)"
 
-#: ../index.php:236
+#: ../index.php:239
 msgid "Hidden field"
 msgstr "Dolt fält"
 
-#: ../index.php:242
+#: ../index.php:245
 msgid "Zip code"
 msgstr "Postnummer"
 
-#: ../index.php:243
-#: ../index.php:244
+#: ../index.php:246
+#: ../index.php:247
 msgid "Social security number"
 msgstr "Personnummer"
 
-#: ../index.php:243
-#: ../index.php:244
+#: ../index.php:246
+#: ../index.php:247
 msgid "digits"
 msgstr "siffror"
 
-#: ../index.php:251
+#: ../index.php:254
 msgid "aring"
 msgstr "å"
 
-#: ../index.php:251
+#: ../index.php:254
 msgid "auml"
 msgstr "ä"
 
-#: ../index.php:251
+#: ../index.php:254
 msgid "ouml"
 msgstr "ö"
 
-#: ../index.php:251
+#: ../index.php:254
 msgid "Aring"
 msgstr "Å"
 
-#: ../index.php:251
+#: ../index.php:254
 msgid "Auml"
 msgstr "Ä"
 
-#: ../index.php:251
+#: ../index.php:254
 msgid "Ouml"
 msgstr "Ö"
 
@@ -155,14 +155,14 @@ msgid "There is nothing to show"
 msgstr "Det finns inget att visa"
 
 #: ../answer/index.php:316
-#: ../include/functions.php:1025
+#: ../include/functions.php:1024
 #: ../list/index.php:404
 #: ../view/index.php:60
 msgid "Edit"
 msgstr "Redigera"
 
 #: ../answer/index.php:317
-#: ../include/functions.php:1026
+#: ../include/functions.php:1025
 #: ../list/index.php:406
 msgid "Delete"
 msgstr "Radera"
@@ -189,7 +189,7 @@ msgstr "Skickat"
 
 #: ../create/index.php:159
 #: ../create/index.php:224
-#: ../include/functions.php:568
+#: ../include/functions.php:567
 msgid "Please, enter all required fields"
 msgstr "Var vänlig fyll i alla obligatoriska fält"
 
@@ -203,12 +203,12 @@ msgstr "Det gick inte att lägga in det nya fältet"
 
 #: ../create/index.php:342
 #: ../create/index.php:431
-#: ../include/functions.php:1039
+#: ../include/functions.php:1038
 msgid "Update"
 msgstr "Uppdatera"
 
 #: ../create/index.php:342
-#: ../include/functions.php:266
+#: ../include/functions.php:265
 #: ../list/index.php:328
 msgid "Add New"
 msgstr "Lägg till ny"
@@ -225,9 +225,9 @@ msgstr "Innehåll"
 #: ../create/index.php:709
 #: ../create/index.php:732
 #: ../include/classes.php:140
-#: ../include/functions.php:139
-#: ../include/functions.php:161
-#: ../include/functions.php:184
+#: ../include/functions.php:138
+#: ../include/functions.php:160
+#: ../include/functions.php:183
 msgid "Choose here"
 msgstr "Välj här"
 
@@ -347,7 +347,7 @@ msgid "Button text"
 msgstr "Knapptext"
 
 #: ../create/index.php:615
-#: ../include/functions.php:725
+#: ../include/functions.php:724
 msgid "Submit"
 msgstr "Skicka"
 
@@ -490,7 +490,7 @@ msgstr "Visa ett formulär som du har skapat"
 
 #: ../include/classes.php:86
 #: ../include/classes.php:138
-#: ../include/functions.php:12
+#: ../include/functions.php:11
 msgid "Form"
 msgstr "Formulär"
 
@@ -498,84 +498,84 @@ msgstr "Formulär"
 msgid "Heading"
 msgstr "Rubrik"
 
-#: ../include/functions.php:11
-#: ../include/functions.php:13
-#: ../include/functions.php:109
-#: ../include/functions.php:264
+#: ../include/functions.php:10
+#: ../include/functions.php:12
+#: ../include/functions.php:108
+#: ../include/functions.php:263
 msgid "Forms"
 msgstr "Formulär"
 
-#: ../include/functions.php:83
+#: ../include/functions.php:82
 msgid "Click here to send e-mail"
 msgstr "Klicka här för att skicka e-post"
 
-#: ../include/functions.php:115
+#: ../include/functions.php:114
 msgid "Lowest user permission"
 msgstr "Lägsta krav på behörighet"
 
-#: ../include/functions.php:116
+#: ../include/functions.php:115
 msgid "Lowest user permission to see all forms"
 msgstr "Lägsta krav på behörighet för att se alla formulär"
 
-#: ../include/functions.php:117
+#: ../include/functions.php:116
 msgid "Form to replace all e-mail links"
 msgstr "Formulär för att ersätta alla e-postlänkar"
 
-#: ../include/functions.php:194
+#: ../include/functions.php:193
 msgid "If you would like all e-mail links in text to be replaced by a form, choose one here"
 msgstr "Om du vill att alla e-postlänkar i text ska ersättas med ett formulär, välj det här"
 
-#: ../include/functions.php:244
+#: ../include/functions.php:243
 msgid "Unread answers"
 msgstr "Olästa svar"
 
-#: ../include/functions.php:267
+#: ../include/functions.php:266
 msgid "Last Answers"
 msgstr "Senaste svaren"
 
-#: ../include/functions.php:268
+#: ../include/functions.php:267
 msgid "Edit Last Answer"
 msgstr "Redigera senaste svar"
 
-#: ../include/functions.php:780
+#: ../include/functions.php:779
 msgid "Thank you!"
 msgstr "Tack så mycket!"
 
-#: ../include/functions.php:987
-#: ../include/functions.php:1000
+#: ../include/functions.php:986
+#: ../include/functions.php:999
 msgid "Hidden"
 msgstr "Dold"
 
-#: ../include/functions.php:1016
+#: ../include/functions.php:1015
 msgid "Required"
 msgstr "Obligatoriskt"
 
-#: ../include/functions.php:1021
+#: ../include/functions.php:1020
 msgid "Autofocus"
 msgstr "Fokusera automatiskt"
 
-#: ../include/functions.php:1024
+#: ../include/functions.php:1023
 #: ../list/index.php:405
 msgid "Copy"
 msgstr "Kopiera"
 
-#: ../include/functions.php:1053
+#: ../include/functions.php:1052
 msgid "Does the e-mail address look right?"
 msgstr "Ser e-postadressen rätt ut?"
 
-#: ../include/functions.php:1053
+#: ../include/functions.php:1052
 msgid "or"
 msgstr "eller"
 
-#: ../include/functions.php:1053
+#: ../include/functions.php:1052
 msgid "Change"
 msgstr "Ändra"
 
-#: ../include/functions.php:1069
+#: ../include/functions.php:1068
 msgid "Perform test payment"
 msgstr "Genomför testbetalning"
 
-#: ../include/functions.php:1072
+#: ../include/functions.php:1071
 msgid "Edit this form"
 msgstr "Redigera formuläret"
 
