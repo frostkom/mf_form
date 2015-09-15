@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: MF Forms
+Plugin Name: MF Form
 Plugin URI: www.github.com/frostkom/mf_form
 Version: 2.7.2
 Author: Martin Fors
@@ -56,8 +56,6 @@ load_plugin_textdomain('lang_forms', false, dirname(plugin_basename(__FILE__)).'
 function activate_form()
 {
 	global $wpdb;
-
-	require_plugin("mf_base/index.php", "MF Base");
 
 	$default_charset = DB_CHARSET != '' ? DB_CHARSET : "utf8";
 
