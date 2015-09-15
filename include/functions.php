@@ -415,12 +415,11 @@ function show_query_form($data)
 			{
 				$email_from = $email_content = $error_text = "";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryName, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentCheck, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //, queryURL
+				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryName, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentCheck, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
 				$r = $result[0];
 				$intQueryEmailConfirm = $r->queryEmailConfirm;
 				$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
 				$strQueryName = $r->queryName;
-				//$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";
 				$strQueryEmail = $r->queryEmail;
 				$intQueryEmailNotify = $r->queryEmailNotify;
 				$strQueryEmailName = $r->queryEmailName;
@@ -716,9 +715,8 @@ function show_query_form($data)
 			}
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryImproveUX FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id'])); //queryURL, 
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryImproveUX FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id']));
 		$r = $result[0];
-		//$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";
 		$intQueryShowAnswers = $r->queryShowAnswers;
 		$strQueryAnswerURL = $r->queryAnswerURL;
 		$strQueryButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_forms');

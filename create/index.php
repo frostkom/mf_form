@@ -175,7 +175,7 @@ echo "<div class='wrap'>";
 
 				wp_update_post($post_data);
 
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '".$wpdb->blogid."', queryImproveUX = '%d', queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentCheck = '%d', queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryImproveUX, $intQueryEmailConfirm, $strQueryEmailConfirmPage, $intQueryShowAnswers, $strQueryName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentCheck, $intQueryPaymentAmount, $intQueryID)); //, queryURL = %s, $strQueryURL
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '".$wpdb->blogid."', queryImproveUX = '%d', queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentCheck = '%d', queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryImproveUX, $intQueryEmailConfirm, $strQueryEmailConfirmPage, $intQueryShowAnswers, $strQueryName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentCheck, $intQueryPaymentAmount, $intQueryID));
 			}
 
 			else
@@ -285,15 +285,13 @@ echo "<div class='wrap'>";
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0' WHERE queryID = '%d'", $intQueryID));
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryImproveUX, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //postID, , queryURL
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryImproveUX, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
 		$r = $result[0];
-		//$intPostID = $r->postID;
 		$intQueryImproveUX = $r->queryImproveUX;
 		$intQueryEmailConfirm = $r->queryEmailConfirm;
 		$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
 		$intQueryShowAnswers = $r->queryShowAnswers;
 		$strQueryName = $r->queryName;
-		//$strQueryURL = $r->queryURL;
 		$strQueryAnswerURL = $r->queryAnswerURL;
 		$strQueryEmail = $r->queryEmail;
 		$intQueryEmailNotify = $r->queryEmailNotify;

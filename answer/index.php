@@ -159,13 +159,6 @@ echo "<div class='wrap'>
 		echo show_table_header($arr_header)
 		."<tbody>";
 
-			/*$result = $wpdb->get_results($wpdb->prepare("SELECT queryURL FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));
-
-			foreach($result as $r)
-			{
-				$strQueryPrefix = $r->queryURL != '' ? $r->queryURL."_" : "field_";
-			}*/
-
 			$obj_form = new mf_form($intQueryID);
 
 			$strQueryPrefix = $obj_form->get_post_name()."_";
