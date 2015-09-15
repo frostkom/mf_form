@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: MF Forms
-Plugin URI: 
-Version: 2.7.1
+Plugin URI: www.github.com/frostkom/mf_form
+Version: 2.7.2
 Author: Martin Fors
 Author URI: www.frostkom.se
 */
@@ -57,8 +57,7 @@ function activate_form()
 {
 	global $wpdb;
 
-	require_plugin("mf_base/index.php", "MF Base", __FILE__);
-	//require_plugin("meta-box/meta-box.php", "Meta Box", __FILE__);
+	require_plugin("mf_base/index.php", "MF Base");
 
 	$default_charset = DB_CHARSET != '' ? DB_CHARSET : "utf8";
 
