@@ -415,7 +415,7 @@ function show_query_form($data)
 			{
 				$email_from = $email_content = $error_text = "";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryName, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentCheck, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryName, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //, queryPaymentCheck
 				$r = $result[0];
 				$intQueryEmailConfirm = $r->queryEmailConfirm;
 				$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
@@ -425,14 +425,14 @@ function show_query_form($data)
 				$strQueryEmailName = $r->queryEmailName;
 				$strQueryMandatoryText = $r->queryMandatoryText;
 				$intQueryPaymentProvider = $r->queryPaymentProvider;
-				$intQueryPaymentCheck = $r->queryPaymentCheck;
+				//$intQueryPaymentCheck = $r->queryPaymentCheck;
 				$intQueryPaymentAmount = $r->queryPaymentAmount;
 
 				$obj_form = new mf_form($intQueryID);
 
 				$strQueryPrefix = $obj_form->get_post_name()."_";
 
-				$intQueryPaymentCheck_value = $dblQueryPaymentAmount_value = 0;
+				$dblQueryPaymentAmount_value = 0; //$intQueryPaymentCheck_value = 
 
 				if($dup_ip == true)
 				{
@@ -527,10 +527,10 @@ function show_query_form($data)
 
 						if($var != '')
 						{
-							if($intQueryPaymentCheck == $intQuery2TypeID2)
+							/*if($intQueryPaymentCheck == $intQuery2TypeID2)
 							{
 								$intQueryPaymentCheck_value = $var;
-							}
+							}*/
 
 							if($intQueryPaymentAmount == $intQuery2TypeID2)
 							{
@@ -697,7 +697,7 @@ function show_query_form($data)
 							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $intAnswerID, $answer_data));
 						}
 
-						if($intQueryPaymentProvider > 0 && $intQueryPaymentCheck_value > 0 && $dblQueryPaymentAmount_value > 0)
+						if($intQueryPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0) // && $intQueryPaymentCheck_value > 0
 						{
 							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = '101 (Sent to processing)'", $intAnswerID));
 

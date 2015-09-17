@@ -40,17 +40,17 @@ if($dteQueryEndDate > DEFAULT_DATE)
 	$strQuerySearch .= " AND answerCreated <= '".$dteQueryEndDate."'";
 }
 
-$result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryShowAnswers, queryPaymentProvider, queryPaymentCheck, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
+$result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //, queryPaymentCheck
 
 foreach($result as $r)
 {
 	$strQueryName = $r->queryName;
 	$intQueryShowAnswers = $r->queryShowAnswers;
 	$intQueryPaymentProvider = $r->queryPaymentProvider;
-	$intQueryPaymentCheck = $r->queryPaymentCheck;
+	//$intQueryPaymentCheck = $r->queryPaymentCheck;
 	$intQueryPaymentAmount = $r->queryPaymentAmount;
 
-	$has_payment = $intQueryPaymentProvider > 0 && $intQueryPaymentCheck > 0 && $intQueryPaymentAmount > 0;
+	$has_payment = $intQueryPaymentProvider > 0 && $intQueryPaymentAmount > 0; // && $intQueryPaymentCheck > 0
 }
 
 echo "<div class='wrap'>

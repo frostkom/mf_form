@@ -2,7 +2,7 @@
 /*
 Plugin Name: MF Form
 Plugin URI: www.github.com/frostkom/mf_form
-Version: 2.7.3
+Version: 2.7.4
 Author: Martin Fors
 Author URI: www.frostkom.se
 */
@@ -17,6 +17,15 @@ add_action('admin_menu', 'menu_forms');
 add_shortcode('mf_form', 'shortcode_form');
 add_shortcode('form_shortcode', 'shortcode_form');
 add_filter('single_template', 'custom_templates_form');
+add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
+add_filter('network_admin_plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
+
+function add_action_form($links)
+{
+	$links[] = "<a href='".admin_url('options-general.php?page=settings_mf_base')."'>".__("Settings", 'lang_form')."</a>";
+
+	return $links;
+}
 
 add_action('admin_notices', 'message_form');
 
