@@ -101,7 +101,7 @@ function my_replace_content($html)
 function settings_form()
 {
 	$options_page = "settings_mf_base";
-	$options_area = "mf_form_setting";
+	$options_area = "settings_form";
 
 	add_settings_section(
 		$options_area,
@@ -124,7 +124,10 @@ function settings_form()
 	}
 }
 
-function mf_form_setting_callback(){}
+function settings_form_callback()
+{
+	echo "<div id='settings_form'></div>";
+}
 
 function setting_form_permission_callback()
 {
