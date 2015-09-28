@@ -1,64 +1,34 @@
 <?php
 /*
 Plugin Name: MF Form
-Plugin URI: www.github.com/frostkom/mf_form
-Version: 2.7.5
+Plugin URI: http://github.com/frostkom/mf_form
+Version: 2.7.6
 Author: Martin Fors
 Author URI: http://frostkom.se
 */
 
-register_activation_hook(__FILE__, 'activate_form');
-register_deactivation_hook(__FILE__, 'deactivate_form');
-
 add_action('init', 'init_form');
-add_action('admin_init', 'settings_form');
-add_action('admin_menu', 'menu_forms');
 add_action('widgets_init', 'widgets_form');
-add_shortcode('mf_form', 'shortcode_form');
-add_shortcode('form_shortcode', 'shortcode_form');
+
+if(is_admin())
+{
+	register_activation_hook(__FILE__, 'activate_form');
+	register_deactivation_hook(__FILE__, 'deactivate_form');
+
+	add_action('admin_init', 'settings_form');
+	add_action('admin_menu', 'menu_forms');
+	add_action('admin_notices', 'message_form');
+	add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
+	add_filter('network_admin_plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
+}
+
+else
+{
+	add_shortcode('mf_form', 'shortcode_form');
+	add_shortcode('form_shortcode', 'shortcode_form');
+}
+
 add_filter('single_template', 'custom_templates_form');
-add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
-add_filter('network_admin_plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
-
-function add_action_form($links)
-{
-	$links[] = "<a href='".admin_url('options-general.php?page=settings_mf_base#settings_form')."'>".__("Settings", 'lang_form')."</a>";
-
-	return $links;
-}
-
-add_action('admin_notices', 'message_form');
-
-function message_form()
-{
-	global $wpdb, $error_text;
-
-	if(current_user_can('manage_options'))
-	{
-		$last_viewed = get_user_meta(get_current_user_id(), 'mf_forms_viewed', true);
-		$query_xtra = get_form_xtra(" WHERE answerCreated > %s AND answerSent = '0'");
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryID, queryName, COUNT(answerSent) AS answerSent FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) INNER JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)".$query_xtra." GROUP BY queryID", $last_viewed));
-
-		if($wpdb->num_rows > 0)
-		{
-			$unsent_links = "";
-
-			foreach($result as $r)
-			{
-				$intQueryID = $r->queryID;
-				$strQueryName = $r->queryName;
-				$intAnswerSent = $r->answerSent;
-
-				$unsent_links .= ($unsent_links != '' ? " | " : "")."<a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".$intAnswerSent." ".__("in", 'lang_forms')." ".$strQueryName."</a>";
-			}
-
-			$error_text = __("There were unsent messages", 'lang_forms')." (".$unsent_links.")";
-
-			echo get_notification();
-		}
-	}
-}
 
 load_plugin_textdomain('lang_forms', false, dirname(plugin_basename(__FILE__)).'/lang/');
 
@@ -203,7 +173,7 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."query_check"]['checkPattern'] = "ALTER TABLE [table] ADD [column] VARCHAR(200) AFTER checkCode";
 
 	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypeClass'] = "ALTER TABLE [table] ADD [column] varchar(50) AFTER checkID";
-	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypeAutofocus'] = "ALTER TABLE [table] ADD [column] enum('0','1') NOT NULL DEFAULT '0' AFTER queryTypeRequired";
+	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypeAutofocus'] = "ALTER TABLE [table] ADD [column] enum('0','1') NOT NULL DEFAULT '0' AFTER queryTypeClass";
 	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypePlaceholder'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryTypeText";
 
 	add_columns($arr_add_column);

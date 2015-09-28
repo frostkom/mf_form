@@ -270,6 +270,44 @@ function menu_forms()
 	add_submenu_page($menu_start, __("Edit Last Answer", 'lang_forms'), "", $menu_capability, $menu_root.'view/index.php');
 }
 
+function add_action_form($links)
+{
+	$links[] = "<a href='".admin_url('options-general.php?page=settings_mf_base#settings_form')."'>".__("Settings", 'lang_form')."</a>";
+
+	return $links;
+}
+
+function message_form()
+{
+	global $wpdb, $error_text;
+
+	if(current_user_can('manage_options'))
+	{
+		$last_viewed = get_user_meta(get_current_user_id(), 'mf_forms_viewed', true);
+		$query_xtra = get_form_xtra(" WHERE answerCreated > %s AND answerSent = '0'");
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryID, queryName, COUNT(answerSent) AS answerSent FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) INNER JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)".$query_xtra." GROUP BY queryID", $last_viewed));
+
+		if($wpdb->num_rows > 0)
+		{
+			$unsent_links = "";
+
+			foreach($result as $r)
+			{
+				$intQueryID = $r->queryID;
+				$strQueryName = $r->queryName;
+				$intAnswerSent = $r->answerSent;
+
+				$unsent_links .= ($unsent_links != '' ? " | " : "")."<a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".$intAnswerSent." ".__("in", 'lang_forms')." ".$strQueryName."</a>";
+			}
+
+			$error_text = __("There were unsent messages", 'lang_forms')." (".$unsent_links.")";
+
+			echo get_notification();
+		}
+	}
+}
+
 function check_if_duplicate($data)
 {
 	global $wpdb;
