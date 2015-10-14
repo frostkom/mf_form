@@ -89,7 +89,7 @@
 			{
 				background: rgba(251, 227, 228, .3);
 			}
-			
+
 				.mf_form .form_textfield input:invalid:focus, .mf_form select:invalid:focus, .mf_form textarea:invalid:focus, .mf_form .form_password input:invalid:focus
 				{
 					background: #fbe3e4;
@@ -107,7 +107,7 @@
     
 		.mf_form .form_checkbox, .mf_form .form_radio
         {
-            margin-bottom: 10px;	
+            margin-bottom: 10px;
         }
     
 			.mf_form .form_checkbox label, .mf_form .form_radio label

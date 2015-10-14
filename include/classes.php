@@ -70,6 +70,29 @@ class mf_form
 
 		return $post_name != '' ? $post_name : "field";
 	}
+
+	function get_form_id_from_post_content($post_id)
+	{
+		global $wpdb;
+
+		$post_content = mf_get_post_content($post_id);
+
+		$form_id = get_match("/\[mf_form id=(.*?)\]/", $post_content, false);
+
+		if($form_id > 0)
+		{
+			$this->id = $form_id;
+		}
+	}
+
+	function get_form_email_field()
+	{
+		global $wpdb;
+
+		$intQuery2TypeID = $wpdb->get_var($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND checkID = '5'", $this->id));
+
+		return $this->get_post_name()."_".$intQuery2TypeID;
+	}
 }
 
 class widget_form extends WP_Widget

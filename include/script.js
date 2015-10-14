@@ -54,8 +54,8 @@ jQuery(function($)
 			{
 				if(data.success)
 				{
-					dom_obj.siblings('span').text(data.response);		
-				}				
+					dom_obj.siblings('span').text(data.response);
+				}
 			}
 		});
 	});

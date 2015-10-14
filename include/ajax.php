@@ -27,7 +27,6 @@ if($type_action == "delete" && get_current_user_id() > 0)
 {
 	if($type_table == "query")
 	{
-	
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '1', queryDeletedDate = NOW(), queryDeletedID = '".get_current_user_id()."' WHERE queryID = '%d' AND queryDeleted = '0'", $type_id));
 
 		if($wpdb->rows_affected > 0)
@@ -48,7 +47,7 @@ if($type_action == "delete" && get_current_user_id() > 0)
 			$json_output['dom_id'] = $type_table."_".$type_id;
 		}
 	}
-	
+
 	else if($type_table == "type")
 	{
 		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $type_id));

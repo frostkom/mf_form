@@ -65,7 +65,7 @@
                                 //Wrap shortcode around it.
                                 content =  '[thirdwidth]'+selected+'[/thirdwidth]';
                             }
-							
+
 							else
 							{
                                 content =  '[thirdwidth][/thirdwidth]';

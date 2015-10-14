@@ -101,7 +101,7 @@ if(isset($_GET['btnQueryExport']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'for
 		$done_text = "";
 
 		$strExportDate = wp_date_format(array('date' => date("Y-m-d H:i:s"), 'full_datetime' => true));
-		
+
 		$result = $wpdb->get_results($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
 
 		if($wpdb->num_rows > 0)
@@ -402,7 +402,7 @@ echo "<div class='wrap'>
 									if($intQueryDeleted == 0)
 									{
 										echo "<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>".__("Edit", 'lang_forms')."</a> | 
-										<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID, 'form_copy')."'>".__("Copy", 'lang_forms')."</a> | 											
+										<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID, 'form_copy')."'>".__("Copy", 'lang_forms')."</a> | 
 										<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link'>".__("Delete", 'lang_forms')."</a>";
 
 										$obj_form = new mf_form();
@@ -410,7 +410,7 @@ echo "<div class='wrap'>
 										if($obj_form->is_published(array('post_id' => $intPostID)))
 										{
 											$post_url = get_permalink($intPostID);
-											
+
 											if($post_url != '')
 											{
 												echo " | <a href='".$post_url."'>".__("View form", 'lang_forms')."</a>";

@@ -2,7 +2,7 @@
 /*
 Plugin Name: MF Form
 Plugin URI: http://github.com/frostkom/mf_form
-Version: 2.7.6
+Version: 2.7.9
 Author: Martin Fors
 Author URI: http://frostkom.se
 */
@@ -47,7 +47,7 @@ function activate_form()
 		queryEmail varchar(100) DEFAULT NULL,
 		queryEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
 		queryEmailName varchar(100) DEFAULT NULL,
-		queryImproveUX ENUM('0', '1') NOT NULL DEFAULT '1',
+		queryImproveUX ENUM('0', '1') NOT NULL DEFAULT '0',
 		queryEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
 		queryEmailConfirmPage VARCHAR(20) DEFAULT NULL,
 		queryShowAnswers ENUM('0', '1') NOT NULL DEFAULT '0',
@@ -97,7 +97,7 @@ function activate_form()
 		KEY queryID (queryID),
 		KEY queryTypeID (queryTypeID)
 	) DEFAULT CHARSET=".$default_charset);
-	
+
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_answer (
 		answerID INT unsigned DEFAULT NULL,
 		query2TypeID INT unsigned DEFAULT '0',
@@ -161,7 +161,7 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentPassword'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER queryPaymentMerchant";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailConfirmPage'] = "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryEmailConfirm";
 	$arr_add_column[$wpdb->base_prefix."query"]['blogID'] = "ALTER TABLE [table] ADD [column] INT AFTER queryID";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER queryEmailName";
+	$arr_add_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentProvider'] = "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryButtonText";
 	//$arr_add_column[$wpdb->base_prefix."query"]['queryURL'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryName";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentCurrency'] = "ALTER TABLE [table] ADD [column] VARCHAR(3) AFTER queryPaymentMerchant";
@@ -185,6 +185,7 @@ function activate_form()
 	$arr_update_column[$wpdb->base_prefix."query"]['queryTypeLang'] = "ALTER TABLE [table] CHANGE [column] queryTypeName VARCHAR(30) DEFAULT NULL";
 	$arr_update_column[$wpdb->base_prefix."query"]['queryEmailNotify'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '1'";
 	$arr_update_column[$wpdb->base_prefix."query"]['queryPaymentMerchant'] = "ALTER TABLE [table] CHANGE [column] [column] VARCHAR(100) DEFAULT NULL";
+	$arr_update_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '0'";
 
 	$arr_update_column[$wpdb->base_prefix."query"]['queryEncrypted'] = "ALTER TABLE [table] DROP [column]";
 

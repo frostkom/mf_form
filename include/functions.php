@@ -444,7 +444,7 @@ function show_query_form($data)
 		if(isset($_POST['btnFormSubmit']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit'))
 		{
 			$email_encrypted = check_var('email_encrypted', 'char');
-			
+
 			$is_correct_form = $data['query_id'] == $intQueryID ? true : false;
 
 			if(isset($data['send_to']) && $data['send_to'] != '' && $email_encrypted != hash('sha512', $data['send_to']))
@@ -584,7 +584,7 @@ function show_query_form($data)
 							{
 								$email_content .= " ".$var_send;
 							}
-								
+
 							$email_content .= "\n";
 						}
 

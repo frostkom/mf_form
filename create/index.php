@@ -576,7 +576,7 @@ echo "<div class='wrap'>";
 							echo show_checkbox(array('name' => 'intQueryDenyDups', 'text' => __("Deny Duplicates", 'lang_forms'), 'value' => 1, 'compare' => $intQueryDenyDups));
 						}*/
 
-						if($intQueryImproveUX == 1)
+						if($intQueryImproveUX == 1 || current_user_can('update_core'))
 						{
 							echo show_checkbox(array('name' => 'intQueryImproveUX', 'text' => __("Improve UX", 'lang_forms'), 'value' => 1, 'compare' => $intQueryImproveUX));
 						}
@@ -608,7 +608,7 @@ echo "<div class='wrap'>";
 						{
 							echo show_textfield(array('name' => 'strQueryEmailName', 'text' => __("Subject", 'lang_forms'), 'value' => $strQueryEmailName, 'maxlength' => 100));
 						}
-						
+
 						echo "<h4>".__("Button", 'lang_forms')."</h4>"
 						.show_textfield(array('name' => 'strQueryButtonText', 'text' => __("Button text", 'lang_forms'), 'value' => $strQueryButtonText, 'placeholder' => __("Submit", 'lang_forms'), 'maxlength' => 100));
 
