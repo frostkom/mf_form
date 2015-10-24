@@ -1,80 +1,92 @@
-function show_query_settings(this_val)
-{
-	jQuery('.tr_range, .tr_check, .tr_placeholder, .tr_text, .tr_select').hide();
-
-	if(this_val != '')
-	{
-		if(this_val == 2)
-		{
-			jQuery('.tr_range').show();
-		}
-
-		if(this_val == 3)
-		{
-			jQuery('.tr_check').show();
-		}
-
-		if(this_val == 3 || this_val == 4 || this_val == 7)
-		{
-			jQuery('.tr_placeholder').show();
-		}
-
-		if(this_val != 6)
-		{
-			jQuery('.tr_text').show();
-		}
-
-		if(this_val == 10 || this_val == 11)
-		{
-			jQuery('.tr_select').show();
-		}
-	}
-}
-
-function add_option()
-{
-	var dom_content = jQuery('.select_rows > div:last-child').html();
-
-	jQuery('.select_rows').append("<div>" + dom_content + "</div>");
-
-	var dom_obj = jQuery('.select_rows > div:last-child input[name=strQueryTypeSelect_id]'),
-		dom_value = dom_obj.attr('value');
-
-	if(parseInt(dom_value) == dom_value)
-	{
-		dom_obj.attr(
-		{
-			'value': parseInt(dom_value) + 1
-		});
-	}
-
-	jQuery('.select_rows > div:last-child input[name=strQueryTypeSelect_value]').attr(
-	{
-		'value': ''
-	});
-}
-
-function update_select()
-{
-	var select_value = "",
-		i = 1;
-
-	jQuery('.select_rows > div').each(function()
-	{
-		var temp_id = jQuery(this).find('input[name=strQueryTypeSelect_id]').val() + "",
-			temp_value = jQuery(this).find('input[name=strQueryTypeSelect_value]').val() + "";
-
-		if(temp_id != "" && temp_value != "")
-		{
-			select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value;
-		}
-	});
-
-	jQuery('.tr_select input[name=strQueryTypeSelect]').val(select_value);
-}
+document.createElement("mf-form-row");
 
 jQuery(function($)
 {
+	function show_query_settings(this_val)
+	{
+		$('.tr_range, .tr_check, .tr_placeholder, .tr_text, .tr_select, .tr_tag, .tr_tag2').hide();
+
+		if(this_val != '')
+		{
+			if(this_val == 2)
+			{
+				$('.tr_range').show();
+			}
+
+			if(this_val == 3)
+			{
+				$('.tr_check').show();
+			}
+
+			if(this_val == 3 || this_val == 4 || this_val == 7)
+			{
+				$('.tr_placeholder').show();
+			}
+
+			if(this_val != 6 && this_val != 13 && this_val != 14)
+			{
+				$('.tr_text').show();
+			}
+
+			if(this_val == 10 || this_val == 11)
+			{
+				$('.tr_select').show();
+			}
+
+			if(this_val == 5)
+			{
+				$('.tr_tag').show();
+			}
+
+			if(this_val == 13 || this_val == 14)
+			{
+				$('.tr_tag2').show();
+			}
+		}
+	}
+
+	function add_option()
+	{
+		var dom_content = $('.select_rows > div:last-child').html();
+
+		$('.select_rows').append("<div>" + dom_content + "</div>");
+
+		var dom_obj = $('.select_rows > div:last-child input[name=strQueryTypeSelect_id]'),
+			dom_value = dom_obj.attr('value');
+
+		if(parseInt(dom_value) == dom_value)
+		{
+			dom_obj.attr(
+			{
+				'value': parseInt(dom_value) + 1
+			});
+		}
+
+		$('.select_rows > div:last-child input[name=strQueryTypeSelect_value]').attr(
+		{
+			'value': ''
+		});
+	}
+
+	function update_select()
+	{
+		var select_value = "",
+			i = 1;
+
+		$('.select_rows > div').each(function()
+		{
+			var temp_id = $(this).find('input[name=strQueryTypeSelect_id]').val() + "",
+				temp_value = $(this).find('input[name=strQueryTypeSelect_value]').val() + "";
+
+			if(temp_id != "" && temp_value != "")
+			{
+				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value;
+			}
+		});
+
+		$('.tr_select input[name=strQueryTypeSelect]').val(select_value);
+	}
+
 	$('.toggler').on('click', function()
 	{
 		$(this).next().toggle();

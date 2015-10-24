@@ -100,6 +100,13 @@ function my_replace_content($html)
 
 function settings_form()
 {
+	/*$obj_form = new mf_form();
+
+	if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
+	{
+		new recommend_plugin("mf_js_webshim/index.php", "MF JS Webshim"); //, "//github.com/frostkom/mf_form"
+	}*/
+
 	$options_page = "settings_mf_base";
 	$options_area = "settings_form";
 
@@ -251,7 +258,7 @@ function get_count_message($id = 0)
 	return $count_message;
 }
 
-function menu_forms()
+function menu_form()
 {
 	global $wpdb;
 
@@ -272,21 +279,22 @@ function menu_forms()
 
 function add_action_form($links)
 {
-	$links[] = "<a href='".admin_url('options-general.php?page=settings_mf_base#settings_form')."'>".__("Settings", 'lang_form')."</a>";
+	$links[] = "<a href='".admin_url('options-general.php?page=settings_mf_base#settings_form')."'>".__("Settings", 'lang_forms')."</a>";
 
 	return $links;
 }
 
-function message_form()
+function notices_form()
 {
 	global $wpdb, $error_text;
 
 	if(current_user_can('manage_options'))
 	{
-		$last_viewed = get_user_meta(get_current_user_id(), 'mf_forms_viewed', true);
+		$answer_viewed = get_user_meta(get_current_user_id(), 'answer_viewed', true);
+
 		$query_xtra = get_form_xtra(" WHERE answerCreated > %s AND answerSent = '0'");
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryID, queryName, COUNT(answerSent) AS answerSent FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) INNER JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)".$query_xtra." GROUP BY queryID", $last_viewed));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryID, queryName, COUNT(answerSent) AS answerSent FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) INNER JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)".$query_xtra." GROUP BY queryID", $answer_viewed));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -298,7 +306,7 @@ function message_form()
 				$strQueryName = $r->queryName;
 				$intAnswerSent = $r->answerSent;
 
-				$unsent_links .= ($unsent_links != '' ? " | " : "")."<a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".$intAnswerSent." ".__("in", 'lang_forms')." ".$strQueryName."</a>";
+				$unsent_links .= ($unsent_links != '' ? ", " : "")."<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intQueryID=".$intQueryID)."'>".$intAnswerSent." ".__("in", 'lang_forms')." ".$strQueryName."</a>";
 			}
 
 			$error_text = __("There were unsent messages", 'lang_forms')." (".$unsent_links.")";
@@ -756,12 +764,14 @@ function show_query_form($data)
 			}
 		}
 
+		$obj_font_icons = new mf_font_icons();
+
 		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryImproveUX FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id']));
 		$r = $result[0];
 		$intQueryShowAnswers = $r->queryShowAnswers;
 		$strQueryAnswerURL = $r->queryAnswerURL;
 		$strQueryButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_forms');
-		$strQueryButtonSymbol = $r->queryButtonSymbol != '' ? "<i class='fa fa-".$r->queryButtonSymbol."'></i> " : "";
+		$strQueryButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
 		$intQueryPaymentProvider = $r->queryPaymentProvider;
 		$intQueryImproveUX = $r->queryImproveUX;
 
@@ -825,7 +835,7 @@ function show_query_form($data)
 		{
 			$cols = $data['edit'] == true ? 5 : 2;
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeClass, query2TypeOrder FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC", $data['query_id']));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass, query2TypeOrder FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC", $data['query_id']));
 			$intTotalRows = $wpdb->num_rows;
 
 			if($intTotalRows > 0)
@@ -853,6 +863,7 @@ function show_query_form($data)
 						$strQueryTypePlaceholder = $r->queryTypePlaceholder;
 						$intQueryTypeRequired = $r->queryTypeRequired;
 						$intQueryTypeAutofocus = $r->queryTypeAutofocus;
+						$strQueryTypeTag = $r->queryTypeTag;
 						$strQueryTypeClass = $r->queryTypeClass;
 						$intQuery2TypeOrder = $r->query2TypeOrder;
 
@@ -882,188 +893,234 @@ function show_query_form($data)
 							$strAnswerText = check_var($strQueryPrefix.$intQuery2TypeID2, 'char');
 						}
 
-						if($data['edit'] == true)
+						$show_required = $show_autofocus = false;
+						$out_field = "";
+
+						switch($intQueryTypeID2)
 						{
-							$out .= "<div id='type_".$intQuery2TypeID2."' class='form_row".($data['query2type_id'] == $intQuery2TypeID2 ? " active" : "")."'>";
+							//Checkbox
+							case 1:
+								$is_first_checkbox = false;
+
+								if($intQueryTypeID2 != $intQueryTypeID2_temp)
+								{
+									$intQuery2TypeID2_temp = $intQuery2TypeID2;
+
+									$is_first_checkbox = true;
+								}
+
+								$out_field .= show_checkbox(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'required' => $intQueryTypeRequired, 'value' => 1, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass.($is_first_checkbox ? " clear" : "")));
+
+								$show_required = true;
+							break;
+
+							//Input range
+							case 2:
+								$arr_content = explode("|", $strQueryTypeText2);
+
+								if($strAnswerText == '' && isset($arr_content[3]))
+								{
+									$strAnswerText = $arr_content[3];
+								}
+
+								$out_field .= show_textfield(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $arr_content[0]." (<span>".$strAnswerText."</span>)", 'value' => $strAnswerText, 'required' => $intQueryTypeRequired, 'xtra' => "min='".$arr_content[1]."' max='".$arr_content[2]."'".($intQueryTypeAutofocus ? " autofocus" : ""), 'xtra_class' => $strQueryTypeClass, 'type' => "range"));
+
+								$show_required = $show_autofocus = true;
+							break;
+
+							//Input date
+							case 7:
+								$out_field .= show_textfield(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'required' => $intQueryTypeRequired, 'xtra' => ($intQueryTypeAutofocus ? "autofocus" : ""), 'xtra_class' => $strQueryTypeClass, 'type' => "date", 'placeholder' => $strQueryTypePlaceholder));
+
+								$show_required = $show_autofocus = true;
+							break;
+
+							//Radio button
+							case 8:
+								$is_first_radio = false;
+
+								if($intQueryTypeID2 != $intQueryTypeID2_temp)
+								{
+									$intQuery2TypeID2_temp = $intQuery2TypeID2;
+
+									$is_first_radio = true;
+								}
+
+								if(isset($_POST["radio_".$intQuery2TypeID2_temp]))
+								{
+									$strAnswerText = check_var($_POST["radio_".$intQuery2TypeID2_temp], 'int', false);
+								}
+
+								else if($strAnswerText == '' && $intQueryTypeRequired == 1)
+								{
+									$strAnswerText = $intQuery2TypeID2;
+								}
+
+								$out_field .= show_radio_input(array('name' => "radio_".$intQuery2TypeID2_temp, 'label' => $strQueryTypeText2, 'value' => $intQuery2TypeID2, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass.($is_first_radio ? " clear" : "")));
+
+								$show_required = true;
+							break;
+
+							//Select
+							case 10:
+								$arr_content1 = explode(":", $strQueryTypeText2);
+								$arr_content2 = explode(",", $arr_content1[1]);
+
+								$arr_data = array();
+
+								foreach($arr_content2 as $str_content)
+								{
+									$arr_content3 = explode("|", $str_content);
+
+									$arr_data[] = array($arr_content3[0], $arr_content3[1]);
+								}
+
+								$out_field .= show_select(array('data' => $arr_data, 'name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
+
+								$show_required = true;
+							break;
+
+							//Select (multiple)
+							case 11:
+								$arr_content1 = explode(":", $strQueryTypeText2);
+								$arr_content2 = explode(",", $arr_content1[1]);
+
+								$arr_data = array();
+
+								foreach($arr_content2 as $str_content)
+								{
+									$arr_content3 = explode("|", $str_content);
+
+									$arr_data[] = array($arr_content3[0], $arr_content3[1]);
+								}
+
+								$out_field .= show_select(array('data' => $arr_data, 'name' => $strQueryPrefix.$intQuery2TypeID2."[]", 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
+
+								$show_required = true;
+							break;
+
+							//Textfield
+							case 3:
+								$out_field .= show_textfield(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'maxlength' => 200, 'required' => $intQueryTypeRequired, 'xtra' => ($intQueryTypeAutofocus ? "autofocus" : ""), 'xtra_class' => $strQueryTypeClass.($strCheckCode == "zip" ? " form_zipcode" : "").($this_is_required_email ? " this_is_required_email" : ""), 'type' => $strCheckCode, 'placeholder' => $strQueryTypePlaceholder, 'pattern' => $strCheckPattern));
+
+								$show_required = $show_autofocus = true;
+							break;
+
+							//Textarea
+							case 4:
+								$out_field .= show_textarea(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'required' => $intQueryTypeRequired, 'xtra' => ($intQueryTypeAutofocus ? "autofocus" : ""), 'class' => $strQueryTypeClass, 'placeholder' => $strQueryTypePlaceholder));
+
+								$show_required = $show_autofocus = true;
+							break;
+
+							//Text
+							case 5:
+								if($strQueryTypeTag != '')
+								{
+									$out_field .= "<".$strQueryTypeTag.($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">"
+										.$strQueryTypeText2
+									."</".$strQueryTypeTag.">";
+								}
+
+								else
+								{
+									$out_field .= "<div".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">
+										<p>".$strQueryTypeText2."</p>
+									</div>";
+								}
+							break;
+
+							//Space
+							case 6:
+								$out_field .= $data['edit'] == true ? "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>(".__("Space", 'lang_forms').")</p>" : "<p".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">&nbsp;</p>";
+							break;
+
+							//Referer URL
+							case 9:
+								$referer_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "";
+
+								if($data['edit'] == true)
+								{
+									$out_field .= "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>".__("Hidden", 'lang_forms')." (".$strQueryTypeText2.": '".$referer_url."')</p>";
+								}
+
+								else
+								{
+									$out_field .= input_hidden(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'value' => $referer_url));
+								}
+							break;
+
+							//Hidden field
+							case 12:
+								if($data['edit'] == true)
+								{
+									$out_field .= "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>".__("Hidden", 'lang_forms')." (".$strQueryPrefix.$intQuery2TypeID2.": ".$strQueryTypeText2.")</p>";
+								}
+
+								else
+								{
+									$out_field .= input_hidden(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'value' => ($strAnswerText != '' ? $strAnswerText : $strQueryTypeText2)));
+								}
+							break;
+
+							//Custom tag (start)
+							case 13:
+								if($data['edit'] == true)
+								{
+									$out_field .= "<p class='grey'>&lt;".$strQueryTypeText2.($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "")."&gt;</p>";
+								}
+
+								else
+								{
+									$out_field .= "<".$strQueryTypeText2.($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">";
+								}
+							break;
+
+							//Custom tag (end)
+							case 14:
+								if($data['edit'] == true)
+								{
+									$out_field .= "<p class='grey'>&lt;/".$strQueryTypeText2."&gt;</p>";
+								}
+
+								else
+								{
+									$out_field .= "</".$strQueryTypeText2.">";
+								}
+							break;
 						}
 
-							$show_required = $show_autofocus = false;
-
-							switch($intQueryTypeID2)
-							{
-								//Checkbox
-								case 1:
-									$is_first_checkbox = false;
-
-									if($intQueryTypeID2 != $intQueryTypeID2_temp)
-									{
-										$intQuery2TypeID2_temp = $intQuery2TypeID2;
-
-										$is_first_checkbox = true;
-									}
-
-									$out .= show_checkbox(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'required' => $intQueryTypeRequired, 'value' => 1, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass.($is_first_checkbox ? " clear" : "")));
-
-									$show_required = true;
-								break;
-
-								//Input range
-								case 2:
-									$arr_content = explode("|", $strQueryTypeText2);
-
-									if($strAnswerText == '' && isset($arr_content[3]))
-									{
-										$strAnswerText = $arr_content[3];
-									}
-
-									$out .= show_textfield(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $arr_content[0]." (<span>".$strAnswerText."</span>)", 'value' => $strAnswerText, 'required' => $intQueryTypeRequired, 'xtra' => "min='".$arr_content[1]."' max='".$arr_content[2]."'".($intQueryTypeAutofocus ? " autofocus" : ""), 'xtra_class' => $strQueryTypeClass, 'type' => "range"));
-
-									$show_required = $show_autofocus = true;
-								break;
-
-								//Input date
-								case 7:
-									$out .= show_textfield(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'required' => $intQueryTypeRequired, 'xtra' => ($intQueryTypeAutofocus ? "autofocus" : ""), 'xtra_class' => $strQueryTypeClass, 'type' => "date", 'placeholder' => $strQueryTypePlaceholder));
-
-									$show_required = $show_autofocus = true;
-								break;
-
-								//Radio button
-								case 8:
-									$is_first_radio = false;
-
-									if($intQueryTypeID2 != $intQueryTypeID2_temp)
-									{
-										$intQuery2TypeID2_temp = $intQuery2TypeID2;
-
-										$is_first_radio = true;
-									}
-
-									if(isset($_POST["radio_".$intQuery2TypeID2_temp]))
-									{
-										$strAnswerText = check_var($_POST["radio_".$intQuery2TypeID2_temp], 'int', false);
-									}
-
-									else if($strAnswerText == '' && $intQueryTypeRequired == 1)
-									{
-										$strAnswerText = $intQuery2TypeID2;
-									}
-
-									$out .= show_radio_input(array('name' => "radio_".$intQuery2TypeID2_temp, 'label' => $strQueryTypeText2, 'value' => $intQuery2TypeID2, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass.($is_first_radio ? " clear" : "")));
-
-									$show_required = true;
-								break;
-
-								//Select
-								case 10:
-									$arr_content1 = explode(":", $strQueryTypeText2);
-									$arr_content2 = explode(",", $arr_content1[1]);
-
-									$arr_data = array();
-
-									foreach($arr_content2 as $str_content)
-									{
-										$arr_content3 = explode("|", $str_content);
-
-										$arr_data[] = array($arr_content3[0], $arr_content3[1]);
-									}
-
-									$out .= show_select(array('data' => $arr_data, 'name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
-
-									$show_required = true;
-								break;
-
-								//Select (multiple)
-								case 11:
-									$arr_content1 = explode(":", $strQueryTypeText2);
-									$arr_content2 = explode(",", $arr_content1[1]);
-
-									$arr_data = array();
-
-									foreach($arr_content2 as $str_content)
-									{
-										$arr_content3 = explode("|", $str_content);
-
-										$arr_data[] = array($arr_content3[0], $arr_content3[1]);
-									}
-
-									$out .= show_select(array('data' => $arr_data, 'name' => $strQueryPrefix.$intQuery2TypeID2."[]", 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
-
-									$show_required = true;
-								break;
-
-								//Textfield
-								case 3:
-									$out .= show_textfield(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'maxlength' => 200, 'required' => $intQueryTypeRequired, 'xtra' => ($intQueryTypeAutofocus ? "autofocus" : ""), 'xtra_class' => $strQueryTypeClass.($strCheckCode == "zip" ? " form_zipcode" : "").($this_is_required_email ? " this_is_required_email" : ""), 'type' => $strCheckCode, 'placeholder' => $strQueryTypePlaceholder, 'pattern' => $strCheckPattern));
-
-									$show_required = $show_autofocus = true;
-								break;
-
-								//Textarea
-								case 4:
-									$out .= show_textarea(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'required' => $intQueryTypeRequired, 'xtra' => ($intQueryTypeAutofocus ? "autofocus" : ""), 'class' => $strQueryTypeClass, 'placeholder' => $strQueryTypePlaceholder));
-
-									$show_required = $show_autofocus = true;
-								break;
-
-								//Text
-								case 5:
-									$out .= "<div".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "")."><p>".$strQueryTypeText2."</p></div>";
-								break;
-
-								//Space
-								case 6:
-									$out .= $data['edit'] == true ? "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>(".__("Space", 'lang_forms').")</p>" : "<p".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">&nbsp;</p>";
-								break;
-
-								//Referer URL
-								case 9:
-									$referer_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "";
-
-									if($data['edit'] == true)
-									{
-										$out .= "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>".__("Hidden", 'lang_forms')." (".$strQueryTypeText2.": '".$referer_url."')</p>";
-									}
-
-									else
-									{
-										$out .= input_hidden(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'value' => $referer_url));
-									}
-								break;
-
-								//Hidden field
-								case 12:
-									if($data['edit'] == true)
-									{
-										$out .= "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>".__("Hidden", 'lang_forms')." (".$strQueryPrefix.$intQuery2TypeID2.": ".$strQueryTypeText2.")</p>";
-									}
-
-									else
-									{
-										$out .= input_hidden(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'value' => ($strAnswerText != '' ? $strAnswerText : $strQueryTypeText2)));
-									}
-								break;
-							}
-
 						if($data['edit'] == true)
 						{
-							$out .= "<div class='form_buttons'>";
+							$out .= "<mf-form-row id='type_".$intQuery2TypeID2."'".($data['query2type_id'] == $intQuery2TypeID2 ? " class='active'" : "").">"
+								.$out_field; //form_row
 
-									if($show_required == true)
-									{
-										$out .= show_checkbox(array('name' => "require_".$intQuery2TypeID2, 'text' => __("Required", 'lang_forms'), 'value' => 1, 'compare' => $intQueryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$intQuery2TypeID2."'"));
-									}
+								if($intQueryTypeID2 != 14)
+								{
+									$out .= "<div class='form_buttons'>";
 
-									if($show_autofocus == true)
-									{
-										$out .= show_checkbox(array('name' => "autofocus_".$intQuery2TypeID2, 'text' => __("Autofocus", 'lang_forms'), 'value' => 1, 'compare' => $intQueryTypeAutofocus, 'xtra' => " class='ajax_checkbox autofocus' rel='autofocus/type/".$intQuery2TypeID2."'"));
-									}
+										if($show_required == true)
+										{
+											$out .= show_checkbox(array('name' => "require_".$intQuery2TypeID2, 'text' => __("Required", 'lang_forms'), 'value' => 1, 'compare' => $intQueryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$intQuery2TypeID2."'"));
+										}
 
-									$out .= "<a href='?page=mf_form/create/index.php&btnFieldCopy&intQueryID=".$data['query_id']."&intQuery2TypeID=".$intQuery2TypeID2."'>".__("Copy", 'lang_forms')."</a> | 
-									<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$intQuery2TypeID2."'>".__("Edit", 'lang_forms')."</a> | 
-									<a href='#delete/type/".$intQuery2TypeID2."' class='ajax_link confirm_link'>".__("Delete", 'lang_forms')."</a>
-								</div>
-							</div>";
+										if($show_autofocus == true)
+										{
+											$out .= show_checkbox(array('name' => "autofocus_".$intQuery2TypeID2, 'text' => __("Autofocus", 'lang_forms'), 'value' => 1, 'compare' => $intQueryTypeAutofocus, 'xtra' => " class='ajax_checkbox autofocus' rel='autofocus/type/".$intQuery2TypeID2."'"));
+										}
+
+										$out .= "<a href='?page=mf_form/create/index.php&btnFieldCopy&intQueryID=".$data['query_id']."&intQuery2TypeID=".$intQuery2TypeID2."'>".__("Copy", 'lang_forms')."</a> | 
+										<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$intQuery2TypeID2."'>".__("Edit", 'lang_forms')."</a> | 
+										<a href='#delete/type/".$intQuery2TypeID2."' class='ajax_link confirm_link'>".__("Delete", 'lang_forms')."</a>
+									</div>";
+								}
+
+							$out .= "</mf-form-row>";
+						}
+
+						else
+						{
+							$out .= $out_field;
 						}
 
 						$i++;

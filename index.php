@@ -2,7 +2,7 @@
 /*
 Plugin Name: MF Form
 Plugin URI: http://github.com/frostkom/mf_form
-Version: 2.7.9
+Version: 3.0.0
 Author: Martin Fors
 Author URI: http://frostkom.se
 */
@@ -16,10 +16,38 @@ if(is_admin())
 	register_deactivation_hook(__FILE__, 'deactivate_form');
 
 	add_action('admin_init', 'settings_form');
-	add_action('admin_menu', 'menu_forms');
-	add_action('admin_notices', 'message_form');
+	add_action('admin_menu', 'menu_form');
+	add_action('admin_notices', 'notices_form');
 	add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
 	add_filter('network_admin_plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
+
+	add_action('before_delete_post', 'delete_form');
+
+	function delete_form($post_id)
+	{
+		global $post_type;
+
+		if($post_type == 'mf_form')
+		{
+			$mail_to = "martin.fors@frostkom.se";
+			$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
+			$mail_subject = "Delete postID (#".$post_id.") from ".$wpdb->base_prefix."query";
+			$mail_content = $mail_subject;
+
+			wp_mail($mail_to, $mail_subject, $mail_content, $mail_headers);
+
+			/*$obj_form = new mf_form();
+			$intQueryID = $obj_form->get_form_id($post_id);
+			
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $intQueryID));
+
+			$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d'", $intAnswerID));
+
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));*/
+		}
+	}
 }
 
 else
@@ -82,11 +110,13 @@ function activate_form()
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2type (
 		query2TypeID INT unsigned NOT NULL AUTO_INCREMENT,
+		query2TypeID2 INT unsigned NOT NULL DEFAULT '0',
 		queryID INT unsigned DEFAULT '0',
 		queryTypeID INT unsigned DEFAULT '0',
 		queryTypeText TEXT,
 		queryTypePlaceholder VARCHAR(100),
 		checkID INT unsigned DEFAULT NULL,
+		queryTypeTag VARCHAR(20) DEFAULT NULL,
 		queryTypeClass VARCHAR(50) DEFAULT NULL,
 		queryTypeRequired ENUM('0','1') NOT NULL DEFAULT '0',
 		queryTypeAutofocus ENUM('0','1') NOT NULL DEFAULT '0',
@@ -124,6 +154,7 @@ function activate_form()
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_type (
 		queryTypeID INT unsigned NOT NULL AUTO_INCREMENT,
+		queryTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 		queryTypeName varchar(30) DEFAULT NULL,
 		queryTypeResult enum('0','1') NOT NULL DEFAULT '1',
 		PRIMARY KEY (queryTypeID)
@@ -171,10 +202,15 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."query2answer"]['answerToken'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER answerIP";
 
 	$arr_add_column[$wpdb->base_prefix."query_check"]['checkPattern'] = "ALTER TABLE [table] ADD [column] VARCHAR(200) AFTER checkCode";
+	$arr_add_column[$wpdb->base_prefix."query_check"]['checkName'] = "ALTER TABLE [table] ADD [column] VARCHAR(50) AFTER checkPublic";
 
 	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypeClass'] = "ALTER TABLE [table] ADD [column] varchar(50) AFTER checkID";
 	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypeAutofocus'] = "ALTER TABLE [table] ADD [column] enum('0','1') NOT NULL DEFAULT '0' AFTER queryTypeClass";
 	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypePlaceholder'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryTypeText";
+	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypeTag'] = "ALTER TABLE [table] ADD [column] varchar(20) AFTER checkID";
+	$arr_add_column[$wpdb->base_prefix."query2type"]['query2TypeID2'] = "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER query2TypeID";
+
+	$arr_add_column[$wpdb->base_prefix."query_type"]['queryTypePublic'] = "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeID";
 
 	add_columns($arr_add_column);
 
@@ -182,7 +218,6 @@ function activate_form()
 
 	$arr_update_column[$wpdb->base_prefix."query"]['queryTypePublic'] = "ALTER TABLE [table] DROP [column]";
 	$arr_update_column[$wpdb->base_prefix."query"]['queryTypeOrder'] = "ALTER TABLE [table] DROP [column]";
-	$arr_update_column[$wpdb->base_prefix."query"]['queryTypeLang'] = "ALTER TABLE [table] CHANGE [column] queryTypeName VARCHAR(30) DEFAULT NULL";
 	$arr_update_column[$wpdb->base_prefix."query"]['queryEmailNotify'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '1'";
 	$arr_update_column[$wpdb->base_prefix."query"]['queryPaymentMerchant'] = "ALTER TABLE [table] CHANGE [column] [column] VARCHAR(100) DEFAULT NULL";
 	$arr_update_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '0'";
@@ -190,6 +225,8 @@ function activate_form()
 	$arr_update_column[$wpdb->base_prefix."query"]['queryEncrypted'] = "ALTER TABLE [table] DROP [column]";
 
 	$arr_update_column[$wpdb->base_prefix."query2type"]['queryTypeForced'] = "ALTER TABLE [table] CHANGE [column] queryTypeRequired ENUM('0','1') NOT NULL DEFAULT '0'";
+
+	$arr_update_column[$wpdb->base_prefix."query_type"]['queryTypeLang'] = "ALTER TABLE [table] CHANGE [column] queryTypeName VARCHAR(30) DEFAULT NULL";
 
 	update_columns($arr_update_column);
 
@@ -213,6 +250,8 @@ function activate_form()
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '10', queryTypeName = '".__("Dropdown", 'lang_forms')."', queryTypeResult = '1'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '11', queryTypeName = '".__("Multiple selection", 'lang_forms')."', queryTypeResult = '1'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '12', queryTypeName = '".__("Hidden field", 'lang_forms')."', queryTypeResult = '1'";
+	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '13', queryTypeName = '".__("Custom tag", 'lang_forms')."', queryTypeResult = '0'";
+	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '14', queryTypePublic = 'no', queryTypeName = '".__("Custom tag (end)", 'lang_forms')."', queryTypeResult = '0'";
 
 	$arr_run_query[] = "UPDATE ".$wpdb->base_prefix."query_type SET queryTypeResult = '1' WHERE queryTypeID = '5'";
 

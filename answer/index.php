@@ -390,3 +390,5 @@ echo "<div class='wrap'>
 		echo "</tbody>
 	</table>
 </div>";
+
+update_user_meta(get_current_user_id(), 'answer_viewed', date("Y-m-d H:i:s"));

@@ -329,9 +329,20 @@ echo "<div class='wrap'>
 	."</h2>"
 	.get_notification();
 
-	$query_xtra = get_form_xtra($strSearch);
+	$query_where = get_form_xtra($strSearch);
 
-	$resultPagination = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query".$query_xtra);
+	echo get_post_filter(array(
+		'plugin' => 'mf_form',
+		'db_field' => 'post_status',
+		'types' => array(
+			'all' => __("All", 'lang_forms'),
+			'publish' => __("Public", 'lang_forms'),
+			'draft' => __("Draft", 'lang_forms'),
+			'trash' => __("Trash", 'lang_forms')
+		),
+	), $query_where);
+
+	$resultPagination = $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form'".$query_where);
 
 	echo get_list_navigation($resultPagination)
 	."<table class='widefat striped'>";
@@ -348,7 +359,8 @@ echo "<div class='wrap'>
 		echo show_table_header($arr_header)
 		."<tbody>";
 
-			$result = $wpdb->get_results("SELECT queryID, postID, queryName, queryCreated, queryDeleted, queryDeletedDate FROM ".$wpdb->base_prefix."query".$query_xtra." ORDER BY queryDeleted ASC, queryCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
+			//$result = $wpdb->get_results("SELECT ID, post_title, post_date FROM ".$wpdb->posts." WHERE post_type = 'mf_form'".$query_where." ORDER BY post_date DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
+			$result = $wpdb->get_results("SELECT queryID, postID, queryName, queryDeleted FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->posts." ON ".$wpdb->base_prefix."query.postID = ".$wpdb->posts.".ID ".$query_where." GROUP BY queryID ORDER BY queryDeleted ASC, queryCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
 
 			if($wpdb->num_rows == 0)
 			{
@@ -359,14 +371,20 @@ echo "<div class='wrap'>
 			{
 				foreach($result as $r)
 				{
+					/*$intPostID = $r->ID;
+					$strQueryName = $r->post_title;
+
+					$obj_form = new mf_form();
+					$intQueryID = $obj_form->get_form_id($intPostID);*/
+
 					$intQueryID = $r->queryID;
 					$intPostID = $r->postID;
 					$strQueryName = $r->queryName;
-					$strQueryCreated = $r->queryCreated;
+					//$strQueryCreated = $r->queryCreated;
 					$intQueryDeleted = $r->queryDeleted;
 					$strQueryDeletedDate = $r->queryDeletedDate;
 
-					if($intQueryDeleted == 1 && $strQueryDeletedDate < date("Y-m-d H:i:s", strtotime("-1 month")))
+					/*if($intQueryDeleted == 1 && $strQueryDeletedDate < date("Y-m-d H:i:s", strtotime("-1 month")))
 					{
 						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $intQueryID));
 
@@ -378,7 +396,7 @@ echo "<div class='wrap'>
 					}
 
 					else
-					{
+					{*/
 						$resultContent = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' ORDER BY query2TypeCreated ASC", $intQueryID));
 
 						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID", $intQueryID));
@@ -479,7 +497,7 @@ echo "<div class='wrap'>
 
 							echo "</td>
 						</tr>";
-					}
+					//}
 				}
 			}
 

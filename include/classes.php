@@ -46,7 +46,28 @@ class mf_form
 			$this->id = $id;
 		}
 
-		return $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+		return $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->id));
+	}
+
+	function get_form_id($id = 0)
+	{
+		global $wpdb;
+
+		$this->id = $wpdb->get_var($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE postID = '%d'", $id));
+
+		return $this->id;
+	}
+
+	function get_post_id($id = 0)
+	{
+		global $wpdb;
+
+		if($id > 0)
+		{
+			$this->id = $id;
+		}
+
+		return $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->id));
 	}
 
 	function get_post_name($data = array())
@@ -92,6 +113,20 @@ class mf_form
 		$intQuery2TypeID = $wpdb->get_var($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND checkID = '5'", $this->id));
 
 		return $this->get_post_name()."_".$intQuery2TypeID;
+	}
+
+	function is_form_field_type_used($data)
+	{
+		global $wpdb;
+
+		return $wpdb->get_var($wpdb->prepare("SELECT queryTypeID FROM ".$wpdb->base_prefix."query2type WHERE queryTypeID = '%d'", $data['query_type_id'])) > 0 ? true : false;
+	}
+
+	function get_type_name($id)
+	{
+		global $wpdb;
+
+		return $wpdb->get_var($wpdb->prepare("SELECT queryTypeName FROM ".$wpdb->base_prefix."query_type WHERE queryTypeID = '%d'", $id));
 	}
 }
 

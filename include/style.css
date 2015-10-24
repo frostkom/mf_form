@@ -27,6 +27,7 @@
         {
             clear: left;
             float: left;
+			margin-right: 2%;
             width: 48%;
         }
         
@@ -34,6 +35,7 @@
         {
             clear: right;
             float: right;
+			margin-left: 2%;
             width: 48%;
         }
         
@@ -95,10 +97,10 @@
 					background: #fbe3e4;
 				}*/
 
-			.mf_form .form_textfield input[type=date], .mf_form .form_textfield input[type=number]
+			/*.mf_form .form_textfield input[type=date], .mf_form .form_textfield input[type=number]
 			{
 				max-width: 140px;
-			}
+			}*/
 
 		.mf_form .form_select .description
 		{

@@ -31,8 +31,23 @@ if($type_action == "delete" && get_current_user_id() > 0)
 
 		if($wpdb->rows_affected > 0)
 		{
-			$json_output['success'] = true;
-			$json_output['dom_id'] = $type_table."_".$type_id;
+			$obj_form = new mf_form();
+
+			$intPostID = $obj_form->get_post_id($type_id);
+
+			if(wp_trash_post($intPostID))
+			{
+				$json_output['success'] = true;
+				$json_output['dom_id'] = $type_table."_".$type_id;
+			}
+
+			else
+			{
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0', queryDeletedDate = '', queryDeletedID = '' WHERE queryID = '%d' AND queryDeleted = '1'", $type_id));
+
+				$json_output['queryID'] = $type_id;
+				$json_output['postID'] = $intPostID;
+			}
 		}
 	}
 

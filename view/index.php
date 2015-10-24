@@ -1,8 +1,5 @@
 <?php
 
-//wp_enqueue_style('style-forms', plugins_url()."/mf_form/include/style.css");
-//wp_enqueue_script('forms-js', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
-
 $intQueryID = check_var('intQueryID');
 $intAnswerID = check_var('intAnswerID');
 

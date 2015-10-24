@@ -72,6 +72,12 @@ jQuery(function($)
 
 			this_form.find('.form_button > div.updated').removeClass('hide');
 
+			/* Animate to top of form */
+			$('html, body').animate(
+			{
+				scrollTop: this_form.offset().top - 200
+			}, 750, 'swing');
+
 			return false;
 		}
 	}
@@ -89,5 +95,18 @@ jQuery(function($)
 		this_form.find('.form_button > div.updated').addClass('hide');
 
 		return false;
+	});
+
+	$('input.mf_datepicker, div.mf_datepicker input').datepicker(
+	{
+		dateFormat : 'yy-mm-dd',
+		constrainInput: true,
+		showOtherMonths: true,
+		selectOtherMonths: true,
+		showWeek: true,
+		//changeYear: true,
+		//yearRange: '-2:2',
+		//changeMonth: true,
+		firstDay: 1
 	});
 });
