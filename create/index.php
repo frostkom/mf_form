@@ -14,7 +14,6 @@ $intQueryID = check_var('intQueryID');
 $intQuery2TypeID = check_var('intQuery2TypeID');
 $intQuery2TypeOrder = check_var('intQuery2TypeOrder');
 
-$intQueryImproveUX = isset($_POST['intQueryImproveUX']) ? 1 : 0;
 $intQueryEmailConfirm = isset($_POST['intQueryEmailConfirm']) ? 1 : 0;
 $strQueryEmailConfirmPage = check_var('strQueryEmailConfirmPage');
 $intQueryShowAnswers = isset($_POST['intQueryShowAnswers']) ? 1 : 0;
@@ -24,6 +23,8 @@ $strQueryAnswerURL = check_var('strQueryAnswerURL');
 $strQueryEmail = check_var('strQueryEmail', 'email');
 $intQueryEmailNotify = check_var('intQueryEmailNotify');
 $strQueryEmailName = check_var('strQueryEmailName');
+$intQueryImproveUX = isset($_POST['intQueryImproveUX']) ? 1 : 0;
+$strQueryEmailCheckConfirm = check_var('strQueryEmailCheckConfirm');
 $strQueryMandatoryText = check_var('strQueryMandatoryText');
 $strQueryButtonText = check_var('strQueryButtonText');
 $strQueryButtonSymbol = check_var('strQueryButtonSymbol');
@@ -177,7 +178,7 @@ echo "<div class='wrap'>";
 
 				wp_update_post($post_data);
 
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '".$wpdb->blogid."', queryImproveUX = '%d', queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryImproveUX, $intQueryEmailConfirm, $strQueryEmailConfirmPage, $intQueryShowAnswers, $strQueryName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentAmount, $intQueryID)); //, queryPaymentCheck = '%d', $intQueryPaymentCheck
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '".$wpdb->blogid."', queryImproveUX = '%d', queryEmailCheckConfirm = %s, queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryImproveUX, $strQueryEmailCheckConfirm, $intQueryEmailConfirm, $strQueryEmailConfirmPage, $intQueryShowAnswers, $strQueryName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentAmount, $intQueryID)); //, queryPaymentCheck = '%d', $intQueryPaymentCheck
 			}
 
 			else
@@ -306,9 +307,10 @@ echo "<div class='wrap'>";
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0' WHERE queryID = '%d'", $intQueryID));
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryImproveUX, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //, queryPaymentCheck
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryImproveUX, queryEmailCheckConfirm, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //, queryPaymentCheck
 		$r = $result[0];
 		$intQueryImproveUX = $r->queryImproveUX;
+		$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
 		$intQueryEmailConfirm = $r->queryEmailConfirm;
 		$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
 		$intQueryShowAnswers = $r->queryShowAnswers;
@@ -360,9 +362,8 @@ echo "<div class='wrap'>";
 	}
 
 	echo "<h2>".($intQueryID > 0 ? __("Update", 'lang_forms')." ".$strQueryName : __("Add New", 'lang_forms'))."</h2>"
-	.get_notification();
-
-	echo "<div id='poststuff'>";
+	.get_notification()
+	."<div id='poststuff'>";
 
 		if($intQueryID > 0)
 		{
@@ -511,9 +512,9 @@ echo "<div class='wrap'>";
 								.input_hidden(array('name' => "intQueryID", 'value' => $intQueryID))
 								.wp_nonce_field('form_update', '_wpnonce', true, false);
 
-								$obj_form = new mf_form();
+								//$obj_form = new mf_form();
 
-								$intPostID = $obj_form->get_post_id($intQueryID);
+								$intPostID = $obj_form->get_post_id(); //$intQueryID
 
 								if($obj_form->is_published(array('post_id' => $intPostID)))
 								{
@@ -642,6 +643,11 @@ echo "<div class='wrap'>";
 								{
 									echo show_checkbox(array('name' => 'intQueryImproveUX', 'text' => __("Improve UX", 'lang_forms'), 'value' => 1, 'compare' => $intQueryImproveUX));
 								}
+								
+								if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'required' => true, 'check_code' => 'email')))
+								{
+									echo show_checkbox(array('name' => 'strQueryEmailCheckConfirm', 'text' => __("Make questionnaire confirm their e-mail", 'lang_forms'), 'value' => 'yes', 'compare' => $strQueryEmailCheckConfirm));
+								}
 
 								if($is_poll)
 								{
@@ -670,7 +676,7 @@ echo "<div class='wrap'>";
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Button", 'lang_forms')."</span></h3>
 							<div class='inside'>"
-								.show_textfield(array('name' => 'strQueryButtonText', 'text' => __("Button text", 'lang_forms'), 'value' => $strQueryButtonText, 'placeholder' => __("Submit", 'lang_forms'), 'maxlength' => 100));
+								.show_textfield(array('name' => 'strQueryButtonText', 'text' => __("Text", 'lang_forms'), 'value' => $strQueryButtonText, 'placeholder' => __("Submit", 'lang_forms'), 'maxlength' => 100));
 
 								$arr_data = array();
 
@@ -769,7 +775,8 @@ echo "<div class='wrap'>";
 
 									$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
 
-									$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, query2TypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND (queryTypeID = '10' OR queryTypeID = '12') ORDER BY query2TypeOrder ASC", $intQueryID));
+									//$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND (queryTypeID = '10' OR queryTypeID = '12') ORDER BY query2TypeOrder ASC", $intQueryID));
+									list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(10, 12)));
 
 									foreach($result as $r)
 									{

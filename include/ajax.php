@@ -79,7 +79,7 @@ else if($type_action == "require" && get_current_user_id() > 0)
 {
 	if($type_table == "type")
 	{
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeRequired = '".($state_id == "true" ? 1 : 0)."' WHERE query2TypeID = '%d'", $type_id));
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeRequired = '%d' WHERE query2TypeID = '%d'", ($state_id == "true" ? 1 : 0), $type_id));
 
 		if($wpdb->rows_affected > 0)
 		{

@@ -60,6 +60,7 @@ jQuery(function($)
 		});
 	});
 
+	/* Confirm required e-mail */
 	function has_required_email()
 	{
 		var this_form = $(this).parents('.mf_form');
@@ -96,6 +97,7 @@ jQuery(function($)
 
 		return false;
 	});
+	/**/
 
 	$('input.mf_datepicker, div.mf_datepicker input').datepicker(
 	{

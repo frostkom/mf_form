@@ -40,18 +40,19 @@ if($dteQueryEndDate > DEFAULT_DATE)
 	$strQuerySearch .= " AND answerCreated <= '".$dteQueryEndDate."'";
 }
 
-$result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //, queryPaymentCheck
+$result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
 
 foreach($result as $r)
 {
 	$strQueryName = $r->queryName;
 	$intQueryShowAnswers = $r->queryShowAnswers;
 	$intQueryPaymentProvider = $r->queryPaymentProvider;
-	//$intQueryPaymentCheck = $r->queryPaymentCheck;
 	$intQueryPaymentAmount = $r->queryPaymentAmount;
 
-	$has_payment = $intQueryPaymentProvider > 0 && $intQueryPaymentAmount > 0; // && $intQueryPaymentCheck > 0
+	$has_payment = $intQueryPaymentProvider > 0 && $intQueryPaymentAmount > 0;
 }
+
+$obj_form = new mf_form($intQueryID);
 
 echo "<div class='wrap'>
 	<h2>".__("Answers in", 'lang_forms')." ".$strQueryName."</h2>"
@@ -61,8 +62,9 @@ echo "<div class='wrap'>
 
 	if($intTotalAnswers > 0)
 	{
-		$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND queryTypeID = '8' ORDER BY query2TypeOrder ASC", $intQueryID)); //, query2TypeCreated ASC
-		$rows = $wpdb->num_rows;
+		/*$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND queryTypeID = '8' ORDER BY query2TypeOrder ASC", $intQueryID));
+		$rows = $wpdb->num_rows;*/
+		list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(8)));
 
 		if($rows > 0)
 		{
@@ -94,7 +96,11 @@ echo "<div class='wrap'>
 			foreach($data as $key => $value)
 			{
 				$out .= "<div id='flot_pie_".$key."' class='flot_pie'></div>";
-				$js_out .= "$.plot($('#flot_pie_".$key."'), [".$value."], { series: { pie: { show: true }}});";
+				$js_out .= "$.plot($('#flot_pie_".$key."'), [".$value."], { series: { pie: { show: true }}});"; /*combine: {
+                    color: '#999',
+					label: '',
+                    threshold: 0.1
+                }*/
 			}
 
 			echo $out
@@ -116,9 +122,8 @@ echo "<div class='wrap'>
 
 	$resultPagination = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC", $intQueryID));
 
-	echo get_list_navigation($resultPagination);
-
-	echo "<table class='widefat striped'>";
+	echo get_list_navigation($resultPagination)
+	."<table class='widefat striped'>";
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intQueryID));
 
@@ -158,8 +163,6 @@ echo "<div class='wrap'>
 
 		echo show_table_header($arr_header)
 		."<tbody>";
-
-			$obj_form = new mf_form($intQueryID);
 
 			$strQueryPrefix = $obj_form->get_post_name()."_";
 

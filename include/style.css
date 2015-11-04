@@ -46,11 +46,6 @@
             margin-bottom: .3em;
         }
 
-		/*.mf_form .form_textfield.red_border input, .mf_form .red_border select, .mf_form .red_border textarea
-		{
-			border-color: #f00 !important;
-		}*/
-
         .mf_form .form_textfield input, .mf_form select, .mf_form textarea, .mf_form .form_password input
         {
             background: #fff;
@@ -65,6 +60,11 @@
             padding: .4em;
 			width: 100%;
         }
+
+			.mf_form select
+			{
+				cursor: pointer;
+			}
 
 		.mf_form .wp-editor-wrap
 		{
@@ -120,7 +120,7 @@
             .mf_form .form_checkbox input, .mf_form .form_radio input
             {
 				display: inline;
-                margin-right: 5px;
+                margin-right: 2%;
             }
     
                 .mf_form .input-buttons.input-button-size-2

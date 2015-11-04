@@ -2,7 +2,7 @@
 /*
 Plugin Name: MF Form
 Plugin URI: http://github.com/frostkom/mf_form
-Version: 3.0.0
+Version: 3.0.3
 Author: Martin Fors
 Author URI: http://frostkom.se
 */
@@ -18,43 +18,14 @@ if(is_admin())
 	add_action('admin_init', 'settings_form');
 	add_action('admin_menu', 'menu_form');
 	add_action('admin_notices', 'notices_form');
+	add_action('before_delete_post', 'delete_form');
 	add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
 	add_filter('network_admin_plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
-
-	add_action('before_delete_post', 'delete_form');
-
-	function delete_form($post_id)
-	{
-		global $post_type;
-
-		if($post_type == 'mf_form')
-		{
-			$mail_to = "martin.fors@frostkom.se";
-			$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
-			$mail_subject = "Delete postID (#".$post_id.") from ".$wpdb->base_prefix."query";
-			$mail_content = $mail_subject;
-
-			wp_mail($mail_to, $mail_subject, $mail_content, $mail_headers);
-
-			/*$obj_form = new mf_form();
-			$intQueryID = $obj_form->get_form_id($post_id);
-			
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $intQueryID));
-
-			$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d'", $intAnswerID));
-
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));*/
-		}
-	}
+	add_action('deleted_user', 'deleted_user_form');
 }
 
-else
-{
-	add_shortcode('mf_form', 'shortcode_form');
-	add_shortcode('form_shortcode', 'shortcode_form');
-}
+add_shortcode('mf_form', 'shortcode_form');
+add_shortcode('form_shortcode', 'shortcode_form');
 
 add_filter('single_template', 'custom_templates_form');
 
@@ -76,6 +47,7 @@ function activate_form()
 		queryEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
 		queryEmailName varchar(100) DEFAULT NULL,
 		queryImproveUX ENUM('0', '1') NOT NULL DEFAULT '0',
+		queryEmailCheckConfirm ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 		queryEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
 		queryEmailConfirmPage VARCHAR(20) DEFAULT NULL,
 		queryShowAnswers ENUM('0', '1') NOT NULL DEFAULT '0',
@@ -102,11 +74,10 @@ function activate_form()
 		queryID INT unsigned NOT NULL,
 		answerIP varchar(15) DEFAULT NULL,
 		answerToken VARCHAR(100) DEFAULT NULL,
-		userID INT unsigned DEFAULT NULL,
 		answerCreated datetime DEFAULT NULL,
 		PRIMARY KEY (answerID),
 		KEY queryID (queryID)
-	) DEFAULT CHARSET=".$default_charset);
+	) DEFAULT CHARSET=".$default_charset); //userID INT unsigned DEFAULT NULL,
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2type (
 		query2TypeID INT unsigned NOT NULL AUTO_INCREMENT,
@@ -198,6 +169,7 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentCurrency'] = "ALTER TABLE [table] ADD [column] VARCHAR(3) AFTER queryPaymentMerchant";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryButtonSymbol'] = "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText";
 	$arr_add_column[$wpdb->base_prefix."query"]['postID'] = "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER blogID";
+	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailCheckConfirm'] = "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryImproveUX";
 
 	$arr_add_column[$wpdb->base_prefix."query2answer"]['answerToken'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER answerIP";
 
@@ -223,6 +195,8 @@ function activate_form()
 	$arr_update_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '0'";
 
 	$arr_update_column[$wpdb->base_prefix."query"]['queryEncrypted'] = "ALTER TABLE [table] DROP [column]";
+
+	$arr_update_column[$wpdb->base_prefix."query2answer"]['userID'] = "ALTER TABLE [table] DROP [column]";
 
 	$arr_update_column[$wpdb->base_prefix."query2type"]['queryTypeForced'] = "ALTER TABLE [table] CHANGE [column] queryTypeRequired ENUM('0','1') NOT NULL DEFAULT '0'";
 

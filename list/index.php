@@ -382,7 +382,7 @@ echo "<div class='wrap'>
 					$strQueryName = $r->queryName;
 					//$strQueryCreated = $r->queryCreated;
 					$intQueryDeleted = $r->queryDeleted;
-					$strQueryDeletedDate = $r->queryDeletedDate;
+					//$strQueryDeletedDate = $r->queryDeletedDate;
 
 					/*if($intQueryDeleted == 1 && $strQueryDeletedDate < date("Y-m-d H:i:s", strtotime("-1 month")))
 					{

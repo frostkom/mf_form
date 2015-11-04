@@ -1,5 +1,13 @@
 <?php
 
+function deleted_user_form($user_id)
+{
+	global $wpdb;
+
+	$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
+	$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
+}
+
 function init_form()
 {
 	wp_enqueue_style('style_forms', plugins_url()."/mf_form/include/style.css");
@@ -26,6 +34,32 @@ function init_form()
 	if(get_option('mf_form_setting_replacement_form') > 0)
 	{
 		add_filter('the_content', 'my_replace_content');
+	}
+}
+
+function delete_form($post_id)
+{
+	global $post_type;
+
+	if($post_type == 'mf_form')
+	{
+		$mail_to = "martin.fors@frostkom.se";
+		$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
+		$mail_subject = "Delete postID (#".$post_id.") from ".$wpdb->base_prefix."query";
+		$mail_content = $mail_subject;
+
+		wp_mail($mail_to, $mail_subject, $mail_content, $mail_headers);
+
+		/*$obj_form = new mf_form();
+		$intQueryID = $obj_form->get_form_id($post_id);
+		
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $intQueryID));
+
+		$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d'", $intAnswerID));
+
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));*/
 	}
 }
 
@@ -355,39 +389,37 @@ function get_poll_results($data)
 
 	$out = "";
 
-	$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND (queryTypeID = '5' OR queryTypeID = '8') ORDER BY query2TypeOrder ASC, query2TypeCreated ASC", $data['query_id']));
-	$intTotalRows = $wpdb->num_rows;
+	//$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND (queryTypeID = '5' OR queryTypeID = '8') ORDER BY query2TypeOrder ASC", $data['query_id']));
+	$obj_form = new mf_form($data['query_id']);
+	list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(5, 8)));
 
-	if($intTotalRows > 0)
+	foreach($result as $r)
 	{
-		foreach($result as $r)
-		{
-			$intQuery2TypeID2 = $r->query2TypeID;
-			$intQueryTypeID2 = $r->queryTypeID;
-			$strQueryTypeText2 = $r->queryTypeText;
+		$intQuery2TypeID2 = $r->query2TypeID;
+		$intQueryTypeID2 = $r->queryTypeID;
+		$strQueryTypeText2 = $r->queryTypeText;
 
-			$out .= "<div".($intQueryTypeID2 == 8 ? " class='form_radio'" : "").">";
+		$out .= "<div".($intQueryTypeID2 == 8 ? " class='form_radio'" : "").">";
+
+			if($intQueryTypeID2 == 8)
+			{
+				$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'", $data['query_id']));
+
+				$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
+
+				$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
+			}
+
+			$out .= "<p>"
+				.$strQueryTypeText2;
 
 				if($intQueryTypeID2 == 8)
 				{
-					$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'", $data['query_id']));
-
-					$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
-
-					$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
+					$out .= "<span>".$intAnswerPercent."%</span>";
 				}
 
-				$out .= "<p>"
-					.$strQueryTypeText2;
-
-					if($intQueryTypeID2 == 8)
-					{
-						$out .= "<span>".$intAnswerPercent."%</span>";
-					}
-
-				$out .= "</p>
-			</div>";
-		}
+			$out .= "</p>
+		</div>";
 	}
 
 	return $out;
@@ -490,7 +522,7 @@ function show_query_form($data)
 
 				else
 				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC", $intQueryID));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' ORDER BY query2TypeOrder ASC", $intQueryID));
 
 					foreach($result as $r)
 					{
@@ -628,7 +660,7 @@ function show_query_form($data)
 				{
 					$updated = true;
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer (queryID, answerIP, answerCreated) VALUES (%d, %s, NOW())", $intQueryID, $strAnswerIP));
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerCreated = NOW()", $intQueryID, $strAnswerIP));
 
 					$intAnswerID = $wpdb->insert_id;
 
@@ -766,7 +798,7 @@ function show_query_form($data)
 
 		$obj_font_icons = new mf_font_icons();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryImproveUX FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id']));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryImproveUX, queryEmailCheckConfirm FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id']));
 		$r = $result[0];
 		$intQueryShowAnswers = $r->queryShowAnswers;
 		$strQueryAnswerURL = $r->queryAnswerURL;
@@ -774,6 +806,7 @@ function show_query_form($data)
 		$strQueryButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
 		$intQueryPaymentProvider = $r->queryPaymentProvider;
 		$intQueryImproveUX = $r->queryImproveUX;
+		$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
 
 		$obj_form = new mf_form($data['query_id']);
 
@@ -835,7 +868,8 @@ function show_query_form($data)
 		{
 			$cols = $data['edit'] == true ? 5 : 2;
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass, query2TypeOrder FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC", $data['query_id']));
+			//$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $data['query_id'])); //, query2TypeOrder
+			$result = $obj_form->get_form_type_result();
 			$intTotalRows = $wpdb->num_rows;
 
 			if($intTotalRows > 0)
@@ -855,21 +889,29 @@ function show_query_form($data)
 
 					foreach($result as $r)
 					{
-						$intQuery2TypeID2 = $r->query2TypeID;
+						$r->queryTypeText = stripslashes($r->queryTypeText);
+
+						$obj_form_output = new mf_form_output(array('result' => $r, 'in_edit_mode' => $data['edit'], 'query_prefix' => $strQueryPrefix, 'email_check_confirm' => $strQueryEmailCheckConfirm));
+
+						$obj_form_output->calculate_value($intAnswerID);
+						$obj_form_output->get_form_fields();
+
+						$out .= $obj_form_output->get_output($data);
+
+						/*$intQuery2TypeID2 = $r->query2TypeID;
 						$intQueryTypeID2 = $r->queryTypeID;
 						$strCheckCode = $r->checkCode;
 						$strCheckPattern = $r->checkPattern;
-						$strQueryTypeText2 = stripslashes($r->queryTypeText);
+						$strQueryTypeText2 = $r->queryTypeText;
 						$strQueryTypePlaceholder = $r->queryTypePlaceholder;
 						$intQueryTypeRequired = $r->queryTypeRequired;
 						$intQueryTypeAutofocus = $r->queryTypeAutofocus;
 						$strQueryTypeTag = $r->queryTypeTag;
 						$strQueryTypeClass = $r->queryTypeClass;
-						$intQuery2TypeOrder = $r->query2TypeOrder;
 
 						$this_is_required_email = $intQueryTypeID2 == 3 && $strCheckCode == 'email' && $intQueryTypeRequired == 1;
 
-						if($this_is_required_email)
+						if($strQueryEmailCheckConfirm == 'yes' && $this_is_required_email)
 						{
 							$has_required_email = true;
 						}
@@ -956,7 +998,7 @@ function show_query_form($data)
 									$strAnswerText = $intQuery2TypeID2;
 								}
 
-								$out_field .= show_radio_input(array('name' => "radio_".$intQuery2TypeID2_temp, 'label' => $strQueryTypeText2, 'value' => $intQuery2TypeID2, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass.($is_first_radio ? " clear" : "")));
+								$out_field .= show_radio_input(array('name' => "radio_".$intQuery2TypeID2_temp, 'text' => $strQueryTypeText2, 'value' => $intQuery2TypeID2, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass.($is_first_radio ? " clear" : "")));
 
 								$show_required = true;
 							break;
@@ -1001,7 +1043,17 @@ function show_query_form($data)
 
 							//Textfield
 							case 3:
-								$out_field .= show_textfield(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'maxlength' => 200, 'required' => $intQueryTypeRequired, 'xtra' => ($intQueryTypeAutofocus ? "autofocus" : ""), 'xtra_class' => $strQueryTypeClass.($strCheckCode == "zip" ? " form_zipcode" : "").($this_is_required_email ? " this_is_required_email" : ""), 'type' => $strCheckCode, 'placeholder' => $strQueryTypePlaceholder, 'pattern' => $strCheckPattern));
+								if($strCheckCode == "zip")
+								{
+									$strQueryTypeClass .= ($strQueryTypeClass != '' ? " " : "")."form_zipcode";
+								}
+								
+								if($has_required_email && $this_is_required_email)
+								{
+									$strQueryTypeClass .= ($strQueryTypeClass != '' ? " " : "")."this_is_required_email";
+								}
+
+								$out_field .= show_textfield(array('name' => $strQueryPrefix.$intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'maxlength' => 200, 'required' => $intQueryTypeRequired, 'xtra' => ($intQueryTypeAutofocus ? "autofocus" : ""), 'xtra_class' => $strQueryTypeClass, 'type' => $strCheckCode, 'placeholder' => $strQueryTypePlaceholder, 'pattern' => $strCheckPattern));
 
 								$show_required = $show_autofocus = true;
 							break;
@@ -1093,7 +1145,7 @@ function show_query_form($data)
 						if($data['edit'] == true)
 						{
 							$out .= "<mf-form-row id='type_".$intQuery2TypeID2."'".($data['query2type_id'] == $intQuery2TypeID2 ? " class='active'" : "").">"
-								.$out_field; //form_row
+								.$out_field;
 
 								if($intQueryTypeID2 != 14)
 								{
@@ -1123,10 +1175,10 @@ function show_query_form($data)
 							$out .= $out_field;
 						}
 
-						$i++;
-
 						//Set temp id to check on next row if it is connected radio buttons
-						$intQueryTypeID2_temp = $intQueryTypeID2;
+						$intQueryTypeID2_temp = $intQueryTypeID2;*/
+
+						$i++;
 					}
 
 					if($intAnswerID > 0)
