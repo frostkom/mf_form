@@ -2,7 +2,7 @@
 /*
 Plugin Name: MF Form
 Plugin URI: http://github.com/frostkom/mf_form
-Version: 3.0.3
+Version: 3.0.5
 Author: Martin Fors
 Author URI: http://frostkom.se
 */
@@ -67,7 +67,7 @@ function activate_form()
 		queryDeletedID INT unsigned DEFAULT '0',
 		userID INT unsigned DEFAULT '0',
 		PRIMARY KEY (queryID)
-	) DEFAULT CHARSET=".$default_charset); //queryURL VARCHAR(100),
+	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2answer (
 		answerID INT unsigned NOT NULL AUTO_INCREMENT,
@@ -77,7 +77,7 @@ function activate_form()
 		answerCreated datetime DEFAULT NULL,
 		PRIMARY KEY (answerID),
 		KEY queryID (queryID)
-	) DEFAULT CHARSET=".$default_charset); //userID INT unsigned DEFAULT NULL,
+	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2type (
 		query2TypeID INT unsigned NOT NULL AUTO_INCREMENT,
@@ -140,7 +140,6 @@ function activate_form()
 			countyName varchar(20) DEFAULT NULL,
 			PRIMARY KEY (addressZipCode)
 		) DEFAULT CHARSET=".$default_charset);
-		//ALTER DATABASE databasename CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 	}
 
 	$arr_add_column = array();
@@ -216,7 +215,7 @@ function activate_form()
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '2', queryTypeName = '".__("Range", 'lang_forms')."', queryTypeResult = '1'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '3', queryTypeName = '".__("Input field", 'lang_forms')."', queryTypeResult = '1'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '4', queryTypeName = '".__("Textarea", 'lang_forms')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '5', queryTypeName = '".__("Text", 'lang_forms')."', queryTypeResult = '1'";
+	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '5', queryTypeName = '".__("Text", 'lang_forms')."', queryTypeResult = '0'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '6', queryTypeName = '".__("Space", 'lang_forms')."', queryTypeResult = '0'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '7', queryTypeName = '".__("Datepicker", 'lang_forms')."', queryTypeResult = '1'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '8', queryTypeName = '".__("Radio button", 'lang_forms')."', queryTypeResult = '1'";
@@ -227,7 +226,7 @@ function activate_form()
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '13', queryTypeName = '".__("Custom tag", 'lang_forms')."', queryTypeResult = '0'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '14', queryTypePublic = 'no', queryTypeName = '".__("Custom tag (end)", 'lang_forms')."', queryTypeResult = '0'";
 
-	$arr_run_query[] = "UPDATE ".$wpdb->base_prefix."query_type SET queryTypeResult = '1' WHERE queryTypeID = '5'";
+	//$arr_run_query[] = "UPDATE ".$wpdb->base_prefix."query_type SET queryTypeResult = '1' WHERE queryTypeID = '5'";
 
 	if(get_bloginfo('language') == "sv-SE")
 	{

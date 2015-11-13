@@ -10,8 +10,7 @@ function deleted_user_form($user_id)
 
 function init_form()
 {
-	wp_enqueue_style('style_forms', plugins_url()."/mf_form/include/style.css");
-
+	//wp_enqueue_style('style_forms', plugins_url()."/mf_form/include/style.css");
 	mf_enqueue_script('script_forms', plugins_url()."/mf_form/include/script.js", array('plugins_url' => plugins_url()));
 
 	$labels = array(
@@ -134,13 +133,6 @@ function my_replace_content($html)
 
 function settings_form()
 {
-	/*$obj_form = new mf_form();
-
-	if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
-	{
-		new recommend_plugin("mf_js_webshim/index.php", "MF JS Webshim"); //, "//github.com/frostkom/mf_form"
-	}*/
-
 	$options_page = "settings_mf_base";
 	$options_area = "settings_form";
 
@@ -152,6 +144,7 @@ function settings_form()
 	);
 
 	$arr_settings = array(
+		"setting_form_test_emails" => __("Redirect test e-mails", 'lang_forms'),
 		"setting_form_permission" => __("Lowest user permission", 'lang_forms'),
 		"setting_form_permission_see_all" => __("Lowest user permission to see all forms", 'lang_forms'),
 		"mf_form_setting_replacement_form" => __("Form to replace all e-mail links", 'lang_forms'),
@@ -168,6 +161,21 @@ function settings_form()
 function settings_form_callback()
 {
 	echo "<div id='settings_form'></div>";
+}
+
+function setting_form_test_emails_callback()
+{
+	$option = get_option('setting_form_test_emails');
+
+	$arr_data = array();
+
+	$arr_data[] = array('no', __("No", 'lang_forms'));
+	$arr_data[] = array('yes', __("Yes", 'lang_forms'));
+
+	echo "<label>"
+		.show_select(array('data' => $arr_data, 'name' => 'setting_form_test_emails', 'compare' => $option))
+		."<span class='description'>".__("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_forms')."</span>
+	</label>";
 }
 
 function setting_form_permission_callback()
@@ -298,7 +306,6 @@ function menu_form()
 
 	$menu_root = 'mf_form/';
 	$menu_start = $menu_root.'list/index.php';
-	//$menu_capability = "edit_pages";
 
 	$menu_capability = get_option('setting_form_permission', 'edit_pages');
 
@@ -389,7 +396,6 @@ function get_poll_results($data)
 
 	$out = "";
 
-	//$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND (queryTypeID = '5' OR queryTypeID = '8') ORDER BY query2TypeOrder ASC", $data['query_id']));
 	$obj_form = new mf_form($data['query_id']);
 	list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(5, 8)));
 
@@ -440,12 +446,29 @@ function mf_form_mail($data)
 
 	$out = "";
 
+	if(is_user_logged_in() && current_user_can("update_core"))
+	{
+		$setting_form_test_emails = get_option('setting_form_test_emails');
+
+		if($setting_form_test_emails == 'yes')
+		{
+			$user_data = get_userdata(get_current_user_id());
+
+			$data['subject'] = __("Test", 'lang_forms')." (".$data['to']."): ".$data['subject'];
+			$data['to'] = $user_data->user_email;
+		}
+	}
+
 	add_filter('wp_mail_content_type', 'set_html_content_type');
+
 	$data['content'] = nl2br($data['content']);
 
 	$mail_sent = wp_mail($data['to'], $data['subject'], $data['content'], $data['headers']);
 
-	$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer_email SET answerID = '%d', answerEmail = %s, answerSent = '%d'", $data['answer_id'], $data['to'], $mail_sent));
+	if(isset($data['answer_id']))
+	{
+		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer_email SET answerID = '%d', answerEmail = %s, answerSent = '%d'", $data['answer_id'], $data['to'], $mail_sent));
+	}
 
 	return $out;
 }
@@ -522,7 +545,7 @@ function show_query_form($data)
 
 				else
 				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' ORDER BY query2TypeOrder ASC", $intQueryID));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intQueryID));
 
 					foreach($result as $r)
 					{
