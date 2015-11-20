@@ -314,8 +314,8 @@ function menu_form()
 	add_menu_page(__("Forms", 'lang_forms'), __("Forms", 'lang_forms').$count_message, $menu_capability, $menu_start, '', 'dashicons-forms');
 
 	add_submenu_page($menu_start, __("Add New", 'lang_forms'), __("Add New", 'lang_forms'), $menu_capability, $menu_root.'create/index.php');
-	add_submenu_page($menu_start, __("Last Answers", 'lang_forms'), "", $menu_capability, $menu_root.'answer/index.php');
-	add_submenu_page($menu_start, __("Edit Last Answer", 'lang_forms'), "", $menu_capability, $menu_root.'view/index.php');
+	add_submenu_page($menu_root, __("Last Answers", 'lang_forms'), __("Last Answers", 'lang_forms'), $menu_capability, $menu_root.'answer/index.php');
+	add_submenu_page($menu_root, __("Edit Last Answer", 'lang_forms'), __("Edit Last Answer", 'lang_forms'), $menu_capability, $menu_root.'view/index.php');
 }
 
 function add_action_form($links)

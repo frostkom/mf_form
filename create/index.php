@@ -87,12 +87,12 @@ echo "<div class='wrap'>";
 
 			$success = set_file_content(array('file' => $folder."/uploads/".$file, 'mode' => 'a', 'content' => trim($db_info)));
 
-			$done_text = "Download exported file at <a href='../wp-content/uploads/".$file."'>".$file."</a>";
+			$done_text = __("Download exported file at", 'lang_form')." <a href='../wp-content/uploads/".$file."'>".$file."</a>";
 		}
 
 		else
 		{
-			$error_text = "It was not possible to export the form";
+			$error_text = __("It was not possible to export the form", 'lang_form');
 		}
 	}
 
@@ -105,12 +105,12 @@ echo "<div class='wrap'>";
 
 			if($file_name == '')
 			{
-				$error_text = "You have to submit a file";
+				$error_text = __("You have to submit a file", 'lang_form');
 			}
 
 			else if(!is_uploaded_file($file_location))
 			{
-				$error_text = "Could not upload the file for import";
+				$error_text = __("Could not upload the file for import", 'lang_form');
 			}
 
 			else
@@ -144,14 +144,14 @@ echo "<div class='wrap'>";
 
 				else
 				{
-					$error_text = "No fields were imported";
+					$error_text = __("No fields were imported", 'lang_form');
 				}
 			}
 		}
 
 		else
 		{
-			$error_text = "There is no file to import";
+			$error_text = __("There is no file to import", 'lang_form');
 		}
 	}
 
@@ -187,7 +187,7 @@ echo "<div class='wrap'>";
 
 				if($wpdb->num_rows > 0)
 				{
-					$error_text = "There is already a form with that name. Try with another one.";
+					$error_text = __("There is already a form with that name. Try with another one.", 'lang_form');
 				}
 
 				else

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MF Forms\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-11 09:55+0100\n"
+"POT-Creation-Date: 2015-11-20 15:30+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: Martin Fors\n"
@@ -15,120 +15,120 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../index.php:209
+#: ../index.php:208
 msgid "Number"
 msgstr "Nummer"
 
-#: ../index.php:210
+#: ../index.php:209
 msgid "E-mail"
 msgstr "E-post"
 
-#: ../index.php:211
+#: ../index.php:210
 msgid "Phone no"
 msgstr "Telefonnummer"
 
-#: ../index.php:212
+#: ../index.php:211
 msgid "Decimal number"
 msgstr "Decimaltal"
 
-#: ../index.php:213
+#: ../index.php:212
 msgid "URL"
 msgstr "URL"
 
-#: ../index.php:215
+#: ../index.php:214
 msgid "Checkbox"
 msgstr "Kryssruta"
 
-#: ../index.php:216
+#: ../index.php:215
 msgid "Range"
 msgstr "Spann"
 
-#: ../index.php:217
+#: ../index.php:216
 msgid "Input field"
 msgstr "Textrad"
 
-#: ../index.php:218
+#: ../index.php:217
 msgid "Textarea"
 msgstr "Textfält"
 
-#: ../index.php:219
+#: ../index.php:218
 #: ../create/index.php:410
 #: ../create/index.php:679
 msgid "Text"
 msgstr "Text"
 
-#: ../index.php:220
+#: ../index.php:219
 #: ../include/classes.php:495
 msgid "Space"
 msgstr "mellanrum"
 
-#: ../index.php:221
+#: ../index.php:220
 msgid "Datepicker"
 msgstr "Datumväljare"
 
-#: ../index.php:222
+#: ../index.php:221
 msgid "Radio button"
 msgstr "Flervalsalternativ"
 
-#: ../index.php:223
+#: ../index.php:222
 msgid "Referer URL"
 msgstr "Referens-URL"
 
-#: ../index.php:224
+#: ../index.php:223
 msgid "Dropdown"
 msgstr "Rullgardin"
 
-#: ../index.php:225
+#: ../index.php:224
 msgid "Multiple selection"
 msgstr "Rullgardin (flerval)"
 
-#: ../index.php:226
+#: ../index.php:225
 msgid "Hidden field"
 msgstr "Dolt fält"
 
-#: ../index.php:227
+#: ../index.php:226
 msgid "Custom tag"
 msgstr "Anpassat element"
 
-#: ../index.php:228
+#: ../index.php:227
 msgid "Custom tag (end)"
 msgstr "Anpassat element (slut)"
 
-#: ../index.php:234
+#: ../index.php:233
 msgid "Zip code"
 msgstr "Postnummer"
 
+#: ../index.php:234
 #: ../index.php:235
-#: ../index.php:236
 msgid "Social security number"
 msgstr "Personnummer"
 
+#: ../index.php:234
 #: ../index.php:235
-#: ../index.php:236
 msgid "digits"
 msgstr "siffror"
 
-#: ../index.php:243
+#: ../index.php:242
 msgid "aring"
 msgstr "å"
 
-#: ../index.php:243
+#: ../index.php:242
 msgid "auml"
 msgstr "ä"
 
-#: ../index.php:243
+#: ../index.php:242
 msgid "ouml"
 msgstr "ö"
 
-#: ../index.php:243
+#: ../index.php:242
 msgid "Aring"
 msgstr "Å"
 
-#: ../index.php:243
+#: ../index.php:242
 msgid "Auml"
 msgstr "Ä"
 
-#: ../index.php:243
+#: ../index.php:242
 msgid "Ouml"
 msgstr "Ö"
 
@@ -178,7 +178,7 @@ msgstr "IP"
 
 #: ../answer/index.php:337
 msgid "Token"
-msgstr ""
+msgstr "Token"
 
 #: ../answer/index.php:346
 msgid "Sent to"
@@ -188,11 +188,39 @@ msgstr "Skickat till"
 msgid "Sent"
 msgstr "Skickat"
 
+#: ../create/index.php:90
+msgid "Download exported file at"
+msgstr "Ladda ner den exporterade filen via"
+
+#: ../create/index.php:95
+msgid "It was not possible to export the form"
+msgstr "Det gick inte att exportera formuläret"
+
+#: ../create/index.php:108
+msgid "You have to submit a file"
+msgstr "Du måste skicka med en fil"
+
+#: ../create/index.php:113
+msgid "Could not upload the file for import"
+msgstr "Det gick inte att ladda upp filen för import"
+
+#: ../create/index.php:147
+msgid "No fields were imported"
+msgstr "Inga fält importerades"
+
+#: ../create/index.php:154
+msgid "There is no file to import"
+msgstr "Det finns ingen fil att importera"
+
 #: ../create/index.php:162
 #: ../create/index.php:227
-#: ../include/functions.php:682
+#: ../include/functions.php:670
 msgid "Please, enter all required fields"
 msgstr "Var vänlig fyll i alla obligatoriska fält"
+
+#: ../create/index.php:190
+msgid "There is already a form with that name. Try with another one."
+msgstr "Det finns redan ett formulär med det namnet. Försök med ett annat."
 
 #: ../create/index.php:263
 msgid "Couldn't update the field"
@@ -204,7 +232,7 @@ msgstr "Det gick inte att lägga in det nya fältet"
 
 #: ../create/index.php:364
 #: ../create/index.php:472
-#: ../include/functions.php:1221
+#: ../include/functions.php:1209
 msgid "Update"
 msgstr "Uppdatera"
 
@@ -369,25 +397,25 @@ msgid "Button"
 msgstr "Knapp"
 
 #: ../create/index.php:679
-#: ../include/functions.php:840
+#: ../include/functions.php:828
 msgid "Submit"
 msgstr "Skicka"
 
 #: ../create/index.php:693
 msgid "Symbol"
-msgstr ""
+msgstr "Symbol"
 
 #: ../create/index.php:703
 msgid "DIBS"
-msgstr ""
+msgstr "DIBS"
 
 #: ../create/index.php:704
 msgid "Paypal"
-msgstr ""
+msgstr "Paypal"
 
 #: ../create/index.php:705
 msgid "Skrill"
-msgstr ""
+msgstr "Skrill"
 
 #: ../create/index.php:707
 msgid "Provider"
@@ -429,7 +457,7 @@ msgstr "Danska kronor"
 #: ../create/index.php:738
 #: ../create/index.php:755
 msgid "Euro"
-msgstr ""
+msgstr "Euro"
 
 #: ../create/index.php:739
 #: ../create/index.php:756
@@ -595,29 +623,29 @@ msgstr "Det finns oskickade meddelanden"
 
 #: ../include/functions.php:457
 msgid "Test"
-msgstr ""
+msgstr "Testa"
 
-#: ../include/functions.php:896
+#: ../include/functions.php:884
 msgid "Thank you!"
 msgstr "Tack så mycket!"
 
-#: ../include/functions.php:1235
+#: ../include/functions.php:1223
 msgid "Does the e-mail address look right?"
 msgstr "Ser e-postadressen rätt ut?"
 
-#: ../include/functions.php:1235
+#: ../include/functions.php:1223
 msgid "or"
 msgstr "eller"
 
-#: ../include/functions.php:1235
+#: ../include/functions.php:1223
 msgid "Change"
 msgstr "Ändra"
 
-#: ../include/functions.php:1251
+#: ../include/functions.php:1239
 msgid "Perform test payment"
 msgstr "Genomför testbetalning"
 
-#: ../include/functions.php:1254
+#: ../include/functions.php:1242
 msgid "Edit this form"
 msgstr "Redigera formuläret"
 

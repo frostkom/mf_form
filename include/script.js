@@ -30,11 +30,6 @@ jQuery(function($)
 		update_range_text($(this));
 	});
 
-	$('.mf_form :required').each(function()
-	{
-		$(this).siblings('label').append(' *');
-	});
-
 	$('.mf_form .form_zipcode input').each(function()
 	{
 		$(this).after("<span></span>");
@@ -98,17 +93,4 @@ jQuery(function($)
 		return false;
 	});
 	/**/
-
-	$('input.mf_datepicker, div.mf_datepicker input').datepicker(
-	{
-		dateFormat : 'yy-mm-dd',
-		constrainInput: true,
-		showOtherMonths: true,
-		selectOtherMonths: true,
-		showWeek: true,
-		//changeYear: true,
-		//yearRange: '-2:2',
-		//changeMonth: true,
-		firstDay: 1
-	});
 });
