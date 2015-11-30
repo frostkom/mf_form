@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MF Forms\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-20 15:30+0100\n"
+"POT-Creation-Date: 2015-11-25 11:30+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: Martin Fors\n"
@@ -15,120 +15,120 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../index.php:208
+#: ../index.php:216
 msgid "Number"
 msgstr "Nummer"
 
-#: ../index.php:209
+#: ../index.php:217
 msgid "E-mail"
 msgstr "E-post"
 
-#: ../index.php:210
+#: ../index.php:218
 msgid "Phone no"
 msgstr "Telefonnummer"
 
-#: ../index.php:211
+#: ../index.php:219
 msgid "Decimal number"
 msgstr "Decimaltal"
 
-#: ../index.php:212
+#: ../index.php:220
 msgid "URL"
 msgstr "URL"
 
-#: ../index.php:214
+#: ../index.php:222
 msgid "Checkbox"
 msgstr "Kryssruta"
 
-#: ../index.php:215
+#: ../index.php:223
 msgid "Range"
 msgstr "Spann"
 
-#: ../index.php:216
+#: ../index.php:224
 msgid "Input field"
 msgstr "Textrad"
 
-#: ../index.php:217
+#: ../index.php:225
 msgid "Textarea"
 msgstr "Textfält"
 
-#: ../index.php:218
+#: ../index.php:226
 #: ../create/index.php:410
 #: ../create/index.php:679
 msgid "Text"
 msgstr "Text"
 
-#: ../index.php:219
+#: ../index.php:227
 #: ../include/classes.php:495
 msgid "Space"
 msgstr "mellanrum"
 
-#: ../index.php:220
+#: ../index.php:228
 msgid "Datepicker"
 msgstr "Datumväljare"
 
-#: ../index.php:221
+#: ../index.php:229
 msgid "Radio button"
 msgstr "Flervalsalternativ"
 
-#: ../index.php:222
+#: ../index.php:230
 msgid "Referer URL"
 msgstr "Referens-URL"
 
-#: ../index.php:223
+#: ../index.php:231
 msgid "Dropdown"
 msgstr "Rullgardin"
 
-#: ../index.php:224
+#: ../index.php:232
 msgid "Multiple selection"
 msgstr "Rullgardin (flerval)"
 
-#: ../index.php:225
+#: ../index.php:233
 msgid "Hidden field"
 msgstr "Dolt fält"
 
-#: ../index.php:226
+#: ../index.php:234
 msgid "Custom tag"
 msgstr "Anpassat element"
 
-#: ../index.php:227
+#: ../index.php:235
 msgid "Custom tag (end)"
 msgstr "Anpassat element (slut)"
 
-#: ../index.php:233
+#: ../index.php:241
 msgid "Zip code"
 msgstr "Postnummer"
 
-#: ../index.php:234
-#: ../index.php:235
+#: ../index.php:242
+#: ../index.php:243
 msgid "Social security number"
 msgstr "Personnummer"
 
-#: ../index.php:234
-#: ../index.php:235
+#: ../index.php:242
+#: ../index.php:243
 msgid "digits"
 msgstr "siffror"
 
-#: ../index.php:242
+#: ../index.php:250
 msgid "aring"
 msgstr "å"
 
-#: ../index.php:242
+#: ../index.php:250
 msgid "auml"
 msgstr "ä"
 
-#: ../index.php:242
+#: ../index.php:250
 msgid "ouml"
 msgstr "ö"
 
-#: ../index.php:242
+#: ../index.php:250
 msgid "Aring"
 msgstr "Å"
 
-#: ../index.php:242
+#: ../index.php:250
 msgid "Auml"
 msgstr "Ä"
 
-#: ../index.php:242
+#: ../index.php:250
 msgid "Ouml"
 msgstr "Ö"
 

@@ -226,15 +226,13 @@ function mf_form_setting_replacement_form_callback()
 {
 	global $wpdb;
 
-	$is_super_admin = current_user_can('install_plugins');
-
 	$option = get_option('mf_form_setting_replacement_form');
 
 	echo "<label>
 		<select name='mf_form_setting_replacement_form'>
 			<option value=''>-- ".__("Choose here", 'lang_forms')." --</option>";
 
-			$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".($is_super_admin ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
+			$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
 
 			foreach($result as $r)
 			{
@@ -255,12 +253,10 @@ function get_form_xtra($query_xtra = "", $search = "")
 {
 	global $wpdb;
 
-	$is_admin = current_user_can('install_plugins');
-
 	$setting_form_permission_see_all = get_option('setting_form_permission_see_all');
 	$is_allowed_to_see_all_forms = $setting_form_permission_see_all != '' ? current_user_can($setting_form_permission_see_all) : true;
 
-	if(!$is_admin)
+	if(!IS_ADMIN)
 	{
 		$query_xtra .= ($query_xtra != '' ? " AND" : " WHERE")." (blogID = '".$wpdb->blogid."' OR blogID IS null)";
 	}
@@ -329,7 +325,7 @@ function notices_form()
 {
 	global $wpdb, $error_text;
 
-	if(current_user_can('manage_options'))
+	if(IS_ADMIN)
 	{
 		$answer_viewed = get_user_meta(get_current_user_id(), 'answer_viewed', true);
 
@@ -805,7 +801,7 @@ function show_query_form($data)
 						{
 							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = '101 (Sent to processing)'", $intAnswerID));
 
-							$intQueryPaymentTest = isset($_POST['intQueryPaymentTest']) && is_user_logged_in() && current_user_can('manage_options') ? 1 : 0;
+							$intQueryPaymentTest = isset($_POST['intQueryPaymentTest']) && is_user_logged_in() && IS_ADMIN ? 1 : 0;
 
 							$out .= $payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $intAnswerID, 'test' => $intQueryPaymentTest));
 						}
@@ -821,14 +817,14 @@ function show_query_form($data)
 
 		$obj_font_icons = new mf_font_icons();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryImproveUX, queryEmailCheckConfirm FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id']));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryEmailCheckConfirm FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id'])); //, queryImproveUX
 		$r = $result[0];
 		$intQueryShowAnswers = $r->queryShowAnswers;
 		$strQueryAnswerURL = $r->queryAnswerURL;
 		$strQueryButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_forms');
 		$strQueryButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
 		$intQueryPaymentProvider = $r->queryPaymentProvider;
-		$intQueryImproveUX = $r->queryImproveUX;
+		//$intQueryImproveUX = $r->queryImproveUX;
 		$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
 
 		$obj_form = new mf_form($data['query_id']);
@@ -891,13 +887,12 @@ function show_query_form($data)
 		{
 			$cols = $data['edit'] == true ? 5 : 2;
 
-			//$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $data['query_id'])); //, query2TypeOrder
 			$result = $obj_form->get_form_type_result();
 			$intTotalRows = $wpdb->num_rows;
 
 			if($intTotalRows > 0)
 			{
-				$out .= "<form method='post' action='' id='form_".$data['query_id']."' class='mf_form".($data['edit'] == true ? " mf_sortable" : "").($intQueryImproveUX == 1 ? " mf_improve_ux" : "")."'>";
+				$out .= "<form method='post' action='' id='form_".$data['query_id']."' class='mf_form".($data['edit'] == true ? " mf_sortable" : "")."'>"; //.($intQueryImproveUX == 1 ? " mf_improve_ux" : "")
 
 					if($data['edit'] == false)
 					{
@@ -1232,7 +1227,7 @@ function show_query_form($data)
 								$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $data['send_to'])));
 							}
 
-							if(is_user_logged_in() && current_user_can('manage_options'))
+							if(is_user_logged_in() && IS_ADMIN)
 							{
 								if($intQueryPaymentProvider > 0)
 								{

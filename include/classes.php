@@ -650,8 +650,6 @@ class widget_form extends WP_Widget
 	{
 		global $wpdb;
 
-		$is_super_admin = current_user_can('install_plugins');
-
 		$defaults = array(
 			'form_heading' => "",
 			'form_id' => "",
@@ -667,7 +665,7 @@ class widget_form extends WP_Widget
 			<select name='".$this->get_field_name('form_id')."' id='".$this->get_field_id('form_id')."' class='widefat'>
 				<option value=''>-- ".__("Choose here", 'lang_forms')." --</option>";
 
-				$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".($is_super_admin ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
+				$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
 
 				foreach($result as $r)
 				{

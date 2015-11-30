@@ -7,8 +7,6 @@ mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.j
 
 $folder = str_replace("plugins/mf_form/create", "", dirname(__FILE__));
 
-$is_super_admin = current_user_can('install_plugins');
-
 $intQueryID = check_var('intQueryID');
 
 $intQuery2TypeID = check_var('intQuery2TypeID');
@@ -23,7 +21,7 @@ $strQueryAnswerURL = check_var('strQueryAnswerURL');
 $strQueryEmail = check_var('strQueryEmail', 'email');
 $intQueryEmailNotify = check_var('intQueryEmailNotify');
 $strQueryEmailName = check_var('strQueryEmailName');
-$intQueryImproveUX = isset($_POST['intQueryImproveUX']) ? 1 : 0;
+//$intQueryImproveUX = isset($_POST['intQueryImproveUX']) ? 1 : 0;
 $strQueryEmailCheckConfirm = check_var('strQueryEmailCheckConfirm');
 $strQueryMandatoryText = check_var('strQueryMandatoryText');
 $strQueryButtonText = check_var('strQueryButtonText');
@@ -33,7 +31,6 @@ $strQueryPaymentHmac = check_var('strQueryPaymentHmac');
 $strQueryPaymentMerchant = check_var('strQueryPaymentMerchant');
 $strQueryPaymentPassword = check_var('strQueryPaymentPassword');
 $strQueryPaymentCurrency = check_var('strQueryPaymentCurrency');
-//$intQueryPaymentCheck = check_var('intQueryPaymentCheck');
 $intQueryPaymentAmount = check_var('intQueryPaymentAmount');
 $intQueryTypeID = check_var('intQueryTypeID');
 $strQueryTypeText = isset($_POST['strQueryTypeText']) ? $_POST['strQueryTypeText'] : ""; //Allow HTML here
@@ -178,7 +175,7 @@ echo "<div class='wrap'>";
 
 				wp_update_post($post_data);
 
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '".$wpdb->blogid."', queryImproveUX = '%d', queryEmailCheckConfirm = %s, queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryImproveUX, $strQueryEmailCheckConfirm, $intQueryEmailConfirm, $strQueryEmailConfirmPage, $intQueryShowAnswers, $strQueryName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentAmount, $intQueryID)); //, queryPaymentCheck = '%d', $intQueryPaymentCheck
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '%d', queryEmailCheckConfirm = %s, queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $wpdb->blogid, $strQueryEmailCheckConfirm, $intQueryEmailConfirm, $strQueryEmailConfirmPage, $intQueryShowAnswers, $strQueryName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentAmount, $intQueryID)); //, queryImproveUX = '%d', $intQueryImproveUX //, queryPaymentCheck = '%d', $intQueryPaymentCheck
 			}
 
 			else
@@ -307,9 +304,9 @@ echo "<div class='wrap'>";
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0' WHERE queryID = '%d'", $intQueryID));
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryImproveUX, queryEmailCheckConfirm, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //, queryPaymentCheck
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailCheckConfirm, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID)); //queryImproveUX, 
 		$r = $result[0];
-		$intQueryImproveUX = $r->queryImproveUX;
+		//$intQueryImproveUX = $r->queryImproveUX;
 		$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
 		$intQueryEmailConfirm = $r->queryEmailConfirm;
 		$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
@@ -548,7 +545,7 @@ echo "<div class='wrap'>";
 										$blog_id = $r->blog_id;
 										$domain = $r->domain;
 
-										if($is_super_admin || $blog_id == $wpdb->blogid)
+										if(IS_ADMIN || $blog_id == $wpdb->blogid)
 										{
 											$arr_sites[$blog_id] = $domain;
 										}
@@ -639,10 +636,10 @@ echo "<div class='wrap'>";
 
 								$is_poll = is_poll(array('query_id' => $intQueryID));
 
-								if($intQueryImproveUX == 1 || current_user_can('update_core'))
+								/*if($intQueryImproveUX == 1 || IS_ADMIN)
 								{
 									echo show_checkbox(array('name' => 'intQueryImproveUX', 'text' => __("Improve UX", 'lang_forms'), 'value' => 1, 'compare' => $intQueryImproveUX));
-								}
+								}*/
 								
 								if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'required' => true, 'check_code' => 'email')))
 								{

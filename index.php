@@ -2,18 +2,27 @@
 /*
 Plugin Name: MF Form
 Plugin URI: http://github.com/frostkom/mf_form
-Version: 3.0.6
+Description: 
+Version: 3.0.11
 Author: Martin Fors
 Author URI: http://frostkom.se
 */
 
-add_action('init', 'init_form');
+/*add_action('init', 'include_form');
+function include_form(){}*/
+
+include_once("include/classes.php");
+include_once("include/functions.php");
+
 add_action('widgets_init', 'widgets_form');
+
+add_action('init', 'init_form');
 
 if(is_admin())
 {
 	register_activation_hook(__FILE__, 'activate_form');
 	register_deactivation_hook(__FILE__, 'deactivate_form');
+	add_filter('run_cron_db_update', 'activate_form');
 
 	add_action('admin_init', 'settings_form');
 	add_action('admin_menu', 'menu_form');
@@ -46,7 +55,6 @@ function activate_form()
 		queryEmail varchar(100) DEFAULT NULL,
 		queryEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
 		queryEmailName varchar(100) DEFAULT NULL,
-		queryImproveUX ENUM('0', '1') NOT NULL DEFAULT '0',
 		queryEmailCheckConfirm ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 		queryEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
 		queryEmailConfirmPage VARCHAR(20) DEFAULT NULL,
@@ -67,7 +75,7 @@ function activate_form()
 		queryDeletedID INT unsigned DEFAULT '0',
 		userID INT unsigned DEFAULT '0',
 		PRIMARY KEY (queryID)
-	) DEFAULT CHARSET=".$default_charset);
+	) DEFAULT CHARSET=".$default_charset); //queryImproveUX ENUM('0', '1') NOT NULL DEFAULT '0',
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2answer (
 		answerID INT unsigned NOT NULL AUTO_INCREMENT,
@@ -162,13 +170,13 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentPassword'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER queryPaymentMerchant";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailConfirmPage'] = "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryEmailConfirm";
 	$arr_add_column[$wpdb->base_prefix."query"]['blogID'] = "ALTER TABLE [table] ADD [column] INT AFTER queryID";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName";
+	//$arr_add_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentProvider'] = "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryButtonText";
 	//$arr_add_column[$wpdb->base_prefix."query"]['queryURL'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryName";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentCurrency'] = "ALTER TABLE [table] ADD [column] VARCHAR(3) AFTER queryPaymentMerchant";
 	$arr_add_column[$wpdb->base_prefix."query"]['queryButtonSymbol'] = "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText";
 	$arr_add_column[$wpdb->base_prefix."query"]['postID'] = "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER blogID";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailCheckConfirm'] = "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryImproveUX";
+	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailCheckConfirm'] = "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryEmailName";
 
 	$arr_add_column[$wpdb->base_prefix."query2answer"]['answerToken'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER answerIP";
 
@@ -191,7 +199,7 @@ function activate_form()
 	$arr_update_column[$wpdb->base_prefix."query"]['queryTypeOrder'] = "ALTER TABLE [table] DROP [column]";
 	$arr_update_column[$wpdb->base_prefix."query"]['queryEmailNotify'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '1'";
 	$arr_update_column[$wpdb->base_prefix."query"]['queryPaymentMerchant'] = "ALTER TABLE [table] CHANGE [column] [column] VARCHAR(100) DEFAULT NULL";
-	$arr_update_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '0'";
+	//$arr_update_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '0'";
 
 	$arr_update_column[$wpdb->base_prefix."query"]['queryEncrypted'] = "ALTER TABLE [table] DROP [column]";
 
@@ -293,9 +301,6 @@ function deactivate_form()
 	$wpdb->query("DROP TABLE IF EXISTS ".$wpdb->base_prefix."query_type");
 	$wpdb->query("DROP TABLE IF EXISTS ".$wpdb->base_prefix."query_zipcode");
 }
-
-include("include/classes.php");
-include("include/functions.php");
 
 function shortcode_form($atts)
 {

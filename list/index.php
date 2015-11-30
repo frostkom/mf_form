@@ -13,8 +13,6 @@ $strSearch = check_var('s', 'char', true);
 $intLimitAmount = 20;
 $intLimitStart = $paged * $intLimitAmount;
 
-$is_editor = current_user_can("edit_pages");
-
 if(isset($_GET['btnQueryCopy']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'form_copy'))
 {
 	$inserted = true;
@@ -24,7 +22,7 @@ if(isset($_GET['btnQueryCopy']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'form_
 
 	if($rows > 0)
 	{
-		$fields = ", queryImproveUX, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, blogID"; //, queryPaymentCheck, queryPaymentAmount has to be checked for new values since the queryType2ID is new for this form
+		$fields = ", queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, blogID"; //, queryImproveUX //, queryPaymentCheck, queryPaymentAmount has to be checked for new values since the queryType2ID is new for this form
 
 		$obj_form = new mf_form();
 
@@ -349,7 +347,7 @@ echo "<div class='wrap'>
 
 		$arr_header[] = __("Name", 'lang_forms');
 
-		if($is_editor)
+		if(IS_EDITOR)
 		{
 			$arr_header[] = __("Shortcode", 'lang_forms');
 		}
@@ -380,124 +378,108 @@ echo "<div class='wrap'>
 					$intQueryID = $r->queryID;
 					$intPostID = $r->postID;
 					$strQueryName = $r->queryName;
-					//$strQueryCreated = $r->queryCreated;
 					$intQueryDeleted = $r->queryDeleted;
-					//$strQueryDeletedDate = $r->queryDeletedDate;
 
-					/*if($intQueryDeleted == 1 && $strQueryDeletedDate < date("Y-m-d H:i:s", strtotime("-1 month")))
+					$resultContent = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' ORDER BY query2TypeCreated ASC", $intQueryID));
+
+					$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID", $intQueryID));
+					$intQueryTotal = $wpdb->num_rows;
+
+					$result_temp = $wpdb->get_results($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' LIMIT 0, 1", $intQueryID));
+					$rowsQuery = $wpdb->num_rows;
+
+					$class = "";
+
+					if($intQueryDeleted == 1)
 					{
-						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $intQueryID));
-
-						$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
-						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d'", $intAnswerID));
-
-						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
-						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));
+						$class .= ($class != '' ? " " : "")."deleted";
 					}
 
-					else
-					{*/
-						$resultContent = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' ORDER BY query2TypeCreated ASC", $intQueryID));
+					echo "<tr id='query_".$intQueryID."'".($class != '' ? " class='".$class."'" : "").">
+						<td>
+							<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>".$strQueryName."</a>
+							<div class='row-actions'>";
 
-						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID", $intQueryID));
-						$intQueryTotal = $wpdb->num_rows;
+								if($intQueryDeleted == 0)
+								{
+									echo "<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>".__("Edit", 'lang_forms')."</a> | 
+									<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID, 'form_copy')."'>".__("Copy", 'lang_forms')."</a> | 
+									<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link'>".__("Delete", 'lang_forms')."</a>";
 
-						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' LIMIT 0, 1", $intQueryID));
-						$rowsQuery = $wpdb->num_rows;
+									$obj_form = new mf_form();
 
-						$class = "";
-
-						if($intQueryDeleted == 1)
-						{
-							$class .= ($class != '' ? " " : "")."deleted";
-						}
-
-						echo "<tr id='query_".$intQueryID."'".($class != '' ? " class='".$class."'" : "").">
-							<td>
-								<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>".$strQueryName."</a>
-								<div class='row-actions'>";
-
-									if($intQueryDeleted == 0)
+									if($obj_form->is_published(array('post_id' => $intPostID)))
 									{
-										echo "<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>".__("Edit", 'lang_forms')."</a> | 
-										<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID, 'form_copy')."'>".__("Copy", 'lang_forms')."</a> | 
-										<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link'>".__("Delete", 'lang_forms')."</a>";
+										$post_url = get_permalink($intPostID);
 
-										$obj_form = new mf_form();
-
-										if($obj_form->is_published(array('post_id' => $intPostID)))
+										if($post_url != '')
 										{
-											$post_url = get_permalink($intPostID);
+											echo " | <a href='".$post_url."'>".__("View form", 'lang_forms')."</a>";
+										}
+									}
+								}
 
-											if($post_url != '')
-											{
-												echo " | <a href='".$post_url."'>".__("View form", 'lang_forms')."</a>";
-											}
+								else
+								{
+									echo "<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."&recover'>".__("Recover", 'lang_forms')."</a>";
+								}
+
+							echo "</div>
+						</td>";
+
+						if(IS_EDITOR)
+						{
+							echo "<td class='nowrap'>";
+
+								if($intQueryDeleted == 0)
+								{
+									$strQueryShortcode = "[mf_form id=".$intQueryID."]";
+
+									$row_actions = "";
+
+									$result = get_page_from_form($intQueryID);
+
+									if(count($result) > 0)
+									{
+										foreach($result as $r)
+										{
+											$post_id = $r['post_id'];
+
+											$row_actions .= ($row_actions != '' ? " | " : "")."<a href='".get_site_url()."/wp-admin/post.php?post=".$post_id."&action=edit'>".__("Edit Page", 'lang_forms')."</a> | <a href='".get_permalink($post_id)."'>".__("View page", 'lang_forms')."</a>";
 										}
 									}
 
 									else
 									{
-										echo "<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."&recover'>".__("Recover", 'lang_forms')."</a>";
+										$row_actions .= ($row_actions != '' ? " | " : "")."<a href='".get_site_url()."/wp-admin/post-new.php?post_type=page&content=".$strQueryShortcode."'>".__("Add New Page", 'lang_forms')."</a>";
 									}
 
-								echo "</div>
-							</td>";
-
-							if($is_editor)
-							{
-								echo "<td class='nowrap'>";
-
-									if($intQueryDeleted == 0)
-									{
-										$strQueryShortcode = "[mf_form id=".$intQueryID."]";
-
-										$row_actions = "";
-
-										$result = get_page_from_form($intQueryID);
-
-										if(count($result) > 0)
-										{
-											foreach($result as $r)
-											{
-												$post_id = $r['post_id'];
-
-												$row_actions .= ($row_actions != '' ? " | " : "")."<a href='".get_site_url()."/wp-admin/post.php?post=".$post_id."&action=edit'>".__("Edit Page", 'lang_forms')."</a> | <a href='".get_permalink($post_id)."'>".__("View page", 'lang_forms')."</a>";
-											}
-										}
-
-										else
-										{
-											$row_actions .= ($row_actions != '' ? " | " : "")."<a href='".get_site_url()."/wp-admin/post-new.php?post_type=page&content=".$strQueryShortcode."'>".__("Add New Page", 'lang_forms')."</a>";
-										}
-
-										echo $strQueryShortcode
-										."<div class='row-actions'>".$row_actions."</div>";
-									}
-
-								echo "</td>";
-							}
-
-							echo "<td>";
-
-								if($intQueryDeleted == 0)
-								{
-									$count_message = get_count_message($intQueryID);
-
-									echo $intQueryTotal.$count_message;
-
-									if($intQueryTotal > 0)
-									{
-										echo "<div class='row-actions'>
-											<a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".__("Show Answers", 'lang_forms')."</a> | 
-											<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryExport&intQueryID=".$intQueryID, 'form_export')."'>".__("Export Answers", 'lang_forms')."</a>
-										</div>";
-									}
+									echo $strQueryShortcode
+									."<div class='row-actions'>".$row_actions."</div>";
 								}
 
-							echo "</td>
-						</tr>";
-					//}
+							echo "</td>";
+						}
+
+						echo "<td>";
+
+							if($intQueryDeleted == 0)
+							{
+								$count_message = get_count_message($intQueryID);
+
+								echo $intQueryTotal.$count_message;
+
+								if($intQueryTotal > 0)
+								{
+									echo "<div class='row-actions'>
+										<a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".__("Show Answers", 'lang_forms')."</a> | 
+										<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryExport&intQueryID=".$intQueryID, 'form_export')."'>".__("Export Answers", 'lang_forms')."</a>
+									</div>";
+								}
+							}
+
+						echo "</td>
+					</tr>";
 				}
 			}
 
