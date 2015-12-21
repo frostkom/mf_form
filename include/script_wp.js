@@ -96,7 +96,7 @@ jQuery(function($)
 	{
 		var type = $(this).attr('href').substring(1);
 
-		if($(this).hasClass("confirm_link") && !confirm("Are you sure?"))
+		if($(this).hasClass("confirm_link") && !confirm(script_forms_wp.confirm_question))
 		{
 			return false;
 		}

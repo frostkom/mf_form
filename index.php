@@ -3,26 +3,23 @@
 Plugin Name: MF Form
 Plugin URI: http://github.com/frostkom/mf_form
 Description: 
-Version: 3.0.11
+Version: 3.0.14
 Author: Martin Fors
 Author URI: http://frostkom.se
 */
 
-/*add_action('init', 'include_form');
-function include_form(){}*/
-
 include_once("include/classes.php");
 include_once("include/functions.php");
 
-add_action('widgets_init', 'widgets_form');
+add_action('cron_base', 'activate_form');
 
 add_action('init', 'init_form');
+add_action('widgets_init', 'widgets_form');
 
 if(is_admin())
 {
 	register_activation_hook(__FILE__, 'activate_form');
 	register_deactivation_hook(__FILE__, 'deactivate_form');
-	add_filter('run_cron_db_update', 'activate_form');
 
 	add_action('admin_init', 'settings_form');
 	add_action('admin_menu', 'menu_form');
@@ -258,7 +255,7 @@ function activate_form()
 	run_queries($arr_run_query);
 
 	//Migrate query table to posts table
-	if(current_user_can("update_core"))
+	if(IS_ADMIN)
 	{
 		//Step 1: Create post in posts table
 		#########################

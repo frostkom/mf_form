@@ -138,7 +138,7 @@ function settings_form()
 
 	add_settings_section(
 		$options_area,
-		__("Forms", 'lang_forms'),
+		"",
 		$options_area."_callback",
 		$options_page
 	);
@@ -160,7 +160,8 @@ function settings_form()
 
 function settings_form_callback()
 {
-	echo "<div id='settings_form'></div>";
+	echo "<div id='settings_form'>&nbsp;</div>
+	<a href='#settings_form'><h3>".__("Forms", 'lang_forms')."</h3></a>";
 }
 
 function setting_form_test_emails_callback()
@@ -442,7 +443,7 @@ function mf_form_mail($data)
 
 	$out = "";
 
-	if(is_user_logged_in() && current_user_can("update_core"))
+	if(is_user_logged_in() && IS_ADMIN)
 	{
 		$setting_form_test_emails = get_option('setting_form_test_emails');
 

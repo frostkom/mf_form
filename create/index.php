@@ -3,7 +3,7 @@
 wp_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css");
 wp_enqueue_script('jquery-ui-sortable');
 mf_enqueue_script('script_touch', plugins_url()."/mf_base/include/jquery.ui.touch-punch.min.js");
-mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url()));
+mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_base')));
 
 $folder = str_replace("plugins/mf_form/create", "", dirname(__FILE__));
 
@@ -364,7 +364,7 @@ echo "<div class='wrap'>";
 
 		if($intQueryID > 0)
 		{
-			echo "<div class='columns-2' id='post-body'>
+			echo "<div id='post-body' class='columns-2'>
 				<div id='post-body-content'>
 					<div class='postbox".($intQuery2TypeID > 0 ? " active" : "")."'>
 						<h3 class='hndle'><span>".__("Content", 'lang_forms')."</span></h3>
