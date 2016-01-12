@@ -1,12 +1,30 @@
 <?php
 
-wp_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css");
+//wp_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css");
 mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_base')));
-mf_enqueue_script('jquery-flot', plugins_url()."/mf_form/include/jquery.flot.min.js");
-mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_form/include/jquery.flot.pie.min.js");
 
-$intQueryID = check_var('intQueryID');
-$intAnswerID = check_var('intAnswerID');
+$obj_form = new mf_form();
+//$obj_form->fetch_request();
+
+//$intQueryID = check_var('intQueryID');
+//$intAnswerID = check_var('intAnswerID');
+
+$query_pie = false;
+
+$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8'", $obj_form->id));
+
+if($query_answers > 0)
+{
+	list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(8)));
+
+	if($rows > 0)
+	{
+		$query_pie = true;
+
+		mf_enqueue_script('jquery-flot', plugins_url()."/mf_form/include/jquery.flot.min.js");
+		mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_form/include/jquery.flot.pie.min.js");
+	}
+}
 
 $paged = check_var('paged', 'int', true, '0');
 $strSearch = check_var('s', 'char', true);
@@ -14,9 +32,9 @@ $strSearch = check_var('s', 'char', true);
 $intLimitAmount = 20;
 $intLimitStart = $paged * $intLimitAmount;
 
-if(!($intQueryID > 0))
+if(!($obj_form->id > 0))
 {
-	$intQueryID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query LEFT JOIN ".$wpdb->base_prefix."query2answer USING (queryID) WHERE queryDeleted = '0' ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
+	$obj_form->id = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query LEFT JOIN ".$wpdb->base_prefix."query2answer USING (queryID) WHERE queryDeleted = '0' ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
 }
 
 $dteQueryStartDate = check_var('dteQueryStartDate', 'char', true, date("Y-m-d", strtotime("-2 year")));
@@ -40,7 +58,7 @@ if($dteQueryEndDate > DEFAULT_DATE)
 	$strQuerySearch .= " AND answerCreated <= '".$dteQueryEndDate."'";
 }
 
-$result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
+$result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
 
 foreach($result as $r)
 {
@@ -52,65 +70,54 @@ foreach($result as $r)
 	$has_payment = $intQueryPaymentProvider > 0 && $intQueryPaymentAmount > 0;
 }
 
-$obj_form = new mf_form($intQueryID);
-
 echo "<div class='wrap'>
-	<h2>".__("Answers in", 'lang_forms')." ".$strQueryName."</h2>"
+	<h2>".__("Answers in", 'lang_form')." ".$strQueryName."</h2>"
 	.get_notification();
 
-	$intTotalAnswers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8'", $intQueryID));
-
-	if($intTotalAnswers > 0)
+	if($query_pie == true)
 	{
-		/*$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND queryTypeID = '8' ORDER BY query2TypeOrder ASC", $intQueryID));
-		$rows = $wpdb->num_rows;*/
-		list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(8)));
+		$out = $js_out = $order_temp = "";
+		$data = array();
 
-		if($rows > 0)
+		$i = 0;
+
+		foreach($result as $r)
 		{
-			$out = $js_out = $order_temp = "";
-			$data = array();
+			$intQuery2TypeID2 = $r->query2TypeID;
+			$strQueryTypeText2 = $r->queryTypeText;
+			$strQuery2TypeOrder2 = $r->query2TypeOrder;
 
-			$i = 0;
-
-			foreach($result as $r)
+			if($order_temp != '' && $strQuery2TypeOrder2 != ($order_temp + 1))
 			{
-				$intQuery2TypeID2 = $r->query2TypeID;
-				$strQueryTypeText2 = $r->queryTypeText;
-				$strQuery2TypeOrder2 = $r->query2TypeOrder;
-
-				if($order_temp != '' && $strQuery2TypeOrder2 != ($order_temp + 1))
-				{
-					$i++;
-				}
-
-				$order_temp = $strQuery2TypeOrder2;
-
-				$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '%d'", $intQueryID, $intQuery2TypeID2));
-
-				if(!isset($data[$i])){	$data[$i] = "";}
-
-				$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".$strQueryTypeText2."', data: ".$intAnswerCount."}";
+				$i++;
 			}
 
-			foreach($data as $key => $value)
-			{
-				$out .= "<div id='flot_pie_".$key."' class='flot_pie'></div>";
-				$js_out .= "$.plot($('#flot_pie_".$key."'), [".$value."], { series: { pie: { show: true }}});"; /*combine: {
-                    color: '#999',
-					label: '',
-                    threshold: 0.1
-                }*/
-			}
+			$order_temp = $strQuery2TypeOrder2;
 
-			echo $out
-			."<script>
-				jQuery(function($)
-				{"
-					.$js_out
-				."});
-			</script>";
+			$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '%d'", $obj_form->id, $intQuery2TypeID2));
+
+			if(!isset($data[$i])){	$data[$i] = "";}
+
+			$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".$strQueryTypeText2."', data: ".$intAnswerCount."}";
 		}
+
+		foreach($data as $key => $value)
+		{
+			$out .= "<div id='flot_pie_".$key."' class='flot_pie'></div>";
+			$js_out .= "$.plot($('#flot_pie_".$key."'), [".$value."], { series: { pie: { show: true }}});"; /*combine: {
+				color: '#999',
+				label: '',
+				threshold: 0.1
+			}*/
+		}
+
+		echo $out
+		."<script>
+			jQuery(function($)
+			{"
+				.$js_out
+			."});
+		</script>";
 	}
 
 	$query_xtra = "";
@@ -120,12 +127,12 @@ echo "<div class='wrap'>
 		$query_xtra .= " AND (answerText LIKE '%".$strSearch."%' OR answerCreated LIKE '%".$strSearch."%')";
 	}
 
-	$resultPagination = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC", $intQueryID));
+	$resultPagination = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC", $obj_form->id));
 
 	echo get_list_navigation($resultPagination)
-	."<table class='widefat striped'>";
+	."<table class='wp-list-table widefat striped'>";
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intQueryID));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
 
 		foreach($result as $r)
 		{
@@ -133,21 +140,22 @@ echo "<div class='wrap'>
 			$strQueryTypeText = $r->queryTypeText;
 			$intQuery2TypeID2 = $r->query2TypeID;
 
-			if($intQueryTypeID == 2)
+			switch($intQueryTypeID)
 			{
-				list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
-			}
+				case 2:
+					list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+				break;
 
-			else if($intQueryTypeID == 8)
-			{
-				$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '%d'", $intQueryID, $intQuery2TypeID2));
+				case 8:
+					$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '%d'", $obj_form->id, $intQuery2TypeID2));
 
-				$strQueryTypeText .= " (".$intAnswerCount.")";
-			}
+					$strQueryTypeText .= " (".$intAnswerCount.")";
+				break;
 
-			else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
-			{
-				list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
+				case 10:
+				case 11:
+					list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
+				break;
 			}
 
 			$arr_header[] = $strQueryTypeText;
@@ -155,23 +163,23 @@ echo "<div class='wrap'>
 
 		if($has_payment)
 		{
-			$arr_header[] = __("Payment", 'lang_forms');
+			$arr_header[] = __("Payment", 'lang_form');
 		}
 
-		$arr_header[] = __("Created", 'lang_forms');
-		$arr_header[] = __("Sent e-mails", 'lang_forms');
+		$arr_header[] = __("Created", 'lang_form');
+		$arr_header[] = __("Sent e-mails", 'lang_form');
 
 		echo show_table_header($arr_header)
 		."<tbody>";
 
 			$strQueryPrefix = $obj_form->get_post_name()."_";
 
-			$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
+			$result = $wpdb->get_results("SELECT answerID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$obj_form->id."'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount); //, queryID
 			$rows = $wpdb->num_rows;
 
 			if($rows == 0)
 			{
-				echo "<tr><td colspan='".count($arr_header)."'>".__("There is nothing to show", 'lang_forms')."</td></tr>";
+				echo "<tr><td colspan='".count($arr_header)."'>".__("There is nothing to show", 'lang_form')."</td></tr>";
 			}
 
 			else
@@ -179,14 +187,14 @@ echo "<div class='wrap'>
 				foreach($result as $r)
 				{
 					$intAnswerID = $r->answerID;
-					$intQueryID = $r->queryID;
+					//$intQueryID = $r->queryID;
 					$strAnswerCreated = $r->answerCreated;
 					$strAnswerIP = $r->answerIP;
 					$strAnswerToken = $r->answerToken;
 
-					echo "<tr id='answer_".$intAnswerID."'".">";
+					echo "<tr>"; // id='answer_".$intAnswerID."'
 
-						$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intQueryID));
+						$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
 
 						$j = 0;
 
@@ -205,78 +213,90 @@ echo "<div class='wrap'>
 
 							if($rowsAnswer > 0)
 							{
-								if($intQueryTypeID == 8)
+								/*if($intQueryTypeID == 8)
 								{
 									$strAnswerText = 1;
 								}
 
 								else
-								{
+								{*/
 									$r = $resultAnswer[0];
 									$strAnswerText = $r->answerText;
 
-									if($intQueryTypeID == 7)
+									switch($intQueryTypeID)
 									{
-										$strAnswerText = wp_date_format(array('date' => $strAnswerText));
-									}
+										case 8:
+											$strAnswerText = 1;
+										break;
 
-									else if($intQueryTypeID == 10)
-									{
-										$arr_content1 = explode(":", $strQueryTypeText);
-										$arr_content2 = explode(",", $arr_content1[1]);
+										case 7:
+											$strAnswerText = wp_date_format(array('date' => $strAnswerText));
+										break;
 
-										foreach($arr_content2 as $str_content)
-										{
-											$arr_content3 = explode("|", $str_content);
+										case 10:
+											$arr_content1 = explode(":", $strQueryTypeText);
+											$arr_content2 = explode(",", $arr_content1[1]);
 
-											if($strAnswerText == $arr_content3[0])
+											foreach($arr_content2 as $str_content)
 											{
-												$strAnswerText = $arr_content3[1];
+												$arr_content3 = explode("|", $str_content);
+
+												if($strAnswerText == $arr_content3[0])
+												{
+													$strAnswerText = $arr_content3[1];
+												}
 											}
-										}
-									}
+										break;
 
-									else if($intQueryTypeID == 11)
-									{
-										$arr_content1 = explode(":", $strQueryTypeText);
-										$arr_content2 = explode(",", $arr_content1[1]);
+										case 11:
+											$arr_content1 = explode(":", $strQueryTypeText);
+											$arr_content2 = explode(",", $arr_content1[1]);
 
-										$arr_answer_text = explode(",", str_replace($strQueryPrefix, "", $strAnswerText));
+											$arr_answer_text = explode(",", str_replace($strQueryPrefix, "", $strAnswerText));
 
-										$strAnswerText = "";
+											$strAnswerText = "";
 
-										foreach($arr_content2 as $str_content)
-										{
-											$arr_content3 = explode("|", $str_content);
-
-											if(in_array($arr_content3[0], $arr_answer_text))
+											foreach($arr_content2 as $str_content)
 											{
-												$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
-											}
-										}
+												$arr_content3 = explode("|", $str_content);
 
-										if($strAnswerText == '')
-										{
-											$strAnswerText = implode(",", $arr_answer_text);
-										}
-									}
-
-									else
-									{
-										if($strCheckCode != '')
-										{
-											if($strCheckCode == "url")
-											{
-												$strAnswerText = "<a href='".$strAnswerText."'>".$strAnswerText."</a>";
+												if(in_array($arr_content3[0], $arr_answer_text))
+												{
+													$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
+												}
 											}
 
-											else if($strCheckCode == "email")
+											if($strAnswerText == '')
 											{
-												$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
+												$strAnswerText = implode(",", $arr_answer_text);
 											}
-										}
+										break;
+
+										case 15:
+											$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+											foreach($result as $r)
+											{
+												$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
+											}
+										break;
+
+										default:
+											if($strCheckCode != '')
+											{
+												if($strCheckCode == "url")
+												{
+													$strAnswerText = "<a href='".$strAnswerText."'>".$strAnswerText."</a>";
+												}
+
+												else if($strCheckCode == "email")
+												{
+													$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
+												}
+											}
+										break;
 									}
-								}
+								//}
 							}
 
 							else
@@ -309,8 +329,8 @@ echo "<div class='wrap'>
 								if($j == 0)
 								{
 									echo "<div class='row-actions'>"
-										."<a href='?page=mf_form/view/index.php&intQueryID=".$intQueryID."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_forms')."</a> | "
-										."<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_forms')."</a>
+										."<span class='edit'><a href='?page=mf_form/view/index.php&intQueryID=".$obj_form->id."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_form')."</a></span> | "
+										."<span class='delete'><a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a></span>
 									</div>";
 								}
 
@@ -329,12 +349,12 @@ echo "<div class='wrap'>
 						echo "<td>"
 							.wp_date_format(array('date' => $strAnswerCreated, 'full_datetime' => true))
 							."<div class='row-actions'>"
-								.__("ID", 'lang_forms').": ".$intAnswerID
-								." | ".__("IP", 'lang_forms').": ".$strAnswerIP;
+								.__("ID", 'lang_form').": ".$intAnswerID
+								." | ".__("IP", 'lang_form').": ".$strAnswerIP;
 
 								if($strAnswerToken != '')
 								{
-									echo " | ".__("Token", 'lang_forms').": ".$strAnswerToken;
+									echo " | ".__("Token", 'lang_form').": ".$strAnswerToken;
 								}
 
 								if($has_payment == false)
@@ -343,7 +363,7 @@ echo "<div class='wrap'>
 
 									if($strSentTo != '')
 									{
-										echo " | ".__("Sent to", 'lang_forms').": ".$strSentTo;
+										echo " | ".__("Sent to", 'lang_form').": ".$strSentTo;
 									}
 								}
 
@@ -356,7 +376,7 @@ echo "<div class='wrap'>
 
 							if($count_temp > 0)
 							{
-								echo $count_temp." ".__("Sent", 'lang_forms')
+								echo $count_temp." ".__("Sent", 'lang_form')
 								."<div class='row-actions'>
 									<ul>";
 

@@ -94,7 +94,8 @@ jQuery(function($)
 
 	$('.ajax_link').on('click', function()
 	{
-		var type = $(this).attr('href').substring(1);
+		var self = $(this),
+			type = $(this).attr('href').substring(1);
 
 		if($(this).hasClass("confirm_link") && !confirm(script_forms_wp.confirm_question))
 		{
@@ -112,7 +113,8 @@ jQuery(function($)
 				{
 					if(data.dom_id)
 					{
-						$('#' + data.dom_id).remove();
+						//$('#' + data.dom_id).remove();
+						self.parents('tr').remove();
 					}
 				}
 

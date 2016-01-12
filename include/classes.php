@@ -17,6 +17,386 @@ class mf_form
 		$this->query2type_id = 0;
 	}
 
+	function fetch_request()
+	{
+		$this->answer_id = check_var('intAnswerID');
+	}
+
+	function save_data()
+	{
+		global $wpdb, $error_text, $done_text;
+
+		$out = "";
+
+		if(isset($_GET['btnQueryCopy']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'form_copy'))
+		{
+			$inserted = true;
+
+			$result_temp = $wpdb->get_results($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+			$rows = $wpdb->num_rows;
+
+			if($rows > 0)
+			{
+				$fields = ", queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, blogID"; //, queryImproveUX //, queryPaymentCheck, queryPaymentAmount has to be checked for new values since the queryType2ID is new for this form
+
+				//$obj_form = new mf_form();
+
+				$strQueryName = $this->get_form_name($this->id);
+
+				$post_data = array(
+					'post_type' => 'mf_form',
+					'post_status' => 'publish',
+					'post_title' => $strQueryName,
+				);
+
+				$intPostID = wp_insert_post($post_data);
+
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query (queryName, postID".$fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (".__("copy", 'lang_form').")'), '%d'".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0')", $intPostID, $this->id));
+				$intQueryID_new = $wpdb->insert_id;
+
+				if($intQueryID_new > 0)
+				{
+					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' ORDER BY query2TypeID DESC", $this->id));
+
+					foreach($result as $r)
+					{
+						$intQuery2TypeID = $r->query2TypeID;
+
+						$fields = "queryTypeID, queryTypeText, checkID, queryTypeRequired, queryTypeAutofocus, query2TypeOrder";
+
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type (queryID, ".$fields.", query2TypeCreated, userID) (SELECT %d, ".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d')", $intQueryID_new, $intQuery2TypeID));
+
+						if(!($wpdb->insert_id > 0))
+						{
+							$inserted = false;
+						}
+					}
+				}
+
+				else
+				{
+					$inserted = false;
+				}
+			}
+
+			if($inserted == false)
+			{
+				$error_text = __("Something went wrong. Contact your admin and add this URL as reference", 'lang_form');
+			}
+
+			else
+			{
+				$done_text = __("Wow! The form was copied successfully!", 'lang_form');
+			}
+		}
+
+		else if(isset($_GET['btnQueryExport']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'form_export'))
+		{
+			list($upload_path, $upload_url) = get_uploads_folder("mf_forms");
+
+			$dir_exists = true;
+
+			if(!is_dir($upload_path))
+			{
+				if(!mkdir($upload_path, 0755, true))
+				{
+					$dir_exists = false;
+				}
+			}
+
+			if($dir_exists == false)
+			{
+				$error_text = __("Could not create a folder in uploads. Please add the correct rights for the script to create a new subfolder", 'lang_form');
+			}
+
+			else
+			{
+				$done_text = "";
+
+				$strExportDate = wp_date_format(array('date' => date("Y-m-d H:i:s"), 'full_datetime' => true));
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$strQueryName = $r->queryName;
+					}
+
+					$file_base = sanitize_title_with_dashes(sanitize_title($strQueryName))."_".date("YmdHis").".";
+
+					//Export to CSV
+					#######################
+					$file_type = "csv";
+					$field_separator = ",";
+					$row_separator = "\n";
+
+					$i = 0;
+					$out = "";
+
+					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $this->id));
+
+					foreach($result as $r)
+					{
+						$intQuery2TypeID = $r->query2TypeID;
+						$intQueryTypeID = $r->queryTypeID;
+						$strQueryTypeText = preg_replace("/(\r\n|\r|\n|".$field_separator.")/", " ", $r->queryTypeText);
+
+						switch($intQueryTypeID)
+						{
+							case 2:
+								list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+							break;
+
+							case 10:
+							case 11:
+								list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
+							break;
+						}
+
+						$out .= ($i > 0 ? $field_separator : "").stripslashes(strip_tags($strQueryTypeText));
+
+						$i++;
+					}
+
+					$out .= $field_separator.__("Created", 'lang_form').$row_separator;
+
+					$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID ORDER BY answerCreated DESC", $this->id));
+					$rows = $wpdb->num_rows;
+
+					if($rows == 0)
+					{
+						$error_text = __("There were no answers to export", 'lang_form');
+					}
+
+					else
+					{
+						foreach($result as $r)
+						{
+							$intAnswerID = $r->answerID;
+							$intQueryID = $r->queryID;
+							$strAnswerCreated = $r->answerCreated;
+							$strAnswerIP = $r->answerIP;
+
+							$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intQueryID));
+
+							$i = 0;
+
+							foreach($resultText as $r)
+							{
+								$intQuery2TypeID = $r->query2TypeID;
+								$intQueryTypeID = $r->queryTypeID;
+								$strQueryTypeText = $r->queryTypeText;
+
+								$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intQuery2TypeID, $intAnswerID));
+								$rowsAnswer = $wpdb->num_rows;
+
+								if($i > 0){$out .= $field_separator;}
+
+								if($rowsAnswer > 0)
+								{
+									$r = $resultAnswer[0];
+
+									/*if($intQueryTypeID == 8)
+									{
+										$strAnswerText = 1;
+									}
+
+									else
+									{*/
+										$strAnswerText = $r->answerText;
+
+										switch($intQueryTypeID)
+										{
+											case 8:
+												$strAnswerText = 1;
+											break;
+
+											case 7:
+												$strAnswerText = wp_date_format(array('date' => $strAnswerText));
+											break;
+
+											case 10:
+												$arr_content1 = explode(":", $strQueryTypeText);
+												$arr_content2 = explode(",", $arr_content1[1]);
+
+												foreach($arr_content2 as $str_content)
+												{
+													$arr_content3 = explode("|", $str_content);
+
+													if($strAnswerText == $arr_content3[0])
+													{
+														$strAnswerText = $arr_content3[1];
+													}
+												}
+											break;
+
+											case 11:
+												$arr_content1 = explode(":", $strQueryTypeText);
+												$arr_content2 = explode(",", $arr_content1[1]);
+
+												$arr_answer_text = explode(",", $strAnswerText);
+
+												$strAnswerText = "";
+
+												foreach($arr_content2 as $str_content)
+												{
+													$arr_content3 = explode("|", $str_content);
+
+													if(in_array($arr_content3[0], $arr_answer_text))
+													{
+														$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
+													}
+												}
+											break;
+
+											case 15:
+												$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+												foreach($result as $r)
+												{
+													$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
+												}
+										break;
+										}
+									//}
+
+									$strAnswerText = preg_replace("/(\r\n|\r|\n|".$field_separator.")/", " ", $strAnswerText);
+
+									$out .= $strAnswerText;
+								}
+
+								$i++;
+							}
+
+							$out .= $field_separator.$strAnswerCreated.$row_separator;
+						}
+
+						$out .= $row_separator.__("Row count", 'lang_form').": ".$rows.$row_separator.__("Date", 'lang_form').": ".$strExportDate;
+
+						$file = $file_base.$file_type;
+
+						$success = set_file_content(array('file' => $upload_path.$file, 'mode' => 'a', 'content' => trim($out)));
+
+						if($success == true)
+						{
+							$done_text = __("The form was successfully exported to", 'lang_form')." <a href='".$upload_url.$file."'>".$file."</a>";
+						}
+
+						else
+						{
+							$error_text = __("It was not possible to export all answers from", 'lang_form')." ".$strQueryName;
+						}
+					}
+					#######################
+
+					//Export to XLS
+					#######################
+					if(is_plugin_active("mf_phpexcel/index.php"))
+					{
+						$arr_alphabet = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+
+						$file_type = "xls";
+
+						$objPHPExcel = new PHPExcel();
+
+						//$objPHPExcel->getProperties()->setCreator("")->setLastModifiedBy("")->setTitle("")->setSubject("")->setDescription("")->setKeywords("")->setCategory("");
+
+						$arr_rows = explode("\n", $out);
+
+						foreach($arr_rows as $row_key => $row_value)
+						{
+							$arr_cols = explode(",", $row_value);
+
+							foreach($arr_cols as $col_key => $col_value)
+							{
+								$cell = "";
+
+								$count_temp = count($arr_alphabet);
+
+								while($col_key >= $count_temp)
+								{
+									$cell .= $arr_alphabet[floor($col_key / $count_temp) - 1];
+
+									$col_key = $col_key % $count_temp;
+								}
+
+								$cell .= $arr_alphabet[$col_key].($row_key + 1);
+
+								$objPHPExcel->setActiveSheetIndex(0)->setCellValue($cell, $col_value);
+							}
+						}
+
+						/*$objPHPExcel->getActiveSheet()->getRowDimension(8)->setRowHeight(-1);
+						$objPHPExcel->getActiveSheet()->getStyle('A8')->getAlignment()->setWrapText(true);*/
+
+						//$objPHPExcel->getActiveSheet()->setTitle($strQueryName);
+
+						$file = $file_base.$file_type;
+
+						$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5'); //XLSX: Excel2007
+						$objWriter->save($upload_path.$file);
+
+						$done_text .= " ".__("and", 'lang_form')." <a href='".$upload_url.$file."'>".$file."</a>";
+
+						//echo "Current memory usage: " , (memory_get_usage(true) / 1024 / 1024) , " MB";
+						//echo "Peak memory usage: " , (memory_get_peak_usage(true) / 1024 / 1024) , " MB";
+					}
+					#######################
+				}
+			}
+
+			get_file_info(array('path' => $upload_path, 'callback' => "delete_old_files"));
+		}
+
+		else if(isset($_POST['btnQueryUpdate']))
+		{
+			$strQueryPrefix = $this->get_post_name()."_";
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeID != '13' ORDER BY query2TypeOrder ASC", $this->id));
+
+			$strAnswerIP = $_SERVER['REMOTE_ADDR'];
+
+			foreach($result as $r)
+			{
+				$intQuery2TypeID2 = $r->query2TypeID;
+				$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
+
+				$var = check_var($strQueryPrefix.$intQuery2TypeID2, $strCheckCode, true, '', true, 'post');
+
+				if($var != '')
+				{
+					$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '%d' LIMIT 0, 1", $this->answer_id, $intQuery2TypeID2));
+					$rowsCheck = $wpdb->num_rows;
+
+					if($rowsCheck > 0)
+					{
+						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '%d' AND answerText = %s LIMIT 0, 1", $this->answer_id, $intQuery2TypeID2, $var));
+						$rowsCheck = $wpdb->num_rows;
+
+						if($rowsCheck == 0)
+						{
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '%d'", $var, $this->answer_id, $intQuery2TypeID2));
+						}
+					}
+
+					else
+					{
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '%d', answerText = %s", $this->answer_id, $intQuery2TypeID2, $var));
+					}
+				}
+			}
+
+			if(!isset($error_text) || $error_text == '')
+			{
+				mf_redirect("?page=mf_form/answer/index.php&intQueryID=".$this->id);
+			}
+		}
+
+		return $out;
+	}
+
 	function is_published($data = array())
 	{
 		global $wpdb;
@@ -198,6 +578,164 @@ class mf_form
 	}
 }
 
+class mf_form_table extends mf_list_table
+{
+	function set_default()
+	{
+		global $wpdb;
+
+		$this->post_type = "mf_form";
+
+		$this->orderby_default = "post_modified";
+		$this->orderby_default_order = "desc";
+
+		/*$this->arr_settings['has_autocomplete'] = true;
+		$this->arr_settings['plugin_name'] = 'mf_form';*/
+
+		if($this->search != '')
+		{
+			$this->query_where .= get_form_xtra($this->search);
+		}
+
+		$this->set_views(array(
+			'db_field' => 'post_status',
+			'types' => array(
+				'all' => __("All", 'lang_form'),
+				'publish' => __("Public", 'lang_form'),
+				'draft' => __("Draft", 'lang_form'),
+				'trash' => __("Trash", 'lang_form')
+			),
+		));
+
+		$this->set_columns(array(
+			//'cb' => '<input type="checkbox">',
+			'post_title' => __("Name", 'lang_form'),
+			'shortcode' => __("Shortcode", 'lang_form'),
+			'answers' => __("Answers", 'lang_form'),
+			'post_modified' => __("Modified", 'lang_form'),
+		));
+
+		$this->set_sortable_columns(array(
+			'post_title',
+			'post_modified',
+		));
+	}
+
+	function column_default($item, $column_name)
+	{
+		global $wpdb;
+
+		$out = "";
+
+		$post_id = $item['ID'];
+		$post_status = $item['post_status'];
+
+		$obj_form = new mf_form();
+		$intQueryID = $obj_form->get_form_id($post_id);
+
+		switch($column_name)
+		{
+			case 'post_title':
+				$strFormName = $item[$column_name];
+
+				$post_edit_url = "?page=mf_form/create/index.php&intQueryID=".$intQueryID;
+
+				$actions = array();
+
+				if($post_status != 'trash')
+				{
+					if(IS_ADMIN)
+					{
+						$actions['edit'] = "<a href='".$post_edit_url."'>".__("Edit", 'lang_form')."</a>";
+						$actions['delete'] = "<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+						$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID, 'form_copy')."'>".__("Copy", 'lang_form')."</a>";
+					}
+
+					if($obj_form->is_published(array('post_id' => $post_id)))
+					{
+						$post_url = get_permalink($post_id);
+
+						if($post_url != '')
+						{
+							$actions['view'] = "<a href='".$post_url."'>".__("View form", 'lang_form')."</a>";
+						}
+					}
+				}
+
+				else
+				{
+					$actions['recover'] = "<a href='".$post_edit_url."&recover'>".__("Recover", 'lang_form')."</a>";
+				}
+
+				$out .= "<a href='".$post_edit_url."'>"
+					.$strFormName
+				."</a>"
+				.$this->row_actions($actions);
+			break;
+
+			case 'shortcode':
+				if($post_status == 'publish' && $intQueryID > 0)
+				{
+					$strQueryShortcode = "[mf_form id=".$intQueryID."]";
+
+					$actions = array();
+
+					$result = get_page_from_form($intQueryID);
+
+					if(count($result) > 0)
+					{
+						foreach($result as $r)
+						{
+							$post_id_temp = $r['post_id'];
+
+							$actions['edit_page'] = "<a href='".get_site_url()."/wp-admin/post.php?post=".$post_id_temp."&action=edit'>".__("Edit Page", 'lang_form')."</a> | <a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
+						}
+					}
+
+					else
+					{
+						$actions['add_page'] = "<a href='".get_site_url()."/wp-admin/post-new.php?post_type=page&content=".$strQueryShortcode."'>".__("Add New Page", 'lang_form')."</a>";
+					}
+
+					echo $strQueryShortcode
+					.$this->row_actions($actions);
+				}
+			break;
+
+			case 'answers':
+				if($post_status != 'trash')
+				{
+					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID", $intQueryID));
+					$query_answers = $wpdb->num_rows;
+
+					if($query_answers > 0)
+					{
+						$count_message = get_count_message($intQueryID);
+
+						$actions = array();
+
+						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".__("Show Answers", 'lang_form')."</a>"; 
+						$actions['export_answers'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryExport&intQueryID=".$intQueryID, 'form_export')."'>".__("Export Answers", 'lang_form')."</a>";
+
+						echo $query_answers
+						.$count_message
+						.$this->row_actions($actions);
+					}
+				}
+			break;
+
+			default:
+				if(isset($item[$column_name]))
+				{
+					$out .= $item[$column_name];
+				}
+			break;
+		}
+
+		return $out;
+	}
+}
+
 class mf_form_output
 {
 	function __construct($data)
@@ -228,12 +766,10 @@ class mf_form_output
 
 		if($intAnswerID > 0)
 		{
-			$resultInfo = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d' LIMIT 0, 1", $this->row->query2TypeID2, $intAnswerID));
-			$rowsInfo = $wpdb->num_rows;
+			$result = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d' LIMIT 0, 1", $this->row->query2TypeID, $intAnswerID));
 
-			if($rowsInfo > 0)
+			foreach($result as $r)
 			{
-				$r = $resultInfo[0];
 				$this->answer_text = $r->answerText;
 			}
 		}
@@ -492,7 +1028,7 @@ class mf_form_output
 
 			//Space
 			case 6:
-				$this->output .= $this->in_edit_mode == true ? "<p class='grey".($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "")."'>(".__("Space", 'lang_forms').")</p>" : "<p".($this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "").">&nbsp;</p>";
+				$this->output .= $this->in_edit_mode == true ? "<p class='grey".($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "")."'>(".__("Space", 'lang_form').")</p>" : "<p".($this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "").">&nbsp;</p>";
 			break;
 
 			//Referer URL
@@ -501,7 +1037,7 @@ class mf_form_output
 
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey".($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "")."'>".__("Hidden", 'lang_forms')." (".$this->row->queryTypeText.": '".$referer_url."')</p>";
+					$this->output .= "<p class='grey".($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "")."'>".__("Hidden", 'lang_form')." (".$this->row->queryTypeText.": '".$referer_url."')</p>";
 				}
 
 				else
@@ -516,7 +1052,7 @@ class mf_form_output
 			case 12:
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey".($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "")."'>".__("Hidden", 'lang_forms')." (".$this->query_prefix.$this->row->query2TypeID.": ".$this->row->queryTypeText.")</p>";
+					$this->output .= "<p class='grey".($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "")."'>".__("Hidden", 'lang_form')." (".$this->query_prefix.$this->row->query2TypeID.": ".$this->row->queryTypeText.")</p>";
 				}
 
 				else
@@ -552,6 +1088,21 @@ class mf_form_output
 					$this->output .= "</".$this->row->queryTypeText.">";
 				}
 			break;
+
+			//File
+			case 15:
+				if($data['show_label'] == true)
+				{
+					$field_data['text'] = $this->row->queryTypeText;
+				}
+
+				$field_data['required'] = $this->row->queryTypeRequired;
+				$field_data['class'] = $this->row->queryTypeClass;
+
+				$this->output .= show_file_field($field_data);
+
+				$this->show_required = true;
+			break;
 		}
 
 		$intQueryTypeID2_temp = $this->row->queryTypeID;
@@ -574,17 +1125,16 @@ class mf_form_output
 
 						if($this->show_required == true)
 						{
-							$out .= show_checkbox(array('name' => "require_".$this->row->query2TypeID, 'text' => __("Required", 'lang_forms'), 'value' => 1, 'compare' => $this->row->queryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$this->row->query2TypeID."'"));
+							$out .= show_checkbox(array('name' => "require_".$this->row->query2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$this->row->query2TypeID."'"));
 						}
 
 						if($this->show_autofocus == true)
 						{
-							$out .= show_checkbox(array('name' => "autofocus_".$this->row->query2TypeID, 'text' => __("Autofocus", 'lang_forms'), 'value' => 1, 'compare' => $this->row->queryTypeAutofocus, 'xtra' => " class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->query2TypeID."'"));
+							$out .= show_checkbox(array('name' => "autofocus_".$this->row->query2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeAutofocus, 'xtra' => " class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->query2TypeID."'"));
 						}
 
-						$out .= "<a href='?page=mf_form/create/index.php&btnFieldCopy&intQueryID=".$data['query_id']."&intQuery2TypeID=".$this->row->query2TypeID."'>".__("Copy", 'lang_forms')."</a> | 
-						<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$this->row->query2TypeID."'>".__("Edit", 'lang_forms')."</a> | 
-						<a href='#delete/type/".$this->row->query2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_forms')."</a>
+						$out .= "<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$this->row->query2TypeID."'>".__("Edit", 'lang_form')."</a> | 
+						<a href='#delete/type/".$this->row->query2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a> | <a href='?page=mf_form/create/index.php&btnFieldCopy&intQueryID=".$data['query_id']."&intQuery2TypeID=".$this->row->query2TypeID."'>".__("Copy", 'lang_form')."</a>
 					</div>";
 				}
 
@@ -606,12 +1156,12 @@ class widget_form extends WP_Widget
 	{
 		$widget_ops = array(
 			'classname' => 'form',
-			'description' => __("Display a form that you've previously created", 'lang_forms')
+			'description' => __("Display a form that you've previously created", 'lang_form')
 		);
 
 		$control_ops = array('id_base' => 'form-widget');
 
-		$this->__construct('form-widget', __("Form", 'lang_forms'), $widget_ops, $control_ops);
+		$this->__construct('form-widget', __("Form", 'lang_form'), $widget_ops, $control_ops);
 	}
 
 	function widget($args, $instance)
@@ -657,13 +1207,13 @@ class widget_form extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $defaults);
 
 		echo "<p>
-			<label for='".$this->get_field_id('form_heading')."'>".__("Heading", 'lang_forms')."</label>
+			<label for='".$this->get_field_id('form_heading')."'>".__("Heading", 'lang_form')."</label>
 			<input type='text' name='".$this->get_field_name('form_heading')."' value='".$instance['form_heading']."' class='widefat'>
 		</p>
 		<p>
-			<label for='".$this->get_field_id('form_id')."'>".__("Form", 'lang_forms')."</label>
+			<label for='".$this->get_field_id('form_id')."'>".__("Form", 'lang_form')."</label>
 			<select name='".$this->get_field_name('form_id')."' id='".$this->get_field_id('form_id')."' class='widefat'>
-				<option value=''>-- ".__("Choose here", 'lang_forms')." --</option>";
+				<option value=''>-- ".__("Choose here", 'lang_form')." --</option>";
 
 				$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
 

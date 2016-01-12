@@ -5,7 +5,7 @@ wp_enqueue_script('jquery-ui-sortable');
 mf_enqueue_script('script_touch', plugins_url()."/mf_base/include/jquery.ui.touch-punch.min.js");
 mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_base')));
 
-$folder = str_replace("plugins/mf_form/create", "", dirname(__FILE__));
+//$folder = str_replace("plugins/mf_form/create", "", dirname(__FILE__));
 
 $intQueryID = check_var('intQueryID');
 
@@ -78,13 +78,15 @@ echo "<div class='wrap'>";
 
 		if($db_info != '')
 		{
+			list($upload_path, $upload_url) = get_uploads_folder("mf_forms");
+
 			$strQueryURL = $obj_form->get_post_name();
 
 			$file = $strQueryURL."_".date("YmdHis").".sql";
 
-			$success = set_file_content(array('file' => $folder."/uploads/".$file, 'mode' => 'a', 'content' => trim($db_info)));
+			$success = set_file_content(array('file' => $upload_path.$file, 'mode' => 'a', 'content' => trim($db_info)));
 
-			$done_text = __("Download exported file at", 'lang_form')." <a href='../wp-content/uploads/".$file."'>".$file."</a>";
+			$done_text = __("Download exported file at", 'lang_form')." <a href='".$upload_url.$file."'>".$file."</a>";
 		}
 
 		else
@@ -107,7 +109,7 @@ echo "<div class='wrap'>";
 
 			else if(!is_uploaded_file($file_location))
 			{
-				$error_text = __("Could not upload the file for import", 'lang_form');
+				$error_text = __("The file was not uploaded", 'lang_form');
 			}
 
 			else
@@ -156,7 +158,7 @@ echo "<div class='wrap'>";
 	{
 		if($strQueryName == '')
 		{
-			$error_text = __("Please, enter all required fields", 'lang_forms');
+			$error_text = __("Please, enter all required fields", 'lang_form');
 		}
 
 		else
@@ -221,24 +223,26 @@ echo "<div class='wrap'>";
 
 		if(($intQueryTypeID == 10 || $intQueryTypeID == 11) && $strQueryTypeSelect == "")
 		{
-			$error_text = __("Please, enter all required fields", 'lang_forms');
+			$error_text = __("Please, enter all required fields", 'lang_form');
 		}
 
 		else
 		{
-			if($intQueryTypeID == 2)
+			switch($intQueryTypeID)
 			{
-				$strQueryTypeText = str_replace("|", "", $strQueryTypeText)."|".str_replace("|", "", $strQueryTypeMin)."|".str_replace("|", "", $strQueryTypeMax)."|".str_replace("|", "", $strQueryTypeDefault);
-			}
+				case 2:
+					$strQueryTypeText = str_replace("|", "", $strQueryTypeText)."|".str_replace("|", "", $strQueryTypeMin)."|".str_replace("|", "", $strQueryTypeMax)."|".str_replace("|", "", $strQueryTypeDefault);
+				break;
 
-			else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
-			{
-				$strQueryTypeText = str_replace(":", "", $strQueryTypeText).":".str_replace(":", "", $strQueryTypeSelect);
-			}
+				case 10:
+				case 11:
+					$strQueryTypeText = str_replace(":", "", $strQueryTypeText).":".str_replace(":", "", $strQueryTypeSelect);
+				break;
 
-			else if($intQueryTypeID == 13 || $intQueryTypeID == 14)
-			{
-				$strQueryTypeText = $strQueryTypeText2;
+				case 13:
+				case 14:
+					$strQueryTypeText = $strQueryTypeText2;
+				break;
 			}
 
 			if($intQuery2TypeID > 0)
@@ -257,7 +261,7 @@ echo "<div class='wrap'>";
 
 				else
 				{
-					$error_text = __("Couldn't update the field", 'lang_forms');
+					$error_text = __("Couldn't update the field", 'lang_form');
 				}
 			}
 
@@ -286,7 +290,7 @@ echo "<div class='wrap'>";
 
 				else
 				{
-					$error_text = __("Couldn't insert the new field", 'lang_forms');
+					$error_text = __("Couldn't insert the new field", 'lang_form');
 				}
 			}
 		}
@@ -342,14 +346,16 @@ echo "<div class='wrap'>";
 		$strQueryTypeClass = $r->queryTypeClass;
 		$strQueryTypePlaceholder = $r->queryTypePlaceholder;
 
-		if($intQueryTypeID == 2)
+		switch($intQueryTypeID)
 		{
-			list($strQueryTypeText, $strQueryTypeMin, $strQueryTypeMax, $strQueryTypeDefault) = explode("|", $strQueryTypeText);
-		}
+			case 2:
+				list($strQueryTypeText, $strQueryTypeMin, $strQueryTypeMax, $strQueryTypeDefault) = explode("|", $strQueryTypeText);
+			break;
 
-		else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
-		{
-			list($strQueryTypeText, $strQueryTypeSelect) = explode(":", $strQueryTypeText);
+			case 10:
+			case 11:
+				list($strQueryTypeText, $strQueryTypeSelect) = explode(":", $strQueryTypeText);
+			break;
 		}
 
 		if(isset($_GET['btnFieldCopy']))
@@ -358,7 +364,7 @@ echo "<div class='wrap'>";
 		}
 	}
 
-	echo "<h2>".($intQueryID > 0 ? __("Update", 'lang_forms')." ".$strQueryName : __("Add New", 'lang_forms'))."</h2>"
+	echo "<h2>".($intQueryID > 0 ? __("Update", 'lang_form')." ".$strQueryName : __("Add New", 'lang_form'))."</h2>"
 	.get_notification()
 	."<div id='poststuff'>";
 
@@ -367,7 +373,7 @@ echo "<div class='wrap'>";
 			echo "<div id='post-body' class='columns-2'>
 				<div id='post-body-content'>
 					<div class='postbox".($intQuery2TypeID > 0 ? " active" : "")."'>
-						<h3 class='hndle'><span>".__("Content", 'lang_forms')."</span></h3>
+						<h3 class='hndle'><span>".__("Content", 'lang_form')."</span></h3>
 						<div class='inside'>
 							<form method='post' action='' class='mf_form mf_settings'>
 								<div class='alignleft'>";
@@ -381,7 +387,7 @@ echo "<div class='wrap'>";
 									{
 										$strQueryTypeName = $obj_form->get_type_name($intQueryTypeID);
 
-										echo show_textfield(array('name' => 'intQueryTypeID_name', 'text' => __("Type", 'lang_forms'), 'value' => $strQueryTypeName, 'xtra' => "readonly"))
+										echo show_textfield(array('name' => 'intQueryTypeID_name', 'text' => __("Type", 'lang_form'), 'value' => $strQueryTypeName, 'xtra' => "readonly"))
 										.input_hidden(array('name' => 'intQueryTypeID', 'value' => $intQueryTypeID, 'xtra' => "id='intQueryTypeID'"));
 									}
 
@@ -389,7 +395,7 @@ echo "<div class='wrap'>";
 									{
 										$arr_data = array();
 
-										$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
+										$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
 
 										$result = $wpdb->get_results("SELECT queryTypeID, queryTypeName, COUNT(queryTypeID) AS queryType_amount FROM ".$wpdb->base_prefix."query_type LEFT JOIN ".$wpdb->base_prefix."query2type USING (queryTypeID) WHERE queryTypePublic = 'yes' GROUP BY queryTypeID ORDER BY queryType_amount DESC, queryTypeName ASC");
 
@@ -401,45 +407,43 @@ echo "<div class='wrap'>";
 											}
 										}
 
-										echo show_select(array('data' => $arr_data, 'name' => 'intQueryTypeID', 'compare' => $intQueryTypeID, 'text' => __("Type", 'lang_forms')));
+										echo show_select(array('data' => $arr_data, 'name' => 'intQueryTypeID', 'compare' => $intQueryTypeID, 'text' => __("Type", 'lang_form')));
 									}
 
-									echo show_textarea(array('name' => 'strQueryTypeText', 'text' => __("Text", 'lang_forms'), 'value' => $strQueryTypeText, 'class' => "tr_text")); //, 'wysiwyg' => true, 'size' => 'small'
+									echo show_textarea(array('name' => 'strQueryTypeText', 'text' => __("Text", 'lang_form'), 'value' => $strQueryTypeText, 'class' => "tr_text")); //, 'wysiwyg' => true, 'size' => 'small'
 
 									$arr_data = array();
-
-									//$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
 
 									$arr_data[] = array('div', "div");
 									$arr_data[] = array('fieldset', "fieldset");
 
-									echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeText2', 'compare' => $strQueryTypeText, 'text' => __("Type", 'lang_forms'), 'class' => "tr_tag2"))
+									echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeText2', 'compare' => $strQueryTypeText, 'text' => __("Type", 'lang_form'), 'class' => "tr_tag2"))
 								."</div>
 								<div class='alignright'>";
 
 									$arr_data = array();
 
-									$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
+									$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
 
 									$result = $wpdb->get_results("SELECT checkID, checkName FROM ".$wpdb->base_prefix."query_check WHERE checkPublic = '1' ORDER BY checkName ASC");
 									$rows = $wpdb->num_rows;
 
 									foreach($result as $r)
 									{
-										$arr_data[] = array($r->checkID, __($r->checkName, 'lang_forms'));
+										$arr_data[] = array($r->checkID, __($r->checkName, 'lang_form'));
 									}
 
-									echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => __("Validate as", 'lang_forms'), 'class' => "tr_check"))
-									.show_textfield(array('name' => 'strQueryTypePlaceholder', 'text' => __("Placeholder Text", 'lang_forms'), 'value' => $strQueryTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_forms'), 'maxlength' => 100, 'xtra_class' => "tr_placeholder"))
-									.show_textfield(array('name' => 'strQueryTypeTag', 'text' => __("Custom HTML Tag", 'lang_forms'), 'value' => $strQueryTypeTag, 'placeholder' => "h1, h2, h3, h4, h5, p, blockquote", 'maxlength' => 20, 'xtra_class' => "tr_tag"))
-									.show_textfield(array('name' => 'strQueryTypeClass', 'text' => __("Custom CSS class", 'lang_forms'), 'value' => $strQueryTypeClass, 'placeholder' => "bold italic", 'maxlength' => 50))
+									echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "tr_check"))
+									.show_textfield(array('name' => 'strQueryTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strQueryTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "tr_placeholder"))
+									.show_textfield(array('name' => 'strQueryTypeTag', 'text' => __("Custom HTML Tag", 'lang_form'), 'value' => $strQueryTypeTag, 'placeholder' => "h1, h2, h3, h4, h5, p, blockquote", 'maxlength' => 20, 'xtra_class' => "tr_tag"))
+									.show_textfield(array('name' => 'strQueryTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strQueryTypeClass, 'placeholder' => "bold italic", 'maxlength' => 50))
 									."<div class='tr_range'>"
-										.show_textfield(array('name' => 'strQueryTypeMin', 'text' => __("Min value", 'lang_forms'), 'value' => $strQueryTypeMin, 'maxlength' => 3, 'size' => 5))
-										.show_textfield(array('name' => 'strQueryTypeMax', 'text' => __("Max value", 'lang_forms'), 'value' => $strQueryTypeMax, 'maxlength' => 3, 'size' => 5))
-										.show_textfield(array('name' => 'strQueryTypeDefault', 'text' => __("Default value", 'lang_forms'), 'value' => $strQueryTypeDefault, 'maxlength' => 3, 'size' => 5))
+										.show_textfield(array('name' => 'strQueryTypeMin', 'text' => __("Min value", 'lang_form'), 'value' => $strQueryTypeMin, 'maxlength' => 3, 'size' => 5))
+										.show_textfield(array('name' => 'strQueryTypeMax', 'text' => __("Max value", 'lang_form'), 'value' => $strQueryTypeMax, 'maxlength' => 3, 'size' => 5))
+										.show_textfield(array('name' => 'strQueryTypeDefault', 'text' => __("Default value", 'lang_form'), 'value' => $strQueryTypeDefault, 'maxlength' => 3, 'size' => 5))
 									."</div>
 									<div class='tr_select'>
-										<label>".__("Value", 'lang_forms')."</label>
+										<label>".__("Value", 'lang_form')."</label>
 										<div class='select_rows'>";
 
 											if($strQueryTypeSelect == '')
@@ -457,7 +461,7 @@ echo "<div class='wrap'>";
 													//input text is needed when using select as payment price
 													.show_textfield(array('name' => 'strQueryTypeSelect_id', 'value' => $arr_select_row_content[0]))
 													//.input_hidden(array('name' => 'strQueryTypeSelect_id', 'value' => $arr_select_row_content[0]))
-													.show_textfield(array('name' => 'strQueryTypeSelect_value', 'value' => $arr_select_row_content[1], 'placeholder' => __("Enter option here", 'lang_forms')))
+													.show_textfield(array('name' => 'strQueryTypeSelect_value', 'value' => $arr_select_row_content[1], 'placeholder' => __("Enter option here", 'lang_form')))
 												."</div>";
 											}
 
@@ -466,12 +470,12 @@ echo "<div class='wrap'>";
 									."</div>
 								</div>
 								<div class='clear'></div>"
-								.show_submit(array('name' => "btnFormAdd", 'text' => ($intQuery2TypeID > 0 ? __("Update", 'lang_forms') : __("Add", 'lang_forms')), 'class' => "button-primary"));
+								.show_submit(array('name' => "btnFormAdd", 'text' => ($intQuery2TypeID > 0 ? __("Update", 'lang_form') : __("Add", 'lang_form')), 'class' => "button-primary"));
 
 								if($intQuery2TypeID > 0)
 								{
 									echo "&nbsp;<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>"
-										.show_submit(array('text' => __("Cancel", 'lang_forms'), 'type' => "button", 'class' => "button"))
+										.show_submit(array('text' => __("Cancel", 'lang_form'), 'type' => "button", 'class' => "button"))
 									."</a>"
 									.input_hidden(array('name' => 'intQuery2TypeID', 'value' => $intQuery2TypeID));
 								}
@@ -487,7 +491,7 @@ echo "<div class='wrap'>";
 					if($form_output != '')
 					{
 						echo "<div class='postbox'>
-							<h3 class='hndle'><span>".__("Overview", 'lang_forms')."</span></h3>
+							<h3 class='hndle'><span>".__("Overview", 'lang_form')."</span></h3>
 							<div class='inside'>"
 								.$form_output
 							."</div>
@@ -498,20 +502,18 @@ echo "<div class='wrap'>";
 				<div id='postbox-container-1'>
 					<form method='post' action='' class='mf_form mf_settings'>
 						<div class='postbox'>
-							<h3 class='hndle'><span>".__("Publish", 'lang_forms')."</span></h3>
+							<h3 class='hndle'><span>".__("Publish", 'lang_form')."</span></h3>
 							<div class='inside'>"
-								.show_textfield(array('name' => 'strQueryName', 'text' => __("Name", 'lang_forms'), 'value' => $strQueryName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intQuery2TypeID > 0 ? "" : "autofocus")))
-								.show_textfield(array('name' => 'strQueryURL', 'text' => __("Permalink", 'lang_forms'), 'value' => $strQueryURL, 'maxlength' => 100, 'required' => 1))
+								.show_textfield(array('name' => 'strQueryName', 'text' => __("Name", 'lang_form'), 'value' => $strQueryName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intQuery2TypeID > 0 ? "" : "autofocus")))
+								.show_textfield(array('name' => 'strQueryURL', 'text' => __("Permalink", 'lang_form'), 'value' => $strQueryURL, 'maxlength' => 100, 'required' => 1))
 								."<div>"
-									.show_submit(array('name' => "btnFormPublish", 'text' =>  __("Publish", 'lang_forms'), 'class' => "button-primary"))."&nbsp;"
-									.show_submit(array('name' => "btnFormDraft", 'text' => __("Save Draft", 'lang_forms'), 'class' => "button"))
+									.show_submit(array('name' => "btnFormPublish", 'text' =>  __("Publish", 'lang_form'), 'class' => "button-primary"))."&nbsp;"
+									.show_submit(array('name' => "btnFormDraft", 'text' => __("Save Draft", 'lang_form'), 'class' => "button"))
 								."</div>"
 								.input_hidden(array('name' => "intQueryID", 'value' => $intQueryID))
 								.wp_nonce_field('form_update', '_wpnonce', true, false);
 
-								//$obj_form = new mf_form();
-
-								$intPostID = $obj_form->get_post_id(); //$intQueryID
+								$intPostID = $obj_form->get_post_id();
 
 								if($obj_form->is_published(array('post_id' => $intPostID)))
 								{
@@ -520,19 +522,19 @@ echo "<div class='wrap'>";
 									if($post_url != '')
 									{
 										echo "<br>
-										<a href='".$post_url."'>".__("View form", 'lang_forms')."</a>";
+										<a href='".$post_url."'>".__("View form", 'lang_form')."</a>";
 									}
 								}
 
 							echo "</div>
 						</div>
 						<div class='postbox'>
-							<h3 class='hndle'><span>".__("Settings", 'lang_forms')."</span></h3>
+							<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
 							<div class='inside'>";
 
 								$arr_data = array();
 
-								$arr_data[] = array("", "-- ".__("Choose page here", 'lang_forms')." --");
+								$arr_data[] = array("", "-- ".__("Choose page here", 'lang_form')." --");
 
 								$arr_sites = array();
 
@@ -621,14 +623,14 @@ echo "<div class='wrap'>";
 									}
 								}
 
-								echo show_select(array('data' => $arr_data, 'name' => 'strQueryAnswerURL', 'compare' => $strQueryAnswerURL, 'text' => __("Confirmation page", 'lang_forms')));
+								echo show_select(array('data' => $arr_data, 'name' => 'strQueryAnswerURL', 'compare' => $strQueryAnswerURL, 'text' => __("Confirmation page", 'lang_form')));
 
 								$has_email_field = $wpdb->get_var($wpdb->prepare("SELECT COUNT(queryTypeID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_check USING (checkID) WHERE queryID = '%d' AND queryTypeID = '3' AND checkCode = 'email'", $intQueryID));
 
 								if($has_email_field > 0)
 								{
-									echo show_checkbox(array('name' => 'intQueryEmailConfirm', 'text' => __("Send e-mail confirmation to questionnaire", 'lang_forms'), 'value' => 1, 'compare' => $intQueryEmailConfirm))
-									.show_select(array('data' => $arr_data, 'name' => 'strQueryEmailConfirmPage', 'compare' => $strQueryEmailConfirmPage, 'text' => __("E-mail confirmation content", 'lang_forms'), 'class' => "query_email_confirm_page".($intQueryEmailConfirm == 1 ? " " : " hide"), 'description' => __("If you don't choose a page, the content of the form will be sent as content", 'lang_forms')));
+									echo show_checkbox(array('name' => 'intQueryEmailConfirm', 'text' => __("Send e-mail confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intQueryEmailConfirm))
+									.show_select(array('data' => $arr_data, 'name' => 'strQueryEmailConfirmPage', 'compare' => $strQueryEmailConfirmPage, 'text' => __("E-mail confirmation content", 'lang_form'), 'class' => "query_email_confirm_page".($intQueryEmailConfirm == 1 ? " " : " hide"), 'description' => __("If you don't choose a page, the content of the form will be sent as content", 'lang_form')));
 								}
 
 								$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID", $intQueryID));
@@ -638,24 +640,24 @@ echo "<div class='wrap'>";
 
 								/*if($intQueryImproveUX == 1 || IS_ADMIN)
 								{
-									echo show_checkbox(array('name' => 'intQueryImproveUX', 'text' => __("Improve UX", 'lang_forms'), 'value' => 1, 'compare' => $intQueryImproveUX));
+									echo show_checkbox(array('name' => 'intQueryImproveUX', 'text' => __("Improve UX", 'lang_form'), 'value' => 1, 'compare' => $intQueryImproveUX));
 								}*/
 								
 								if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'required' => true, 'check_code' => 'email')))
 								{
-									echo show_checkbox(array('name' => 'strQueryEmailCheckConfirm', 'text' => __("Make questionnaire confirm their e-mail", 'lang_forms'), 'value' => 'yes', 'compare' => $strQueryEmailCheckConfirm));
+									echo show_checkbox(array('name' => 'strQueryEmailCheckConfirm', 'text' => __("Make questionnaire confirm their e-mail", 'lang_form'), 'value' => 'yes', 'compare' => $strQueryEmailCheckConfirm));
 								}
 
 								if($is_poll)
 								{
-									echo show_checkbox(array('name' => 'intQueryShowAnswers', 'text' => __("Show Answers", 'lang_forms'), 'value' => 1, 'compare' => $intQueryShowAnswers));
+									echo show_checkbox(array('name' => 'intQueryShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => 1, 'compare' => $intQueryShowAnswers));
 								}
 
-								echo show_textfield(array('name' => 'strQueryEmail', 'text' => __("Send e-mail from/to", 'lang_forms'), 'value' => $strQueryEmail, 'maxlength' => 100));
+								echo show_textfield(array('name' => 'strQueryEmail', 'text' => __("Send e-mail from/to", 'lang_form'), 'value' => $strQueryEmail, 'maxlength' => 100));
 
 								if($strQueryEmail != '')
 								{
-									echo show_checkbox(array('name' => 'intQueryEmailNotify', 'text' => __("Send notification on new answer", 'lang_forms'), 'value' => 1, 'compare' => $intQueryEmailNotify));
+									echo show_checkbox(array('name' => 'intQueryEmailNotify', 'text' => __("Send notification on new answer", 'lang_form'), 'value' => 1, 'compare' => $intQueryEmailNotify));
 								}
 
 								else
@@ -665,19 +667,19 @@ echo "<div class='wrap'>";
 
 								if($strQueryEmailName != '')
 								{
-									echo show_textfield(array('name' => 'strQueryEmailName', 'text' => __("Subject", 'lang_forms'), 'value' => $strQueryEmailName, 'maxlength' => 100));
+									echo show_textfield(array('name' => 'strQueryEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $strQueryEmailName, 'maxlength' => 100));
 								}
 
 							echo "</div>
 						</div>
 						<div class='postbox'>
-							<h3 class='hndle'><span>".__("Button", 'lang_forms')."</span></h3>
+							<h3 class='hndle'><span>".__("Button", 'lang_form')."</span></h3>
 							<div class='inside'>"
-								.show_textfield(array('name' => 'strQueryButtonText', 'text' => __("Text", 'lang_forms'), 'value' => $strQueryButtonText, 'placeholder' => __("Submit", 'lang_forms'), 'maxlength' => 100));
+								.show_textfield(array('name' => 'strQueryButtonText', 'text' => __("Text", 'lang_form'), 'value' => $strQueryButtonText, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100));
 
 								$arr_data = array();
 
-								$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
+								$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
 
 								$obj_font_icons = new mf_font_icons();
 								$arr_icons = $obj_font_icons->get_array();
@@ -687,92 +689,91 @@ echo "<div class='wrap'>";
 									$arr_data[] = $icon;
 								}
 
-								echo show_select(array('data' => $arr_data, 'name' => 'strQueryButtonSymbol', 'compare' => $strQueryButtonSymbol, 'text' => __("Symbol", 'lang_forms')))
+								echo show_select(array('data' => $arr_data, 'name' => 'strQueryButtonSymbol', 'compare' => $strQueryButtonSymbol, 'text' => __("Symbol", 'lang_form')))
 							."</div>
 						</div>
 						<div class='postbox'>
-							<h3 class='hndle'><span>".__("Payment", 'lang_forms')."</span></h3>
+							<h3 class='hndle'><span>".__("Payment", 'lang_form')."</span></h3>
 							<div class='inside'>";
 
 								$arr_data = array();
 
-								$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
-								$arr_data[] = array(1, __("DIBS", 'lang_forms'));
-								$arr_data[] = array(3, __("Paypal", 'lang_forms'));
-								$arr_data[] = array(2, __("Skrill", 'lang_forms'));
+								$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
+								$arr_data[] = array(1, __("DIBS", 'lang_form'));
+								$arr_data[] = array(3, __("Paypal", 'lang_form'));
+								$arr_data[] = array(2, __("Skrill", 'lang_form'));
 
-								echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentProvider', 'compare' => $intQueryPaymentProvider, 'text' => __("Provider", 'lang_forms')));
+								echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentProvider', 'compare' => $intQueryPaymentProvider, 'text' => __("Provider", 'lang_form')));
 
 								if($intQueryPaymentProvider == 1)
 								{
-									echo show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Merchant ID", 'lang_forms'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 100))
-									.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("HMAC key", 'lang_forms'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
+									echo show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Merchant ID", 'lang_form'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 100))
+									.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("HMAC key", 'lang_form'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
 								}
 
 								else if($intQueryPaymentProvider == 3)
 								{
-									echo show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Username", 'lang_forms'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 100))
-									.show_textfield(array('name' => 'strQueryPaymentPassword', 'text' => __("Password", 'lang_forms'), 'value' => $strQueryPaymentPassword, 'maxlength' => 100))
-									.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("Signature", 'lang_forms'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
+									echo show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Username", 'lang_form'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 100))
+									.show_textfield(array('name' => 'strQueryPaymentPassword', 'text' => __("Password", 'lang_form'), 'value' => $strQueryPaymentPassword, 'maxlength' => 100))
+									.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("Signature", 'lang_form'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
 								}
 
 								else if($intQueryPaymentProvider == 2)
 								{
-									echo show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Merchant E-mail", 'lang_forms'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 100))
-									.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("Secret word", 'lang_forms'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
+									echo show_textfield(array('name' => 'strQueryPaymentMerchant', 'text' => __("Merchant E-mail", 'lang_form'), 'value' => $strQueryPaymentMerchant, 'maxlength' => 100))
+									.show_textfield(array('name' => 'strQueryPaymentHmac', 'text' => __("Secret word", 'lang_form'), 'value' => $strQueryPaymentHmac, 'maxlength' => 200));
 								}
 
 								if($intQueryPaymentProvider > 0 && $strQueryPaymentMerchant != '' && $strQueryPaymentHmac != '')
 								{
 									$arr_data = array();
 
-									$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
+									$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
 
 									switch($intQueryPaymentProvider)
 									{
 										case 1:
-											$arr_data[] = array(208, __("Danish Krone", 'lang_forms')." (DKK)");
-											$arr_data[] = array(978, __("Euro", 'lang_forms')." (EUR)");
-											$arr_data[] = array(840, __("US Dollar", 'lang_forms')." (USD)");
-											$arr_data[] = array(826, __("English Pound", 'lang_forms')." (GBP)");
-											$arr_data[] = array(752, __("Swedish Krona", 'lang_forms')." (SEK)");
-											$arr_data[] = array(036, __("Australian Dollar", 'lang_forms')." (AUD)");
-											$arr_data[] = array(124, __("Canadian Dollar", 'lang_forms')." (CAD)");
-											$arr_data[] = array(352, __("Icelandic Krona", 'lang_forms')." (ISK)");
-											$arr_data[] = array(392, __("Japanese Yen", 'lang_forms')." (JPY)");
-											$arr_data[] = array(554, __("New Zealand Dollar", 'lang_forms')." (NZD)");
-											$arr_data[] = array(578, __("Norwegian Krone", 'lang_forms')." (NOK)");
-											$arr_data[] = array(756, __("Swiss Franc", 'lang_forms')." (CHF)");
-											$arr_data[] = array(949, __("Turkish Lira", 'lang_forms')." (TRY)");
+											$arr_data[] = array(208, __("Danish Krone", 'lang_form')." (DKK)");
+											$arr_data[] = array(978, __("Euro", 'lang_form')." (EUR)");
+											$arr_data[] = array(840, __("US Dollar", 'lang_form')." (USD)");
+											$arr_data[] = array(826, __("English Pound", 'lang_form')." (GBP)");
+											$arr_data[] = array(752, __("Swedish Krona", 'lang_form')." (SEK)");
+											$arr_data[] = array(036, __("Australian Dollar", 'lang_form')." (AUD)");
+											$arr_data[] = array(124, __("Canadian Dollar", 'lang_form')." (CAD)");
+											$arr_data[] = array(352, __("Icelandic Krona", 'lang_form')." (ISK)");
+											$arr_data[] = array(392, __("Japanese Yen", 'lang_form')." (JPY)");
+											$arr_data[] = array(554, __("New Zealand Dollar", 'lang_form')." (NZD)");
+											$arr_data[] = array(578, __("Norwegian Krone", 'lang_form')." (NOK)");
+											$arr_data[] = array(756, __("Swiss Franc", 'lang_form')." (CHF)");
+											$arr_data[] = array(949, __("Turkish Lira", 'lang_form')." (TRY)");
 										break;
 
 										case 2:
 										case 3:
-											$arr_data[] = array("DKK", __("Danish Krone", 'lang_forms')." (DKK)");
-											$arr_data[] = array("EUR", __("Euro", 'lang_forms')." (EUR)");
-											$arr_data[] = array("USD", __("US Dollar", 'lang_forms')." (USD)");
-											$arr_data[] = array("GBP", __("English Pound", 'lang_forms')." (GBP)");
-											$arr_data[] = array("SEK", __("Swedish Krona", 'lang_forms')." (SEK)");
-											$arr_data[] = array("AUD", __("Australian Dollar", 'lang_forms')." (AUD)");
-											$arr_data[] = array("CAD", __("Canadian Dollar", 'lang_forms')." (CAD)");
-											$arr_data[] = array("ISK", __("Icelandic Krona", 'lang_forms')." (ISK)");
-											$arr_data[] = array("JPY", __("Japanese Yen", 'lang_forms')." (JPY)");
-											$arr_data[] = array("NZD", __("New Zealand Dollar", 'lang_forms')." (NZD)");
-											$arr_data[] = array("NOK", __("Norwegian Krone", 'lang_forms')." (NOK)");
-											$arr_data[] = array("CHF", __("Swiss Franc", 'lang_forms')." (CHF)");
-											$arr_data[] = array("TRY", __("Turkish Lira", 'lang_forms')." (TRY)");
+											$arr_data[] = array("DKK", __("Danish Krone", 'lang_form')." (DKK)");
+											$arr_data[] = array("EUR", __("Euro", 'lang_form')." (EUR)");
+											$arr_data[] = array("USD", __("US Dollar", 'lang_form')." (USD)");
+											$arr_data[] = array("GBP", __("English Pound", 'lang_form')." (GBP)");
+											$arr_data[] = array("SEK", __("Swedish Krona", 'lang_form')." (SEK)");
+											$arr_data[] = array("AUD", __("Australian Dollar", 'lang_form')." (AUD)");
+											$arr_data[] = array("CAD", __("Canadian Dollar", 'lang_form')." (CAD)");
+											$arr_data[] = array("ISK", __("Icelandic Krona", 'lang_form')." (ISK)");
+											$arr_data[] = array("JPY", __("Japanese Yen", 'lang_form')." (JPY)");
+											$arr_data[] = array("NZD", __("New Zealand Dollar", 'lang_form')." (NZD)");
+											$arr_data[] = array("NOK", __("Norwegian Krone", 'lang_form')." (NOK)");
+											$arr_data[] = array("CHF", __("Swiss Franc", 'lang_form')." (CHF)");
+											$arr_data[] = array("TRY", __("Turkish Lira", 'lang_form')." (TRY)");
 										break;
 									}
 
 									$arr_data = array_sort(array('array' => $arr_data, 'on' => 1));
 
-									echo show_select(array('data' => $arr_data, 'name' => 'strQueryPaymentCurrency', 'compare' => $strQueryPaymentCurrency, 'text' => __("Currency", 'lang_forms')));
+									echo show_select(array('data' => $arr_data, 'name' => 'strQueryPaymentCurrency', 'compare' => $strQueryPaymentCurrency, 'text' => __("Currency", 'lang_form')));
 
 									$arr_data = array();
 
-									$arr_data[] = array("", "-- ".__("Choose here", 'lang_forms')." --");
+									$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
 
-									//$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND (queryTypeID = '10' OR queryTypeID = '12') ORDER BY query2TypeOrder ASC", $intQueryID));
 									list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(10, 12)));
 
 									foreach($result as $r)
@@ -790,7 +791,7 @@ echo "<div class='wrap'>";
 										$arr_data[] = array($r->query2TypeID, $strQueryTypeText_temp);
 									}
 
-									echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentAmount', 'compare' => $intQueryPaymentAmount, 'text' => __("Field for payment cost", 'lang_forms')));
+									echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentAmount', 'compare' => $intQueryPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')));
 								}
 
 							echo "</div>
@@ -804,10 +805,10 @@ echo "<div class='wrap'>";
 		{
 			echo "<form method='post' action='' class='mf_form mf_settings'>
 				<div class='postbox'>
-					<h3 class='hndle'><span>".__("Add new", 'lang_forms')."</span></h3>
+					<h3 class='hndle'><span>".__("Add new", 'lang_form')."</span></h3>
 					<div class='inside'>"
-						.show_textfield(array('name' => 'strQueryName', 'text' => __("Name", 'lang_forms'), 'value' => $strQueryName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intQuery2TypeID > 0 ? "" : "autofocus")))
-						.show_submit(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_forms'), 'class' => "button-primary"))
+						.show_textfield(array('name' => 'strQueryName', 'text' => __("Name", 'lang_form'), 'value' => $strQueryName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intQuery2TypeID > 0 ? "" : "autofocus")))
+						.show_submit(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form'), 'class' => "button-primary"))
 						.input_hidden(array('name' => "intQueryID", 'value' => $intQueryID))
 						.wp_nonce_field('form_update', '_wpnonce', true, false)
 					."</div>
