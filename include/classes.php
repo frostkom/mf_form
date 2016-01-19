@@ -90,266 +90,6 @@ class mf_form
 			}
 		}
 
-		else if(isset($_GET['btnQueryExport']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'form_export'))
-		{
-			list($upload_path, $upload_url) = get_uploads_folder("mf_forms");
-
-			$dir_exists = true;
-
-			if(!is_dir($upload_path))
-			{
-				if(!mkdir($upload_path, 0755, true))
-				{
-					$dir_exists = false;
-				}
-			}
-
-			if($dir_exists == false)
-			{
-				$error_text = __("Could not create a folder in uploads. Please add the correct rights for the script to create a new subfolder", 'lang_form');
-			}
-
-			else
-			{
-				$done_text = "";
-
-				$strExportDate = wp_date_format(array('date' => date("Y-m-d H:i:s"), 'full_datetime' => true));
-
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
-
-				if($wpdb->num_rows > 0)
-				{
-					foreach($result as $r)
-					{
-						$strQueryName = $r->queryName;
-					}
-
-					$file_base = sanitize_title_with_dashes(sanitize_title($strQueryName))."_".date("YmdHis").".";
-
-					//Export to CSV
-					#######################
-					$file_type = "csv";
-					$field_separator = ",";
-					$row_separator = "\n";
-
-					$i = 0;
-					$out = "";
-
-					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $this->id));
-
-					foreach($result as $r)
-					{
-						$intQuery2TypeID = $r->query2TypeID;
-						$intQueryTypeID = $r->queryTypeID;
-						$strQueryTypeText = preg_replace("/(\r\n|\r|\n|".$field_separator.")/", " ", $r->queryTypeText);
-
-						switch($intQueryTypeID)
-						{
-							case 2:
-								list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
-							break;
-
-							case 10:
-							case 11:
-								list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
-							break;
-						}
-
-						$out .= ($i > 0 ? $field_separator : "").stripslashes(strip_tags($strQueryTypeText));
-
-						$i++;
-					}
-
-					$out .= $field_separator.__("Created", 'lang_form').$row_separator;
-
-					$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID ORDER BY answerCreated DESC", $this->id));
-					$rows = $wpdb->num_rows;
-
-					if($rows == 0)
-					{
-						$error_text = __("There were no answers to export", 'lang_form');
-					}
-
-					else
-					{
-						foreach($result as $r)
-						{
-							$intAnswerID = $r->answerID;
-							$intQueryID = $r->queryID;
-							$strAnswerCreated = $r->answerCreated;
-							$strAnswerIP = $r->answerIP;
-
-							$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intQueryID));
-
-							$i = 0;
-
-							foreach($resultText as $r)
-							{
-								$intQuery2TypeID = $r->query2TypeID;
-								$intQueryTypeID = $r->queryTypeID;
-								$strQueryTypeText = $r->queryTypeText;
-
-								$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intQuery2TypeID, $intAnswerID));
-								$rowsAnswer = $wpdb->num_rows;
-
-								if($i > 0){$out .= $field_separator;}
-
-								if($rowsAnswer > 0)
-								{
-									$r = $resultAnswer[0];
-
-									/*if($intQueryTypeID == 8)
-									{
-										$strAnswerText = 1;
-									}
-
-									else
-									{*/
-										$strAnswerText = $r->answerText;
-
-										switch($intQueryTypeID)
-										{
-											case 8:
-												$strAnswerText = 1;
-											break;
-
-											case 7:
-												$strAnswerText = wp_date_format(array('date' => $strAnswerText));
-											break;
-
-											case 10:
-												$arr_content1 = explode(":", $strQueryTypeText);
-												$arr_content2 = explode(",", $arr_content1[1]);
-
-												foreach($arr_content2 as $str_content)
-												{
-													$arr_content3 = explode("|", $str_content);
-
-													if($strAnswerText == $arr_content3[0])
-													{
-														$strAnswerText = $arr_content3[1];
-													}
-												}
-											break;
-
-											case 11:
-												$arr_content1 = explode(":", $strQueryTypeText);
-												$arr_content2 = explode(",", $arr_content1[1]);
-
-												$arr_answer_text = explode(",", $strAnswerText);
-
-												$strAnswerText = "";
-
-												foreach($arr_content2 as $str_content)
-												{
-													$arr_content3 = explode("|", $str_content);
-
-													if(in_array($arr_content3[0], $arr_answer_text))
-													{
-														$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
-													}
-												}
-											break;
-
-											case 15:
-												$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
-
-												foreach($result as $r)
-												{
-													$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
-												}
-										break;
-										}
-									//}
-
-									$strAnswerText = preg_replace("/(\r\n|\r|\n|".$field_separator.")/", " ", $strAnswerText);
-
-									$out .= $strAnswerText;
-								}
-
-								$i++;
-							}
-
-							$out .= $field_separator.$strAnswerCreated.$row_separator;
-						}
-
-						$out .= $row_separator.__("Row count", 'lang_form').": ".$rows.$row_separator.__("Date", 'lang_form').": ".$strExportDate;
-
-						$file = $file_base.$file_type;
-
-						$success = set_file_content(array('file' => $upload_path.$file, 'mode' => 'a', 'content' => trim($out)));
-
-						if($success == true)
-						{
-							$done_text = __("The form was successfully exported to", 'lang_form')." <a href='".$upload_url.$file."'>".$file."</a>";
-						}
-
-						else
-						{
-							$error_text = __("It was not possible to export all answers from", 'lang_form')." ".$strQueryName;
-						}
-					}
-					#######################
-
-					//Export to XLS
-					#######################
-					if(is_plugin_active("mf_phpexcel/index.php"))
-					{
-						$arr_alphabet = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-
-						$file_type = "xls";
-
-						$objPHPExcel = new PHPExcel();
-
-						//$objPHPExcel->getProperties()->setCreator("")->setLastModifiedBy("")->setTitle("")->setSubject("")->setDescription("")->setKeywords("")->setCategory("");
-
-						$arr_rows = explode("\n", $out);
-
-						foreach($arr_rows as $row_key => $row_value)
-						{
-							$arr_cols = explode(",", $row_value);
-
-							foreach($arr_cols as $col_key => $col_value)
-							{
-								$cell = "";
-
-								$count_temp = count($arr_alphabet);
-
-								while($col_key >= $count_temp)
-								{
-									$cell .= $arr_alphabet[floor($col_key / $count_temp) - 1];
-
-									$col_key = $col_key % $count_temp;
-								}
-
-								$cell .= $arr_alphabet[$col_key].($row_key + 1);
-
-								$objPHPExcel->setActiveSheetIndex(0)->setCellValue($cell, $col_value);
-							}
-						}
-
-						/*$objPHPExcel->getActiveSheet()->getRowDimension(8)->setRowHeight(-1);
-						$objPHPExcel->getActiveSheet()->getStyle('A8')->getAlignment()->setWrapText(true);*/
-
-						//$objPHPExcel->getActiveSheet()->setTitle($strQueryName);
-
-						$file = $file_base.$file_type;
-
-						$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5'); //XLSX: Excel2007
-						$objWriter->save($upload_path.$file);
-
-						$done_text .= " ".__("and", 'lang_form')." <a href='".$upload_url.$file."'>".$file."</a>";
-
-						//echo "Current memory usage: " , (memory_get_usage(true) / 1024 / 1024) , " MB";
-						//echo "Peak memory usage: " , (memory_get_peak_usage(true) / 1024 / 1024) , " MB";
-					}
-					#######################
-				}
-			}
-
-			get_file_info(array('path' => $upload_path, 'callback' => "delete_old_files"));
-		}
-
 		else if(isset($_POST['btnQueryUpdate']))
 		{
 			$strQueryPrefix = $this->get_post_name()."_";
@@ -393,6 +133,8 @@ class mf_form
 				mf_redirect("?page=mf_form/answer/index.php&intQueryID=".$this->id);
 			}
 		}
+
+		$obj_export = new mf_form_export();
 
 		return $out;
 	}
@@ -578,6 +320,143 @@ class mf_form
 	}
 }
 
+class mf_form_export extends mf_export
+{
+	function get_defaults()
+	{
+		$this->plugin = "mf_form";
+	}
+
+	function get_export_data()
+	{
+		global $wpdb, $error_text;
+
+		//$this->name = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." WHERE ID = '%d' AND post_type = 'mf_form'", $this->type));
+		$this->name = $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->type));
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $this->type));
+
+		$this_row = array();
+
+		foreach($result as $r)
+		{
+			$intQuery2TypeID = $r->query2TypeID;
+			$intQueryTypeID = $r->queryTypeID;
+			$strQueryTypeText = $r->queryTypeText;
+
+			switch($intQueryTypeID)
+			{
+				case 2:
+					list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+				break;
+
+				case 10:
+				case 11:
+					list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
+				break;
+			}
+
+			$this_row[] = stripslashes(strip_tags($strQueryTypeText));
+
+			$i++;
+		}
+
+		$this_row[] = __("Created", 'lang_form');
+
+		$this->data[] = $this_row;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
+
+		foreach($result as $r)
+		{
+			$intAnswerID = $r->answerID;
+			$intQueryID = $r->queryID;
+			$strAnswerCreated = $r->answerCreated;
+			$strAnswerIP = $r->answerIP;
+
+			$this_row = array();
+
+			$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intQueryID));
+
+			foreach($resultText as $r)
+			{
+				$intQuery2TypeID = $r->query2TypeID;
+				$intQueryTypeID = $r->queryTypeID;
+				$strQueryTypeText = $r->queryTypeText;
+
+				$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intQuery2TypeID, $intAnswerID));
+				$rowsAnswer = $wpdb->num_rows;
+
+				if($rowsAnswer > 0)
+				{
+					$r = $resultAnswer[0];
+					$strAnswerText = $r->answerText;
+
+					switch($intQueryTypeID)
+					{
+						case 8:
+							$strAnswerText = 1;
+						break;
+
+						case 7:
+							$strAnswerText = wp_date_format(array('date' => $strAnswerText));
+						break;
+
+						case 10:
+							$arr_content1 = explode(":", $strQueryTypeText);
+							$arr_content2 = explode(",", $arr_content1[1]);
+
+							foreach($arr_content2 as $str_content)
+							{
+								$arr_content3 = explode("|", $str_content);
+
+								if($strAnswerText == $arr_content3[0])
+								{
+									$strAnswerText = $arr_content3[1];
+								}
+							}
+						break;
+
+						case 11:
+							$arr_content1 = explode(":", $strQueryTypeText);
+							$arr_content2 = explode(",", $arr_content1[1]);
+
+							$arr_answer_text = explode(",", $strAnswerText);
+
+							$strAnswerText = "";
+
+							foreach($arr_content2 as $str_content)
+							{
+								$arr_content3 = explode("|", $str_content);
+
+								if(in_array($arr_content3[0], $arr_answer_text))
+								{
+									$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
+								}
+							}
+						break;
+
+						case 15:
+							$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+							foreach($result as $r)
+							{
+								$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
+							}
+						break;
+					}
+
+					$this_row[] = $strAnswerText;
+				}
+			}
+
+			$this_row[] = $strAnswerCreated;
+
+			$this->data[] = $this_row;
+		}
+	}
+}
+
 class mf_form_table extends mf_list_table
 {
 	function set_default()
@@ -714,8 +593,14 @@ class mf_form_table extends mf_list_table
 
 						$actions = array();
 
-						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".__("Show Answers", 'lang_form')."</a>"; 
-						$actions['export_answers'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryExport&intQueryID=".$intQueryID, 'form_export')."'>".__("Export Answers", 'lang_form')."</a>";
+						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".__("Show", 'lang_form')."</a>"; 
+						
+						$actions['export_csv'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$intQueryID."&strExportAction=csv", 'export_run')."'>".__("Export", 'lang_form')." (CSV)</a>";
+
+						if(is_plugin_active("mf_phpexcel/index.php"))
+						{
+							$actions['export_xls'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$intQueryID."&strExportAction=xls", 'export_run')."'>".__("Export", 'lang_form')." (XLS)</a>";
+						}
 
 						echo $query_answers
 						.$count_message

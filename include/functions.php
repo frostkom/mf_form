@@ -1000,15 +1000,3 @@ function show_query_form($data)
 	return $out;
 }
 ################################
-
-function delete_old_files($data)
-{
-	$time = time();
-
-	$file = $data['file'];
-
-	if($time - filemtime($file) >= 60 * 60 * 24 * 2) // 2 days
-	{
-		unlink($file);
-	}
-}
