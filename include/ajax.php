@@ -53,11 +53,11 @@ if(get_current_user_id() > 0)
 
 			if($wpdb->rows_affected > 0)
 			{
-				$obj_form = new mf_form();
+				$obj_form = new mf_form($type_id);
 
-				$intPostID = $obj_form->get_post_id($type_id);
+				//$intPostID = $obj_form->get_post_id($type_id);
 
-				if(wp_trash_post($intPostID))
+				if(wp_trash_post($obj_form->post_id))
 				{
 					$json_output['success'] = true;
 					$json_output['dom_id'] = $type_table."_".$type_id;
@@ -68,7 +68,7 @@ if(get_current_user_id() > 0)
 					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0', queryDeletedDate = '', queryDeletedID = '' WHERE queryID = '%d' AND queryDeleted = '1'", $type_id));
 
 					$json_output['queryID'] = $type_id;
-					$json_output['postID'] = $intPostID;
+					$json_output['postID'] = $obj_form->post_id;
 				}
 			}
 		}

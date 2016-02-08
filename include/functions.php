@@ -160,8 +160,7 @@ function settings_form()
 
 function settings_form_callback()
 {
-	echo "<div id='settings_form'>&nbsp;</div>
-	<a href='#settings_form'><h3>".__("Forms", 'lang_form')."</h3></a>";
+	echo settings_header('settings_form', __("Forms", 'lang_form'));
 }
 
 function setting_form_test_emails_callback()
@@ -341,10 +340,10 @@ function notices_form()
 			foreach($result as $r)
 			{
 				$intQueryID = $r->queryID;
-				$strQueryName = $r->queryName;
+				$strFormName = $r->queryName;
 				$intAnswerSent = $r->answerSent;
 
-				$unsent_links .= ($unsent_links != '' ? ", " : "")."<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intQueryID=".$intQueryID)."'>".$intAnswerSent." ".__("in", 'lang_form')." ".$strQueryName."</a>";
+				$unsent_links .= ($unsent_links != '' ? ", " : "")."<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intQueryID=".$intQueryID)."'>".$intAnswerSent." ".__("in", 'lang_form')." ".$strFormName."</a>";
 			}
 
 			$error_text = __("There were unsent messages", 'lang_form')." (".$unsent_links.")";
@@ -352,39 +351,6 @@ function notices_form()
 			echo get_notification();
 		}
 	}
-}
-
-function check_if_duplicate($data)
-{
-	global $wpdb;
-
-	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
-
-	$dup_ip = false;
-
-	$is_poll = is_poll(array('query_id' => $data['query_id']));
-
-	if($is_poll)
-	{
-		$rowsIP = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d' AND answerIP = %s LIMIT 0, 1", $data['query_id'], $strAnswerIP));
-
-		if($rowsIP > 0)
-		{
-			$dup_ip = true;
-		}
-	}
-
-	else
-	{
-		$rowsIP = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d' AND answerIP = %s AND answerCreated > DATE_SUB(NOW(), INTERVAL 30 SECOND) LIMIT 0, 1", $data['query_id'], $strAnswerIP));
-
-		if($rowsIP > 0)
-		{
-			$dup_ip = true;
-		}
-	}
-
-	return $dup_ip;
 }
 
 function get_poll_results($data)
@@ -406,7 +372,7 @@ function get_poll_results($data)
 
 			if($intQueryTypeID2 == 8)
 			{
-				$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'", $data['query_id']));
+				$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'", $obj_form->id)); //$data['query_id']
 
 				$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
 
@@ -426,15 +392,6 @@ function get_poll_results($data)
 	}
 
 	return $out;
-}
-
-function is_poll($data)
-{
-	global $wpdb;
-
-	$not_poll_content_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(query2TypeID) FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND queryTypeID != '5' AND queryTypeID != '8' LIMIT 0, 1", $data['query_id']));
-
-	return ($not_poll_content_amount == 0 ? true : false);
 }
 
 function mf_form_mail($data)
@@ -475,22 +432,19 @@ function show_query_form($data)
 {
 	global $wpdb, $wp_query, $error_text, $done_text;
 
-	$out = $intAnswerID = "";
+	$out = "";
 
 	if(!isset($data['edit'])){			$data['edit'] = false;}
 	if(!isset($data['sent'])){			$data['sent'] = false;}
 	if(!isset($data['query2type_id'])){	$data['query2type_id'] = 0;}
 
-	if(isset($data['answer_id']))
-	{
-		$intAnswerID = $data['answer_id'];
-	}
+	$intAnswerID = isset($data['answer_id']) ? $data['answer_id'] : "";
 
 	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
 
-	$intQueryID = check_var('intQueryID');
+	$obj_form = new mf_form(isset($data['query_id']) && $data['query_id'] > 0 ? $data['query_id'] : 0);
 
-	$payment = new mf_form_payment(array('query_id' => $data['query_id']));
+	$payment = new mf_form_payment(array('query_id' => $obj_form->id));
 
 	if(isset($_GET['accept']) || isset($_GET['callback']) || isset($_GET['cancel']))
 	{
@@ -499,28 +453,37 @@ function show_query_form($data)
 
 	else
 	{
-		$dup_ip = check_if_duplicate(array('query_id' => $intQueryID));
+		$dup_ip = $obj_form->check_if_duplicate();
 
 		if(isset($_POST['btnFormSubmit']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit'))
 		{
 			$email_encrypted = check_var('email_encrypted', 'char');
 
-			$is_correct_form = $data['query_id'] == $intQueryID ? true : false;
+			$is_correct_form = true;
+			$log_text = "";
+
+			if($data['query_id'] != $obj_form->id)
+			{
+				$is_correct_form = false;
+
+				$log_text = $data['query_id']." != ".$obj_form->id;
+			}
 
 			if(isset($data['send_to']) && $data['send_to'] != '' && $email_encrypted != hash('sha512', $data['send_to']))
 			{
 				$is_correct_form = false;
+
+				$log_text = $email_encrypted." != ".hash('sha512', $data['send_to']);
 			}
 
 			if($is_correct_form == true)
 			{
 				$email_from = $email_content = $error_text = "";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryName, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $intQueryID));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
 				$r = $result[0];
 				$intQueryEmailConfirm = $r->queryEmailConfirm;
 				$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
-				$strQueryName = $r->queryName;
 				$strQueryEmail = $r->queryEmail;
 				$intQueryEmailNotify = $r->queryEmailNotify;
 				$strQueryEmailName = $r->queryEmailName;
@@ -528,11 +491,10 @@ function show_query_form($data)
 				$intQueryPaymentProvider = $r->queryPaymentProvider;
 				$intQueryPaymentAmount = $r->queryPaymentAmount;
 
-				$obj_form = new mf_form($intQueryID);
+				$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+				$strFormPrefix = $obj_form->get_post_info()."_";
 
-				$strQueryPrefix = $obj_form->get_post_name()."_";
-
-				$dblQueryPaymentAmount_value = 0; //$intQueryPaymentCheck_value = 
+				$dblQueryPaymentAmount_value = 0;
 
 				if($dup_ip == true)
 				{
@@ -541,7 +503,7 @@ function show_query_form($data)
 
 				else
 				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intQueryID));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
 
 					foreach($result as $r)
 					{
@@ -551,7 +513,7 @@ function show_query_form($data)
 						$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
 						$intQueryTypeRequired = $r->queryTypeRequired;
 
-						$handle2fetch = $strQueryPrefix.$intQuery2TypeID2;
+						$handle2fetch = $strFormPrefix.$intQuery2TypeID2;
 
 						$strAnswerText = $strAnswerText_send = check_var($handle2fetch, $strCheckCode, true, '', true, 'post');
 
@@ -594,14 +556,14 @@ function show_query_form($data)
 								{
 									foreach($_POST[$handle2fetch] as $value)
 									{
-										$strAnswerText .= ($strAnswerText != '' ? "," : "").check_var($strQueryPrefix.$value, $strCheckCode, false);
+										$strAnswerText .= ($strAnswerText != '' ? "," : "").check_var($strFormPrefix.$value, $strCheckCode, false);
 									}
 								}
 
 								$arr_content1 = explode(":", $strQueryTypeText);
 								$arr_content2 = explode(",", $arr_content1[1]);
 
-								$arr_answer_text = explode(",", str_replace($strQueryPrefix, "", $strAnswerText));
+								$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
 
 								$strAnswerText_send = "";
 
@@ -627,12 +589,18 @@ function show_query_form($data)
 
 									if($file_name == '')
 									{
-										$error_text = __("You have to submit a file", 'lang_form');
+										if($intQueryTypeRequired == true)
+										{
+											$error_text = __("You have to submit a file", 'lang_form');
+										}
 									}
 
 									else if(!is_uploaded_file($file_location))
 									{
-										$error_text = __("The file was not uploaded", 'lang_form');
+										if($intQueryTypeRequired == true)
+										{
+											$error_text = __("The file was not uploaded", 'lang_form');
+										}
 									}
 
 									else
@@ -711,12 +679,12 @@ function show_query_form($data)
 				{
 					$updated = true;
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerCreated = NOW()", $intQueryID, $strAnswerIP));
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerCreated = NOW()", $obj_form->id, $strAnswerIP));
 
 					$intAnswerID = $wpdb->insert_id;
 
 					//do_action('action_form_on_submit');
-					apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strQueryName), 'mail_content' => $email_content));
+					apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strFormName), 'mail_content' => $email_content));
 
 					if($intAnswerID > 0)
 					{
@@ -752,7 +720,7 @@ function show_query_form($data)
 								$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
 							}
 
-							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strQueryName;
+							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
 							$mail_content = strip_tags($email_content);
 
 							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail(array('to' => $data['send_to'], 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers, 'answer_id' => $intAnswerID));
@@ -770,7 +738,7 @@ function show_query_form($data)
 								$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
 							}
 
-							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strQueryName;
+							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
 							$mail_content = strip_tags($email_content);
 
 							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail(array('to' => $strQueryEmail, 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers, 'answer_id' => $intAnswerID));
@@ -788,7 +756,7 @@ function show_query_form($data)
 								$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
 							}
 
-							$mail_subject = $strQueryName;
+							$mail_subject = $strFormName;
 							$mail_content = strip_tags($email_content);
 
 							if($strQueryEmailConfirmPage > 0)
@@ -829,7 +797,7 @@ function show_query_form($data)
 							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $intAnswerID, $answer_data));
 						}
 
-						if($intQueryPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0) // && $intQueryPaymentCheck_value > 0
+						if($intQueryPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
 						{
 							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = '101 (Sent to processing)'", $intAnswerID));
 
@@ -845,23 +813,25 @@ function show_query_form($data)
 					}
 				}
 			}
+
+			else if($log_text != '')
+			{
+				do_log(__("Formular was not sent correctly", 'lang_form'))." (".$log_text.")";
+			}
 		}
 
 		$obj_font_icons = new mf_font_icons();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryEmailCheckConfirm FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $data['query_id'])); //, queryImproveUX
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryEmailCheckConfirm FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
 		$r = $result[0];
 		$intQueryShowAnswers = $r->queryShowAnswers;
 		$strQueryAnswerURL = $r->queryAnswerURL;
 		$strQueryButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_form');
 		$strQueryButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
 		$intQueryPaymentProvider = $r->queryPaymentProvider;
-		//$intQueryImproveUX = $r->queryImproveUX;
 		$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
 
-		$obj_form = new mf_form($data['query_id']);
-
-		$strQueryPrefix = $obj_form->get_post_name()."_";
+		$strFormPrefix = $obj_form->get_post_info()."_";
 
 		if($strQueryAnswerURL != '' && preg_match("/_/", $strQueryAnswerURL))
 		{
@@ -874,11 +844,13 @@ function show_query_form($data)
 			$intQueryAnswerURL = $strQueryAnswerURL;
 		}
 
+		$dteFormDeadline = $obj_form->meta(array('action' => 'get', 'key' => 'deadline'));
+
 		if($data['edit'] == false && ($data['sent'] == true || $dup_ip == true))
 		{
 			$out .= "<div class='mf_form mf_form_results'>";
 
-				$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8'", $data['query_id']));
+				$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8'", $obj_form->id));
 
 				if($intQueryShowAnswers == 1 && $data['total_answers'] > 0)
 				{
@@ -915,6 +887,11 @@ function show_query_form($data)
 			$out .= "</div>";
 		}
 
+		else if($dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
+		{
+			$out .= "<p>".__("This form is not open for submissions anymore", 'lang_form')."</p>";
+		}
+
 		else if($out == '')
 		{
 			$cols = $data['edit'] == true ? 5 : 2;
@@ -924,7 +901,7 @@ function show_query_form($data)
 
 			if($intTotalRows > 0)
 			{
-				$out .= "<form method='post' action='' id='form_".$data['query_id']."' class='mf_form".($data['edit'] == true ? " mf_sortable" : "")."' enctype='multipart/form-data'>"; //.($intQueryImproveUX == 1 ? " mf_improve_ux" : "")
+				$out .= "<form method='post' action='' id='form_".$obj_form->id."' class='mf_form".($data['edit'] == true ? " mf_sortable" : "")."' enctype='multipart/form-data'>";
 
 					if($data['edit'] == false)
 					{
@@ -941,7 +918,7 @@ function show_query_form($data)
 					{
 						$r->queryTypeText = stripslashes($r->queryTypeText);
 
-						$obj_form_output = new mf_form_output(array('result' => $r, 'in_edit_mode' => $data['edit'], 'query_prefix' => $strQueryPrefix, 'email_check_confirm' => $strQueryEmailCheckConfirm));
+						$obj_form_output = new mf_form_output(array('result' => $r, 'in_edit_mode' => $data['edit'], 'query_prefix' => $strFormPrefix, 'email_check_confirm' => $strQueryEmailCheckConfirm));
 
 						$obj_form_output->calculate_value($intAnswerID);
 						$obj_form_output->get_form_fields();
@@ -954,7 +931,7 @@ function show_query_form($data)
 					if($intAnswerID > 0)
 					{
 						$out .= show_submit(array('name' => "btnQueryUpdate", 'text' => __("Update", 'lang_form')))
-						.input_hidden(array('name' => 'intQueryID', 'value' => $data['query_id']))
+						.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
 						.input_hidden(array('name' => 'intAnswerID', 'value' => $intAnswerID));
 					}
 
@@ -972,7 +949,7 @@ function show_query_form($data)
 
 							$out .= show_submit(array('name' => "btnFormSubmit", 'text' => $strQueryButtonSymbol.$strQueryButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
 							.wp_nonce_field('form_submit', '_wpnonce', true, false)
-							.input_hidden(array('name' => 'intQueryID', 'value' => $data['query_id']));
+							.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id));
 
 							if(isset($data['send_to']) && $data['send_to'] != '')
 							{
@@ -986,7 +963,7 @@ function show_query_form($data)
 									$out .= show_checkbox(array('name' => "intQueryPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
 								}
 
-								$out .= "<a href='".get_site_url()."/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$data['query_id']."'>".__("Edit this form", 'lang_form')."</a>";
+								$out .= "<a href='".get_site_url()."/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id."'>".__("Edit this form", 'lang_form')."</a>";
 							}
 
 						$out .= "</div>";

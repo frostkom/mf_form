@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: http://github.com/frostkom/mf_form
 Description: 
-Version: 3.3.0
+Version: 3.5.0
 Author: Martin Fors
 Author URI: http://frostkom.se
 */
@@ -149,62 +149,84 @@ function activate_form()
 
 	$arr_add_column = array();
 
-	$arr_add_column[$wpdb->base_prefix."query"]['queryEmail'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryAnswer";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailNotify'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER queryEmail";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailName'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryEmail";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryMandatoryText'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryEmailName";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryButtonText'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryMandatoryText";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailConfirm'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryShowAnswers'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryAnswerURL'] = "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryAnswer";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryDeleted'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryCreated";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryDeletedDate'] = "ALTER TABLE [table] ADD [column] datetime DEFAULT NULL AFTER queryDeleted";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryDeletedID'] = "ALTER TABLE [table] ADD [column] INT unsigned DEFAULT '0' AFTER queryDeletedDate";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentCheck'] = "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryButtonText";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentAmount'] = "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryPaymentCheck";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentHmac'] = "ALTER TABLE [table] ADD [column] VARCHAR(200) DEFAULT NULL AFTER queryButtonText";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentMerchant'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER queryPaymentHmac";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentPassword'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER queryPaymentMerchant";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailConfirmPage'] = "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryEmailConfirm";
-	$arr_add_column[$wpdb->base_prefix."query"]['blogID'] = "ALTER TABLE [table] ADD [column] INT AFTER queryID";
-	//$arr_add_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentProvider'] = "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryButtonText";
-	//$arr_add_column[$wpdb->base_prefix."query"]['queryURL'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryName";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryPaymentCurrency'] = "ALTER TABLE [table] ADD [column] VARCHAR(3) AFTER queryPaymentMerchant";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryButtonSymbol'] = "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText";
-	$arr_add_column[$wpdb->base_prefix."query"]['postID'] = "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER blogID";
-	$arr_add_column[$wpdb->base_prefix."query"]['queryEmailCheckConfirm'] = "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryEmailName";
+	$arr_add_column[$wpdb->base_prefix."query"] = array(
+		'queryEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryAnswer",
+		'queryEmailNotify' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER queryEmail",
+		'queryEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryEmail",
+		'queryMandatoryText' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryEmailName",
+		'queryButtonText' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryMandatoryText",
+		'queryEmailConfirm' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName",
+		'queryShowAnswers' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName",
+		'queryAnswerURL' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryAnswer",
+		'queryDeleted' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryCreated",
+		'queryDeletedDate' => "ALTER TABLE [table] ADD [column] datetime DEFAULT NULL AFTER queryDeleted",
+		'queryDeletedID' => "ALTER TABLE [table] ADD [column] INT unsigned DEFAULT '0' AFTER queryDeletedDate",
+		'queryPaymentCheck' => "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryButtonText",
+		'queryPaymentAmount' => "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryPaymentCheck",
+		'queryPaymentHmac' => "ALTER TABLE [table] ADD [column] VARCHAR(200) DEFAULT NULL AFTER queryButtonText",
+		'queryPaymentMerchant' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER queryPaymentHmac",
+		'queryPaymentPassword' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER queryPaymentMerchant",
+		'queryEmailConfirmPage' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryEmailConfirm",
+		'blogID' => "ALTER TABLE [table] ADD [column] INT AFTER queryID",
+		//'queryImproveUX' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName",
+		'queryPaymentProvider' => "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryButtonText",
+		//'queryURL' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryName",
+		'queryPaymentCurrency' => "ALTER TABLE [table] ADD [column] VARCHAR(3) AFTER queryPaymentMerchant",
+		'queryButtonSymbol' => "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText",
+		'postID' => "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER blogID",
+		'queryEmailCheckConfirm' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryEmailName",
+	);
 
-	$arr_add_column[$wpdb->base_prefix."query2answer"]['answerToken'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER answerIP";
+	$arr_add_column[$wpdb->base_prefix."query2answer"] = array(
+		'answerToken' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER answerIP",
+	);
 
-	$arr_add_column[$wpdb->base_prefix."query_check"]['checkPattern'] = "ALTER TABLE [table] ADD [column] VARCHAR(200) AFTER checkCode";
-	$arr_add_column[$wpdb->base_prefix."query_check"]['checkName'] = "ALTER TABLE [table] ADD [column] VARCHAR(50) AFTER checkPublic";
+	$arr_add_column[$wpdb->base_prefix."query_check"] = array(
+		'checkPattern' => "ALTER TABLE [table] ADD [column] VARCHAR(200) AFTER checkCode",
+		'checkName' => "ALTER TABLE [table] ADD [column] VARCHAR(50) AFTER checkPublic",
+	);
 
-	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypeClass'] = "ALTER TABLE [table] ADD [column] varchar(50) AFTER checkID";
-	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypeAutofocus'] = "ALTER TABLE [table] ADD [column] enum('0','1') NOT NULL DEFAULT '0' AFTER queryTypeClass";
-	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypePlaceholder'] = "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryTypeText";
-	$arr_add_column[$wpdb->base_prefix."query2type"]['queryTypeTag'] = "ALTER TABLE [table] ADD [column] varchar(20) AFTER checkID";
-	$arr_add_column[$wpdb->base_prefix."query2type"]['query2TypeID2'] = "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER query2TypeID";
+	$arr_add_column[$wpdb->base_prefix."query2type"] = array(
+		'queryTypeClass' => "ALTER TABLE [table] ADD [column] varchar(50) AFTER checkID",
+		'queryTypeAutofocus' => "ALTER TABLE [table] ADD [column] enum('0','1') NOT NULL DEFAULT '0' AFTER queryTypeClass",
+		'queryTypePlaceholder' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryTypeText",
+		'queryTypeTag' => "ALTER TABLE [table] ADD [column] varchar(20) AFTER checkID",
+		'query2TypeID2' => "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER query2TypeID",
+	);
 
-	$arr_add_column[$wpdb->base_prefix."query_type"]['queryTypePublic'] = "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeID";
+	$arr_add_column[$wpdb->base_prefix."query_type"] = array(
+		'queryTypePublic' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeID",
+	);
 
 	add_columns($arr_add_column);
 
 	$arr_update_column = array();
 
-	$arr_update_column[$wpdb->base_prefix."query"]['queryTypePublic'] = "ALTER TABLE [table] DROP [column]";
-	$arr_update_column[$wpdb->base_prefix."query"]['queryTypeOrder'] = "ALTER TABLE [table] DROP [column]";
-	$arr_update_column[$wpdb->base_prefix."query"]['queryEmailNotify'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '1'";
-	$arr_update_column[$wpdb->base_prefix."query"]['queryPaymentMerchant'] = "ALTER TABLE [table] CHANGE [column] [column] VARCHAR(100) DEFAULT NULL";
-	//$arr_update_column[$wpdb->base_prefix."query"]['queryImproveUX'] = "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '0'";
+	$arr_update_column[$wpdb->base_prefix."query"] = array(
+		'queryTypePublic' => "ALTER TABLE [table] DROP [column]",
+		'queryTypeOrder' => "ALTER TABLE [table] DROP [column]",
+		'queryEmailNotify' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '1'",
+		'queryPaymentMerchant' => "ALTER TABLE [table] CHANGE [column] [column] VARCHAR(100) DEFAULT NULL",
+		//'queryImproveUX' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '0'",
+		'queryImproveUX' => "ALTER TABLE [table] DROP [column]",
+		'queryURL' => "ALTER TABLE [table] DROP [column]",
+	);
 
-	$arr_update_column[$wpdb->base_prefix."query"]['queryEncrypted'] = "ALTER TABLE [table] DROP [column]";
+	$arr_update_column[$wpdb->base_prefix."query"] = array(
+		'queryEncrypted' => "ALTER TABLE [table] DROP [column]",
+	);
 
-	$arr_update_column[$wpdb->base_prefix."query2answer"]['userID'] = "ALTER TABLE [table] DROP [column]";
+	$arr_update_column[$wpdb->base_prefix."query2answer"] = array(
+		'userID' => "ALTER TABLE [table] DROP [column]",
+	);
 
-	$arr_update_column[$wpdb->base_prefix."query2type"]['queryTypeForced'] = "ALTER TABLE [table] CHANGE [column] queryTypeRequired ENUM('0','1') NOT NULL DEFAULT '0'";
+	$arr_update_column[$wpdb->base_prefix."query2type"] = array(
+		'queryTypeForced' => "ALTER TABLE [table] CHANGE [column] queryTypeRequired ENUM('0','1') NOT NULL DEFAULT '0'",
+	);
 
-	$arr_update_column[$wpdb->base_prefix."query_type"]['queryTypeLang'] = "ALTER TABLE [table] CHANGE [column] queryTypeName VARCHAR(30) DEFAULT NULL";
+	$arr_update_column[$wpdb->base_prefix."query_type"] = array(
+		'queryTypeLang' => "ALTER TABLE [table] CHANGE [column] queryTypeName VARCHAR(30) DEFAULT NULL",
+	);
 
 	update_columns($arr_update_column);
 
@@ -231,8 +253,6 @@ function activate_form()
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '13', queryTypeName = '".__("Custom tag", 'lang_form')."', queryTypeResult = '0'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '14', queryTypePublic = 'no', queryTypeName = '".__("Custom tag (end)", 'lang_form')."', queryTypeResult = '0'";
 	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '15', queryTypeName = '".__("File", 'lang_form')."', queryTypeResult = '1'";
-
-	//$arr_run_query[] = "UPDATE ".$wpdb->base_prefix."query_type SET queryTypeResult = '1' WHERE queryTypeID = '5'";
 
 	if(get_bloginfo('language') == "sv-SE")
 	{
@@ -266,7 +286,7 @@ function activate_form()
 		{
 			$intQueryID = $r->queryID;
 			$intPostID = $r->postID;
-			$strQueryName = $r->queryName;
+			$strFormName = $r->queryName;
 			$intQueryDeleted = $r->queryDeleted;
 
 			if(!($intPostID > 0))
@@ -274,7 +294,7 @@ function activate_form()
 				$post_data = array(
 					'post_type' => 'mf_form',
 					'post_status' => 'publish',
-					'post_title' => $strQueryName,
+					'post_title' => $strFormName,
 				);
 
 				$intPostID = wp_insert_post($post_data);

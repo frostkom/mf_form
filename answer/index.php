@@ -62,7 +62,7 @@ $result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryShowAnswers,
 
 foreach($result as $r)
 {
-	$strQueryName = $r->queryName;
+	$strFormName = $r->queryName;
 	$intQueryShowAnswers = $r->queryShowAnswers;
 	$intQueryPaymentProvider = $r->queryPaymentProvider;
 	$intQueryPaymentAmount = $r->queryPaymentAmount;
@@ -71,7 +71,7 @@ foreach($result as $r)
 }
 
 echo "<div class='wrap'>
-	<h2>".__("Answers in", 'lang_form')." ".$strQueryName."</h2>"
+	<h2>".__("Answers in", 'lang_form')." ".$strFormName."</h2>"
 	.get_notification();
 
 	if($query_pie == true)
@@ -172,9 +172,9 @@ echo "<div class='wrap'>
 		echo show_table_header($arr_header)
 		."<tbody>";
 
-			$strQueryPrefix = $obj_form->get_post_name()."_";
+			$strFormPrefix = $obj_form->get_post_info()."_";
 
-			$result = $wpdb->get_results("SELECT answerID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$obj_form->id."'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount); //, queryID
+			$result = $wpdb->get_results("SELECT answerID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$obj_form->id."'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
 			$rows = $wpdb->num_rows;
 
 			if($rows == 0)
@@ -252,7 +252,7 @@ echo "<div class='wrap'>
 											$arr_content1 = explode(":", $strQueryTypeText);
 											$arr_content2 = explode(",", $arr_content1[1]);
 
-											$arr_answer_text = explode(",", str_replace($strQueryPrefix, "", $strAnswerText));
+											$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
 
 											$strAnswerText = "";
 

@@ -21,7 +21,6 @@ get_header();
 					echo "<h1>".$post_title."</h1>
 					<section>"
 						.apply_filters('the_content', "[mf_form id=".$intQueryID."]")
-						//.show_query_form(array('query_id' => $intQueryID))
 					."</section>";
 				}
 
