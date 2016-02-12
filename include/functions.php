@@ -133,15 +133,9 @@ function my_replace_content($html)
 
 function settings_form()
 {
-	$options_page = "settings_mf_base";
 	$options_area = "settings_form";
 
-	add_settings_section(
-		$options_area,
-		"",
-		$options_area."_callback",
-		$options_page
-	);
+	add_settings_section($options_area, "", $options_area."_callback", BASE_OPTIONS_PAGE);
 
 	$arr_settings = array(
 		"setting_form_test_emails" => __("Redirect test e-mails", 'lang_form'),
@@ -152,9 +146,9 @@ function settings_form()
 
 	foreach($arr_settings as $handle => $text)
 	{
-		add_settings_field($handle, $text, $handle."_callback", $options_page, $options_area);
+		add_settings_field($handle, $text, $handle."_callback", BASE_OPTIONS_PAGE, $options_area);
 
-		register_setting($options_page, $handle);
+		register_setting(BASE_OPTIONS_PAGE, $handle);
 	}
 }
 
@@ -228,7 +222,12 @@ function mf_form_setting_replacement_form_callback()
 
 	$option = get_option('mf_form_setting_replacement_form');
 
-	echo "<label>
+	$obj_form = new mf_form();
+	$arr_data = $obj_form->get_form_array();
+
+	echo show_select(array('data' => $arr_data, 'name' => 'mf_form_setting_replacement_form', 'compare' => $option, 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+
+	/*echo "<label>
 		<select name='mf_form_setting_replacement_form'>
 			<option value=''>-- ".__("Choose here", 'lang_form')." --</option>";
 
@@ -241,7 +240,7 @@ function mf_form_setting_replacement_form_callback()
 
 		echo "</select><br>
 		<span class='description'>".__("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')."</span>
-	</label>";
+	</label>";*/
 }
 
 function widgets_form()
@@ -331,7 +330,7 @@ function notices_form()
 
 		$query_xtra = get_form_xtra(" WHERE answerCreated > %s AND answerSent = '0'");
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryID, queryName, COUNT(answerSent) AS answerSent FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) INNER JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)".$query_xtra." GROUP BY queryID", $answer_viewed));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryID, COUNT(answerSent) AS answerSent FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) INNER JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)".$query_xtra." GROUP BY queryID", $answer_viewed)); //, queryName
 
 		if($wpdb->num_rows > 0)
 		{
@@ -340,8 +339,11 @@ function notices_form()
 			foreach($result as $r)
 			{
 				$intQueryID = $r->queryID;
-				$strFormName = $r->queryName;
+				//$strFormName = $r->queryName;
 				$intAnswerSent = $r->answerSent;
+				
+				$obj_form = new mf_form($intQueryID);
+				$strFormName = $this->get_post_info(array('select' => 'post_title'));
 
 				$unsent_links .= ($unsent_links != '' ? ", " : "")."<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intQueryID=".$intQueryID)."'>".$intAnswerSent." ".__("in", 'lang_form')." ".$strFormName."</a>";
 			}

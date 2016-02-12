@@ -76,7 +76,8 @@ echo "<div class='wrap'>";
 
 			else
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryName = '%d'", $strFormName));
+				//$result = $wpdb->get_results($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryName = '%d'", $strFormName));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form' AND post_title = '%d'", $strFormName));
 
 				if($wpdb->num_rows > 0)
 				{

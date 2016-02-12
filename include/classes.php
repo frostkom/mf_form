@@ -215,6 +215,32 @@ class mf_form
 		return $this->post_status;
 	}
 
+	function get_form_array()
+	{
+		global $wpdb;
+
+		$arr_data = array();
+
+		$arr_data[] = array('', "-- ".__("Choose here", 'lang_form')." --");
+
+		$result = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
+
+		foreach($result as $r)
+		{
+			$result = get_page_from_form($r->queryID);
+
+			if(count($result) > 0)
+			{
+				$obj_form = new mf_form($r->queryID);
+				$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+
+				$arr_data[] = array($r->queryID, $strFormName);
+			}
+		}
+
+		return $arr_data;
+	}
+
 	function get_form_name($id = 0)
 	{
 		global $wpdb;
@@ -224,7 +250,8 @@ class mf_form
 			$this->id = $id;
 		}
 
-		return $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->id));
+		//return $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->id));
+		return $this->get_post_info(array('select' => 'post_title'));
 	}
 
 	function get_form_id($id)
@@ -1110,8 +1137,9 @@ class mf_form_export extends mf_export
 	{
 		global $wpdb, $error_text;
 
-		//$this->name = $wpdb->get_var($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." WHERE ID = '%d' AND post_type = 'mf_form'", $this->type));
-		$this->name = $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->type));
+		//$this->name = $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->type));
+		$obj_form = new mf_form($this->type);
+		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $this->type));
 
@@ -1873,8 +1901,14 @@ class widget_form extends WP_Widget
 			<label for='".$this->get_field_id('form_heading')."'>".__("Heading", 'lang_form')."</label>
 			<input type='text' name='".$this->get_field_name('form_heading')."' value='".$instance['form_heading']."' class='widefat'>
 		</p>
-		<p>
-			<label for='".$this->get_field_id('form_id')."'>".__("Form", 'lang_form')."</label>
+		<p>";
+
+			$obj_form = new mf_form();
+			$arr_data = $obj_form->get_form_array();
+
+			echo show_select(array('data' => $arr_data, 'name' => $this->get_field_id('form_id'), 'compare' => $instance['form_id']));
+
+			/*<label for='".$this->get_field_id('form_id')."'>".__("Form", 'lang_form')."</label>
 			<select name='".$this->get_field_name('form_id')."' id='".$this->get_field_id('form_id')."' class='widefat'>
 				<option value=''>-- ".__("Choose here", 'lang_form')." --</option>";
 
@@ -1885,7 +1919,8 @@ class widget_form extends WP_Widget
 					echo "<option value='".$r->queryID."'".($instance['form_id'] == $r->queryID ? " selected" : "").">".$r->queryName."</option>";
 				}
 
-			echo "</select>
-		</p>";
+			echo "</select>*/
+
+		echo "</p>";
 	}
 }

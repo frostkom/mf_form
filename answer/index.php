@@ -58,11 +58,13 @@ if($dteQueryEndDate > DEFAULT_DATE)
 	$strQuerySearch .= " AND answerCreated <= '".$dteQueryEndDate."'";
 }
 
-$result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
+$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id)); //queryName, 
 
 foreach($result as $r)
 {
-	$strFormName = $r->queryName;
+	$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+
+	//$strFormName = $r->queryName;
 	$intQueryShowAnswers = $r->queryShowAnswers;
 	$intQueryPaymentProvider = $r->queryPaymentProvider;
 	$intQueryPaymentAmount = $r->queryPaymentAmount;
