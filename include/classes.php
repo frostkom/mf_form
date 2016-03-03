@@ -215,7 +215,7 @@ class mf_form
 		return $this->post_status;
 	}
 
-	function get_form_array()
+	function get_form_array($check_from_form = true)
 	{
 		global $wpdb;
 
@@ -229,7 +229,7 @@ class mf_form
 		{
 			$result = get_page_from_form($r->queryID);
 
-			if(count($result) > 0)
+			if(count($result) > 0 || $check_from_form == false)
 			{
 				$obj_form = new mf_form($r->queryID);
 				$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
@@ -250,7 +250,6 @@ class mf_form
 			$this->id = $id;
 		}
 
-		//return $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->id));
 		return $this->get_post_info(array('select' => 'post_title'));
 	}
 
@@ -1137,7 +1136,6 @@ class mf_form_export extends mf_export
 	{
 		global $wpdb, $error_text;
 
-		//$this->name = $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->type));
 		$obj_form = new mf_form($this->type);
 		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
@@ -1204,7 +1202,7 @@ class mf_form_export extends mf_export
 						break;
 
 						case 7:
-							$strAnswerText = wp_date_format(array('date' => $strAnswerText));
+							$strAnswerText = format_date($strAnswerText);
 						break;
 
 						case 10:
@@ -1897,30 +1895,15 @@ class widget_form extends WP_Widget
 		);
 		$instance = wp_parse_args((array)$instance, $defaults);
 
+		$obj_form = new mf_form();
+		$arr_data = $obj_form->get_form_array();
+
 		echo "<p>
 			<label for='".$this->get_field_id('form_heading')."'>".__("Heading", 'lang_form')."</label>
 			<input type='text' name='".$this->get_field_name('form_heading')."' value='".$instance['form_heading']."' class='widefat'>
 		</p>
-		<p>";
-
-			$obj_form = new mf_form();
-			$arr_data = $obj_form->get_form_array();
-
-			echo show_select(array('data' => $arr_data, 'name' => $this->get_field_id('form_id'), 'compare' => $instance['form_id']));
-
-			/*<label for='".$this->get_field_id('form_id')."'>".__("Form", 'lang_form')."</label>
-			<select name='".$this->get_field_name('form_id')."' id='".$this->get_field_id('form_id')."' class='widefat'>
-				<option value=''>-- ".__("Choose here", 'lang_form')." --</option>";
-
-				$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
-
-				foreach($result as $r)
-				{
-					echo "<option value='".$r->queryID."'".($instance['form_id'] == $r->queryID ? " selected" : "").">".$r->queryName."</option>";
-				}
-
-			echo "</select>*/
-
-		echo "</p>";
+		<p>"
+			.show_select(array('data' => $arr_data, 'name' => $this->get_field_id('form_id'), 'compare' => $instance['form_id']))
+		."</p>";
 	}
 }

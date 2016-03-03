@@ -137,12 +137,18 @@ function settings_form()
 
 	add_settings_section($options_area, "", $options_area."_callback", BASE_OPTIONS_PAGE);
 
-	$arr_settings = array(
-		"setting_form_test_emails" => __("Redirect test e-mails", 'lang_form'),
-		"setting_form_permission" => __("Lowest user permission", 'lang_form'),
-		"setting_form_permission_see_all" => __("Lowest user permission to see all forms", 'lang_form'),
-		"mf_form_setting_replacement_form" => __("Form to replace all e-mail links", 'lang_form'),
-	);
+	$arr_settings = array();
+
+	$arr_settings["setting_redirect_emails"] = __("Redirect all e-mails", 'lang_form');
+
+	if(get_option('setting_form_test_emails') != 'yes')
+	{
+		$arr_settings["setting_form_test_emails"] = __("Redirect test e-mails", 'lang_form');
+	}
+
+	$arr_settings["setting_form_permission"] = __("Lowest user permission", 'lang_form');
+	$arr_settings["setting_form_permission_see_all"] = __("Lowest user permission to see all forms", 'lang_form');
+	$arr_settings["mf_form_setting_replacement_form"] = __("Form to replace all e-mail links", 'lang_form');
 
 	foreach($arr_settings as $handle => $text)
 	{
@@ -157,6 +163,18 @@ function settings_form_callback()
 	echo settings_header('settings_form', __("Forms", 'lang_form'));
 }
 
+function setting_redirect_emails_callback()
+{
+	$option = get_option('setting_redirect_emails');
+
+	$arr_data = array();
+
+	$arr_data[] = array('no', __("No", 'lang_form'));
+	$arr_data[] = array('yes', __("Yes", 'lang_form'));
+
+	echo show_select(array('data' => $arr_data, 'name' => 'setting_redirect_emails', 'compare' => $option, 'description' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
+}
+
 function setting_form_test_emails_callback()
 {
 	$option = get_option('setting_form_test_emails');
@@ -166,10 +184,7 @@ function setting_form_test_emails_callback()
 	$arr_data[] = array('no', __("No", 'lang_form'));
 	$arr_data[] = array('yes', __("Yes", 'lang_form'));
 
-	echo "<label>"
-		.show_select(array('data' => $arr_data, 'name' => 'setting_form_test_emails', 'compare' => $option))
-		."<span class='description'>".__("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')."</span>
-	</label>";
+	echo show_select(array('data' => $arr_data, 'name' => 'setting_form_test_emails', 'compare' => $option, 'description' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
 }
 
 function setting_form_permission_callback()
@@ -223,24 +238,9 @@ function mf_form_setting_replacement_form_callback()
 	$option = get_option('mf_form_setting_replacement_form');
 
 	$obj_form = new mf_form();
-	$arr_data = $obj_form->get_form_array();
+	$arr_data = $obj_form->get_form_array(false);
 
 	echo show_select(array('data' => $arr_data, 'name' => 'mf_form_setting_replacement_form', 'compare' => $option, 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
-
-	/*echo "<label>
-		<select name='mf_form_setting_replacement_form'>
-			<option value=''>-- ".__("Choose here", 'lang_form')." --</option>";
-
-			$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
-
-			foreach($result as $r)
-			{
-				echo "<option value='".$r->queryID."'".($option == $r->queryID ? " selected" : "").">".$r->queryName."</option>";
-			}
-
-		echo "</select><br>
-		<span class='description'>".__("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')."</span>
-	</label>";*/
 }
 
 function widgets_form()
@@ -330,7 +330,7 @@ function notices_form()
 
 		$query_xtra = get_form_xtra(" WHERE answerCreated > %s AND answerSent = '0'");
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryID, COUNT(answerSent) AS answerSent FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) INNER JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)".$query_xtra." GROUP BY queryID", $answer_viewed)); //, queryName
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryID, COUNT(answerSent) AS answerSent FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) INNER JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)".$query_xtra." GROUP BY queryID", $answer_viewed));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -339,11 +339,10 @@ function notices_form()
 			foreach($result as $r)
 			{
 				$intQueryID = $r->queryID;
-				//$strFormName = $r->queryName;
 				$intAnswerSent = $r->answerSent;
 				
 				$obj_form = new mf_form($intQueryID);
-				$strFormName = $this->get_post_info(array('select' => 'post_title'));
+				$strFormName = $obj_form->get_post_info(array('select' => 'post_title'));
 
 				$unsent_links .= ($unsent_links != '' ? ", " : "")."<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intQueryID=".$intQueryID)."'>".$intAnswerSent." ".__("in", 'lang_form')." ".$strFormName."</a>";
 			}
@@ -401,6 +400,12 @@ function mf_form_mail($data)
 	global $wpdb;
 
 	$out = "";
+
+	if(get_option('setting_redirect_emails') == 'yes')
+	{
+		$data['subject'] = __("Test", 'lang_form')." (".$data['to']."): ".$data['subject'];
+		$data['to'] = get_bloginfo('admin_email');
+	}
 
 	if(is_user_logged_in() && IS_ADMIN)
 	{
@@ -531,7 +536,7 @@ function show_query_form($data)
 							break;
 
 							case 7:
-								$strAnswerText_send = wp_date_format(array('date' => $strAnswerText));
+								$strAnswerText_send = format_date($strAnswerText);
 							break;
 
 							case 10:
