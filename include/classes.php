@@ -717,34 +717,6 @@ if(!class_exists('mf_form_payment'))
 				<input type='hidden' name='currency' value='".$this->currency."'>
 			</form>";
 
-			/*
-				<input type='hidden' name='merchant_fields' value='customer_number, session_id'>
-				<input type='hidden' name='customer_number' value='C1234'>
-
-				<input type='hidden' name='pay_from_email' value='payer@skrill.com'>
-				<input type='hidden' name='amount2_description' value='Product Price: '>
-				<input type='hidden' name='amount2' value='29.90'>
-				<input type='hidden' name='amount3_description' value='Handling Fees & Charges: '>
-				<input type='hidden' name='amount3' value='3.10'>
-				<input type='hidden' name='amount4_description' value='VAT (20%): '>
-				<input type='hidden' name='amount4' value='6.60'>
-				<input type='hidden' name='firstname' value='John'>
-				<input type='hidden' name='lastname' value='Payer'>
-				<input type='hidden' name='address' value='Payerstreet'>
-				<input type='hidden' name='postal_code' value='EC45MQ'>
-				<input type='hidden' name='city' value='Payertown'>
-				<input type='hidden' name='country' value='GBR'>
-				<input type='hidden' name='detail1_description' value='Product ID: '>
-				<input type='hidden' name='detail1_text' value='4509334'>
-				<input type='hidden' name='detail2_description' value='Description: '>
-				<input type='hidden' name='detail2_text' value='Romeo and Juliet (W.
-				Shakespeare) '>
-				<input type='hidden' name='detail3_description' value='Special Conditions: '>
-				<input type='hidden' name='detail3_text' value='5-6 days for delivery'>
-				<input type='hidden' name='confirmation_note' value='Sample merchant wishes you
-				pleasure reading your new book! '>
-			*/
-
 			if(isset($this->test) && $this->test == 1)
 			{
 				$out .= "<button type='button' onclick='document.form_payment.submit();'>".__("Send in test mode (No money will be charged)", 'lang_base')."</button>";
@@ -859,8 +831,6 @@ if(!class_exists('mf_form_payment'))
 
 			//Debug
 			##################
-			//$folder = str_replace("plugins/mf_base/include", "", dirname(__FILE__));
-
 			$file_suffix = "unknown";
 
 			if($this->is_accept){			$file_suffix = "accept";}
@@ -873,7 +843,7 @@ if(!class_exists('mf_form_payment'))
 				."POST: ".var_export($_POST, true)."\n\n"
 				."THIS: ".var_export($this, true)."\n\n";
 
-			list($upload_path, $upload_url) = get_uploads_folder();
+			list($upload_path, $upload_url) = get_uploads_folder("mf_form");
 
 			$success = set_file_content(array('file' => $upload_path.$file, 'mode' => 'a', 'content' => trim($debug)));
 			##################
@@ -1313,7 +1283,7 @@ class mf_form_table extends mf_list_table
 		$post_status = $item['post_status'];
 
 		$obj_form = new mf_form();
-		$obj_form->get_form_id($post_id); //$intQueryID = 
+		$obj_form->get_form_id($post_id);
 
 		switch($column_name)
 		{
@@ -1334,7 +1304,7 @@ class mf_form_table extends mf_list_table
 
 					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$obj_form->id, 'form_copy')."'>".__("Copy", 'lang_form')."</a>";
 
-					if($obj_form->is_published() == "publish") //array('post_id' => $post_id)
+					if($obj_form->is_published() == "publish")
 					{
 						$post_url = get_permalink($post_id);
 
@@ -1371,13 +1341,13 @@ class mf_form_table extends mf_list_table
 						{
 							$post_id_temp = $r['post_id'];
 
-							$actions['edit_page'] = "<a href='".get_site_url()."/wp-admin/post.php?post=".$post_id_temp."&action=edit'>".__("Edit Page", 'lang_form')."</a> | <a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
+							$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a> | <a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
 						}
 					}
 
 					else
 					{
-						$actions['add_page'] = "<a href='".get_site_url()."/wp-admin/post-new.php?post_type=page&content=".$strQueryShortcode."'>".__("Add New Page", 'lang_form')."</a>";
+						$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&content=".$strQueryShortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 					}
 
 					echo $strQueryShortcode
@@ -1810,7 +1780,7 @@ class mf_form_output
 
 				if($this->row->queryTypeID != 14)
 				{
-					$out .= "<div class='form_buttons'>";
+					$out .= "<div class='row_settings form_buttons'>";
 
 						if($this->show_required == true)
 						{

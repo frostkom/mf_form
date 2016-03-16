@@ -1,13 +1,10 @@
 <?php
 
-//wp_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css");
+wp_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css");
 mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_base')));
 
 $obj_form = new mf_form();
 //$obj_form->fetch_request();
-
-//$intQueryID = check_var('intQueryID');
-//$intAnswerID = check_var('intAnswerID');
 
 $query_pie = false;
 
@@ -15,9 +12,9 @@ $query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$w
 
 if($query_answers > 0)
 {
-	list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(8)));
+	list($resultPie, $rowsPie) = $obj_form->get_form_type_info(array('query_type_id' => array(8)));
 
-	if($rows > 0)
+	if($rowsPie > 0)
 	{
 		$query_pie = true;
 
@@ -82,7 +79,7 @@ echo "<div class='wrap'>
 
 		$i = 0;
 
-		foreach($result as $r)
+		foreach($resultPie as $r)
 		{
 			$intQuery2TypeID2 = $r->query2TypeID;
 			$strQueryTypeText2 = $r->queryTypeText;

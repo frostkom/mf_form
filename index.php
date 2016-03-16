@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: http://github.com/frostkom/mf_form
 Description: 
-Version: 3.7.0
+Version: 4.0.1
 Author: Martin Fors
 Author URI: http://frostkom.se
 */
@@ -20,13 +20,12 @@ if(is_admin())
 {
 	register_activation_hook(__FILE__, 'activate_form');
 	register_deactivation_hook(__FILE__, 'deactivate_form');
+	register_uninstall_hook(__FILE__, 'uninstall_form');
 
 	add_action('admin_init', 'settings_form');
 	add_action('admin_menu', 'menu_form');
 	add_action('admin_notices', 'notices_form');
 	add_action('before_delete_post', 'delete_form');
-	add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
-	add_filter('network_admin_plugin_action_links_'.plugin_basename(__FILE__), 'add_action_form');
 	add_action('deleted_user', 'deleted_user_form');
 }
 
@@ -313,11 +312,18 @@ function activate_form()
 
 function deactivate_form()
 {
-	global $wpdb;
+	mf_uninstall_plugin(array(
+		'tables' => array('query_check', 'query_type', 'query_zipcode'),
+	));
+}
 
-	$wpdb->query("DROP TABLE IF EXISTS ".$wpdb->base_prefix."query_check");
-	$wpdb->query("DROP TABLE IF EXISTS ".$wpdb->base_prefix."query_type");
-	$wpdb->query("DROP TABLE IF EXISTS ".$wpdb->base_prefix."query_zipcode");
+function uninstall_form()
+{
+	mf_uninstall_plugin(array(
+		'uploads' => "mf_form",
+		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission', 'setting_form_permission_see_all', 'mf_form_setting_replacement_form'),
+		'tables' => array('query', 'query2answer', 'query2type', 'query_answer', 'query_answer_email', 'query_check', 'query_type', 'query_zipcode'),
+	));
 }
 
 function shortcode_form($atts)

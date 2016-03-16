@@ -42,7 +42,7 @@ jQuery(function($)
 
 		$.ajax(
 		{
-			url: script_forms.plugins_url + '/mf_form/include/ajax.php?type=zipcode/search/' + search,
+			url: script_forms.plugin_url + 'ajax.php?type=zipcode/search/' + search,
 			type: 'get',
 			dataType: 'json',
 			success: function(data)

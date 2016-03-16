@@ -100,7 +100,7 @@ echo "<div class='wrap'>";
 
 			if($wpdb->rows_affected > 0)
 			{
-				echo "<script>location.href='".get_site_url()."/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id."'</script>";
+				echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."'</script>";
 			}
 		}
 	}
@@ -191,7 +191,7 @@ echo "<div class='wrap'>";
 
 		if($intQueryTypeID == 0)
 		{
-			echo "<script>location.href='".get_site_url()."/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id."'</script>";
+			echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."'</script>";
 		}
 	}
 

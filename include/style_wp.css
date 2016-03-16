@@ -66,12 +66,12 @@
 			min-height: 100px;
 		}
 
-		mf-form-row .form_buttons
+		mf-form-row .row_settings
 		{
 			display: none;
 		}
 
-			mf-form-row:hover:not(.active) .form_buttons
+			mf-form-row:hover:not(.active) .row_settings
 			{
 				background: rgba(200, 200, 200, .5);
 				border-radius: 0 0 0 .5em;

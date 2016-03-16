@@ -10,8 +10,8 @@ function deleted_user_form($user_id)
 
 function init_form()
 {
-	//wp_enqueue_style('style_forms', plugins_url()."/mf_form/include/style.css");
-	mf_enqueue_script('script_forms', plugins_url()."/mf_form/include/script.js", array('plugins_url' => plugins_url()));
+	//wp_enqueue_style('style_forms', plugin_dir_url(__FILE__)."style.css");
+	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('plugin_url' => plugin_dir_url(__FILE__)));
 
 	$labels = array(
 		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
@@ -160,7 +160,9 @@ function settings_form()
 
 function settings_form_callback()
 {
-	echo settings_header('settings_form', __("Forms", 'lang_form'));
+	$setting_key = get_setting_key(__FUNCTION__);
+
+	echo settings_header($setting_key, __("Forms", 'lang_form'));
 }
 
 function setting_redirect_emails_callback()
@@ -302,7 +304,7 @@ function menu_form()
 	$menu_root = 'mf_form/';
 	$menu_start = $menu_root.'list/index.php';
 
-	$menu_capability = get_option('setting_form_permission', 'edit_pages');
+	$menu_capability = get_option_or_default('setting_form_permission', 'edit_pages');
 
 	$count_message = get_count_message();
 
@@ -311,13 +313,6 @@ function menu_form()
 	add_submenu_page($menu_start, __("Add New", 'lang_form'), __("Add New", 'lang_form'), $menu_capability, $menu_root.'create/index.php');
 	add_submenu_page($menu_root, __("Last Answers", 'lang_form'), __("Last Answers", 'lang_form'), $menu_capability, $menu_root.'answer/index.php');
 	add_submenu_page($menu_root, __("Edit Last Answer", 'lang_form'), __("Edit Last Answer", 'lang_form'), $menu_capability, $menu_root.'view/index.php');
-}
-
-function add_action_form($links)
-{
-	$links[] = "<a href='".admin_url('options-general.php?page=settings_mf_base#settings_form')."'>".__("Settings", 'lang_form')."</a>";
-
-	return $links;
 }
 
 function notices_form()
@@ -970,7 +965,7 @@ function show_query_form($data)
 									$out .= show_checkbox(array('name' => "intQueryPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
 								}
 
-								$out .= "<a href='".get_site_url()."/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id."'>".__("Edit this form", 'lang_form')."</a>";
+								$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."'>".__("Edit this form", 'lang_form')."</a>";
 							}
 
 						$out .= "</div>";
