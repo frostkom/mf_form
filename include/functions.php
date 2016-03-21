@@ -169,68 +169,38 @@ function setting_redirect_emails_callback()
 {
 	$option = get_option('setting_redirect_emails');
 
-	$arr_data = array();
-
-	$arr_data[] = array('no', __("No", 'lang_form'));
-	$arr_data[] = array('yes', __("Yes", 'lang_form'));
-
-	echo show_select(array('data' => $arr_data, 'name' => 'setting_redirect_emails', 'compare' => $option, 'description' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
+	echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'setting_redirect_emails', 'compare' => $option, 'description' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
 }
 
 function setting_form_test_emails_callback()
 {
 	$option = get_option('setting_form_test_emails');
 
-	$arr_data = array();
-
-	$arr_data[] = array('no', __("No", 'lang_form'));
-	$arr_data[] = array('yes', __("Yes", 'lang_form'));
-
-	echo show_select(array('data' => $arr_data, 'name' => 'setting_form_test_emails', 'compare' => $option, 'description' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
+	echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'setting_form_test_emails', 'compare' => $option, 'description' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
 }
 
 function setting_form_permission_callback()
 {
-	global $wpdb;
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key);
 
-	$option = get_option('setting_form_permission');
-	$roles = get_all_roles();
+	$arr_data = array();
 
-	echo "<label>
-		<select name='setting_form_permission'>
-			<option value=''>-- ".__("Choose here", 'lang_form')." --</option>";
+	get_roles_for_select($arr_data, true, true);
 
-			foreach($roles as $key => $value)
-			{
-				$key = get_role_first_capability($key);
-
-				echo "<option value='".$key."'".($key == $option ? " selected" : "").">".__($value)."</option>";
-			}
-
-		echo "</select>
-	</label>";
+	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option));
 }
 
 function setting_form_permission_see_all_callback()
 {
-	global $wpdb;
+	$setting_key = get_setting_key('setting_form_permission_see_all');
+	$option = get_option($setting_key);
 
-	$option = get_option('setting_form_permission_see_all');
-	$roles = get_all_roles();
+	$arr_data = array();
 
-	echo "<label>
-		<select name='setting_form_permission_see_all'>
-			<option value=''>-- ".__("Choose here", 'lang_form')." --</option>";
+	get_roles_for_select($arr_data, true, false);
 
-			foreach($roles as $key => $value)
-			{
-				$key = get_role_first_capability($key);
-
-				echo "<option value='".$key."'".($key == $option ? " selected" : "").">".__($value)."</option>";
-			}
-
-		echo "</select>
-	</label>";
+	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option));
 }
 
 function mf_form_setting_replacement_form_callback()
