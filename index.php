@@ -1,11 +1,15 @@
 <?php
 /*
 Plugin Name: MF Form
-Plugin URI: http://github.com/frostkom/mf_form
+Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 4.1.1
+Version: 4.2.3
 Author: Martin Fors
 Author URI: http://frostkom.se
+Text Domain: lang_form
+Domain Path: /lang
+
+GitHub Plugin URI: frostkom/mf_form
 */
 
 include_once("include/classes.php");
@@ -43,19 +47,19 @@ function activate_form()
 	$default_charset = DB_CHARSET != '' ? DB_CHARSET : "utf8";
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query (
-		queryID INT unsigned NOT NULL AUTO_INCREMENT,
-		blogID INT unsigned,
-		postID INT unsigned NOT NULL DEFAULT '0',
-		queryName varchar(100) DEFAULT NULL,
+		queryID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		blogID INT UNSIGNED,
+		postID INT UNSIGNED NOT NULL DEFAULT '0',
+		queryName VARCHAR(100) DEFAULT NULL,
 		queryAnswerURL VARCHAR(20) DEFAULT NULL,
-		queryEmail varchar(100) DEFAULT NULL,
+		queryEmail VARCHAR(100) DEFAULT NULL,
 		queryEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
-		queryEmailName varchar(100) DEFAULT NULL,
+		queryEmailName VARCHAR(100) DEFAULT NULL,
 		queryEmailCheckConfirm ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 		queryEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
 		queryEmailConfirmPage VARCHAR(20) DEFAULT NULL,
 		queryShowAnswers ENUM('0', '1') NOT NULL DEFAULT '0',
-		queryMandatoryText varchar(100) DEFAULT NULL,
+		queryMandatoryText VARCHAR(100) DEFAULT NULL,
 		queryButtonText VARCHAR(100) DEFAULT NULL,
 		queryButtonSymbol VARCHAR(20) DEFAULT NULL,
 		queryPaymentProvider INT DEFAULT NULL,
@@ -68,15 +72,15 @@ function activate_form()
 		queryCreated datetime DEFAULT NULL,
 		queryDeleted ENUM('0', '1') NOT NULL DEFAULT '0',
 		queryDeletedDate datetime DEFAULT NULL,
-		queryDeletedID INT unsigned DEFAULT '0',
-		userID INT unsigned DEFAULT '0',
+		queryDeletedID INT UNSIGNED DEFAULT '0',
+		userID INT UNSIGNED DEFAULT '0',
 		PRIMARY KEY (queryID)
 	) DEFAULT CHARSET=".$default_charset); //queryImproveUX ENUM('0', '1') NOT NULL DEFAULT '0',
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2answer (
-		answerID INT unsigned NOT NULL AUTO_INCREMENT,
-		queryID INT unsigned NOT NULL,
-		answerIP varchar(15) DEFAULT NULL,
+		answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		queryID INT UNSIGNED NOT NULL,
+		answerIP VARCHAR(15) DEFAULT NULL,
 		answerToken VARCHAR(100) DEFAULT NULL,
 		answerCreated datetime DEFAULT NULL,
 		PRIMARY KEY (answerID),
@@ -84,53 +88,54 @@ function activate_form()
 	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2type (
-		query2TypeID INT unsigned NOT NULL AUTO_INCREMENT,
-		query2TypeID2 INT unsigned NOT NULL DEFAULT '0',
-		queryID INT unsigned DEFAULT '0',
-		queryTypeID INT unsigned DEFAULT '0',
+		query2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		query2TypeID2 INT UNSIGNED NOT NULL DEFAULT '0',
+		queryID INT UNSIGNED DEFAULT '0',
+		queryTypeID INT UNSIGNED DEFAULT '0',
 		queryTypeText TEXT,
 		queryTypePlaceholder VARCHAR(100),
-		checkID INT unsigned DEFAULT NULL,
+		checkID INT UNSIGNED DEFAULT NULL,
 		queryTypeTag VARCHAR(20) DEFAULT NULL,
 		queryTypeClass VARCHAR(50) DEFAULT NULL,
+		queryTypeFetchFrom VARCHAR(50) DEFAULT NULL,
 		queryTypeRequired ENUM('0','1') NOT NULL DEFAULT '0',
 		queryTypeAutofocus ENUM('0','1') NOT NULL DEFAULT '0',
-		query2TypeOrder INT unsigned NOT NULL DEFAULT '0',
+		query2TypeOrder INT UNSIGNED NOT NULL DEFAULT '0',
 		query2TypeCreated DATETIME DEFAULT NULL,
-		userID INT unsigned DEFAULT NULL,
+		userID INT UNSIGNED DEFAULT NULL,
 		PRIMARY KEY (query2TypeID),
 		KEY queryID (queryID),
 		KEY queryTypeID (queryTypeID)
 	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_answer (
-		answerID INT unsigned DEFAULT NULL,
-		query2TypeID INT unsigned DEFAULT '0',
+		answerID INT UNSIGNED DEFAULT NULL,
+		query2TypeID INT UNSIGNED DEFAULT '0',
 		answerText text,
 		KEY query2TypeID (query2TypeID),
 		KEY answerID (answerID)
 	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_answer_email (
-		answerID INT unsigned DEFAULT NULL,
+		answerID INT UNSIGNED DEFAULT NULL,
 		answerEmail VARCHAR(100),
 		answerSent ENUM('0', '1') NOT NULL DEFAULT '0',
 		KEY answerID (answerID)
 	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_check (
-		checkID INT unsigned NOT NULL AUTO_INCREMENT,
+		checkID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		checkPublic enum('0','1'),
-		checkName varchar(50),
-		checkCode varchar(10),
+		checkName VARCHAR(50),
+		checkCode VARCHAR(10),
 		checkPattern VARCHAR(200),
 		PRIMARY KEY (checkID)
 	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_type (
-		queryTypeID INT unsigned NOT NULL AUTO_INCREMENT,
+		queryTypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		queryTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
-		queryTypeName varchar(30) DEFAULT NULL,
+		queryTypeName VARCHAR(30) DEFAULT NULL,
 		queryTypeResult enum('0','1') NOT NULL DEFAULT '1',
 		PRIMARY KEY (queryTypeID)
 	) DEFAULT CHARSET=".$default_charset);
@@ -139,9 +144,9 @@ function activate_form()
 	{
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_zipcode (
 			addressZipCode INT NOT NULL DEFAULT '0',
-			cityName varchar(20) DEFAULT NULL,
-			municipalityName varchar(20) DEFAULT NULL,
-			countyName varchar(20) DEFAULT NULL,
+			cityName VARCHAR(20) DEFAULT NULL,
+			municipalityName VARCHAR(20) DEFAULT NULL,
+			countyName VARCHAR(20) DEFAULT NULL,
 			PRIMARY KEY (addressZipCode)
 		) DEFAULT CHARSET=".$default_charset);
 	}
@@ -159,7 +164,7 @@ function activate_form()
 		'queryAnswerURL' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryAnswer",
 		'queryDeleted' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryCreated",
 		'queryDeletedDate' => "ALTER TABLE [table] ADD [column] datetime DEFAULT NULL AFTER queryDeleted",
-		'queryDeletedID' => "ALTER TABLE [table] ADD [column] INT unsigned DEFAULT '0' AFTER queryDeletedDate",
+		'queryDeletedID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT '0' AFTER queryDeletedDate",
 		'queryPaymentCheck' => "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryButtonText",
 		'queryPaymentAmount' => "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryPaymentCheck",
 		'queryPaymentHmac' => "ALTER TABLE [table] ADD [column] VARCHAR(200) DEFAULT NULL AFTER queryButtonText",
@@ -172,7 +177,7 @@ function activate_form()
 		//'queryURL' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryName",
 		'queryPaymentCurrency' => "ALTER TABLE [table] ADD [column] VARCHAR(3) AFTER queryPaymentMerchant",
 		'queryButtonSymbol' => "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText",
-		'postID' => "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER blogID",
+		'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER blogID",
 		'queryEmailCheckConfirm' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryEmailName",
 	);
 
@@ -186,11 +191,12 @@ function activate_form()
 	);
 
 	$arr_add_column[$wpdb->base_prefix."query2type"] = array(
-		'queryTypeClass' => "ALTER TABLE [table] ADD [column] varchar(50) AFTER checkID",
+		'queryTypeClass' => "ALTER TABLE [table] ADD [column] VARCHAR(50) AFTER checkID",
 		'queryTypeAutofocus' => "ALTER TABLE [table] ADD [column] enum('0','1') NOT NULL DEFAULT '0' AFTER queryTypeClass",
 		'queryTypePlaceholder' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryTypeText",
-		'queryTypeTag' => "ALTER TABLE [table] ADD [column] varchar(20) AFTER checkID",
-		'query2TypeID2' => "ALTER TABLE [table] ADD [column] INT unsigned NOT NULL DEFAULT '0' AFTER query2TypeID",
+		'queryTypeTag' => "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER checkID",
+		'query2TypeID2' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER query2TypeID",
+		'queryTypeFetchFrom' => "ALTER TABLE [table] ADD [column] VARCHAR(50) AFTER queryTypeClass",
 	);
 
 	$arr_add_column[$wpdb->base_prefix."query_type"] = array(

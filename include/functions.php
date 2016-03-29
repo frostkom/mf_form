@@ -133,7 +133,7 @@ function my_replace_content($html)
 
 function settings_form()
 {
-	$options_area = "settings_form";
+	$options_area = __FUNCTION__;
 
 	add_settings_section($options_area, "", $options_area."_callback", BASE_OPTIONS_PAGE);
 
@@ -146,8 +146,8 @@ function settings_form()
 		$arr_settings["setting_form_test_emails"] = __("Redirect test e-mails", 'lang_form');
 	}
 
-	$arr_settings["setting_form_permission"] = __("Lowest user permission", 'lang_form');
-	$arr_settings["setting_form_permission_see_all"] = __("Lowest user permission to see all forms", 'lang_form');
+	$arr_settings["setting_form_permission"] = __("Role to see forms", 'lang_form');
+	$arr_settings["setting_form_permission_see_all"] = __("Role to see all", 'lang_form');
 	$arr_settings["mf_form_setting_replacement_form"] = __("Form to replace all e-mail links", 'lang_form');
 
 	foreach($arr_settings as $handle => $text)
@@ -167,16 +167,18 @@ function settings_form_callback()
 
 function setting_redirect_emails_callback()
 {
-	$option = get_option('setting_redirect_emails');
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key);
 
-	echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'setting_redirect_emails', 'compare' => $option, 'description' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
+	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'compare' => $option, 'description' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
 }
 
 function setting_form_test_emails_callback()
 {
-	$option = get_option('setting_form_test_emails');
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key);
 
-	echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'setting_form_test_emails', 'compare' => $option, 'description' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
+	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'compare' => $option, 'description' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
 }
 
 function setting_form_permission_callback()
@@ -184,35 +186,30 @@ function setting_form_permission_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	$arr_data = array();
-
-	get_roles_for_select($arr_data, true, true);
+	$arr_data = get_roles_for_select(array('add_choose_here' => true, 'strict_key' => true));
 
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option));
 }
 
 function setting_form_permission_see_all_callback()
 {
-	$setting_key = get_setting_key('setting_form_permission_see_all');
+	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	$arr_data = array();
-
-	get_roles_for_select($arr_data, true, false);
+	$arr_data = get_roles_for_select(array('add_choose_here' => true, 'strict_key' => false));
 
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option));
 }
 
 function mf_form_setting_replacement_form_callback()
 {
-	global $wpdb;
-
-	$option = get_option('mf_form_setting_replacement_form');
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key);
 
 	$obj_form = new mf_form();
 	$arr_data = $obj_form->get_form_array(false);
 
-	echo show_select(array('data' => $arr_data, 'name' => 'mf_form_setting_replacement_form', 'compare' => $option, 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option, 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 }
 
 function widgets_form()

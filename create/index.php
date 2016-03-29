@@ -37,6 +37,7 @@ $strQueryTypeText2 = check_var('strQueryTypeText2');
 $intCheckID = check_var('intCheckID');
 $strQueryTypeTag = check_var('strQueryTypeTag');
 $strQueryTypeClass = check_var('strQueryTypeClass');
+$strQueryTypeFetchFrom = check_var('strQueryTypeFetchFrom');
 $strQueryTypePlaceholder = check_var('strQueryTypePlaceholder');
 
 $strQueryTypeSelect = check_var('strQueryTypeSelect', '', true, "0|-- Choose here --,1|Nej,2|Ja");
@@ -143,14 +144,14 @@ echo "<div class='wrap'>";
 			{
 				if($intQueryTypeID > 0 && ($intQueryTypeID == 6 || $intQueryTypeID == 9 || $strQueryTypeText != ''))
 				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, userID = '%d' WHERE query2TypeID = '%d'", $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, get_current_user_id(), $intQuery2TypeID));
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, userID = '%d' WHERE query2TypeID = '%d'", $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, get_current_user_id(), $intQuery2TypeID));
 
 					if($intQueryTypeID == 13)
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeText = %s, queryTypeClass = %s, userID = '%d' WHERE query2TypeID2 = '%d'", $strQueryTypeText, $strQueryTypeClass, get_current_user_id(), $intQuery2TypeID));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeText = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, userID = '%d' WHERE query2TypeID2 = '%d'", $strQueryTypeText, $strQueryTypeClass, $strQueryTypeFetchFrom, get_current_user_id(), $intQuery2TypeID));
 					}
 
-					$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = "";
+					$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = "";
 				}
 
 				else
@@ -165,7 +166,7 @@ echo "<div class='wrap'>";
 				{
 					$intQuery2TypeOrder = $wpdb->get_var($wpdb->prepare("SELECT query2TypeOrder + 1 FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' ORDER BY query2TypeOrder DESC", $obj_form->id));
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $intQuery2TypeOrder, get_current_user_id()));
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, $intQuery2TypeOrder, get_current_user_id()));
 
 					if($intQueryTypeID == 13)
 					{
@@ -173,12 +174,12 @@ echo "<div class='wrap'>";
 						$intQueryTypeID = 14;
 						$intQuery2TypeOrder++;
 
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET query2TypeID2 = '%d', queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypeClass = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $intQuery2TypeID, $obj_form->id, $intQueryTypeID, $strQueryTypeText, $strQueryTypeClass, $intQuery2TypeOrder, get_current_user_id()));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET query2TypeID2 = '%d', queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $intQuery2TypeID, $obj_form->id, $intQueryTypeID, $strQueryTypeText, $strQueryTypeClass, $strQueryTypeFetchFrom, $intQuery2TypeOrder, get_current_user_id()));
 					}
 
 					if($wpdb->rows_affected > 0)
 					{
-						$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = "";
+						$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = "";
 					}
 				}
 
@@ -230,14 +231,15 @@ echo "<div class='wrap'>";
 
 	if($intQuery2TypeID > 0)
 	{
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $intQuery2TypeID));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass, queryTypeFetchFrom FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $intQuery2TypeID));
 		$r = $result[0];
 		$intQueryTypeID = $r->queryTypeID;
 		$strQueryTypeText = $r->queryTypeText;
+		$strQueryTypePlaceholder = $r->queryTypePlaceholder;
 		$intCheckID = $r->checkID;
 		$strQueryTypeTag = $r->queryTypeTag;
 		$strQueryTypeClass = $r->queryTypeClass;
-		$strQueryTypePlaceholder = $r->queryTypePlaceholder;
+		$strQueryTypeFetchFrom = $r->queryTypeFetchFrom;
 
 		switch($intQueryTypeID)
 		{
@@ -287,8 +289,7 @@ echo "<div class='wrap'>";
 									else
 									{
 										$arr_data = array();
-
-										$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
+										$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
 
 										$result = $wpdb->get_results("SELECT queryTypeID, queryTypeName, COUNT(queryTypeID) AS queryType_amount FROM ".$wpdb->base_prefix."query_type LEFT JOIN ".$wpdb->base_prefix."query2type USING (queryTypeID) WHERE queryTypePublic = 'yes' GROUP BY queryTypeID ORDER BY queryType_amount DESC, queryTypeName ASC");
 
@@ -296,7 +297,7 @@ echo "<div class='wrap'>";
 										{
 											if($intQueryTypeID > 0 || $r->queryTypeID != 13)
 											{
-												$arr_data[] = array($r->queryTypeID, $r->queryTypeName);
+												$arr_data[$r->queryTypeID] = $r->queryTypeName;
 											}
 										}
 
@@ -305,31 +306,34 @@ echo "<div class='wrap'>";
 
 									echo show_textarea(array('name' => 'strQueryTypeText', 'text' => __("Text", 'lang_form'), 'value' => $strQueryTypeText, 'class' => "tr_text")); //, 'wysiwyg' => true, 'size' => 'small'
 
-									$arr_data = array();
-
-									$arr_data[] = array('div', "div");
-									$arr_data[] = array('fieldset', "fieldset");
+									$arr_data = array(
+										'div' => "div",
+										'fieldset' => "fieldset",
+									);
 
 									echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeText2', 'compare' => $strQueryTypeText, 'text' => __("Type", 'lang_form'), 'class' => "tr_tag2"))
 								."</div>
 								<div class='alignright'>";
 
-									$arr_data = array();
-
-									$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
-
 									$result = $wpdb->get_results("SELECT checkID, checkName FROM ".$wpdb->base_prefix."query_check WHERE checkPublic = '1' ORDER BY checkName ASC");
-									$rows = $wpdb->num_rows;
-
-									foreach($result as $r)
+									
+									if($wpdb->num_rows > 0)
 									{
-										$arr_data[] = array($r->checkID, __($r->checkName, 'lang_form'));
+										$arr_data = array();
+										$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+
+										foreach($result as $r)
+										{
+											$arr_data[$r->checkID] = __($r->checkName, 'lang_form');
+										}
+
+										echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "tr_check"));
 									}
 
-									echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "tr_check"))
-									.show_textfield(array('name' => 'strQueryTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strQueryTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "tr_placeholder"))
+									echo show_textfield(array('name' => 'strQueryTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strQueryTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "tr_placeholder"))
 									.show_textfield(array('name' => 'strQueryTypeTag', 'text' => __("Custom HTML Tag", 'lang_form'), 'value' => $strQueryTypeTag, 'placeholder' => "h1, h2, h3, h4, h5, p, blockquote", 'maxlength' => 20, 'xtra_class' => "tr_tag"))
 									.show_textfield(array('name' => 'strQueryTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strQueryTypeClass, 'placeholder' => "bold italic", 'maxlength' => 50))
+									.show_textfield(array('name' => 'strQueryTypeFetchFrom', 'text' => __("Fetch From ID", 'lang_form'), 'value' => $strQueryTypeFetchFrom, 'maxlength' => 50, 'xtra_class' => "tr_text"))
 									."<div class='tr_range'>"
 										.show_textfield(array('name' => 'strQueryTypeMin', 'text' => __("Min value", 'lang_form'), 'value' => $strQueryTypeMin, 'maxlength' => 3, 'size' => 5))
 										.show_textfield(array('name' => 'strQueryTypeMax', 'text' => __("Max value", 'lang_form'), 'value' => $strQueryTypeMax, 'maxlength' => 3, 'size' => 5))
@@ -431,7 +435,7 @@ echo "<div class='wrap'>";
 
 								$arr_data = array();
 
-								$arr_data[] = array("", "-- ".__("Choose page here", 'lang_form')." --");
+								$arr_data[''] = "-- ".__("Choose page here", 'lang_form')." --";
 
 								$arr_sites = array();
 
@@ -484,7 +488,7 @@ echo "<div class='wrap'>";
 									{
 										if($blog_id > 0)
 										{
-											$arr_data[] = array("opt_start", $domain);
+											$arr_data["opt_start_".$domain] = $domain;
 										}
 
 											foreach($resultPosts as $r)
@@ -492,7 +496,7 @@ echo "<div class='wrap'>";
 												$post_id = $r->ID;
 												$post_title = $r->post_title;
 
-												$arr_data[] = array($post_prefix.$post_id, $post_title);
+												$arr_data[$post_prefix.$post_id] = $post_title;
 
 												$result2 = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = 'page' AND post_status = 'publish' AND post_parent = '%d' AND post_title != '' ORDER BY menu_order ASC", $post_id));
 
@@ -501,13 +505,13 @@ echo "<div class='wrap'>";
 													$post_id = $r->ID;
 													$post_title = $r->post_title;
 
-													$arr_data[] = array($post_prefix.$post_id, "&nbsp;&nbsp;&nbsp;&nbsp;".$post_title);
+													$arr_data[$post_prefix.$post_id] = "&nbsp;&nbsp;&nbsp;&nbsp;".$post_title;
 												}
 											}
 
 										if($blog_id > 0)
 										{
-											$arr_data[] = array("opt_end", "");
+											$arr_data["opt_end_".$domain] = "";
 										}
 									}
 
@@ -570,14 +574,14 @@ echo "<div class='wrap'>";
 
 								$arr_data = array();
 
-								$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
+								$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
 
 								$obj_font_icons = new mf_font_icons();
 								$arr_icons = $obj_font_icons->get_array();
 
 								foreach($arr_icons as $icon)
 								{
-									$arr_data[] = $icon;
+									$arr_data[$icon] = $icon;
 								}
 
 								echo show_select(array('data' => $arr_data, 'name' => 'strQueryButtonSymbol', 'compare' => $strQueryButtonSymbol, 'text' => __("Symbol", 'lang_form')))
@@ -590,10 +594,10 @@ echo "<div class='wrap'>";
 
 								$arr_data = array();
 
-								$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
-								$arr_data[] = array(1, __("DIBS", 'lang_form'));
-								$arr_data[] = array(3, __("Paypal", 'lang_form'));
-								$arr_data[] = array(2, __("Skrill", 'lang_form'));
+								$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+								$arr_data[1] = __("DIBS", 'lang_form');
+								$arr_data[3] = __("Paypal", 'lang_form');
+								$arr_data[2] = __("Skrill", 'lang_form');
 
 								echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentProvider', 'compare' => $intQueryPaymentProvider, 'text' => __("Provider", 'lang_form')));
 
@@ -620,51 +624,51 @@ echo "<div class='wrap'>";
 								{
 									$arr_data = array();
 
-									$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
+									$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
 
 									switch($intQueryPaymentProvider)
 									{
 										case 1:
-											$arr_data[] = array(208, __("Danish Krone", 'lang_form')." (DKK)");
-											$arr_data[] = array(978, __("Euro", 'lang_form')." (EUR)");
-											$arr_data[] = array(840, __("US Dollar", 'lang_form')." (USD)");
-											$arr_data[] = array(826, __("English Pound", 'lang_form')." (GBP)");
-											$arr_data[] = array(752, __("Swedish Krona", 'lang_form')." (SEK)");
-											$arr_data[] = array(036, __("Australian Dollar", 'lang_form')." (AUD)");
-											$arr_data[] = array(124, __("Canadian Dollar", 'lang_form')." (CAD)");
-											$arr_data[] = array(352, __("Icelandic Krona", 'lang_form')." (ISK)");
-											$arr_data[] = array(392, __("Japanese Yen", 'lang_form')." (JPY)");
-											$arr_data[] = array(554, __("New Zealand Dollar", 'lang_form')." (NZD)");
-											$arr_data[] = array(578, __("Norwegian Krone", 'lang_form')." (NOK)");
-											$arr_data[] = array(756, __("Swiss Franc", 'lang_form')." (CHF)");
-											$arr_data[] = array(949, __("Turkish Lira", 'lang_form')." (TRY)");
+											$arr_data[208] = __("Danish Krone", 'lang_form')." (DKK)";
+											$arr_data[978] = __("Euro", 'lang_form')." (EUR)";
+											$arr_data[840] = __("US Dollar", 'lang_form')." (USD)";
+											$arr_data[826] = __("English Pound", 'lang_form')." (GBP)";
+											$arr_data[752] = __("Swedish Krona", 'lang_form')." (SEK)";
+											$arr_data[036] = __("Australian Dollar", 'lang_form')." (AUD)";
+											$arr_data[124] = __("Canadian Dollar", 'lang_form')." (CAD)";
+											$arr_data[352] = __("Icelandic Krona", 'lang_form')." (ISK)";
+											$arr_data[392] = __("Japanese Yen", 'lang_form')." (JPY)";
+											$arr_data[554] = __("New Zealand Dollar", 'lang_form')." (NZD)";
+											$arr_data[578] = __("Norwegian Krone", 'lang_form')." (NOK)";
+											$arr_data[756] = __("Swiss Franc", 'lang_form')." (CHF)";
+											$arr_data[949] = __("Turkish Lira", 'lang_form')." (TRY)";
 										break;
 
 										case 2:
 										case 3:
-											$arr_data[] = array("DKK", __("Danish Krone", 'lang_form')." (DKK)");
-											$arr_data[] = array("EUR", __("Euro", 'lang_form')." (EUR)");
-											$arr_data[] = array("USD", __("US Dollar", 'lang_form')." (USD)");
-											$arr_data[] = array("GBP", __("English Pound", 'lang_form')." (GBP)");
-											$arr_data[] = array("SEK", __("Swedish Krona", 'lang_form')." (SEK)");
-											$arr_data[] = array("AUD", __("Australian Dollar", 'lang_form')." (AUD)");
-											$arr_data[] = array("CAD", __("Canadian Dollar", 'lang_form')." (CAD)");
-											$arr_data[] = array("ISK", __("Icelandic Krona", 'lang_form')." (ISK)");
-											$arr_data[] = array("JPY", __("Japanese Yen", 'lang_form')." (JPY)");
-											$arr_data[] = array("NZD", __("New Zealand Dollar", 'lang_form')." (NZD)");
-											$arr_data[] = array("NOK", __("Norwegian Krone", 'lang_form')." (NOK)");
-											$arr_data[] = array("CHF", __("Swiss Franc", 'lang_form')." (CHF)");
-											$arr_data[] = array("TRY", __("Turkish Lira", 'lang_form')." (TRY)");
+											$arr_data["DKK"] = __("Danish Krone", 'lang_form')." (DKK)";
+											$arr_data["EUR"] = __("Euro", 'lang_form')." (EUR)";
+											$arr_data["USD"] = __("US Dollar", 'lang_form')." (USD)";
+											$arr_data["GBP"] = __("English Pound", 'lang_form')." (GBP)";
+											$arr_data["SEK"] = __("Swedish Krona", 'lang_form')." (SEK)";
+											$arr_data["AUD"] = __("Australian Dollar", 'lang_form')." (AUD)";
+											$arr_data["CAD"] = __("Canadian Dollar", 'lang_form')." (CAD)";
+											$arr_data["ISK"] = __("Icelandic Krona", 'lang_form')." (ISK)";
+											$arr_data["JPY"] = __("Japanese Yen", 'lang_form')." (JPY)";
+											$arr_data["NZD"] = __("New Zealand Dollar", 'lang_form')." (NZD)";
+											$arr_data["NOK"] = __("Norwegian Krone", 'lang_form')." (NOK)";
+											$arr_data["CHF"] = __("Swiss Franc", 'lang_form')." (CHF)";
+											$arr_data["TRY"] = __("Turkish Lira", 'lang_form')." (TRY)";
 										break;
 									}
 
-									$arr_data = array_sort(array('array' => $arr_data, 'on' => 1));
+									$arr_data = array_sort(array('array' => $arr_data, 'on' => 1, 'keep_index' => true));
 
 									echo show_select(array('data' => $arr_data, 'name' => 'strQueryPaymentCurrency', 'compare' => $strQueryPaymentCurrency, 'text' => __("Currency", 'lang_form')));
 
 									$arr_data = array();
 
-									$arr_data[] = array("", "-- ".__("Choose here", 'lang_form')." --");
+									$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
 
 									list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(10, 12)));
 
@@ -680,7 +684,7 @@ echo "<div class='wrap'>";
 											$strQueryTypeText_temp = $r->queryTypeText;
 										}
 
-										$arr_data[] = array($r->query2TypeID, $strQueryTypeText_temp);
+										$arr_data[$r->query2TypeID] = $strQueryTypeText_temp;
 									}
 
 									echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentAmount', 'compare' => $intQueryPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')));

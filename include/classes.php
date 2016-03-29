@@ -221,7 +221,7 @@ class mf_form
 
 		$arr_data = array();
 
-		$arr_data[] = array('', "-- ".__("Choose here", 'lang_form')." --");
+		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
 
 		$result = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
 
@@ -234,7 +234,7 @@ class mf_form
 				$obj_form = new mf_form($r->queryID);
 				$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 
-				$arr_data[] = array($r->queryID, $strFormName);
+				$arr_data[$r->queryID] = $strFormName;
 			}
 		}
 
@@ -405,7 +405,7 @@ class mf_form
 			$query_where_id = $this->id;
 		}
 
-		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
+		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass, queryTypeFetchFrom FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
 	}
 }
 
@@ -1439,6 +1439,14 @@ class mf_form_output
 		}
 	}
 
+	function filter_form_fields(&$field_data)
+	{
+		if($this->row->queryTypeFetchFrom != '' && isset($field_data['value']) && $field_data['value'] == '')
+		{
+			$field_data['value'] = check_var($this->row->queryTypeFetchFrom);
+		}
+	}
+
 	function get_form_fields($data = array())
 	{
 		global $intQueryTypeID2_temp, $intQuery2TypeID2_temp;
@@ -1448,6 +1456,9 @@ class mf_form_output
 		$field_data = array(
 			'name' => $this->query_prefix.$this->row->query2TypeID,
 		);
+
+		$class_output = $this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "";
+		$class_output_small = ($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "");
 
 		switch($this->row->queryTypeID)
 		{
@@ -1497,6 +1508,7 @@ class mf_form_output
 				$field_data['xtra_class'] = $this->row->queryTypeClass;
 				$field_data['type'] = "range";
 
+				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
 				$this->show_required = $this->show_autofocus = true;
@@ -1516,6 +1528,7 @@ class mf_form_output
 				$field_data['type'] = "date";
 				$field_data['placeholder'] = $this->row->queryTypePlaceholder;
 
+				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
 				$this->show_required = $this->show_autofocus = true;
@@ -1569,7 +1582,7 @@ class mf_form_output
 				{
 					$arr_content3 = explode("|", $str_content);
 
-					$arr_data[] = array($arr_content3[0], $arr_content3[1]);
+					$arr_data[$arr_content3[0]] = $arr_content3[1];
 				}
 
 				$field_data['data'] = $arr_data;
@@ -1583,6 +1596,7 @@ class mf_form_output
 				$field_data['required'] = $this->row->queryTypeRequired;
 				$field_data['class'] = $this->row->queryTypeClass;
 
+				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
 
 				$this->show_required = true;
@@ -1599,7 +1613,7 @@ class mf_form_output
 				{
 					$arr_content3 = explode("|", $str_content);
 
-					$arr_data[] = array($arr_content3[0], $arr_content3[1]);
+					$arr_data[$arr_content3[0]] = $arr_content3[1];
 				}
 				
 				$field_data['name'] .= "[]";
@@ -1614,6 +1628,7 @@ class mf_form_output
 				$field_data['required'] = $this->row->queryTypeRequired;
 				$field_data['class'] = $this->row->queryTypeClass;
 
+				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
 
 				$this->show_required = true;
@@ -1645,6 +1660,7 @@ class mf_form_output
 				$field_data['placeholder'] = $this->row->queryTypePlaceholder;
 				$field_data['pattern'] = $this->row->checkPattern;
 
+				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
 				$this->show_required = $this->show_autofocus = true;
@@ -1663,6 +1679,7 @@ class mf_form_output
 				$field_data['class'] = $this->row->queryTypeClass;
 				$field_data['placeholder'] = $this->row->queryTypePlaceholder;
 
+				$this->filter_form_fields($field_data);
 				$this->output .= show_textarea($field_data);
 
 				$this->show_required = $this->show_autofocus = true;
@@ -1672,14 +1689,14 @@ class mf_form_output
 			case 5:
 				if($this->row->queryTypeTag != '')
 				{
-					$this->output .= "<".$this->row->queryTypeTag.($this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "").">"
+					$this->output .= "<".$this->row->queryTypeTag.$class_output.">"
 						.$this->row->queryTypeText
 					."</".$this->row->queryTypeTag.">";
 				}
 
 				else
 				{
-					$this->output .= "<div".($this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "").">
+					$this->output .= "<div".$class_output.">
 						<p>".$this->row->queryTypeText."</p>
 					</div>";
 				}
@@ -1687,7 +1704,7 @@ class mf_form_output
 
 			//Space
 			case 6:
-				$this->output .= $this->in_edit_mode == true ? "<p class='grey".($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "")."'>(".__("Space", 'lang_form').")</p>" : "<p".($this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "").">&nbsp;</p>";
+				$this->output .= $this->in_edit_mode == true ? "<p class='grey".$class_output_small."'>(".__("Space", 'lang_form').")</p>" : "<p".$class_output.">&nbsp;</p>";
 			break;
 
 			//Referer URL
@@ -1696,7 +1713,7 @@ class mf_form_output
 
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey".($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "")."'>".__("Hidden", 'lang_form')." (".$this->row->queryTypeText.": '".$referer_url."')</p>";
+					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->row->queryTypeText.": '".$referer_url."')</p>";
 				}
 
 				else
@@ -1711,13 +1728,14 @@ class mf_form_output
 			case 12:
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey".($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "")."'>".__("Hidden", 'lang_form')." (".$this->query_prefix.$this->row->query2TypeID.": ".$this->row->queryTypeText.")</p>";
+					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->query_prefix.$this->row->query2TypeID.": ".$this->row->queryTypeText.")</p>";
 				}
 
 				else
 				{
 					$field_data['value'] = ($this->answer_text != '' ? $this->answer_text : $this->row->queryTypeText);
 
+					$this->filter_form_fields($field_data);
 					$this->output .= input_hidden($field_data);
 				}
 			break;
@@ -1726,12 +1744,12 @@ class mf_form_output
 			case 13:
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey'>&lt;".$this->row->queryTypeText.($this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "")."&gt;</p>";
+					$this->output .= "<p class='grey'>&lt;".$this->row->queryTypeText.$class_output."&gt;</p>";
 				}
 
 				else
 				{
-					$this->output .= "<".$this->row->queryTypeText.($this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "").">";
+					$this->output .= "<".$this->row->queryTypeText.$class_output.">";
 				}
 			break;
 
