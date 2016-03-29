@@ -196,7 +196,7 @@ function setting_form_permission_see_all_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	$arr_data = get_roles_for_select(array('add_choose_here' => true, 'strict_key' => false));
+	$arr_data = get_roles_for_select(array('add_choose_here' => true, 'strict_key' => true));
 
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option));
 }
@@ -217,7 +217,7 @@ function widgets_form()
 	register_widget('widget_form');
 }
 
-function get_form_xtra($query_xtra = "", $search = "")
+function get_form_xtra($query_xtra = "", $search = "", $prefix = " WHERE", $field_name = "queryName")
 {
 	global $wpdb;
 
@@ -226,17 +226,17 @@ function get_form_xtra($query_xtra = "", $search = "")
 
 	if(!IS_ADMIN)
 	{
-		$query_xtra .= ($query_xtra != '' ? " AND" : " WHERE")." (blogID = '".$wpdb->blogid."' OR blogID IS null)";
+		$query_xtra .= ($query_xtra != '' ? " AND" : $prefix)." (blogID = '".$wpdb->blogid."' OR blogID IS null)";
 	}
 
 	if(!$is_allowed_to_see_all_forms)
 	{
-		$query_xtra .= ($query_xtra != '' ? " AND" : " WHERE")." ".$wpdb->base_prefix."query.userID = '".get_current_user_id()."'";
+		$query_xtra .= ($query_xtra != '' ? " AND" : $prefix)." ".$wpdb->base_prefix."query.userID = '".get_current_user_id()."'";
 	}
 
 	if($search != '')
 	{
-		$query_xtra .= ($query_xtra != '' ? " AND" : " WHERE")." queryName LIKE '%".$search."%'";
+		$query_xtra .= ($query_xtra != '' ? " AND" : $prefix)." ".$field_name." LIKE '%".$search."%'";
 	}
 
 	return $query_xtra;
