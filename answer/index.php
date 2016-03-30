@@ -42,17 +42,17 @@ $strAnswerText2 = check_var('strAnswerText2');
 
 if($strAnswerText2 != '')
 {
-	$strQuerySearch .= " AND answerText LIKE '%".$strAnswerText2."%'";
+	$strQuerySearch .= " AND answerText LIKE '%".esc_sql($strAnswerText2)."%'";
 }
 
 if($dteQueryStartDate > DEFAULT_DATE)
 {
-	$strQuerySearch .= " AND answerCreated >= '".$dteQueryStartDate."'";
+	$strQuerySearch .= " AND answerCreated >= '".esc_sql($dteQueryStartDate)."'";
 }
 
 if($dteQueryEndDate > DEFAULT_DATE)
 {
-	$strQuerySearch .= " AND answerCreated <= '".$dteQueryEndDate."'";
+	$strQuerySearch .= " AND answerCreated <= '".esc_sql($dteQueryEndDate)."'";
 }
 
 $result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
@@ -122,7 +122,7 @@ echo "<div class='wrap'>
 
 	if($strSearch != '')
 	{
-		$query_xtra .= " AND (answerText LIKE '%".$strSearch."%' OR answerCreated LIKE '%".$strSearch."%')";
+		$query_xtra .= " AND (answerText LIKE '%".esc_sql($strSearch)."%' OR answerCreated LIKE '%".esc_sql($strSearch)."%')";
 	}
 
 	$resultPagination = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC", $obj_form->id));
@@ -172,7 +172,7 @@ echo "<div class='wrap'>
 
 			$strFormPrefix = $obj_form->get_post_info()."_";
 
-			$result = $wpdb->get_results("SELECT answerID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$obj_form->id."'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
+			$result = $wpdb->get_results("SELECT answerID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$obj_form->id."'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".esc_sql($intLimitStart).", ".esc_sql($intLimitAmount));
 			$rows = $wpdb->num_rows;
 
 			if($rows == 0)

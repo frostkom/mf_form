@@ -68,7 +68,7 @@ function get_page_from_form($id)
 
 	$arr_out = array();
 
-	$result = $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type != 'revision' AND post_status = 'publish' AND (post_content LIKE '%".addslashes("[mf_form id=".$id."]")."%' OR post_content LIKE '%".addslashes("[form_shortcode id='".$id."']")."%')");
+	$result = $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type != 'revision' AND post_status = 'publish' AND (post_content LIKE '%".addslashes("[mf_form id=".esc_sql($id)."]")."%' OR post_content LIKE '%".addslashes("[form_shortcode id='".esc_sql($id)."']")."%')");
 
 	if($wpdb->num_rows > 0)
 	{
@@ -186,7 +186,7 @@ function setting_form_permission_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	$arr_data = get_roles_for_select(array('add_choose_here' => true, 'strict_key' => true));
+	$arr_data = get_roles_for_select(array('add_choose_here' => true));
 
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option));
 }
@@ -196,7 +196,7 @@ function setting_form_permission_see_all_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	$arr_data = get_roles_for_select(array('add_choose_here' => true, 'strict_key' => true));
+	$arr_data = get_roles_for_select(array('add_choose_here' => true));
 
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option));
 }

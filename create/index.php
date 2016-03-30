@@ -3,7 +3,7 @@
 wp_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css");
 wp_enqueue_script('jquery-ui-sortable');
 mf_enqueue_script('script_touch', plugins_url()."/mf_base/include/jquery.ui.touch-punch.min.js");
-mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_base')));
+mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')));
 
 $obj_form = new mf_form();
 
@@ -40,7 +40,7 @@ $strQueryTypeClass = check_var('strQueryTypeClass');
 $strQueryTypeFetchFrom = check_var('strQueryTypeFetchFrom');
 $strQueryTypePlaceholder = check_var('strQueryTypePlaceholder');
 
-$strQueryTypeSelect = check_var('strQueryTypeSelect', '', true, "0|-- Choose here --,1|Nej,2|Ja");
+$strQueryTypeSelect = check_var('strQueryTypeSelect', '', true, "0|-- ".__("Choose here", 'lang_form')." --,1|".__("No", 'lang_form').",2|".__("Yes", 'lang_form'));
 $strQueryTypeMin = check_var('strQueryTypeMin', '', true, "0");
 $strQueryTypeMax = check_var('strQueryTypeMax', '', true, 100);
 $strQueryTypeDefault = check_var('strQueryTypeDefault', '', true, 1);
@@ -275,7 +275,7 @@ echo "<div class='wrap'>";
 
 									if($intQueryTypeID == '')
 									{
-										$intQueryTypeID = $wpdb->get_var("SELECT queryTypeID FROM ".$wpdb->base_prefix."query2type WHERE userID = '".get_current_user_id()."' ORDER BY query2TypeCreated DESC");
+										$intQueryTypeID = $wpdb->get_var($wpdb->prepare("SELECT queryTypeID FROM ".$wpdb->base_prefix."query2type WHERE userID = '%d' ORDER BY query2TypeCreated DESC", get_current_user_id()));
 									}
 
 									if($intQueryTypeID == 13)
