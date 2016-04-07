@@ -372,7 +372,7 @@ echo "<div class='wrap'>";
 								if($intQuery2TypeID > 0)
 								{
 									echo "&nbsp;<a href='?page=mf_form/create/index.php&intQueryID=".$obj_form->id."'>"
-										.show_submit(array('text' => __("Cancel", 'lang_form'), 'type' => "button", 'class' => "button"))
+										.show_submit(array('text' => __("Cancel", 'lang_form'), 'type' => 'button', 'class' => "button"))
 									."</a>"
 									.input_hidden(array('name' => 'intQuery2TypeID', 'value' => $intQuery2TypeID));
 								}
@@ -406,7 +406,7 @@ echo "<div class='wrap'>";
 
 								if($obj_form->is_published() == "publish")
 								{
-									echo show_textfield(array('name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'type' => "date"));
+									echo show_textfield(array('name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'type' => 'date'));
 								}
 
 								echo "<div>"

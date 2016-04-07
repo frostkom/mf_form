@@ -141,7 +141,7 @@ function settings_form()
 
 	$arr_settings["setting_redirect_emails"] = __("Redirect all e-mails", 'lang_form');
 
-	if(get_option('setting_form_test_emails') != 'yes')
+	if(get_option('setting_redirect_emails') != 'yes')
 	{
 		$arr_settings["setting_form_test_emails"] = __("Redirect test e-mails", 'lang_form');
 	}
@@ -168,7 +168,7 @@ function settings_form_callback()
 function setting_redirect_emails_callback()
 {
 	$setting_key = get_setting_key(__FUNCTION__);
-	$option = get_option($setting_key);
+	$option = get_option($setting_key, 'no');
 
 	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'compare' => $option, 'description' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
 }
@@ -785,160 +785,163 @@ function show_query_form($data)
 
 			else if($log_text != '')
 			{
-				do_log(__("Formular was not sent correctly", 'lang_form'))." (".$log_text.")";
+				do_log(__("The form wasn't sent correctly", 'lang_form'))." (".$log_text.")";
 			}
 		}
 
 		$obj_font_icons = new mf_font_icons();
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryEmailCheckConfirm FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
-		$r = $result[0];
-		$intQueryShowAnswers = $r->queryShowAnswers;
-		$strQueryAnswerURL = $r->queryAnswerURL;
-		$strQueryButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_form');
-		$strQueryButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
-		$intQueryPaymentProvider = $r->queryPaymentProvider;
-		$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
-
-		$strFormPrefix = $obj_form->get_post_info()."_";
-
-		if($strQueryAnswerURL != '' && preg_match("/_/", $strQueryAnswerURL))
+		
+		foreach($result as $r)
 		{
-			list($blog_id, $intQueryAnswerURL) = explode("_", $strQueryAnswerURL);
-		}
+			$intQueryShowAnswers = $r->queryShowAnswers;
+			$strQueryAnswerURL = $r->queryAnswerURL;
+			$strQueryButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_form');
+			$strQueryButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
+			$intQueryPaymentProvider = $r->queryPaymentProvider;
+			$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
 
-		else
-		{
-			$blog_id = 0;
-			$intQueryAnswerURL = $strQueryAnswerURL;
-		}
+			$strFormPrefix = $obj_form->get_post_info()."_";
 
-		$dteFormDeadline = $obj_form->meta(array('action' => 'get', 'key' => 'deadline'));
-
-		if($data['edit'] == false && ($data['sent'] == true || $dup_ip == true))
-		{
-			$out .= "<div class='mf_form mf_form_results'>";
-
-				$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8'", $obj_form->id));
-
-				if($intQueryShowAnswers == 1 && $data['total_answers'] > 0)
-				{
-					$out .= get_poll_results($data);
-				}
-
-				else if($intQueryAnswerURL > 0)
-				{
-					//Switch to temp site
-					####################
-					$wpdbobj = clone $wpdb;
-					$wpdb->blogid = $blog_id;
-					$wpdb->set_prefix($wpdb->base_prefix);
-					####################
-
-					if($intQueryAnswerURL != $wp_query->post->ID)
-					{
-						$strQueryAnswerURL = get_permalink($intQueryAnswerURL);
-
-						mf_redirect($strQueryAnswerURL);
-					}
-
-					//Switch back to orig site
-					###################
-					$wpdb = clone $wpdbobj;
-					###################
-				}
-
-				else
-				{
-					$out .= "<h2>".__("Thank you!", 'lang_form')."</h2>";
-				}
-
-			$out .= "</div>";
-		}
-
-		else if($dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
-		{
-			$out .= "<p>".__("This form is not open for submissions anymore", 'lang_form')."</p>";
-		}
-
-		else if($out == '')
-		{
-			$cols = $data['edit'] == true ? 5 : 2;
-
-			$result = $obj_form->get_form_type_result();
-			$intTotalRows = $wpdb->num_rows;
-
-			if($intTotalRows > 0)
+			if($strQueryAnswerURL != '' && preg_match("/_/", $strQueryAnswerURL))
 			{
-				$out .= "<form method='post' action='' id='form_".$obj_form->id."' class='mf_form".($data['edit'] == true ? " mf_sortable" : "")."' enctype='multipart/form-data'>";
+				list($blog_id, $intQueryAnswerURL) = explode("_", $strQueryAnswerURL);
+			}
 
-					if($data['edit'] == false)
+			else
+			{
+				$blog_id = 0;
+				$intQueryAnswerURL = $strQueryAnswerURL;
+			}
+
+			$dteFormDeadline = $obj_form->meta(array('action' => 'get', 'key' => 'deadline'));
+
+			if($data['edit'] == false && ($data['sent'] == true || $dup_ip == true))
+			{
+				$out .= "<div class='mf_form mf_form_results'>";
+
+					$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8'", $obj_form->id));
+
+					if($intQueryShowAnswers == 1 && $data['total_answers'] > 0)
 					{
-						$out .= get_notification();
+						$out .= get_poll_results($data);
 					}
 
-					$i = 1;
-
-					$intQueryTypeID2_temp = $intQuery2TypeID2_temp = "";
-
-					$has_required_email = false;
-
-					foreach($result as $r)
+					else if($intQueryAnswerURL > 0)
 					{
-						$r->queryTypeText = stripslashes($r->queryTypeText);
+						//Switch to temp site
+						####################
+						$wpdbobj = clone $wpdb;
+						$wpdb->blogid = $blog_id;
+						$wpdb->set_prefix($wpdb->base_prefix);
+						####################
 
-						$obj_form_output = new mf_form_output(array('result' => $r, 'in_edit_mode' => $data['edit'], 'query_prefix' => $strFormPrefix, 'email_check_confirm' => $strQueryEmailCheckConfirm));
+						if($intQueryAnswerURL != $wp_query->post->ID)
+						{
+							$strQueryAnswerURL = get_permalink($intQueryAnswerURL);
 
-						$obj_form_output->calculate_value($intAnswerID);
-						$obj_form_output->get_form_fields();
+							mf_redirect($strQueryAnswerURL);
+						}
 
-						$out .= $obj_form_output->get_output($data);
-
-						$i++;
+						//Switch back to orig site
+						###################
+						$wpdb = clone $wpdbobj;
+						###################
 					}
 
-					if($intAnswerID > 0)
+					else
 					{
-						$out .= show_submit(array('name' => "btnQueryUpdate", 'text' => __("Update", 'lang_form')))
-						.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
-						.input_hidden(array('name' => 'intAnswerID', 'value' => $intAnswerID));
+						$out .= "<h2>".__("Thank you!", 'lang_form')."</h2>";
 					}
 
-					else if($data['edit'] == false)
-					{
-						//do_action('action_form_after_fields');
+				$out .= "</div>";
+			}
 
-						$out .= apply_filters('filter_form_after_fields', '')
-						."<div class='form_button'>";
+			else if($dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
+			{
+				$out .= "<p>".__("This form is not open for submissions anymore", 'lang_form')."</p>";
+			}
 
-							if($has_required_email)
-							{
-								$out .= "<div class='updated hide'><p>".__("Does the e-mail address look right?", 'lang_form')." ".$strQueryButtonText." ".__("or", 'lang_form')." <a href='#' class='show_none_email'>".__("Change", 'lang_form')."</a></p></div>";
-							}
+			else if($out == '')
+			{
+				$cols = $data['edit'] == true ? 5 : 2;
 
-							$out .= show_submit(array('name' => "btnFormSubmit", 'text' => $strQueryButtonSymbol.$strQueryButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
-							.wp_nonce_field('form_submit', '_wpnonce', true, false)
-							.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id));
+				$result = $obj_form->get_form_type_result();
+				$intTotalRows = $wpdb->num_rows;
 
-							if(isset($data['send_to']) && $data['send_to'] != '')
-							{
-								$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $data['send_to'])));
-							}
+				if($intTotalRows > 0)
+				{
+					$out .= "<form method='post' action='' id='form_".$obj_form->id."' class='mf_form".($data['edit'] == true ? " mf_sortable" : "")."' enctype='multipart/form-data'>";
 
-							if(is_user_logged_in() && IS_ADMIN)
-							{
-								if($intQueryPaymentProvider > 0)
+						if($data['edit'] == false)
+						{
+							$out .= get_notification();
+						}
+
+						$i = 1;
+
+						$intQueryTypeID2_temp = $intQuery2TypeID2_temp = "";
+
+						$has_required_email = false;
+
+						foreach($result as $r)
+						{
+							$r->queryTypeText = stripslashes($r->queryTypeText);
+
+							$obj_form_output = new mf_form_output(array('result' => $r, 'in_edit_mode' => $data['edit'], 'query_prefix' => $strFormPrefix, 'email_check_confirm' => $strQueryEmailCheckConfirm));
+
+							$obj_form_output->calculate_value($intAnswerID);
+							$obj_form_output->get_form_fields();
+
+							$out .= $obj_form_output->get_output($data);
+
+							$i++;
+						}
+
+						if($intAnswerID > 0)
+						{
+							$out .= show_submit(array('name' => "btnQueryUpdate", 'text' => __("Update", 'lang_form')))
+							.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
+							.input_hidden(array('name' => 'intAnswerID', 'value' => $intAnswerID));
+						}
+
+						else if($data['edit'] == false)
+						{
+							//do_action('action_form_after_fields');
+
+							$out .= apply_filters('filter_form_after_fields', '')
+							."<div class='form_button'>";
+
+								if($has_required_email)
 								{
-									$out .= show_checkbox(array('name' => "intQueryPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
+									$out .= "<div class='updated hide'><p>".__("Does the e-mail address look right?", 'lang_form')." ".$strQueryButtonText." ".__("or", 'lang_form')." <a href='#' class='show_none_email'>".__("Change", 'lang_form')."</a></p></div>";
 								}
 
-								$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."'>".__("Edit this form", 'lang_form')."</a>";
-							}
+								$out .= show_submit(array('name' => "btnFormSubmit", 'text' => $strQueryButtonSymbol.$strQueryButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
+								.wp_nonce_field('form_submit', '_wpnonce', true, false)
+								.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id));
 
-						$out .= "</div>";
-					}
+								if(isset($data['send_to']) && $data['send_to'] != '')
+								{
+									$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $data['send_to'])));
+								}
 
-				$out .= "</form>";
+								if(is_user_logged_in() && IS_ADMIN)
+								{
+									if($intQueryPaymentProvider > 0)
+									{
+										$out .= show_checkbox(array('name' => "intQueryPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
+									}
+
+									$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."'>".__("Edit this form", 'lang_form')."</a>";
+								}
+
+							$out .= "</div>";
+						}
+
+					$out .= "</form>";
+				}
 			}
 		}
 	}

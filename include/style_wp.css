@@ -31,12 +31,6 @@
 			clear: none;
 		}
 
-		.postbox.active, .postbox.active h3
-		{
-			background: #fff6bf;
-			border-color: #ffd324;
-		}
-
 	mf-form-row
 	{
 		border: .1em solid transparent;
