@@ -1456,7 +1456,13 @@ class mf_form_output
 	{
 		global $intQueryTypeID2_temp, $intQuery2TypeID2_temp;
 
-		if(!isset($data['show_label'])){	$data['show_label'] = true;}
+		if(!isset($data['show_label'])){		$data['show_label'] = true;}
+		if(!isset($data['ignore_required'])){	$data['ignore_required'] = false;}
+
+		if($data['ignore_required'] == true)
+		{
+			$this->row->queryTypeRequired = false;
+		}
 
 		$field_data = array(
 			'name' => $this->query_prefix.$this->row->query2TypeID,

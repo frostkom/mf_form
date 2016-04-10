@@ -78,7 +78,7 @@ jQuery(function($)
 			var temp_id = $(this).find('input[name=strQueryTypeSelect_id]').val() + "",
 				temp_value = $(this).find('input[name=strQueryTypeSelect_value]').val() + "";
 
-			if(temp_id != "" && temp_value != "")
+			if(temp_value != "") //temp_id != "" && 
 			{
 				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value;
 			}
@@ -113,7 +113,6 @@ jQuery(function($)
 				{
 					if(data.dom_id)
 					{
-						//$('#' + data.dom_id).remove();
 						self.parents('tr').remove();
 					}
 				}
@@ -169,7 +168,8 @@ jQuery(function($)
 		show_query_settings($(this).val());
 	});
 
-	$('.select_rows').on('blur', 'input[name=strQueryTypeSelect_value]', function()
+	/*[name=strQueryTypeSelect_value]*/
+	$('.select_rows').on('blur', 'input', function()
 	{
 		update_select();
 
