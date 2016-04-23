@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MF Forms\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-04 09:12+0100\n"
+"POT-Creation-Date: 2016-04-22 11:55+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: Martin Fors\n"
@@ -15,130 +15,133 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../index.php:240
-msgid "Number"
-msgstr "Nummer"
-
-#: ../index.php:241
-msgid "E-mail"
-msgstr "E-post"
-
-#: ../index.php:242
-msgid "Phone no"
-msgstr "Telefonnummer"
-
-#: ../index.php:243
-msgid "Decimal number"
-msgstr "Decimaltal"
-
 #: ../index.php:244
-msgid "URL"
-msgstr "URL"
-
-#: ../index.php:246
 msgid "Checkbox"
 msgstr "Kryssruta"
 
-#: ../index.php:247
+#: ../index.php:245
 msgid "Range"
 msgstr "Spann"
 
-#: ../index.php:248
+#: ../index.php:246
 msgid "Input field"
 msgstr "Inmatningsfält (en rad)"
 
-#: ../index.php:249
+#: ../index.php:247
 msgid "Textarea"
 msgstr "Inmatningsfält (flera rader)"
 
-#: ../index.php:250
+#: ../index.php:248
 #: ../create/index.php:307
 #: ../create/index.php:588
 msgid "Text"
 msgstr "Text"
 
-#: ../index.php:251
-#: ../include/classes.php:1712
+#: ../index.php:249
+#: ../include/classes.php:1725
 msgid "Space"
 msgstr "Mellanrum"
 
-#: ../index.php:252
+#: ../index.php:250
 msgid "Datepicker"
 msgstr "Datumväljare"
 
-#: ../index.php:253
+#: ../index.php:251
 msgid "Radio button"
 msgstr "Alternativ"
 
-#: ../index.php:254
+#: ../index.php:252
 msgid "Referer URL"
 msgstr "Referens-URL"
 
-#: ../index.php:255
+#: ../index.php:253
 msgid "Dropdown"
 msgstr "Rullgardin"
 
-#: ../index.php:256
+#: ../index.php:254
 msgid "Multiple selection"
 msgstr "Rullgardin (flerval)"
 
-#: ../index.php:257
+#: ../index.php:255
 msgid "Hidden field"
 msgstr "Dolt fält"
 
-#: ../index.php:258
+#: ../index.php:256
 msgid "Custom tag"
 msgstr "Anpassat element"
 
-#: ../index.php:259
+#: ../index.php:257
 msgid "Custom tag (end)"
 msgstr "Anpassat element (slut)"
 
-#: ../index.php:260
+#: ../index.php:258
 msgid "File"
 msgstr "Fil"
 
-#: ../index.php:264
+#: ../index.php:259
+msgid "Email text"
+msgstr "E-posttext"
+
+#: ../index.php:272
+msgid "Number"
+msgstr "Nummer"
+
+#: ../index.php:273
+msgid "E-mail"
+msgstr "E-post"
+
+#: ../index.php:274
+msgid "Phone no"
+msgstr "Telefonnummer"
+
+#: ../index.php:275
+msgid "Decimal number"
+msgstr "Decimaltal"
+
+#: ../index.php:276
+msgid "URL"
+msgstr "URL"
+
+#: ../index.php:280
 msgid "Zip code"
 msgstr "Postnummer"
 
-#: ../index.php:265
-#: ../index.php:266
+#: ../index.php:281
+#: ../index.php:282
 msgid "Social security number"
 msgstr "Personnummer"
 
-#: ../index.php:265
-#: ../index.php:266
+#: ../index.php:281
+#: ../index.php:282
 msgid "digits"
 msgstr "siffror"
 
-#: ../index.php:273
+#: ../index.php:289
 msgid "aring"
 msgstr "å"
 
-#: ../index.php:273
+#: ../index.php:289
 msgid "auml"
 msgstr "ä"
 
-#: ../index.php:273
+#: ../index.php:289
 msgid "ouml"
 msgstr "ö"
 
-#: ../index.php:273
+#: ../index.php:289
 msgid "Aring"
 msgstr "Å"
 
-#: ../index.php:273
+#: ../index.php:289
 msgid "Auml"
 msgstr "Ä"
 
-#: ../index.php:273
+#: ../index.php:289
 msgid "Ouml"
 msgstr "Ö"
 
 #: ../answer/index.php:4
 #: ../create/index.php:6
-#: ../list/index.php:3
 msgid "Are you sure?"
 msgstr "Är du säker?"
 
@@ -166,14 +169,14 @@ msgstr "Det finns inget att visa"
 
 #: ../answer/index.php:330
 #: ../include/classes.php:1306
-#: ../include/classes.php:1818
+#: ../include/classes.php:1831
 #: ../view/index.php:11
 msgid "Edit"
 msgstr "Redigera"
 
 #: ../answer/index.php:331
 #: ../include/classes.php:1307
-#: ../include/classes.php:1819
+#: ../include/classes.php:1832
 msgid "Delete"
 msgstr "Radera"
 
@@ -620,7 +623,7 @@ msgid "Modified"
 msgstr "Uppdaterad"
 
 #: ../include/classes.php:1310
-#: ../include/classes.php:1819
+#: ../include/classes.php:1832
 msgid "Copy"
 msgstr "Kopiera"
 
@@ -652,29 +655,33 @@ msgstr ""
 msgid "XLS"
 msgstr ""
 
-#: ../include/classes.php:1721
-#: ../include/classes.php:1736
+#: ../include/classes.php:1718
+msgid "Only in e-mail"
+msgstr "Endast i e-post"
+
+#: ../include/classes.php:1734
+#: ../include/classes.php:1749
 msgid "Hidden"
 msgstr "Dold"
 
-#: ../include/classes.php:1810
+#: ../include/classes.php:1823
 msgid "Required"
 msgstr "Obligatoriskt"
 
-#: ../include/classes.php:1815
+#: ../include/classes.php:1828
 msgid "Autofocus"
 msgstr "Fokusera automatiskt"
 
-#: ../include/classes.php:1841
+#: ../include/classes.php:1854
 msgid "Display a form that you've previously created"
 msgstr "Visa ett formulär som du har skapat"
 
-#: ../include/classes.php:1846
+#: ../include/classes.php:1859
 #: ../include/functions.php:18
 msgid "Form"
 msgstr "Formulär"
 
-#: ../include/classes.php:1895
+#: ../include/classes.php:1908
 msgid "Heading"
 msgstr "Rubrik"
 
@@ -682,6 +689,7 @@ msgstr "Rubrik"
 #: ../include/functions.php:19
 #: ../include/functions.php:165
 #: ../include/functions.php:278
+#: ../list/index.php:11
 msgid "Forms"
 msgstr "Formulär"
 
@@ -786,9 +794,8 @@ msgstr "Genomför testbetalning"
 msgid "Edit this form"
 msgstr "Redigera formuläret"
 
-#: ../list/index.php:11
-msgid "All forms"
-msgstr "Alla formulär"
+#~ msgid "All forms"
+#~ msgstr "Alla formulär"
 
 #~ msgid "Lowest user permission"
 #~ msgstr "Lägsta krav på behörighet"

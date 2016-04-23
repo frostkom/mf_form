@@ -372,7 +372,7 @@ echo "<div class='wrap'>";
 								if($intQuery2TypeID > 0)
 								{
 									echo "&nbsp;<a href='?page=mf_form/create/index.php&intQueryID=".$obj_form->id."'>"
-										.show_submit(array('text' => __("Cancel", 'lang_form'), 'type' => 'button', 'class' => "button"))
+										.show_submit(array('type' => 'button', 'text' => __("Cancel", 'lang_form'), 'class' => "button"))
 									."</a>"
 									.input_hidden(array('name' => 'intQuery2TypeID', 'value' => $intQuery2TypeID));
 								}

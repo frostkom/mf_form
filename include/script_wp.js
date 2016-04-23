@@ -8,37 +8,37 @@ jQuery(function($)
 
 		if(this_val != '')
 		{
-			if(this_val == 2)
+			if(this_val == 2) //range
 			{
 				$('.tr_range').show();
 			}
 
-			if(this_val == 3)
+			if(this_val == 3) //input_field
 			{
 				$('.tr_check').show();
 			}
 
-			if(this_val == 3 || this_val == 4 || this_val == 7)
+			if(this_val == 3 || this_val == 4 || this_val == 7) //input_field, textarea, datepicker
 			{
 				$('.tr_placeholder').show();
 			}
 
-			if(this_val != 6 && this_val != 13 && this_val != 14)
+			if(this_val != 6 && this_val != 13 && this_val != 14) //space, custom_tag, custom_tag_end
 			{
 				$('.tr_text').show();
 			}
 
-			if(this_val == 10 || this_val == 11)
+			if(this_val == 10 || this_val == 11) //select, select_multiple
 			{
 				$('.tr_select').show();
 			}
 
-			if(this_val == 5)
+			if(this_val == 5) //text
 			{
 				$('.tr_tag').show();
 			}
 
-			if(this_val == 13 || this_val == 14)
+			if(this_val == 13 || this_val == 14) //custom_tag, custom_tag_end
 			{
 				$('.tr_tag2').show();
 			}

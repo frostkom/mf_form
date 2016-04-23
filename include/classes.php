@@ -405,7 +405,7 @@ class mf_form
 			$query_where_id = $this->id;
 		}
 
-		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass, queryTypeFetchFrom FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
+		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, queryTypeShowInForm, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass, queryTypeFetchFrom FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
 	}
 }
 
@@ -1471,10 +1471,10 @@ class mf_form_output
 		$class_output = $this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "";
 		$class_output_small = ($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "");
 
-		switch($this->row->queryTypeID)
+		switch($this->row->queryTypeCode) //$this->row->queryTypeID
 		{
-			//Checkbox
-			case 1:
+			//case 1:
+			case 'checkbox':
 				$is_first_checkbox = false;
 
 				if($this->row->queryTypeID != $intQueryTypeID2_temp)
@@ -1499,8 +1499,8 @@ class mf_form_output
 				$this->show_required = true;
 			break;
 
-			//Input range
-			case 2:
+			//case 2:
+			case 'range':
 				$arr_content = explode("|", $this->row->queryTypeText);
 
 				if($this->answer_text == '' && isset($arr_content[3]))
@@ -1525,8 +1525,8 @@ class mf_form_output
 				$this->show_required = $this->show_autofocus = true;
 			break;
 
-			//Input date
-			case 7:
+			//case 7:
+			case 'datepicker':
 				if($data['show_label'] == true)
 				{
 					$field_data['text'] = $this->row->queryTypeText;
@@ -1545,8 +1545,8 @@ class mf_form_output
 				$this->show_required = $this->show_autofocus = true;
 			break;
 
-			//Radio button
-			case 8:
+			//case 8:
+			case 'radio_button':
 				$is_first_radio = false;
 
 				if($this->row->queryTypeID != $intQueryTypeID2_temp)
@@ -1582,8 +1582,8 @@ class mf_form_output
 				$this->show_required = true;
 			break;
 
-			//Select
-			case 10:
+			//case 10:
+			case 'select':
 				$arr_content1 = explode(":", $this->row->queryTypeText);
 				$arr_content2 = explode(",", $arr_content1[1]);
 
@@ -1613,8 +1613,8 @@ class mf_form_output
 				$this->show_required = true;
 			break;
 
-			//Select (multiple)
-			case 11:
+			//case 11:
+			case 'select_multiple':
 				$arr_content1 = explode(":", $this->row->queryTypeText);
 				$arr_content2 = explode(",", $arr_content1[1]);
 
@@ -1645,8 +1645,8 @@ class mf_form_output
 				$this->show_required = true;
 			break;
 
-			//Textfield
-			case 3:
+			//case 3:
+			case 'input_field':
 				if($this->row->checkCode == "zip")
 				{
 					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."form_zipcode";
@@ -1677,8 +1677,8 @@ class mf_form_output
 				$this->show_required = $this->show_autofocus = true;
 			break;
 
-			//Textarea
-			case 4:
+			//case 4:
+			case 'textarea':
 				if($data['show_label'] == true)
 				{
 					$field_data['text'] = $this->row->queryTypeText;
@@ -1696,8 +1696,8 @@ class mf_form_output
 				$this->show_required = $this->show_autofocus = true;
 			break;
 
-			//Text
-			case 5:
+			//case 5:
+			case 'text':
 				if($this->row->queryTypeTag != '')
 				{
 					$this->output .= "<".$this->row->queryTypeTag.$class_output.">"
@@ -1713,13 +1713,24 @@ class mf_form_output
 				}
 			break;
 
-			//Space
-			case 6:
+			//case 16:
+			case 'email_text':
+				if($this->in_edit_mode == true)
+				{
+					$this->output .= "<p".$class_output.">"
+						.($this->in_edit_mode == true ? __("Only in e-mail", 'lang_form').": " : "")
+						.$this->row->queryTypeText
+					."</p>";
+				}
+			break;
+
+			//case 6:
+			case 'space':
 				$this->output .= $this->in_edit_mode == true ? "<p class='grey".$class_output_small."'>(".__("Space", 'lang_form').")</p>" : "<p".$class_output.">&nbsp;</p>";
 			break;
 
-			//Referer URL
-			case 9:
+			//case 9:
+			case 'referer_url':
 				$referer_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "";
 
 				if($this->in_edit_mode == true)
@@ -1735,8 +1746,8 @@ class mf_form_output
 				}
 			break;
 
-			//Hidden field
-			case 12:
+			//case 12:
+			case 'hidden_field':
 				if($this->in_edit_mode == true)
 				{
 					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->query_prefix.$this->row->query2TypeID.": ".$this->row->queryTypeText.")</p>";
@@ -1751,8 +1762,8 @@ class mf_form_output
 				}
 			break;
 
-			//Custom tag (start)
-			case 13:
+			//case 13:
+			case 'custom_tag':
 				if($this->in_edit_mode == true)
 				{
 					$this->output .= "<p class='grey'>&lt;".$this->row->queryTypeText.$class_output."&gt;</p>";
@@ -1764,8 +1775,8 @@ class mf_form_output
 				}
 			break;
 
-			//Custom tag (end)
-			case 14:
+			//case 14:
+			case 'custom_tag_end':
 				if($this->in_edit_mode == true)
 				{
 					$this->output .= "<p class='grey'>&lt;/".$this->row->queryTypeText."&gt;</p>";
@@ -1777,8 +1788,8 @@ class mf_form_output
 				}
 			break;
 
-			//File
-			case 15:
+			//case 15:
+			case 'file':
 				if($data['show_label'] == true)
 				{
 					$field_data['text'] = $this->row->queryTypeText;

@@ -596,7 +596,7 @@ function show_query_form($data)
 
 						if($strQueryTypeText != '')
 						{
-							$email_content .= $strQueryTypeText.(substr($strQueryTypeText, -1) == ":" ? "" : ":")." ";
+							$email_content .= $strQueryTypeText; //.(substr($strQueryTypeText, -1) == ":" ? "" : ":")." "
 						}
 
 						if($strAnswerText != '')
@@ -610,7 +610,7 @@ function show_query_form($data)
 
 							if($strAnswerText_send != '')
 							{
-								$email_content .= " ".$strAnswerText_send;
+								$email_content .= (substr($strQueryTypeText, -1) == ":" ? "" : ":")." ".$strAnswerText_send;
 							}
 
 							$email_content .= "\n";

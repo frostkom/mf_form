@@ -56,6 +56,7 @@
 		mf-form-row:hover:not(.active)
 		{
 			background: #eee;
+			cursor: move;
 			border-color: #ccc;
 			min-height: 100px;
 		}
@@ -132,9 +133,4 @@
 		margin-bottom: 20px;
 		width: 400px;
 	}
-
-	/*.deleted, .deleted a
-	{
-		color: #ccc;
-	}*/
 }

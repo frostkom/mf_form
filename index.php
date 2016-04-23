@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 4.3.2
+Version: 5.0.5
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -135,8 +135,10 @@ function activate_form()
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_type (
 		queryTypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		queryTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
+		queryTypeCode VARCHAR(30),
 		queryTypeName VARCHAR(30) DEFAULT NULL,
 		queryTypeResult enum('0','1') NOT NULL DEFAULT '1',
+		queryTypeShowInForm ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 		PRIMARY KEY (queryTypeID)
 	) DEFAULT CHARSET=".$default_charset);
 
@@ -201,6 +203,8 @@ function activate_form()
 
 	$arr_add_column[$wpdb->base_prefix."query_type"] = array(
 		'queryTypePublic' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeID",
+		'queryTypeCode' => "ALTER TABLE [table] ADD [column] VARCHAR(30) AFTER queryTypePublic",
+		'queryTypeShowInForm' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeResult",
 	);
 
 	add_columns($arr_add_column);
@@ -208,11 +212,10 @@ function activate_form()
 	$arr_update_column = array();
 
 	$arr_update_column[$wpdb->base_prefix."query"] = array(
-		'queryTypePublic' => "ALTER TABLE [table] DROP [column]",
-		'queryTypeOrder' => "ALTER TABLE [table] DROP [column]",
+		//'queryTypePublic' => "ALTER TABLE [table] DROP [column]",
+		//'queryTypeOrder' => "ALTER TABLE [table] DROP [column]",
 		'queryEmailNotify' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '1'",
 		'queryPaymentMerchant' => "ALTER TABLE [table] CHANGE [column] [column] VARCHAR(100) DEFAULT NULL",
-		//'queryImproveUX' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '0'",
 		'queryImproveUX' => "ALTER TABLE [table] DROP [column]",
 		'queryURL' => "ALTER TABLE [table] DROP [column]",
 	);
@@ -237,33 +240,46 @@ function activate_form()
 
 	$arr_run_query = array();
 
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES('1','1','".__("Number", 'lang_form')."','int','[0-9]*')";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES('5','1','".__("E-mail", 'lang_form')."','email','')";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES('6','1','".__("Phone no", 'lang_form')."','telno','')";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES('7','1','".__("Decimal number", 'lang_form')."','float','[-+]?[0-9]*[.,]?[0-9]+')";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES('8','1','".__("URL", 'lang_form')."','url','')";
+	$arr_query_types = array(
+		1 => array('code' => 'checkbox',			'name' => __("Checkbox", 'lang_form'),				'result' => 1),
+		2 => array('code' => 'range',				'name' => __("Range", 'lang_form'),					'result' => 1),
+		3 => array('code' => 'input_field',			'name' => __("Input field", 'lang_form'),			'result' => 1),
+		4 => array('code' => 'textarea',			'name' => __("Textarea", 'lang_form'),				'result' => 1),
+		5 => array('code' => 'text',				'name' => __("Text", 'lang_form'),					'result' => 0),
+		6 => array('code' => 'space',				'name' => __("Space", 'lang_form'),					'result' => 0),
+		7 => array('code' => 'datepicker',			'name' => __("Datepicker", 'lang_form'),			'result' => 1),
+		8 => array('code' => 'radio_button',		'name' => __("Radio button", 'lang_form'),			'result' => 1),
+		9 => array('code' => 'referer_url',			'name' => __("Referer URL", 'lang_form'),			'result' => 1),
+		10 => array('code' => 'select',				'name' => __("Dropdown", 'lang_form'),				'result' => 1),
+		11 => array('code' => 'select_multiple',	'name' => __("Multiple selection", 'lang_form'),	'result' => 1),
+		12 => array('code' => 'hidden_field',		'name' => __("Hidden field", 'lang_form'),			'result' => 1),
+		13 => array('code' => 'custom_tag',			'name' => __("Custom tag", 'lang_form'),			'result' => 0),
+		14 => array('code' => 'custom_tag_end',		'name' => __("Custom tag (end)", 'lang_form'),		'result' => 0,		'public' => 'no'),
+		15 => array('code' => 'file',				'name' => __("File", 'lang_form'),					'result' => 1),
+		16 => array('code' => 'email_text',			'name' => __("Email text", 'lang_form'),			'result' => 0,		'show_in_form' => 'no'),
+	);
 
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '1', queryTypeName = '".__("Checkbox", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '2', queryTypeName = '".__("Range", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '3', queryTypeName = '".__("Input field", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '4', queryTypeName = '".__("Textarea", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '5', queryTypeName = '".__("Text", 'lang_form')."', queryTypeResult = '0'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '6', queryTypeName = '".__("Space", 'lang_form')."', queryTypeResult = '0'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '7', queryTypeName = '".__("Datepicker", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '8', queryTypeName = '".__("Radio button", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '9', queryTypeName = '".__("Referer URL", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '10', queryTypeName = '".__("Dropdown", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '11', queryTypeName = '".__("Multiple selection", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '12', queryTypeName = '".__("Hidden field", 'lang_form')."', queryTypeResult = '1'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '13', queryTypeName = '".__("Custom tag", 'lang_form')."', queryTypeResult = '0'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '14', queryTypePublic = 'no', queryTypeName = '".__("Custom tag (end)", 'lang_form')."', queryTypeResult = '0'";
-	$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '15', queryTypeName = '".__("File", 'lang_form')."', queryTypeResult = '1'";
+	foreach($arr_query_types as $key => $value)
+	{
+		if(!isset($value['public'])){	$value['public'] = 'yes';}
+		if(!isset($value['show_in_form'])){	$value['show_in_form'] = 'yes';}
+
+		$arr_run_query[] = sprintf("INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '%d', queryTypeCode = '%s', queryTypeName = '%s', queryTypeResult = '%d', queryTypePublic = '%s', queryTypeShowInForm = '%s'", $key, $value['code'], $value['name'], $value['result'], $value['public'], $value['show_in_form']);
+	}
+
+	$query_temp = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES";
+
+	$arr_run_query[] = $query_temp."('1','1','".__("Number", 'lang_form')."','int','[0-9]*')";
+	$arr_run_query[] = $query_temp."('5','1','".__("E-mail", 'lang_form')."','email','')";
+	$arr_run_query[] = $query_temp."('6','1','".__("Phone no", 'lang_form')."','telno','')";
+	$arr_run_query[] = $query_temp."('7','1','".__("Decimal number", 'lang_form')."','float','[-+]?[0-9]*[.,]?[0-9]+')";
+	$arr_run_query[] = $query_temp."('8','1','".__("URL", 'lang_form')."','url','')";
 
 	if(get_bloginfo('language') == "sv-SE")
 	{
-		$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES('2','1','".__("Zip code", 'lang_form')." (Sv)','zip','[0-9]{5}')";
-		$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES('3','1','".__("Social security number", 'lang_form')." (10 ".__("digits", 'lang_form').") (Sv)','soc','[0-9]{10}')";
-		$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES('4','1','".__("Social security number", 'lang_form')." (12 ".__("digits", 'lang_form').") (Sv)','soc2','(?:18|19|20)[0-9]{10}')";
+		$arr_run_query[] = $query_temp."('2','1','".__("Zip code", 'lang_form')." (Sv)','zip','[0-9]{5}')";
+		$arr_run_query[] = $query_temp."('3','1','".__("Social security number", 'lang_form')." (10 ".__("digits", 'lang_form').") (Sv)','soc','[0-9]{10}')";
+		$arr_run_query[] = $query_temp."('4','1','".__("Social security number", 'lang_form')." (12 ".__("digits", 'lang_form').") (Sv)','soc2','(?:18|19|20)[0-9]{10}')";
 
 		require_once("include/zipcode.php");
 
@@ -285,17 +301,26 @@ function activate_form()
 	{
 		//Step 1: Create post in posts table
 		#########################
-		$result = $wpdb->get_results("SELECT queryID, postID, queryName, queryDeleted FROM ".$wpdb->base_prefix."query WHERE postID = '0'");
+		$result = $wpdb->get_results("SELECT queryID, blogID, postID, queryName, queryDeleted FROM ".$wpdb->base_prefix."query WHERE postID = '0'");
 
 		foreach($result as $r)
 		{
 			$intQueryID = $r->queryID;
+			$intBlogID = $r->blogID;
 			$intPostID = $r->postID;
 			$strFormName = $r->queryName;
 			$intQueryDeleted = $r->queryDeleted;
 
+			//if($intBlogID > 0 && $intBlogID != $wpdb->blog_id){}
 			if(!($intPostID > 0))
 			{
+				//Switch to temp site
+				####################
+				$wpdbobj = clone $wpdb;
+				$wpdb->blogid = $intBlogID;
+				$wpdb->set_prefix($wpdb->base_prefix);
+				####################
+
 				$post_data = array(
 					'post_type' => 'mf_form',
 					'post_status' => 'publish',
@@ -306,10 +331,20 @@ function activate_form()
 
 				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET postID = '%d' WHERE queryID = '%d'", $intPostID, $intQueryID));
 
+				if(!($intBlogID > 0))
+				{
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '%d' WHERE queryID = '%d'", $wpdb->blog_id, $intQueryID));
+				}
+
 				if($intQueryDeleted == 1)
 				{
 					wp_trash_post($intPostID);
 				}
+
+				//Switch back to orig site
+				###################
+				$wpdb = clone $wpdbobj;
+				###################
 			}
 		}
 		#########################
