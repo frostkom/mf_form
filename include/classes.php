@@ -368,25 +368,74 @@ class mf_form
 		return $wpdb->get_var($wpdb->prepare("SELECT queryTypeName FROM ".$wpdb->base_prefix."query_type WHERE queryTypeID = '%d'", $id));
 	}
 
-	function get_form_type_info($data)
+	function get_form_type_info($data = array())
 	{
 		global $wpdb;
 
-		if(isset($data['query_id']) && $data['query_id'] > 0)
+		if(!isset($data['query_id'])){			$data['query_id'] = 0;}
+		if(!isset($data['query_type_id'])){		$data['query_type_id'] = array();}
+		if(!isset($data['query_exclude_id'])){	$data['query_exclude_id'] = 0;}
+
+		if($data['query_id'] > 0)
 		{
 			$this->id = $data['query_id'];
 		}
 
 		$query_where = "";
 
-		foreach($data['query_type_id'] as $query_type_id)
+		if(count($data['query_type_id']) > 0)
 		{
-			$query_where .= ($query_where != '' ? " OR " : "")."queryTypeID = '".$query_type_id."'";
+			$i = 0;
+
+			$query_where .= " AND (";
+
+				foreach($data['query_type_id'] as $query_type_id)
+				{
+					$query_where .= ($i > 0 ? " OR " : "")."queryTypeID = '".$query_type_id."'";
+
+					$i++;
+				}
+
+			$query_where .= ")";
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND (".$query_where.") ORDER BY query2TypeOrder ASC", $this->id));
+		if($data['query_exclude_id'] > 0)
+		{
+			$query_where .= " AND query2TypeID != '".$data['query_exclude_id']."'";
+		}
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'".$query_where." ORDER BY query2TypeOrder ASC", $this->id));
 
 		return array($result, $wpdb->num_rows);
+	}
+	
+	function get_form_type_for_select($data)
+	{
+		if(!isset($data['add_choose_here'])){	$data['add_choose_here'] = false;}
+
+		$arr_data = array();
+
+		if($data['add_choose_here'] == true)
+		{
+			$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+		}
+
+		foreach($data['result'] as $r)
+		{
+			if(in_array($r->queryTypeID, array(10, 11)))
+			{
+				list($strQueryTypeText, $rest) = explode(":", $r->queryTypeText);
+			}
+
+			else
+			{
+				$strQueryTypeText = $r->queryTypeText;
+			}
+
+			$arr_data[$r->query2TypeID] = $strQueryTypeText;
+		}
+
+		return $arr_data;
 	}
 
 	function get_form_type_result()
@@ -405,7 +454,7 @@ class mf_form
 			$query_where_id = $this->id;
 		}
 
-		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, queryTypeShowInForm, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass, queryTypeFetchFrom FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
+		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, queryTypeShowInForm, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
 	}
 }
 
@@ -1584,6 +1633,12 @@ class mf_form_output
 
 			//case 10:
 			case 'select':
+				if($this->row->queryTypeActionShow > 0) //$this->row->queryTypeActionEquals != '' && 
+				{
+					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."form_action";
+					$field_data['xtra'] = "data-equals='".$this->row->queryTypeActionEquals."' data-show='".$this->query_prefix.$this->row->queryTypeActionShow."'";
+				}
+
 				$arr_content1 = explode(":", $this->row->queryTypeText);
 				$arr_content2 = explode(",", $arr_content1[1]);
 
@@ -1700,14 +1755,14 @@ class mf_form_output
 			case 'text':
 				if($this->row->queryTypeTag != '')
 				{
-					$this->output .= "<".$this->row->queryTypeTag.$class_output.">"
+					$this->output .= "<".$this->row->queryTypeTag.$class_output." id='".$field_data['name']."'>"
 						.$this->row->queryTypeText
 					."</".$this->row->queryTypeTag.">";
 				}
 
 				else
 				{
-					$this->output .= "<div".$class_output.">
+					$this->output .= "<div".$class_output." id='".$field_data['name']."'>
 						<p>".$this->row->queryTypeText."</p>
 					</div>";
 				}
@@ -1771,7 +1826,7 @@ class mf_form_output
 
 				else
 				{
-					$this->output .= "<".$this->row->queryTypeText.$class_output.">";
+					$this->output .= "<".$this->row->queryTypeText.$class_output." id='".$field_data['name']."'>";
 				}
 			break;
 
@@ -1801,6 +1856,10 @@ class mf_form_output
 				$this->output .= show_file_field($field_data);
 
 				$this->show_required = true;
+			break;
+
+			default:
+				do_log(__("There was no code for this type", 'lang_form')." (".$this->row->queryTypeCode.")");
 			break;
 		}
 

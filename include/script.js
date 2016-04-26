@@ -92,5 +92,31 @@ jQuery(function($)
 
 		return false;
 	});
-	/**/
+	/* ################## */
+
+	/* Form actions */
+	function do_form_type_action(dom_obj)
+	{
+		var equals = dom_obj.attr('data-equals'),
+			show = dom_obj.attr('data-show'),
+			show_obj = $('#' + show);
+
+		if(show_obj.is('checkbox')){		show_obj = show_obj.parents('.form_checkbox');}
+		else if(show_obj.is('textarea')){	show_obj = show_obj.parents('.form_textarea');}
+		else if(show_obj.is('select')){		show_obj = show_obj.parents('.form_select');}
+
+		if(dom_obj.val() == equals){	show_obj.removeClass('hide');}
+		else{							show_obj.addClass('hide');}
+	}
+
+	$('.form_action select').on('change', function()
+	{
+		do_form_type_action($(this));
+	});
+
+	$('.form_action select').each(function()
+	{
+		do_form_type_action($(this));
+	});
+	/* ################## */
 });

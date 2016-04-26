@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 5.0.5
+Version: 5.1.3
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -98,6 +98,8 @@ function activate_form()
 		queryTypeTag VARCHAR(20) DEFAULT NULL,
 		queryTypeClass VARCHAR(50) DEFAULT NULL,
 		queryTypeFetchFrom VARCHAR(50) DEFAULT NULL,
+		queryTypeActionEquals VARCHAR(10),
+		queryTypeActionShow INT UNSIGNED NOT NULL DEFAULT '0',
 		queryTypeRequired ENUM('0','1') NOT NULL DEFAULT '0',
 		queryTypeAutofocus ENUM('0','1') NOT NULL DEFAULT '0',
 		query2TypeOrder INT UNSIGNED NOT NULL DEFAULT '0',
@@ -199,6 +201,8 @@ function activate_form()
 		'queryTypeTag' => "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER checkID",
 		'query2TypeID2' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER query2TypeID",
 		'queryTypeFetchFrom' => "ALTER TABLE [table] ADD [column] VARCHAR(50) AFTER queryTypeClass",
+		'queryTypeActionEquals' => "ALTER TABLE [table] ADD [column] VARCHAR(10) AFTER queryTypeFetchFrom",
+		'queryTypeActionShow' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER queryTypeActionEquals",
 	);
 
 	$arr_add_column[$wpdb->base_prefix."query_type"] = array(

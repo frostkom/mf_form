@@ -12,6 +12,7 @@
 
 	.toggler
 	{
+		box-shadow: none !important;
 		cursor: pointer;
 	}
 
@@ -77,12 +78,7 @@
 				top: 0;
 			}
 
-		.tr_range, .tr_check, .tr_placeholder, .tr_text, .tr_select
-		{
-			display: none;
-		}
-
-			.tr_range input
+			.show_range input
 			{
 				margin-right: 1%;
 				width: 24%;
@@ -105,19 +101,19 @@
 
 						.select_rows > div .form_textfield:first-child
 						{
-							margin-right: 1%;
+							margin-right: 2%;
 							width: 10%;
 						}
 
 						.select_rows > div .form_textfield:last-child
 						{
-							width: 39%;
+							width: 88%;
 						}
 
-							.select_rows > div .form_textfield input
+							/*.select_rows > div .form_textfield input
 							{
 								width: 100%;
-							}
+							}*/
 
 				#add_option
 				{

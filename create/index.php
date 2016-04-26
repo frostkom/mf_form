@@ -3,6 +3,7 @@
 wp_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css");
 wp_enqueue_script('jquery-ui-sortable');
 mf_enqueue_script('script_touch', plugins_url()."/mf_base/include/jquery.ui.touch-punch.min.js");
+mf_enqueue_script('script_forms', plugins_url()."/mf_form/include/script.js", array('plugin_url' => plugin_dir_url(__FILE__)));
 mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')));
 
 $obj_form = new mf_form();
@@ -35,10 +36,12 @@ $intQueryTypeID = check_var('intQueryTypeID');
 $strQueryTypeText = isset($_POST['strQueryTypeText']) ? $_POST['strQueryTypeText'] : ""; //Allow HTML here
 $strQueryTypeText2 = check_var('strQueryTypeText2');
 $intCheckID = check_var('intCheckID');
+$strQueryTypePlaceholder = check_var('strQueryTypePlaceholder');
 $strQueryTypeTag = check_var('strQueryTypeTag');
 $strQueryTypeClass = check_var('strQueryTypeClass');
 $strQueryTypeFetchFrom = check_var('strQueryTypeFetchFrom');
-$strQueryTypePlaceholder = check_var('strQueryTypePlaceholder');
+$strQueryTypeActionEquals = check_var('strQueryTypeActionEquals');
+$intQueryTypeActionShow = check_var('intQueryTypeActionShow');
 
 $strQueryTypeSelect = check_var('strQueryTypeSelect', '', true, "0|-- ".__("Choose here", 'lang_form')." --,1|".__("No", 'lang_form').",2|".__("Yes", 'lang_form'));
 $strQueryTypeMin = check_var('strQueryTypeMin', '', true, "0");
@@ -144,14 +147,14 @@ echo "<div class='wrap'>";
 			{
 				if($intQueryTypeID > 0 && ($intQueryTypeID == 6 || $intQueryTypeID == 9 || $strQueryTypeText != ''))
 				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, userID = '%d' WHERE query2TypeID = '%d'", $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, get_current_user_id(), $intQuery2TypeID));
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, queryTypeActionEquals = %s, queryTypeActionShow = %s, userID = '%d' WHERE query2TypeID = '%d'", $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, $strQueryTypeActionEquals, $intQueryTypeActionShow, get_current_user_id(), $intQuery2TypeID));
 
 					if($intQueryTypeID == 13)
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeText = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, userID = '%d' WHERE query2TypeID2 = '%d'", $strQueryTypeText, $strQueryTypeClass, $strQueryTypeFetchFrom, get_current_user_id(), $intQuery2TypeID));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeText = %s, userID = '%d' WHERE query2TypeID2 = '%d'", $strQueryTypeText, get_current_user_id(), $intQuery2TypeID)); //, queryTypeClass = %s, queryTypeFetchFrom = %s, $strQueryTypeClass, $strQueryTypeFetchFrom
 					}
 
-					$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = "";
+					$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = $strQueryTypeActionEquals = $intQueryTypeActionShow = "";
 				}
 
 				else
@@ -166,7 +169,7 @@ echo "<div class='wrap'>";
 				{
 					$intQuery2TypeOrder = $wpdb->get_var($wpdb->prepare("SELECT query2TypeOrder + 1 FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' ORDER BY query2TypeOrder DESC", $obj_form->id));
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, $intQuery2TypeOrder, get_current_user_id()));
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, queryTypeActionEquals = %s, queryTypeActionShow = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, $strQueryTypeActionEquals, $intQueryTypeActionShow, $intQuery2TypeOrder, get_current_user_id()));
 
 					if($intQueryTypeID == 13)
 					{
@@ -174,12 +177,12 @@ echo "<div class='wrap'>";
 						$intQueryTypeID = 14;
 						$intQuery2TypeOrder++;
 
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET query2TypeID2 = '%d', queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $intQuery2TypeID, $obj_form->id, $intQueryTypeID, $strQueryTypeText, $strQueryTypeClass, $strQueryTypeFetchFrom, $intQuery2TypeOrder, get_current_user_id()));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET query2TypeID2 = '%d', queryID = '%d', queryTypeID = '%d', queryTypeText = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $intQuery2TypeID, $obj_form->id, $intQueryTypeID, $strQueryTypeText, $intQuery2TypeOrder, get_current_user_id())); //, queryTypeClass = %s, queryTypeFetchFrom = %s, $strQueryTypeClass, $strQueryTypeFetchFrom
 					}
 
 					if($wpdb->rows_affected > 0)
 					{
-						$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = "";
+						$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = $strQueryTypeActionEquals = $intQueryTypeActionShow = "";
 					}
 				}
 
@@ -231,7 +234,7 @@ echo "<div class='wrap'>";
 
 	if($intQuery2TypeID > 0)
 	{
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass, queryTypeFetchFrom FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $intQuery2TypeID));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $intQuery2TypeID));
 		$r = $result[0];
 		$intQueryTypeID = $r->queryTypeID;
 		$strQueryTypeText = $r->queryTypeText;
@@ -240,6 +243,8 @@ echo "<div class='wrap'>";
 		$strQueryTypeTag = $r->queryTypeTag;
 		$strQueryTypeClass = $r->queryTypeClass;
 		$strQueryTypeFetchFrom = $r->queryTypeFetchFrom;
+		$strQueryTypeActionEquals = $r->queryTypeActionEquals;
+		$intQueryTypeActionShow = $r->queryTypeActionShow;
 
 		switch($intQueryTypeID)
 		{
@@ -269,9 +274,9 @@ echo "<div class='wrap'>";
 				<div id='post-body-content'>
 					<div class='postbox".($intQuery2TypeID > 0 ? " active" : "")."'>
 						<h3 class='hndle'><span>".__("Content", 'lang_form')."</span></h3>
-						<div class='inside'>
-							<form method='post' action='' class='mf_form mf_settings'>
-								<div class='alignleft'>";
+						<form method='post' action='' class='mf_form mf_settings inside'>
+							<div class='flex_flow'>
+								<div>";
 
 									if($intQueryTypeID == '')
 									{
@@ -304,16 +309,9 @@ echo "<div class='wrap'>";
 										echo show_select(array('data' => $arr_data, 'name' => 'intQueryTypeID', 'compare' => $intQueryTypeID, 'text' => __("Type", 'lang_form')));
 									}
 
-									echo show_textarea(array('name' => 'strQueryTypeText', 'text' => __("Text", 'lang_form'), 'value' => $strQueryTypeText, 'class' => "tr_text")); //, 'wysiwyg' => true, 'size' => 'small'
-
-									$arr_data = array(
-										'div' => "div",
-										'fieldset' => "fieldset",
-									);
-
-									echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeText2', 'compare' => $strQueryTypeText, 'text' => __("Type", 'lang_form'), 'class' => "tr_tag2"))
+									echo show_textarea(array('name' => 'strQueryTypeText', 'text' => __("Text", 'lang_form'), 'value' => $strQueryTypeText, 'class' => "show_textarea hide")) //, 'wysiwyg' => true, 'size' => 'small'
 								."</div>
-								<div class='alignright'>";
+								<div>";
 
 									$result = $wpdb->get_results("SELECT checkID, checkName FROM ".$wpdb->base_prefix."query_check WHERE checkPublic = '1' ORDER BY checkName ASC");
 									
@@ -327,19 +325,23 @@ echo "<div class='wrap'>";
 											$arr_data[$r->checkID] = __($r->checkName, 'lang_form');
 										}
 
-										echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "tr_check"));
+										echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"));
 									}
 
-									echo show_textfield(array('name' => 'strQueryTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strQueryTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "tr_placeholder"))
-									.show_textfield(array('name' => 'strQueryTypeTag', 'text' => __("Custom HTML Tag", 'lang_form'), 'value' => $strQueryTypeTag, 'placeholder' => "h1, h2, h3, h4, h5, p, blockquote", 'maxlength' => 20, 'xtra_class' => "tr_tag"))
-									.show_textfield(array('name' => 'strQueryTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strQueryTypeClass, 'placeholder' => "bold italic", 'maxlength' => 50))
-									.show_textfield(array('name' => 'strQueryTypeFetchFrom', 'text' => __("Fetch From ID", 'lang_form'), 'value' => $strQueryTypeFetchFrom, 'maxlength' => 50, 'xtra_class' => "tr_text"))
-									."<div class='tr_range'>"
+									echo show_textfield(array('name' => 'strQueryTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strQueryTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"));
+
+									$arr_data = array(
+										'div' => "div",
+										'fieldset' => "fieldset",
+									);
+
+									echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeText2', 'compare' => $strQueryTypeText, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
+									."<div class='show_range flex_flow hide'>"
 										.show_textfield(array('name' => 'strQueryTypeMin', 'text' => __("Min value", 'lang_form'), 'value' => $strQueryTypeMin, 'maxlength' => 3, 'size' => 5))
 										.show_textfield(array('name' => 'strQueryTypeMax', 'text' => __("Max value", 'lang_form'), 'value' => $strQueryTypeMax, 'maxlength' => 3, 'size' => 5))
 										.show_textfield(array('name' => 'strQueryTypeDefault', 'text' => __("Default value", 'lang_form'), 'value' => $strQueryTypeDefault, 'maxlength' => 3, 'size' => 5))
-									."</div>
-									<div class='tr_select'>
+									."</div>"
+									."<div class='show_select'>
 										<label>".__("Value", 'lang_form')."</label>
 										<div class='select_rows'>";
 
@@ -364,23 +366,72 @@ echo "<div class='wrap'>";
 
 										echo "</div>"
 										.input_hidden(array('name' => 'strQueryTypeSelect', 'value' => $strQueryTypeSelect))
-									."</div>
-								</div>
-								<div class='clear'></div>"
-								.show_submit(array('name' => "btnFormAdd", 'text' => ($intQuery2TypeID > 0 ? __("Update", 'lang_form') : __("Add", 'lang_form'))));
+									."</div>";
 
-								if($intQuery2TypeID > 0)
-								{
-									echo "&nbsp;<a href='?page=mf_form/create/index.php&intQueryID=".$obj_form->id."'>"
-										.show_submit(array('type' => 'button', 'text' => __("Cancel", 'lang_form'), 'class' => "button"))
-									."</a>"
-									.input_hidden(array('name' => 'intQuery2TypeID', 'value' => $intQuery2TypeID));
-								}
+									//Advanced
+									#################
+									echo "<a href='#' class='toggler'><h3>".__("Advanced", 'lang_form')."</h3></a>
+									<div>";
 
-								echo input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
-								.wp_nonce_field('form_add', '_wpnonce', true, false)
-							."</form>
-						</div>
+										$arr_data = array(
+											'' => "-- ".__("Choose here", 'lang_form')." --",
+											'h1' => "h1",
+											'h2' => "h2",
+											'h3' => "h3",
+											'h4' => "h4",
+											'h5' => "h5",
+											'p' => "p",
+											'blockquote' => "blockquote",
+										);
+
+										echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeTag', 'compare' => $strQueryTypeTag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
+										.show_textfield(array('name' => 'strQueryTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strQueryTypeClass, 'placeholder' => "bold italic", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"))
+										.show_textfield(array('name' => 'strQueryTypeFetchFrom', 'text' => __("Fetch From ID", 'lang_form'), 'value' => $strQueryTypeFetchFrom, 'maxlength' => 50, 'xtra_class' => "show_fetch_from hide"));
+
+										if($intQuery2TypeID > 0)
+										{
+											$arr_data_equals = array();
+
+											foreach($arr_select_rows as $select_row)
+											{
+												$arr_select_row_content = explode("|", $select_row);
+
+												$arr_data_equals[$arr_select_row_content[0]] = $arr_select_row_content[1];
+											}
+
+											if(count($arr_data_equals) > 0)
+											{
+												list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(1, 4, 5, 10, 11, 13), 'query_exclude_id' => $intQuery2TypeID));
+												$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
+
+												if(count($arr_data_show) > 0)
+												{
+													echo "<div class='show_actions'>"
+														.show_select(array('data' => $arr_data_equals, 'name' => 'strQueryTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'compare' => $strQueryTypeActionEquals))
+														.show_select(array('data' => $arr_data_show, 'name' => 'intQueryTypeActionShow', 'compare' => $intQueryTypeActionShow, 'text' => __("...show this...", 'lang_form')))
+													."</div>";
+												}
+											}
+										}
+
+									echo "</div>";
+									#################
+
+								echo "</div>
+							</div>"
+							.show_submit(array('name' => "btnFormAdd", 'text' => ($intQuery2TypeID > 0 ? __("Update", 'lang_form') : __("Add", 'lang_form'))));
+
+							if($intQuery2TypeID > 0)
+							{
+								echo "&nbsp;<a href='?page=mf_form/create/index.php&intQueryID=".$obj_form->id."'>"
+									.show_submit(array('type' => 'button', 'text' => __("Cancel", 'lang_form'), 'class' => "button"))
+								."</a>"
+								.input_hidden(array('name' => 'intQuery2TypeID', 'value' => $intQuery2TypeID));
+							}
+
+							echo input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
+							.wp_nonce_field('form_add', '_wpnonce', true, false)
+						."</form>
 					</div>";
 
 					$form_output = show_query_form(array('query_id' => $obj_form->id, 'edit' => true, 'query2type_id' => $intQuery2TypeID));
@@ -409,12 +460,12 @@ echo "<div class='wrap'>";
 									echo show_textfield(array('name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'type' => 'date'));
 								}
 
-								echo "<div>"
-									.show_submit(array('name' => "btnFormPublish", 'text' =>  __("Publish", 'lang_form')))."&nbsp;"
-									.show_submit(array('name' => "btnFormDraft", 'text' => __("Save Draft", 'lang_form'), 'class' => "button"))
-								."</div>"
-								.input_hidden(array('name' => "intQueryID", 'value' => $obj_form->id))
-								.wp_nonce_field('form_update', '_wpnonce', true, false);
+								if($form_output != '')
+								{
+									echo show_submit(array('name' => "btnFormPublish", 'text' =>  __("Publish", 'lang_form')));
+								}
+
+								echo show_submit(array('name' => "btnFormDraft", 'text' => __("Save Draft", 'lang_form'), 'class' => "button"));
 
 								if($obj_form->is_published() == "publish")
 								{
@@ -422,12 +473,13 @@ echo "<div class='wrap'>";
 
 									if($post_url != '')
 									{
-										echo "<br>
-										<a href='".$post_url."'>".__("View form", 'lang_form')."</a>";
+										echo "<a href='".$post_url."' class='button'>".__("View form", 'lang_form')."</a>";
 									}
 								}
 
-							echo "</div>
+								echo input_hidden(array('name' => "intQueryID", 'value' => $obj_form->id))
+								.wp_nonce_field('form_update', '_wpnonce', true, false)
+							."</div>
 						</div>
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
@@ -542,14 +594,14 @@ echo "<div class='wrap'>";
 									echo show_checkbox(array('name' => 'strQueryEmailCheckConfirm', 'text' => __("Make questionnaire confirm their e-mail", 'lang_form'), 'value' => 'yes', 'compare' => $strQueryEmailCheckConfirm));
 								}
 
-								$is_poll = $obj_form->is_poll(); //array('query_id' => $obj_form->id)
+								$is_poll = $obj_form->is_poll();
 
 								if($is_poll)
 								{
 									echo show_checkbox(array('name' => 'intQueryShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => 1, 'compare' => $intQueryShowAnswers));
 								}
 
-								echo show_textfield(array('name' => 'strQueryEmail', 'text' => __("Send e-mail from/to", 'lang_form'), 'value' => $strQueryEmail, 'maxlength' => 100));
+								echo show_textfield(array('name' => 'strQueryEmail', 'text' => __("Send e-mail from/to", 'lang_form'), 'value' => $strQueryEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
 
 								if($strQueryEmail != '')
 								{
@@ -570,7 +622,7 @@ echo "<div class='wrap'>";
 						</div>
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Button", 'lang_form')."</span></h3>
-							<div class='inside'>";
+							<div class='inside flex_flow'>";
 
 								$arr_data = array();
 
@@ -579,9 +631,9 @@ echo "<div class='wrap'>";
 								$obj_font_icons = new mf_font_icons();
 								$arr_icons = $obj_font_icons->get_array();
 
-								foreach($arr_icons as $icon)
+								foreach($arr_icons as $key => $value)
 								{
-									$arr_data[$icon] = $icon;
+									$arr_data[$key] = $value;
 								}
 
 								echo show_select(array('data' => $arr_data, 'name' => 'strQueryButtonSymbol', 'compare' => $strQueryButtonSymbol, 'text' => __("Symbol", 'lang_form')))
@@ -666,26 +718,8 @@ echo "<div class='wrap'>";
 
 									echo show_select(array('data' => $arr_data, 'name' => 'strQueryPaymentCurrency', 'compare' => $strQueryPaymentCurrency, 'text' => __("Currency", 'lang_form')));
 
-									$arr_data = array();
-
-									$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
-
 									list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(10, 12)));
-
-									foreach($result as $r)
-									{
-										if($r->queryTypeID == 10)
-										{
-											list($strQueryTypeText_temp, $rest) = explode(":", $r->queryTypeText);
-										}
-
-										else
-										{
-											$strQueryTypeText_temp = $r->queryTypeText;
-										}
-
-										$arr_data[$r->query2TypeID] = $strQueryTypeText_temp;
-									}
+									$arr_data = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
 
 									echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentAmount', 'compare' => $intQueryPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')));
 								}
