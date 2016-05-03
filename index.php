@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 5.1.4
+Version: 5.3.1
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -31,6 +31,9 @@ if(is_admin())
 	add_action('admin_notices', 'notices_form');
 	add_action('before_delete_post', 'delete_form');
 	add_action('deleted_user', 'deleted_user_form');
+
+	add_filter('count_shortcode_button', 'count_shortcode_button_form');
+	add_filter('get_shortcode_output', 'get_shortcode_output_form');
 }
 
 add_shortcode('mf_form', 'shortcode_form');

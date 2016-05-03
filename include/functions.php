@@ -1,5 +1,45 @@
 <?php
 
+function count_shortcode_button_form($count)
+{
+	$obj_form = new mf_form();
+
+	if($obj_form->count_forms(array('post_status' => 'publish')) > 0)
+	{
+		$count++;
+	}
+
+	return $count;
+}
+
+function get_shortcode_output_form($out)
+{
+	$templates = get_posts(array( 
+		'post_type' 		=> 'mf_form', 
+		'posts_per_page'	=> -1,
+		'post_status' 		=> 'publish',
+		'order'				=> 'ASC',
+		'orderby'			=> 'title'
+	));
+
+	if(count($templates) > 0)
+	{
+		$out .= "<h3>".__("Choose a Form", 'lang_form')."</h3>";
+
+		$arr_data = array();
+		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+
+		foreach($templates as $template)
+		{
+			$arr_data[$template->ID] = $template->post_title;
+		}
+
+		$out .= show_select(array('data' => $arr_data, 'name' => 'select_form_id', 'xtra' => " rel='mf_form'"));
+	}
+
+	return $out;
+}
+
 function deleted_user_form($user_id)
 {
 	global $wpdb;
@@ -22,6 +62,7 @@ function init_form()
 	$args = array(
 		'labels' => $labels,
 		'public' => true,
+		'exclude_from_search' => true,
 		'show_in_menu' => false,
 		'rewrite' => array(
 			'slug' => "form",
@@ -209,7 +250,7 @@ function mf_form_setting_replacement_form_callback()
 	$obj_form = new mf_form();
 	$arr_data = $obj_form->get_form_array(false);
 
-	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option, 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 }
 
 function widgets_form()
@@ -268,8 +309,12 @@ function menu_form()
 {
 	global $wpdb;
 
+	$obj_form = new mf_form();
+
+	$count_forms = $obj_form->count_forms();
+
 	$menu_root = 'mf_form/';
-	$menu_start = $menu_root.'list/index.php';
+	$menu_start = $count_forms > 0 ? $menu_root."list/index.php" : $menu_root."create/index.php";
 
 	$menu_capability = get_option_or_default('setting_form_permission', 'edit_pages');
 
@@ -277,9 +322,13 @@ function menu_form()
 
 	add_menu_page(__("Forms", 'lang_form'), __("Forms", 'lang_form').$count_message, $menu_capability, $menu_start, '', 'dashicons-forms');
 
-	add_submenu_page($menu_start, __("Add New", 'lang_form'), __("Add New", 'lang_form'), $menu_capability, $menu_root.'create/index.php');
-	add_submenu_page($menu_root, __("Last Answers", 'lang_form'), __("Last Answers", 'lang_form'), $menu_capability, $menu_root.'answer/index.php');
-	add_submenu_page($menu_root, __("Edit Last Answer", 'lang_form'), __("Edit Last Answer", 'lang_form'), $menu_capability, $menu_root.'view/index.php');
+	if($count_forms > 0)
+	{
+		add_submenu_page($menu_start, __("Add New", 'lang_form'), __("Add New", 'lang_form'), $menu_capability, $menu_root.'create/index.php');
+
+		add_submenu_page($menu_root, __("Last Answers", 'lang_form'), __("Last Answers", 'lang_form'), $menu_capability, $menu_root.'answer/index.php');
+		add_submenu_page($menu_root, __("Edit Last Answer", 'lang_form'), __("Edit Last Answer", 'lang_form'), $menu_capability, $menu_root.'view/index.php');
+	}
 }
 
 function notices_form()

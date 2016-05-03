@@ -150,6 +150,17 @@ class mf_form
 		return $out;
 	}
 
+	function count_forms($data = array())
+	{
+		global $wpdb;
+
+		if(!isset($data['post_status'])){	$data['post_status'] = "";}
+
+		$wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form'".($data['post_status'] != '' ? " AND post_status = '".esc_sql($data['post_status'])."'" : ""));
+
+		return $wpdb->num_rows;
+	}
+
 	function is_poll()
 	{
 		global $wpdb;
@@ -1316,7 +1327,6 @@ class mf_form_table extends mf_list_table
 		$this->set_columns(array(
 			//'cb' => '<input type="checkbox">',
 			'post_title' => __("Name", 'lang_form'),
-			'shortcode' => __("Shortcode", 'lang_form'),
 			'answers' => __("Answers", 'lang_form'),
 			'post_modified' => __("Modified", 'lang_form'),
 		));
@@ -1358,13 +1368,36 @@ class mf_form_table extends mf_list_table
 
 					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$obj_form->id, 'form_copy')."'>".__("Copy", 'lang_form')."</a>";
 
-					if($obj_form->is_published() == "publish")
+					if($post_status == 'publish' && $obj_form->id > 0)
 					{
-						$post_url = get_permalink($post_id);
+						$shortcode = "[mf_form id=".$obj_form->id."]";
 
-						if($post_url != '')
+						$result = get_page_from_form($obj_form->id);
+
+						if(count($result) > 0)
 						{
-							$actions['view'] = "<a href='".$post_url."'>".__("View form", 'lang_form')."</a>";
+							foreach($result as $r)
+							{
+								$post_id_temp = $r['post_id'];
+
+								$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
+								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
+							}
+						}
+
+						else
+						{
+							if($obj_form->is_published() == "publish")
+							{
+								$post_url = get_permalink($post_id);
+
+								if($post_url != '')
+								{
+									$actions['view'] = "<a href='".$post_url."'>".__("View form", 'lang_form')."</a>";
+								}
+							}
+
+							$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 						}
 					}
 				}
@@ -1378,35 +1411,6 @@ class mf_form_table extends mf_list_table
 					.$strFormName
 				."</a>"
 				.$this->row_actions($actions);
-			break;
-
-			case 'shortcode':
-				if($post_status == 'publish' && $obj_form->id > 0)
-				{
-					$strQueryShortcode = "[mf_form id=".$obj_form->id."]";
-
-					$actions = array();
-
-					$result = get_page_from_form($obj_form->id);
-
-					if(count($result) > 0)
-					{
-						foreach($result as $r)
-						{
-							$post_id_temp = $r['post_id'];
-
-							$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a> | <a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
-						}
-					}
-
-					else
-					{
-						$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&content=".$strQueryShortcode)."'>".__("Add New Page", 'lang_form')."</a>";
-					}
-
-					echo $strQueryShortcode
-					.$this->row_actions($actions);
-				}
 			break;
 
 			case 'answers':
@@ -1435,6 +1439,10 @@ class mf_form_table extends mf_list_table
 						.$this->row_actions($actions);
 					}
 				}
+			break;
+
+			case 'post_modified':
+				$out .= format_date($item[$column_name]);
 			break;
 
 			default:
