@@ -20,22 +20,26 @@ jQuery(function($)
 		return false;
 	});
 
-	$('.mf_form input[type=range]').each(function()
+	var range_inputs = $('.mf_form input[type=range]');
+
+	range_inputs.each(function()
 	{
 		update_range_text($(this));
 	});
 
-	$('.mf_form input[type=range]').on('change', function()
+	range_inputs.on('change', function()
 	{
 		update_range_text($(this));
 	});
 
-	$('.mf_form .form_zipcode input').each(function()
+	var zipcode_inputs = $('.mf_form .form_zipcode input');
+
+	zipcode_inputs.each(function()
 	{
 		$(this).after("<span></span>");
 	});
 
-	$('.mf_form .form_zipcode input').on('focusout', function()
+	zipcode_inputs.on('focusout', function()
 	{
 		var dom_obj = $(this),
 			search = dom_obj.val();
@@ -95,6 +99,8 @@ jQuery(function($)
 	/* ################## */
 
 	/* Form actions */
+	var action_selects = $('.form_action select');
+
 	function do_form_type_action(dom_obj)
 	{
 		var equals = dom_obj.attr('data-equals'),
@@ -109,14 +115,56 @@ jQuery(function($)
 		else{							show_obj.addClass('hide');}
 	}
 
-	$('.form_action select').on('change', function()
+	action_selects.on('change', function()
 	{
 		do_form_type_action($(this));
 	});
 
-	$('.form_action select').each(function()
+	action_selects.each(function()
 	{
 		do_form_type_action($(this));
 	});
+	/* ################## */
+
+	/* Remember input */
+	var remember_fields = $('.mf_form .remember');
+
+	if(remember_fields.length > 0)
+	{
+		$.getScript(script_forms.plugins_url + "/mf_base/include/jquery.Storage.js").done(function()
+		{
+			if($.Storage)
+			{
+				remember_fields.each(function()
+				{
+					var dom_obj = $(this).find('input, select, textarea'),
+						dom_name = dom_obj.attr('name'),
+						dom_value = $.Storage.get(dom_name);
+
+					if(typeof dom_value !== 'undefined')
+					{
+						dom_obj.val(dom_value);
+					}
+				});
+
+				remember_fields.on('blur', 'input, select, textarea', function()
+				{
+					var dom_obj = $(this),
+						dom_name = dom_obj.attr('name'),
+						dom_value = dom_obj.val();
+
+					if(dom_value != '')
+					{
+						$.Storage.set(dom_name, dom_value);
+					}
+
+					else
+					{
+						$.Storage.remove(dom_name);
+					}
+				});
+			}
+		});
+	}
 	/* ################## */
 });

@@ -50,7 +50,7 @@ jQuery(function($)
 				$('.show_custom_tag').removeClass('hide');
 			}
 
-			if(this_val == 3 || this_val == 4 || this_val == 15) //input_field, textarea, file
+			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 15) //input_field, textarea, text, file
 			{
 				$('.show_custom_class').removeClass('hide');
 				$('.toggler').removeClass('hide').next().addClass('hide');

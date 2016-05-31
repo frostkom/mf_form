@@ -50,7 +50,7 @@ class mf_form
 
 			if($rows > 0)
 			{
-				$fields = ", queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, blogID";
+				$copy_fields = ", queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, blogID";
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -62,7 +62,7 @@ class mf_form
 
 				$intPostID = wp_insert_post($post_data);
 
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query (queryName, postID".$fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (".__("copy", 'lang_form').")'), '%d'".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0')", $intPostID, $this->id));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query (queryName, postID".$copy_fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0')", $intPostID, $this->id));
 				$intQueryID_new = $wpdb->insert_id;
 
 				if($intQueryID_new > 0)
@@ -73,9 +73,9 @@ class mf_form
 					{
 						$intQuery2TypeID = $r->query2TypeID;
 
-						$fields = "queryTypeID, queryTypeText, checkID, queryTypeRequired, queryTypeAutofocus, query2TypeOrder";
+						$copy_fields = "queryTypeID, queryTypeText, checkID, queryTypeRequired, queryTypeAutofocus, queryTypeRemember, query2TypeOrder";
 
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type (queryID, ".$fields.", query2TypeCreated, userID) (SELECT %d, ".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d')", $intQueryID_new, $intQuery2TypeID));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type (queryID, ".$copy_fields.", query2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d')", $intQueryID_new, $intQuery2TypeID));
 
 						if(!($wpdb->insert_id > 0))
 						{
@@ -201,7 +201,7 @@ class mf_form
 		return $dup_ip;
 	}
 
-	function is_published($data = array())
+	function get_form_status($data = array())
 	{
 		global $wpdb;
 
@@ -465,7 +465,7 @@ class mf_form
 			$query_where_id = $this->id;
 		}
 
-		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, queryTypeShowInForm, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
+		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, queryTypeShowInForm, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeRemember, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
 	}
 }
 
@@ -1387,7 +1387,7 @@ class mf_form_table extends mf_list_table
 
 						else
 						{
-							if($obj_form->is_published() == "publish")
+							if($obj_form->get_form_status() == "publish")
 							{
 								$post_url = get_permalink($post_id);
 
@@ -1467,7 +1467,7 @@ class mf_form_output
 
 		$this->output = "";
 
-		$this->show_required = $this->show_autofocus = $this->has_required_email = false;
+		$this->show_required = $this->show_autofocus = $this->show_remember = $this->has_required_email = false;
 
 		$this->answer_text = "";
 
@@ -1573,13 +1573,13 @@ class mf_form_output
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->queryTypeRequired;
 				$field_data['xtra'] = "min='".$arr_content[1]."' max='".$arr_content[2]."'".($this->row->queryTypeAutofocus ? " autofocus" : "");
-				$field_data['xtra_class'] = $this->row->queryTypeClass;
+				$field_data['xtra_class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
 				$field_data['type'] = "range";
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
-				$this->show_required = $this->show_autofocus = true;
+				$this->show_required = $this->show_autofocus = $this->show_remember = true;
 			break;
 
 			//case 7:
@@ -1592,14 +1592,14 @@ class mf_form_output
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->queryTypeRequired;
 				$field_data['xtra'] = ($this->row->queryTypeAutofocus ? "autofocus" : "");
-				$field_data['xtra_class'] = $this->row->queryTypeClass;
+				$field_data['xtra_class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
 				$field_data['type'] = "date";
 				$field_data['placeholder'] = $this->row->queryTypePlaceholder;
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
-				$this->show_required = $this->show_autofocus = true;
+				$this->show_required = $this->show_autofocus = $this->show_remember = true;
 			break;
 
 			//case 8:
@@ -1668,12 +1668,12 @@ class mf_form_output
 
 				$field_data['compare'] = $this->answer_text;
 				$field_data['required'] = $this->row->queryTypeRequired;
-				$field_data['class'] = $this->row->queryTypeClass;
+				$field_data['class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
 
-				$this->show_required = true;
+				$this->show_required = $this->show_remember = true;
 			break;
 
 			//case 11:
@@ -1729,7 +1729,7 @@ class mf_form_output
 				$field_data['maxlength'] = 200;
 				$field_data['required'] = $this->row->queryTypeRequired;
 				$field_data['xtra'] = ($this->row->queryTypeAutofocus ? "autofocus" : "");
-				$field_data['xtra_class'] = $this->row->queryTypeClass;
+				$field_data['xtra_class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
 				$field_data['type'] = $this->row->checkCode;
 				$field_data['placeholder'] = $this->row->queryTypePlaceholder;
 				$field_data['pattern'] = $this->row->checkPattern;
@@ -1737,7 +1737,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
-				$this->show_required = $this->show_autofocus = true;
+				$this->show_required = $this->show_autofocus = $this->show_remember = true;
 			break;
 
 			//case 4:
@@ -1750,13 +1750,13 @@ class mf_form_output
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->queryTypeRequired;
 				$field_data['xtra'] = ($this->row->queryTypeAutofocus ? "autofocus" : "");
-				$field_data['class'] = $this->row->queryTypeClass;
+				$field_data['class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
 				$field_data['placeholder'] = $this->row->queryTypePlaceholder;
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textarea($field_data);
 
-				$this->show_required = $this->show_autofocus = true;
+				$this->show_required = $this->show_autofocus = $this->show_remember = true;
 			break;
 
 			//case 5:
@@ -1882,12 +1882,12 @@ class mf_form_output
 
 		if($this->in_edit_mode == true)
 		{
-			$out .= "<mf-form-row id='type_".$this->row->query2TypeID."'".($data['query2type_id'] == $this->row->query2TypeID ? " class='active'" : "").">"
+			$out .= "<mf-form-row id='type_".$this->row->query2TypeID."' class='flex_flow".($data['query2type_id'] == $this->row->query2TypeID ? " active" : "")."'>"
 				.$this->output;
 
 				if($this->row->queryTypeID != 14)
 				{
-					$out .= "<div class='row_settings form_buttons'>";
+					$out .= "<div class='row_settings'>";
 
 						if($this->show_required == true)
 						{
@@ -1897,6 +1897,11 @@ class mf_form_output
 						if($this->show_autofocus == true)
 						{
 							$out .= show_checkbox(array('name' => "autofocus_".$this->row->query2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeAutofocus, 'xtra' => " class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->query2TypeID."'"));
+						}
+
+						if($this->show_remember == true)
+						{
+							$out .= show_checkbox(array('name' => "remember_".$this->row->query2TypeID, 'text' => __("Remember answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRemember, 'xtra' => " class='ajax_checkbox remember' rel='remember/type/".$this->row->query2TypeID."'"));
 						}
 
 						$out .= "<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$this->row->query2TypeID."'>".__("Edit", 'lang_form')."</a> | 

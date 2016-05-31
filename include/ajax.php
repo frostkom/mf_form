@@ -97,11 +97,22 @@ if(get_current_user_id() > 0)
 		}
 	}
 
-	else if($type_action == "require")
+	else if(in_array($type_action, array('require', 'remember')))
 	{
 		if($type_table == "type")
 		{
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeRequired = '%d' WHERE query2TypeID = '%d'", ($state_id == "true" ? 1 : 0), $type_id));
+			switch($type_action)
+			{
+				case 'require':
+					$type_field = "queryTypeRequired";
+				break;
+
+				case 'remember':
+					$type_field = "queryTypeRemember";
+				break;
+			}
+
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET ".$type_field." = '%d' WHERE query2TypeID = '%d'", ($state_id == "true" ? 1 : 0), $type_id));
 
 			if($wpdb->rows_affected > 0)
 			{

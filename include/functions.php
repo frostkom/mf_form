@@ -50,8 +50,7 @@ function deleted_user_form($user_id)
 
 function init_form()
 {
-	//wp_enqueue_style('style_forms', plugin_dir_url(__FILE__)."style.css");
-	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('plugin_url' => plugin_dir_url(__FILE__)));
+	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__)));
 
 	$labels = array(
 		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
@@ -410,6 +409,8 @@ function mf_form_mail($data)
 {
 	global $wpdb;
 
+	if(!isset($data['headers'])){		$data['headers'] = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";}
+
 	$out = "";
 
 	if(get_option('setting_redirect_emails') == 'yes')
@@ -702,7 +703,7 @@ function show_query_form($data)
 					$intAnswerID = $wpdb->insert_id;
 
 					//do_action('action_form_on_submit');
-					apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strFormName), 'mail_content' => $email_content));
+					$email_content = apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strFormName), 'mail_content' => $email_content));
 
 					if($intAnswerID > 0)
 					{
@@ -728,55 +729,40 @@ function show_query_form($data)
 
 						if(isset($data['send_to']) && $data['send_to'] != '')
 						{
+							$mail_data = array(
+								'to' => $data['send_to'],
+								'subject' => $strQueryEmailName != "" ? $strQueryEmailName : $strFormName,
+								'content' => strip_tags($email_content),
+								'answer_id' => $intAnswerID
+							);
+
 							if($email_from != '')
 							{
-								$mail_headers = "From: ".$email_from." <".$email_from.">\r\n";
+								$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
 							}
 
-							else
-							{
-								$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
-							}
-
-							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
-							$mail_content = strip_tags($email_content);
-
-							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail(array('to' => $data['send_to'], 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers, 'answer_id' => $intAnswerID));
+							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
 						}
 
 						if($intQueryEmailNotify == 1 && $strQueryEmail != '' && isset($email_content) && $email_content != '')
 						{
+							$mail_data = array(
+								'to' => $strQueryEmail,
+								'subject' => $strQueryEmailName != "" ? $strQueryEmailName : $strFormName,
+								'content' => strip_tags($email_content),
+								'answer_id' => $intAnswerID
+							);
+
 							if($email_from != '')
 							{
-								$mail_headers = "From: ".$email_from." <".$email_from.">\r\n";
+								$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
 							}
 
-							else
-							{
-								$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
-							}
-
-							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
-							$mail_content = strip_tags($email_content);
-
-							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail(array('to' => $strQueryEmail, 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers, 'answer_id' => $intAnswerID));
+							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
 						}
 
 						if($intQueryEmailConfirm == 1 && isset($email_from) && $email_from != '')
 						{
-							if($strQueryEmail != '')
-							{
-								$mail_headers = "From: ".$strQueryEmail." <".$strQueryEmail.">\r\n";
-							}
-
-							else
-							{
-								$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
-							}
-
-							$mail_subject = $strFormName;
-							$mail_content = strip_tags($email_content);
-
 							if($strQueryEmailConfirmPage > 0)
 							{
 								list($blog_id, $strQueryEmailConfirmPage) = explode("_", $strQueryEmailConfirmPage);
@@ -807,7 +793,25 @@ function show_query_form($data)
 								###################
 							}
 
-							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail(array('to' => $email_from, 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers, 'answer_id' => $intAnswerID));
+							else
+							{
+								$mail_subject = $strFormName;
+								$mail_content = strip_tags($email_content);
+							}
+
+							$mail_data = array(
+								'to' => $email_from,
+								'subject' => $mail_subject,
+								'content' => $mail_content,
+								'answer_id' => $intAnswerID
+							);
+
+							if($strQueryEmail != '')
+							{
+								$mail_data['headers'] = "From: ".$strQueryEmail." <".$strQueryEmail.">\r\n";
+							}
+
+							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
 						}
 
 						if($answer_data != '')

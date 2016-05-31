@@ -3,7 +3,7 @@
 wp_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css");
 wp_enqueue_script('jquery-ui-sortable');
 mf_enqueue_script('script_touch', plugins_url()."/mf_base/include/jquery.ui.touch-punch.min.js");
-mf_enqueue_script('script_forms', plugins_url()."/mf_form/include/script.js", array('plugin_url' => plugin_dir_url(__FILE__)));
+mf_enqueue_script('script_forms', plugins_url()."/mf_form/include/script.js", array('plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__)));
 mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')));
 
 $obj_form = new mf_form();
@@ -385,7 +385,7 @@ echo "<div class='wrap'>";
 										);
 
 										echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeTag', 'compare' => $strQueryTypeTag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
-										.show_textfield(array('name' => 'strQueryTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strQueryTypeClass, 'placeholder' => "bold italic", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"))
+										.show_textfield(array('name' => 'strQueryTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strQueryTypeClass, 'placeholder' => "bold italic aligncenter alignleft alignright", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"))
 										.show_textfield(array('name' => 'strQueryTypeFetchFrom', 'text' => __("Fetch From ID", 'lang_form'), 'value' => $strQueryTypeFetchFrom, 'maxlength' => 50, 'xtra_class' => "show_fetch_from hide"));
 
 										if($intQuery2TypeID > 0)
@@ -455,19 +455,21 @@ echo "<div class='wrap'>";
 								.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intQuery2TypeID > 0 ? "" : "autofocus")))
 								.show_textfield(array('name' => 'strFormURL', 'text' => __("Permalink", 'lang_form'), 'value' => $strFormURL, 'maxlength' => 100, 'required' => 1));
 
-								if($obj_form->is_published() == "publish")
+								$form_status = $obj_form->get_form_status();
+
+								if($form_status == "publish")
 								{
 									echo show_textfield(array('name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'type' => 'date'));
 								}
 
 								if($form_output != '')
 								{
-									echo show_submit(array('name' => "btnFormPublish", 'text' =>  __("Publish", 'lang_form')));
+									echo show_submit(array('name' => "btnFormPublish", 'text' => ($form_status == "publish" ? __("Save", 'lang_form') : __("Publish", 'lang_form'))));
 								}
 
 								echo show_submit(array('name' => "btnFormDraft", 'text' => __("Save Draft", 'lang_form'), 'class' => "button"));
 
-								if($obj_form->is_published() == "publish")
+								if($form_status == "publish")
 								{
 									$post_url = get_permalink($obj_form->post_id);
 
