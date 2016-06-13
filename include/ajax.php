@@ -190,21 +190,13 @@ else if($type_action == "zipcode")
 {
 	$search = str_replace(" ", "", $type_id);
 
-	$result = $wpdb->get_results($wpdb->prepare("SELECT cityName, municipalityName FROM ".$wpdb->base_prefix."query_zipcode WHERE addressZipCode = '%d'", $search));
+	$obj_form = new mf_form();
+	$city_name = $obj_form->get_city_from_zip($search);
 
-	foreach($result as $r)
+	if($city_name != '')
 	{
-		$strCityName = $r->cityName;
-		$strMunicipalityName = $r->municipalityName;
-
-		/*$exclude = array('&Aring;',	'&aring;',	'&Auml;',	'&auml;',	'&Ouml;',	'&ouml;');
-		$include = array('Å',			'å',		'Ä',		'ä',		'Ö',		'ö');
-
-		$strCityName = str_replace($exclude, $include, $strCityName);
-		$strMunicipalityName = str_replace($exclude, $include, $strMunicipalityName);*/
-
 		$json_output['success'] = true;
-		$json_output['response'] = $strCityName.($strMunicipalityName != '' && $strMunicipalityName != $strCityName ? ", ".$strMunicipalityName : "");
+		$json_output['response'] = $city_name;
 	}
 }
 

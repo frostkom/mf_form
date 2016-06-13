@@ -50,7 +50,7 @@ jQuery(function($)
 				$('.show_custom_tag').removeClass('hide');
 			}
 
-			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 15) //input_field, textarea, text, file
+			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 13 || this_val == 15) //input_field, textarea, text, custom_tag, file
 			{
 				$('.show_custom_class').removeClass('hide');
 				$('.toggler').removeClass('hide').next().addClass('hide');
@@ -132,7 +132,15 @@ jQuery(function($)
 				{
 					if(data.dom_id)
 					{
-						self.parents('tr').remove();
+						if($('#' + data.dom_id).length > 0)
+						{
+							$('#' + data.dom_id).remove();
+						}
+
+						else
+						{
+							self.parents('tr').remove();
+						}
 					}
 				}
 
@@ -239,12 +247,25 @@ jQuery(function($)
 	{
 		if(this.checked)
 		{
-			$('.query_email_confirm_page').show();
+			$('.query_email_confirm_page').removeClass('hide');
 		}
 
 		else
 		{
-			$('.query_email_confirm_page').hide();
+			$('.query_email_confirm_page').addClass('hide');
+		}
+	});
+	
+	$('#intQueryEmailNotify').on('click', function()
+	{
+		if(this.checked)
+		{
+			$('.query_email_notify_page').removeClass('hide');
+		}
+
+		else
+		{
+			$('.query_email_notify_page').addClass('hide');
 		}
 	});
 });

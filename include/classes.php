@@ -50,7 +50,7 @@ class mf_form
 
 			if($rows > 0)
 			{
-				$copy_fields = ", queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, blogID";
+				$copy_fields = ", queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, blogID";
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -350,6 +350,26 @@ class mf_form
 		return $this->get_post_info()."_".$intQuery2TypeID;
 	}
 
+	function get_city_from_zip($zip)
+	{
+		global $wpdb;
+
+		$out = "";
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT cityName FROM ".$wpdb->base_prefix."query_zipcode WHERE addressZipCode = '%d'", $zip)); //, municipalityName
+
+		foreach($result as $r)
+		{
+			$strCityName = $r->cityName;
+			//$strMunicipalityName = $r->municipalityName;
+			
+			$out = $strCityName; //.($strMunicipalityName != '' && $strMunicipalityName != $strCityName ? ", ".$strMunicipalityName : "");
+			break;
+		}
+
+		return $out;
+	}
+
 	function is_form_field_type_used($data)
 	{
 		global $wpdb;
@@ -419,6 +439,254 @@ class mf_form
 
 		return array($result, $wpdb->num_rows);
 	}
+
+	function render_mail_content($data)
+	{
+		if(!isset($data['template'])){	$data['template'] = false;}
+
+		$out_fields = $out_doc_types = $out_products = "";
+
+		foreach($data['array'] as $key => $arr_types)
+		{
+			switch($key)
+			{
+				case 'fields':
+					foreach($arr_types as $key => $arr_value)
+					{
+						$out_fields .= $arr_value['label'];
+						
+						if(isset($arr_value['value']) && $arr_value['value'] != '')
+						{
+							if(substr($arr_value['label'], -1) != ":")
+							{
+								$out_fields .= ":";
+							}
+
+							$out_fields .= " ".$arr_value['value'];
+							
+							if(isset($arr_value['xtra']))
+							{
+								$out_fields .= $arr_value['xtra'];
+							}
+						}
+						
+						$out_fields .= "\n";
+					}
+				break;
+
+				case 'doc_types':
+					foreach($arr_types as $key => $arr_value)
+					{
+						$out_doc_types .= $arr_value['label'];
+						
+						if(substr($arr_value['label'], -1) != ":")
+						{
+							$out_doc_types .= ":";
+						}
+
+						$out_doc_types .= " ".$arr_value['value'];
+						
+						$out_doc_types .= "\n";
+					}
+				break;
+
+				case 'products':
+					$out_products .= $arr_types['label'];
+					
+					if($arr_types['value'] != '')
+					{
+						if(substr($arr_types['label'], -1) != ":")
+						{
+							$out_products .= ":";
+						}
+
+						$out_products .= " ".$arr_types['value'];
+					}
+					
+					$out_products .= "\n";
+				break;
+			}
+		}
+
+		if($data['template'] == false)
+		{
+			$out = "";
+			
+			if($out_fields != '')
+			{
+				$out .= "\n".$out_fields;
+			}
+			
+			if($out_doc_types != '')
+			{
+				$out .= "\n".$out_doc_types;
+			}
+			
+			if($out_products != '')
+			{
+				$out .= "\n".$out_products;
+			}
+		}
+
+		else
+		{
+			$arr_exclude = array("[form_fields]", "[doc_types]", "[products]");
+			$arr_include = array($out_fields, $out_doc_types, $out_products);
+
+			$out = str_replace($arr_exclude, $arr_include, $data['template']);
+		}
+
+		return $out;
+	}
+
+	function get_page_content_for_email($page_id, $mail_subject, $arr_email_content)
+	{
+		global $wpdb;
+
+		$mail_content = "";
+
+		if($page_id > 0)
+		{
+			$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $page_id));
+
+			foreach($result as $r)
+			{
+				$mail_subject = $r->post_title;
+				$mail_template = apply_filters('the_content', $r->post_content);
+				
+				$mail_content = $this->render_mail_content(array('array' => $arr_email_content, 'template' => $mail_template));
+
+				add_filter('wp_mail_content_type', 'set_html_content_type');
+			}
+		}
+
+		if($mail_content == '')
+		{
+			$mail_content = $this->render_mail_content(array('array' => $arr_email_content));
+		}
+
+		return array($mail_subject, $mail_content);
+	}
+
+	function has_email_field()
+	{
+		global $wpdb;
+
+		return $wpdb->get_var($wpdb->prepare("SELECT COUNT(queryTypeID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_check USING (checkID) WHERE queryID = '%d' AND queryTypeID = '3' AND checkCode = 'email'", $this->id));
+	}
+
+	function get_icons_for_select()
+	{
+		$arr_data = array();
+		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+
+		$obj_font_icons = new mf_font_icons();
+		$arr_icons = $obj_font_icons->get_array();
+
+		foreach($arr_icons as $key => $value)
+		{
+			$arr_data[$key] = $value;
+		}
+
+		return $arr_data;
+	}
+
+	/*function get_pages_for_select()
+	{
+		global $wpdb;
+
+		$arr_data = array();
+		$arr_data[''] = "-- ".__("Choose page here", 'lang_form')." --";
+
+		$arr_sites = array();
+
+		if(is_multisite())
+		{
+			$result = $wpdb->get_results("SELECT blog_id, domain FROM ".$wpdb->base_prefix."blogs ORDER BY blog_id ASC");
+
+			foreach($result as $r)
+			{
+				$blog_id = $r->blog_id;
+				$domain = $r->domain;
+
+				if(IS_ADMIN || $blog_id == $wpdb->blogid)
+				{
+					$arr_sites[$blog_id] = $domain;
+				}
+			}
+		}
+
+		else
+		{
+			$arr_sites[0] = "";
+		}
+
+		foreach($arr_sites as $key => $value)
+		{
+			$blog_id = $key;
+			$domain = $value;
+
+			if($blog_id > 0)
+			{
+				//Switch to temp site
+				####################
+				$wpdbobj = clone $wpdb;
+				$wpdb->blogid = $blog_id;
+				$wpdb->set_prefix($wpdb->base_prefix);
+				####################
+
+				$post_prefix = $blog_id."_";
+			}
+
+			else
+			{
+				$post_prefix = "";
+			}
+
+			$resultPosts = $wpdb->get_results("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = 'page' AND post_status = 'publish' AND post_parent = '0' AND post_title != '' ORDER BY menu_order ASC");
+
+			if($wpdb->num_rows > 0)
+			{
+				if(count($arr_sites) > 1 && $blog_id > 0)
+				{
+					$arr_data["opt_start_".$domain] = $domain;
+				}
+
+					foreach($resultPosts as $r)
+					{
+						$post_id = $r->ID;
+						$post_title = $r->post_title;
+
+						$arr_data[$post_prefix.$post_id] = $post_title;
+
+						$result2 = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = 'page' AND post_status = 'publish' AND post_parent = '%d' AND post_title != '' ORDER BY menu_order ASC", $post_id));
+
+						foreach($result2 as $r)
+						{
+							$post_id = $r->ID;
+							$post_title = $r->post_title;
+
+							$arr_data[$post_prefix.$post_id] = "&nbsp;&nbsp;&nbsp;&nbsp;".$post_title;
+						}
+					}
+
+				if(count($arr_sites) > 1 && $blog_id > 0)
+				{
+					$arr_data["opt_end_".$domain] = "";
+				}
+			}
+
+			if($blog_id > 0)
+			{
+				//Switch back to orig site
+				###################
+				$wpdb = clone $wpdbobj;
+				###################
+			}
+		}
+
+		return $arr_data;
+	}*/
 	
 	function get_form_type_for_select($data)
 	{

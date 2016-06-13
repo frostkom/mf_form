@@ -16,11 +16,12 @@ $intQuery2TypeID = check_var('intQuery2TypeID');
 $intQuery2TypeOrder = check_var('intQuery2TypeOrder');
 
 $intQueryEmailConfirm = isset($_POST['intQueryEmailConfirm']) ? 1 : 0;
-$strQueryEmailConfirmPage = check_var('strQueryEmailConfirmPage');
+$intQueryEmailConfirmPage = check_var('intQueryEmailConfirmPage');
 $intQueryShowAnswers = isset($_POST['intQueryShowAnswers']) ? 1 : 0;
 $strQueryAnswerURL = check_var('strQueryAnswerURL');
 $strQueryEmail = check_var('strQueryEmail', 'email');
 $intQueryEmailNotify = check_var('intQueryEmailNotify');
+$intQueryEmailNotifyPage = check_var('intQueryEmailNotifyPage');
 $strQueryEmailName = check_var('strQueryEmailName');
 $strQueryEmailCheckConfirm = check_var('strQueryEmailCheckConfirm');
 $strQueryMandatoryText = check_var('strQueryMandatoryText');
@@ -75,7 +76,7 @@ echo "<div class='wrap'>";
 
 				$obj_form->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $dteFormDeadline));
 
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '%d', queryEmailCheckConfirm = %s, queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $wpdb->blogid, $strQueryEmailCheckConfirm, $intQueryEmailConfirm, $strQueryEmailConfirmPage, $intQueryShowAnswers, $strFormName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentAmount, $obj_form->id));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '%d', queryEmailCheckConfirm = %s, queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailNotifyPage = %s, queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $wpdb->blogid, $strQueryEmailCheckConfirm, $intQueryEmailConfirm, $intQueryEmailConfirmPage, $intQueryShowAnswers, $strFormName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $intQueryEmailNotifyPage, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentAmount, $obj_form->id));
 			}
 
 			else
@@ -206,15 +207,16 @@ echo "<div class='wrap'>";
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0' WHERE queryID = '%d'", $obj_form->id));
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailCheckConfirm, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailCheckConfirm, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
 		$r = $result[0];
 		$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
 		$intQueryEmailConfirm = $r->queryEmailConfirm;
-		$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
+		$intQueryEmailConfirmPage = $r->queryEmailConfirmPage;
 		$intQueryShowAnswers = $r->queryShowAnswers;
 		$strQueryAnswerURL = $r->queryAnswerURL;
 		$strQueryEmail = $r->queryEmail;
 		$intQueryEmailNotify = $r->queryEmailNotify;
+		$intQueryEmailNotifyPage = $r->queryEmailNotifyPage;
 		$strQueryEmailName = $r->queryEmailName;
 		$strQueryMandatoryText = $r->queryMandatoryText;
 		$strQueryButtonText = $r->queryButtonText;
@@ -487,127 +489,33 @@ echo "<div class='wrap'>";
 							<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
 							<div class='inside'>";
 
+								//$arr_data_pages = $obj_form->get_pages_for_select();
+
 								$arr_data = array();
+								$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
 
-								$arr_data[''] = "-- ".__("Choose page here", 'lang_form')." --";
+								get_post_children(array('output_array' => true), $arr_data);
 
-								$arr_sites = array();
+								$arr_data_pages = $arr_data;
 
-								if(is_multisite())
-								{
-									$result = $wpdb->get_results("SELECT blog_id, domain FROM ".$wpdb->base_prefix."blogs ORDER BY blog_id ASC");
+								echo show_select(array('data' => $arr_data_pages, 'name' => 'strQueryAnswerURL', 'compare' => $strQueryAnswerURL, 'text' => __("Confirmation page", 'lang_form')));
 
-									foreach($result as $r)
-									{
-										$blog_id = $r->blog_id;
-										$domain = $r->domain;
-
-										if(IS_ADMIN || $blog_id == $wpdb->blogid)
-										{
-											$arr_sites[$blog_id] = $domain;
-										}
-									}
-								}
-
-								else
-								{
-									$arr_sites[0] = "";
-								}
-
-								foreach($arr_sites as $key => $value)
-								{
-									$blog_id = $key;
-									$domain = $value;
-
-									if($blog_id > 0)
-									{
-										//Switch to temp site
-										####################
-										$wpdbobj = clone $wpdb;
-										$wpdb->blogid = $blog_id;
-										$wpdb->set_prefix($wpdb->base_prefix);
-										####################
-
-										$post_prefix = $blog_id."_";
-									}
-
-									else
-									{
-										$post_prefix = "";
-									}
-
-									$resultPosts = $wpdb->get_results("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = 'page' AND post_status = 'publish' AND post_parent = '0' AND post_title != '' ORDER BY menu_order ASC");
-
-									if($wpdb->num_rows > 0)
-									{
-										if($blog_id > 0)
-										{
-											$arr_data["opt_start_".$domain] = $domain;
-										}
-
-											foreach($resultPosts as $r)
-											{
-												$post_id = $r->ID;
-												$post_title = $r->post_title;
-
-												$arr_data[$post_prefix.$post_id] = $post_title;
-
-												$result2 = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = 'page' AND post_status = 'publish' AND post_parent = '%d' AND post_title != '' ORDER BY menu_order ASC", $post_id));
-
-												foreach($result2 as $r)
-												{
-													$post_id = $r->ID;
-													$post_title = $r->post_title;
-
-													$arr_data[$post_prefix.$post_id] = "&nbsp;&nbsp;&nbsp;&nbsp;".$post_title;
-												}
-											}
-
-										if($blog_id > 0)
-										{
-											$arr_data["opt_end_".$domain] = "";
-										}
-									}
-
-									if($blog_id > 0)
-									{
-										//Switch back to orig site
-										###################
-										$wpdb = clone $wpdbobj;
-										###################
-									}
-								}
-
-								echo show_select(array('data' => $arr_data, 'name' => 'strQueryAnswerURL', 'compare' => $strQueryAnswerURL, 'text' => __("Confirmation page", 'lang_form')));
-
-								$has_email_field = $wpdb->get_var($wpdb->prepare("SELECT COUNT(queryTypeID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_check USING (checkID) WHERE queryID = '%d' AND queryTypeID = '3' AND checkCode = 'email'", $obj_form->id));
-
-								if($has_email_field > 0)
-								{
-									echo show_checkbox(array('name' => 'intQueryEmailConfirm', 'text' => __("Send e-mail confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intQueryEmailConfirm))
-									.show_select(array('data' => $arr_data, 'name' => 'strQueryEmailConfirmPage', 'compare' => $strQueryEmailConfirmPage, 'text' => __("E-mail confirmation content", 'lang_form'), 'class' => "query_email_confirm_page".($intQueryEmailConfirm == 1 ? " " : " hide"), 'description' => __("If you don't choose a page, the content of the form will be sent as content", 'lang_form')));
-								}
-
-								$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID", $obj_form->id));
-								$intQueryTotal = $wpdb->num_rows;
-								
-								if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'required' => true, 'check_code' => 'email')))
-								{
-									echo show_checkbox(array('name' => 'strQueryEmailCheckConfirm', 'text' => __("Make questionnaire confirm their e-mail", 'lang_form'), 'value' => 'yes', 'compare' => $strQueryEmailCheckConfirm));
-								}
-
-								$is_poll = $obj_form->is_poll();
-
-								if($is_poll)
+								if($obj_form->is_poll())
 								{
 									echo show_checkbox(array('name' => 'intQueryShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => 1, 'compare' => $intQueryShowAnswers));
 								}
 
-								echo show_textfield(array('name' => 'strQueryEmail', 'text' => __("Send e-mail from/to", 'lang_form'), 'value' => $strQueryEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
+								echo "<h4>".__("Email", 'lang_form')."</h4>"
+								.show_textfield(array('name' => 'strQueryEmail', 'text' => __("Send from/to", 'lang_form'), 'value' => $strQueryEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
+
+								if($strQueryEmailName != '')
+								{
+									echo show_textfield(array('name' => 'strQueryEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $strQueryEmailName, 'maxlength' => 100));
+								}
 
 								if($strQueryEmail != '')
 								{
-									echo show_checkbox(array('name' => 'intQueryEmailNotify', 'text' => __("Send notification on new answer", 'lang_form'), 'value' => 1, 'compare' => $intQueryEmailNotify));
+									echo show_checkbox(array('name' => 'intQueryEmailNotify', 'text' => __("Notification on new answer", 'lang_form'), 'value' => 1, 'compare' => $intQueryEmailNotify));
 								}
 
 								else
@@ -615,32 +523,26 @@ echo "<div class='wrap'>";
 									echo input_hidden(array('name' => "intQueryEmailNotify", 'value' => 1));
 								}
 
-								if($strQueryEmailName != '')
+								echo show_select(array('data' => $arr_data_pages, 'name' => 'intQueryEmailNotifyPage', 'compare' => $intQueryEmailNotifyPage, 'text' => __("Notification template", 'lang_form'), 'class' => "query_email_notify_page".($intQueryEmailNotify == 1 ? " " : " hide")))
+								."<h4>".__("Email to visitor", 'lang_form')."</h4>";
+
+								if($obj_form->has_email_field() > 0)
 								{
-									echo show_textfield(array('name' => 'strQueryEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $strQueryEmailName, 'maxlength' => 100));
+									echo show_checkbox(array('name' => 'intQueryEmailConfirm', 'text' => __("Send confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intQueryEmailConfirm))
+									.show_select(array('data' => $arr_data_pages, 'name' => 'intQueryEmailConfirmPage', 'compare' => $intQueryEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form'), 'class' => "query_email_confirm_page".($intQueryEmailConfirm == 1 ? " " : " hide"))); //, 'description' => __("If you don't choose a page, the content of the form will be sent as content", 'lang_form')
+								}
+								
+								if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'required' => true, 'check_code' => 'email')))
+								{
+									echo show_checkbox(array('name' => 'strQueryEmailCheckConfirm', 'text' => __("Make questionnaire confirm their address", 'lang_form'), 'value' => 'yes', 'compare' => $strQueryEmailCheckConfirm));
 								}
 
-							echo "</div>
-						</div>
-						<div class='postbox'>
-							<h3 class='hndle'><span>".__("Button", 'lang_form')."</span></h3>
-							<div class='inside flex_flow'>";
-
-								$arr_data = array();
-
-								$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
-
-								$obj_font_icons = new mf_font_icons();
-								$arr_icons = $obj_font_icons->get_array();
-
-								foreach($arr_icons as $key => $value)
-								{
-									$arr_data[$key] = $value;
-								}
-
-								echo show_select(array('data' => $arr_data, 'name' => 'strQueryButtonSymbol', 'compare' => $strQueryButtonSymbol, 'text' => __("Symbol", 'lang_form')))
-								.show_textfield(array('name' => 'strQueryButtonText', 'text' => __("Text", 'lang_form'), 'value' => $strQueryButtonText, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
-							."</div>
+								echo "<h4>".__("Button", 'lang_form')."</h4>
+								<div class='flex_flow'>"
+									.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strQueryButtonSymbol', 'compare' => $strQueryButtonSymbol, 'text' => __("Symbol", 'lang_form')))
+									.show_textfield(array('name' => 'strQueryButtonText', 'text' => __("Text", 'lang_form'), 'value' => $strQueryButtonText, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
+								."</div>
+							</div>
 						</div>
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Payment", 'lang_form')."</span></h3>

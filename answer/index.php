@@ -4,7 +4,6 @@ wp_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css"
 mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_base')));
 
 $obj_form = new mf_form();
-//$obj_form->fetch_request();
 
 $query_pie = false;
 
@@ -185,12 +184,11 @@ echo "<div class='wrap'>
 				foreach($result as $r)
 				{
 					$intAnswerID = $r->answerID;
-					//$intQueryID = $r->queryID;
 					$strAnswerCreated = $r->answerCreated;
 					$strAnswerIP = $r->answerIP;
 					$strAnswerToken = $r->answerToken;
 
-					echo "<tr>"; // id='answer_".$intAnswerID."'
+					echo "<tr>";
 
 						$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' AND queryTypeShowInForm = 'yes' ORDER BY query2TypeOrder ASC", $obj_form->id));
 
@@ -204,97 +202,96 @@ echo "<div class='wrap'>
 							$strCheckCode = $r->checkCode;
 
 							$value = 0;
-							$xtra = "";
+							$xtra = $row_actions = "";
 
 							$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intQuery2TypeID, $intAnswerID));
 							$rowsAnswer = $wpdb->num_rows;
 
 							if($rowsAnswer > 0)
 							{
-								/*if($intQueryTypeID == 8)
+								$r = $resultAnswer[0];
+								$strAnswerText = $r->answerText;
+
+								switch($intQueryTypeID)
 								{
-									$strAnswerText = 1;
-								}
+									case 8:
+										$strAnswerText = 1;
+									break;
 
-								else
-								{*/
-									$r = $resultAnswer[0];
-									$strAnswerText = $r->answerText;
+									case 7:
+										$strAnswerText = format_date($strAnswerText);
+									break;
 
-									switch($intQueryTypeID)
-									{
-										case 8:
-											$strAnswerText = 1;
-										break;
+									case 10:
+										$arr_content1 = explode(":", $strQueryTypeText);
+										$arr_content2 = explode(",", $arr_content1[1]);
 
-										case 7:
-											$strAnswerText = format_date($strAnswerText);
-										break;
+										foreach($arr_content2 as $str_content)
+										{
+											$arr_content3 = explode("|", $str_content);
 
-										case 10:
-											$arr_content1 = explode(":", $strQueryTypeText);
-											$arr_content2 = explode(",", $arr_content1[1]);
-
-											foreach($arr_content2 as $str_content)
+											if($strAnswerText == $arr_content3[0])
 											{
-												$arr_content3 = explode("|", $str_content);
-
-												if($strAnswerText == $arr_content3[0])
-												{
-													$strAnswerText = $arr_content3[1];
-												}
+												$strAnswerText = $arr_content3[1];
 											}
-										break;
+										}
+									break;
 
-										case 11:
-											$arr_content1 = explode(":", $strQueryTypeText);
-											$arr_content2 = explode(",", $arr_content1[1]);
+									case 11:
+										$arr_content1 = explode(":", $strQueryTypeText);
+										$arr_content2 = explode(",", $arr_content1[1]);
 
-											$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
+										$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
 
-											$strAnswerText = "";
+										$strAnswerText = "";
 
-											foreach($arr_content2 as $str_content)
+										foreach($arr_content2 as $str_content)
+										{
+											$arr_content3 = explode("|", $str_content);
+
+											if(in_array($arr_content3[0], $arr_answer_text))
 											{
-												$arr_content3 = explode("|", $str_content);
-
-												if(in_array($arr_content3[0], $arr_answer_text))
-												{
-													$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
-												}
+												$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
 											}
+										}
 
-											if($strAnswerText == '')
+										if($strAnswerText == '')
+										{
+											$strAnswerText = implode(",", $arr_answer_text);
+										}
+									break;
+
+									case 15:
+										$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+										foreach($result as $r)
+										{
+											$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
+										}
+									break;
+
+									default:
+										if($strCheckCode != '')
+										{
+											switch($strCheckCode)
 											{
-												$strAnswerText = implode(",", $arr_answer_text);
-											}
-										break;
-
-										case 15:
-											$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
-
-											foreach($result as $r)
-											{
-												$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
-											}
-										break;
-
-										default:
-											if($strCheckCode != '')
-											{
-												if($strCheckCode == "url")
-												{
+												case 'url':
 													$strAnswerText = "<a href='".$strAnswerText."'>".$strAnswerText."</a>";
-												}
+												break;
 
-												else if($strCheckCode == "email")
-												{
+												case 'email':
 													$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
-												}
+												break;
+
+												case 'zip':
+													$obj_form = new mf_form();
+
+													$row_actions = $obj_form->get_city_from_zip($strAnswerText);
+												break;
 											}
-										break;
-									}
-								//}
+										}
+									break;
+								}
 							}
 
 							else
@@ -326,10 +323,13 @@ echo "<div class='wrap'>
 
 								if($j == 0)
 								{
-									echo "<div class='row-actions'>"
-										."<span class='edit'><a href='?page=mf_form/view/index.php&intQueryID=".$obj_form->id."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_form')."</a></span> | "
-										."<span class='delete'><a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a></span>
-									</div>";
+									$row_actions = "<span class='edit'><a href='?page=mf_form/view/index.php&intQueryID=".$obj_form->id."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_form')."</a></span> | "
+									."<span class='delete'><a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a></span>";
+								}
+
+								if($row_actions != '')
+								{
+									echo "<div class='row-actions'>".$row_actions."</div>";
 								}
 
 							echo "</td>";
@@ -374,32 +374,35 @@ echo "<div class='wrap'>
 
 							if($count_temp > 0)
 							{
-								echo $count_temp." ".__("Sent", 'lang_form')
-								."<div class='row-actions'>
-									<ul>";
+								$li_out = "";
+								$sent_successfully = 0;
 
-										foreach($result_emails as $r)
+								foreach($result_emails as $r)
+								{
+									$strAnswerEmail = $r->answerEmail;
+									$intAnswerSent = $r->answerSent;
+
+									$li_out .= "<li>";
+
+										if($intAnswerSent == 1)
 										{
-											$strAnswerEmail = $r->answerEmail;
-											$intAnswerSent = $r->answerSent;
+											$li_out .= "<i class='fa fa-check green'></i>";
 
-											echo "<li>";
-
-												if($intAnswerSent == 1)
-												{
-													echo "<i class='fa fa-check green'></i>";
-												}
-
-												else
-												{
-													echo "<i class='fa fa-close red'></i>";
-												}
-
-												echo " ".$strAnswerEmail
-											."</li>";
+											$sent_successfully++;
 										}
 
-									echo "</ul>
+										else
+										{
+											$li_out .= "<i class='fa fa-close red'></i>";
+										}
+
+										$li_out .= " ".$strAnswerEmail
+									."</li>";
+								}
+
+								echo $sent_successfully.($count_temp != $sent_successfully ? "/".$count_temp : "")
+								."<div class='row-actions'>
+									<ul>".$li_out."</ul>
 								</div>";
 							}
 

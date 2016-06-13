@@ -24,6 +24,8 @@ function get_shortcode_output_form($out)
 
 	if(count($templates) > 0)
 	{
+		$obj_form = new mf_form();
+
 		$out .= "<h3>".__("Choose a Form", 'lang_form')."</h3>";
 
 		$arr_data = array();
@@ -31,7 +33,7 @@ function get_shortcode_output_form($out)
 
 		foreach($templates as $template)
 		{
-			$arr_data[$template->ID] = $template->post_title;
+			$arr_data[$obj_form->get_form_id($template->ID)] = $template->post_title;
 		}
 
 		$out .= show_select(array('data' => $arr_data, 'name' => 'select_form_id', 'xtra' => " rel='mf_form'"));
@@ -180,12 +182,7 @@ function settings_form()
 	$arr_settings = array();
 
 	$arr_settings["setting_redirect_emails"] = __("Redirect all e-mails", 'lang_form');
-
-	if(get_option('setting_redirect_emails') != 'yes')
-	{
-		$arr_settings["setting_form_test_emails"] = __("Redirect test e-mails", 'lang_form');
-	}
-
+	$arr_settings["setting_form_test_emails"] = __("Redirect test e-mails", 'lang_form');
 	$arr_settings["setting_form_permission"] = __("Role to see forms", 'lang_form');
 	$arr_settings["setting_form_permission_see_all"] = __("Role to see all", 'lang_form');
 	$arr_settings["mf_form_setting_replacement_form"] = __("Form to replace all e-mail links", 'lang_form');
@@ -413,23 +410,18 @@ function mf_form_mail($data)
 
 	$out = "";
 
-	if(get_option('setting_redirect_emails') == 'yes')
+	if(is_user_logged_in() && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
+	{
+		$user_data = get_userdata(get_current_user_id());
+
+		$data['subject'] = __("Test", 'lang_form')." (".$data['to']."): ".$data['subject'];
+		$data['to'] = $user_data->user_email;
+	}
+
+	else if(get_option('setting_redirect_emails') == 'yes')
 	{
 		$data['subject'] = __("Test", 'lang_form')." (".$data['to']."): ".$data['subject'];
 		$data['to'] = get_bloginfo('admin_email');
-	}
-
-	if(is_user_logged_in() && IS_ADMIN)
-	{
-		$setting_form_test_emails = get_option('setting_form_test_emails');
-
-		if($setting_form_test_emails == 'yes')
-		{
-			$user_data = get_userdata(get_current_user_id());
-
-			$data['subject'] = __("Test", 'lang_form')." (".$data['to']."): ".$data['subject'];
-			$data['to'] = $user_data->user_email;
-		}
 	}
 
 	add_filter('wp_mail_content_type', 'set_html_content_type');
@@ -497,14 +489,18 @@ function show_query_form($data)
 
 			if($is_correct_form == true)
 			{
-				$email_from = $email_content = $error_text = "";
+				$email_from = $error_text = "";
+				$arr_email_content = array(
+					'fields' => array(),	
+				);
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
 				$r = $result[0];
 				$intQueryEmailConfirm = $r->queryEmailConfirm;
-				$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
+				$intQueryEmailConfirmPage = $r->queryEmailConfirmPage;
 				$strQueryEmail = $r->queryEmail;
 				$intQueryEmailNotify = $r->queryEmailNotify;
+				$intQueryEmailNotifyPage = $r->queryEmailNotifyPage;
 				$strQueryEmailName = $r->queryEmailName;
 				$strQueryMandatoryText = $r->queryMandatoryText;
 				$intQueryPaymentProvider = $r->queryPaymentProvider;
@@ -531,6 +527,8 @@ function show_query_form($data)
 						$strQueryTypeText = $r->queryTypeText;
 						$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
 						$intQueryTypeRequired = $r->queryTypeRequired;
+
+						$arr_email_content['fields'][$intQuery2TypeID2] = array();
 
 						$handle2fetch = $strFormPrefix.$intQuery2TypeID2;
 
@@ -640,13 +638,28 @@ function show_query_form($data)
 									}
 								}
 							break;
-						}
 
-						$email_content .= "\n";
+							default:
+								if($strCheckCode != '')
+								{
+									switch($strCheckCode)
+									{
+										case 'zip':
+											$city_name = $obj_form->get_city_from_zip($strAnswerText);
+
+											if($city_name != '')
+											{
+												$arr_email_content['fields'][$intQuery2TypeID2]['xtra'] = ", ".$city_name;
+											}
+										break;
+									}
+								}
+							break;
+						}
 
 						if($strQueryTypeText != '')
 						{
-							$email_content .= $strQueryTypeText; //.(substr($strQueryTypeText, -1) == ":" ? "" : ":")." "
+							$arr_email_content['fields'][$intQuery2TypeID2]['label'] = $strQueryTypeText;
 						}
 
 						if($strAnswerText != '')
@@ -660,10 +673,8 @@ function show_query_form($data)
 
 							if($strAnswerText_send != '')
 							{
-								$email_content .= (substr($strQueryTypeText, -1) == ":" ? "" : ":")." ".$strAnswerText_send;
+								$arr_email_content['fields'][$intQuery2TypeID2]['value'] = $strAnswerText_send;
 							}
-
-							$email_content .= "\n";
 						}
 
 						else if($intQueryTypeID2 == 8)
@@ -677,19 +688,12 @@ function show_query_form($data)
 
 							$strQueryTypeText_temp = $wpdb->get_var($wpdb->prepare("SELECT queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $strAnswerText_radio));
 
-							$email_content .= ($strQueryTypeText_temp == $strQueryTypeText ? " x" : "")."\n";
+							$arr_email_content['fields'][$intQuery2TypeID2]['value'] = "x";
 						}
 
 						else if($intQueryTypeRequired == true && !in_array($intQueryTypeID2, array(5, 6, 9)) && $error_text == '')
 						{
 							$error_text = ($strQueryMandatoryText != '' ? $strQueryMandatoryText : __("Please, enter all required fields", 'lang_form'))." (".$strQueryTypeText.")";
-
-							$email_content .= "\n";
-						}
-
-						else
-						{
-							$email_content .= "\n";
 						}
 					}
 				}
@@ -703,7 +707,9 @@ function show_query_form($data)
 					$intAnswerID = $wpdb->insert_id;
 
 					//do_action('action_form_on_submit');
-					$email_content = apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strFormName), 'mail_content' => $email_content));
+					$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strFormName), 'notify_page' => $intQueryEmailNotifyPage, 'arr_mail_content' => $arr_email_content));
+
+					$arr_email_content = $email_content_temp['arr_mail_content'];
 
 					if($intAnswerID > 0)
 					{
@@ -729,10 +735,13 @@ function show_query_form($data)
 
 						if(isset($data['send_to']) && $data['send_to'] != '')
 						{
+							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
+							$mail_content = $obj_form->render_mail_content(array('array' => $arr_email_content));
+
 							$mail_data = array(
 								'to' => $data['send_to'],
-								'subject' => $strQueryEmailName != "" ? $strQueryEmailName : $strFormName,
-								'content' => strip_tags($email_content),
+								'subject' => $mail_subject,
+								'content' => $mail_content,
 								'answer_id' => $intAnswerID
 							);
 
@@ -744,12 +753,16 @@ function show_query_form($data)
 							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
 						}
 
-						if($intQueryEmailNotify == 1 && $strQueryEmail != '' && isset($email_content) && $email_content != '')
+						if($intQueryEmailNotify == 1 && $strQueryEmail != '')
 						{
+							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
+
+							list($mail_subject, $mail_content) = $obj_form->get_page_content_for_email($intQueryEmailNotifyPage, $mail_subject, $arr_email_content);
+
 							$mail_data = array(
 								'to' => $strQueryEmail,
-								'subject' => $strQueryEmailName != "" ? $strQueryEmailName : $strFormName,
-								'content' => strip_tags($email_content),
+								'subject' => $mail_subject,
+								'content' => $mail_content,
 								'answer_id' => $intAnswerID
 							);
 
@@ -763,41 +776,9 @@ function show_query_form($data)
 
 						if($intQueryEmailConfirm == 1 && isset($email_from) && $email_from != '')
 						{
-							if($strQueryEmailConfirmPage > 0)
-							{
-								list($blog_id, $strQueryEmailConfirmPage) = explode("_", $strQueryEmailConfirmPage);
+							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
 
-								//Switch to temp site
-								####################
-								$wpdbobj = clone $wpdb;
-								$wpdb->blogid = $blog_id;
-								$wpdb->set_prefix($wpdb->base_prefix);
-								####################
-
-								if($strQueryEmailConfirmPage != $wp_query->post->ID)
-								{
-									$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $strQueryEmailConfirmPage));
-
-									foreach($result as $r)
-									{
-										$mail_subject = $r->post_title;
-										$mail_content = apply_filters('the_content', $r->post_content);
-
-										add_filter('wp_mail_content_type', 'set_html_content_type');
-									}
-								}
-
-								//Switch back to orig site
-								###################
-								$wpdb = clone $wpdbobj;
-								###################
-							}
-
-							else
-							{
-								$mail_subject = $strFormName;
-								$mail_content = strip_tags($email_content);
-							}
+							list($mail_subject, $mail_content) = $obj_form->get_page_content_for_email($intQueryEmailConfirmPage, $mail_subject, $arr_email_content);
 
 							$mail_data = array(
 								'to' => $email_from,

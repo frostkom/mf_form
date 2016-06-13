@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 5.5.0
+Version: 6.1.0
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -57,10 +57,11 @@ function activate_form()
 		queryAnswerURL VARCHAR(20) DEFAULT NULL,
 		queryEmail VARCHAR(100) DEFAULT NULL,
 		queryEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
+		queryEmailNotifyPage INT UNSIGNED NOT NULL DEFAULT '0',
 		queryEmailName VARCHAR(100) DEFAULT NULL,
 		queryEmailCheckConfirm ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 		queryEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
-		queryEmailConfirmPage VARCHAR(20) DEFAULT NULL,
+		queryEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',
 		queryShowAnswers ENUM('0', '1') NOT NULL DEFAULT '0',
 		queryMandatoryText VARCHAR(100) DEFAULT NULL,
 		queryButtonText VARCHAR(100) DEFAULT NULL,
@@ -187,6 +188,7 @@ function activate_form()
 		'queryButtonSymbol' => "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText",
 		'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER blogID",
 		'queryEmailCheckConfirm' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryEmailName",
+		'queryEmailNotifyPage' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryEmailNotify",
 	);
 
 	$arr_add_column[$wpdb->base_prefix."query2answer"] = array(
@@ -218,6 +220,32 @@ function activate_form()
 
 	add_columns($arr_add_column);
 
+	//Convert queryAnswerURL and queryEmailConfirmPage to INT
+	#################################
+	$result = $wpdb->get_results("SELECT queryID, queryAnswerURL, queryEmailConfirmPage FROM ".$wpdb->base_prefix."query WHERE queryAnswerURL LIKE '%_%' OR queryEmailConfirmPage LIKE '%_%'");
+
+	foreach($result as $r)
+	{
+		$intQueryID = $r->queryID;
+		$strQueryAnswerURL = $r->queryAnswerURL;
+		$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
+
+		if(strpos($strQueryAnswerURL, "_"))
+		{
+			list($rest, $strQueryAnswerURL) = explode("_", $strQueryAnswerURL);
+
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryAnswerURL = %s WHERE queryID = '%d'", $strQueryAnswerURL, $intQueryID));
+		}
+
+		if(strpos($strQueryEmailConfirmPage, "_"))
+		{
+			list($rest, $intQueryEmailConfirmPage) = explode("_", $strQueryEmailConfirmPage);
+
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryEmailConfirmPage = %s WHERE queryID = '%d'", $intQueryEmailConfirmPage, $intQueryID));
+		}
+	}
+	#################################
+
 	$arr_update_column = array();
 
 	$arr_update_column[$wpdb->base_prefix."query"] = array(
@@ -227,6 +255,8 @@ function activate_form()
 		'queryPaymentMerchant' => "ALTER TABLE [table] CHANGE [column] [column] VARCHAR(100) DEFAULT NULL",
 		'queryImproveUX' => "ALTER TABLE [table] DROP [column]",
 		'queryURL' => "ALTER TABLE [table] DROP [column]",
+		'queryAnswerURL' => "ALTER TABLE [table] CHANGE [column] [column] INT UNSIGNED NOT NULL DEFAULT '0'",
+		'queryEmailConfirmPage' => "ALTER TABLE [table] CHANGE [column] [column] INT UNSIGNED NOT NULL DEFAULT '0'",
 	);
 
 	$arr_update_column[$wpdb->base_prefix."query"] = array(
