@@ -276,7 +276,7 @@ echo "<div class='wrap'>";
 				<div id='post-body-content'>
 					<div class='postbox".($intQuery2TypeID > 0 ? " active" : "")."'>
 						<h3 class='hndle'><span>".__("Content", 'lang_form')."</span></h3>
-						<form method='post' action='' class='mf_form mf_settings inside'>
+						<form method='post' action='".admin_url("admin.php?page=mf_form%2Fcreate%2Findex.php&intQueryID=".$obj_form->id)."' class='mf_form mf_settings inside'>
 							<div class='flex_flow'>
 								<div>";
 
