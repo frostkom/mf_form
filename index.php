@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 6.1.1
+Version: 6.3.2
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -79,7 +79,7 @@ function activate_form()
 		queryDeletedID INT UNSIGNED DEFAULT '0',
 		userID INT UNSIGNED DEFAULT '0',
 		PRIMARY KEY (queryID)
-	) DEFAULT CHARSET=".$default_charset); //queryImproveUX ENUM('0', '1') NOT NULL DEFAULT '0',
+	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2answer (
 		answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -145,9 +145,8 @@ function activate_form()
 		queryTypeCode VARCHAR(30),
 		queryTypeName VARCHAR(30) DEFAULT NULL,
 		queryTypeResult enum('0','1') NOT NULL DEFAULT '1',
-		queryTypeShowInForm ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 		PRIMARY KEY (queryTypeID)
-	) DEFAULT CHARSET=".$default_charset);
+	) DEFAULT CHARSET=".$default_charset); //queryTypeShowInForm ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 
 	if(get_bloginfo('language') == "sv-SE")
 	{
@@ -215,7 +214,7 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."query_type"] = array(
 		'queryTypePublic' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeID",
 		'queryTypeCode' => "ALTER TABLE [table] ADD [column] VARCHAR(30) AFTER queryTypePublic",
-		'queryTypeShowInForm' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeResult",
+		//'queryTypeShowInForm' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeResult",
 	);
 
 	add_columns($arr_add_column);
@@ -249,8 +248,6 @@ function activate_form()
 	$arr_update_column = array();
 
 	$arr_update_column[$wpdb->base_prefix."query"] = array(
-		//'queryTypePublic' => "ALTER TABLE [table] DROP [column]",
-		//'queryTypeOrder' => "ALTER TABLE [table] DROP [column]",
 		'queryEmailNotify' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '1'",
 		'queryPaymentMerchant' => "ALTER TABLE [table] CHANGE [column] [column] VARCHAR(100) DEFAULT NULL",
 		'queryImproveUX' => "ALTER TABLE [table] DROP [column]",
@@ -273,6 +270,7 @@ function activate_form()
 
 	$arr_update_column[$wpdb->base_prefix."query_type"] = array(
 		'queryTypeLang' => "ALTER TABLE [table] CHANGE [column] queryTypeName VARCHAR(30) DEFAULT NULL",
+		'queryTypeShowInForm' => "ALTER TABLE [table] DROP [column]",
 	);
 
 	update_columns($arr_update_column);
@@ -295,15 +293,15 @@ function activate_form()
 		13 => array('code' => 'custom_tag',			'name' => __("Custom tag", 'lang_form'),			'result' => 0),
 		14 => array('code' => 'custom_tag_end',		'name' => __("Custom tag (end)", 'lang_form'),		'result' => 0,		'public' => 'no'),
 		15 => array('code' => 'file',				'name' => __("File", 'lang_form'),					'result' => 1),
-		16 => array('code' => 'email_text',			'name' => __("Email text", 'lang_form'),			'result' => 0,		'show_in_form' => 'no'),
+		//16 => array('code' => 'email_text',			'name' => __("Email text", 'lang_form'),			'result' => 0,		'show_in_form' => 'no'),
 	);
 
 	foreach($arr_query_types as $key => $value)
 	{
 		if(!isset($value['public'])){	$value['public'] = 'yes';}
-		if(!isset($value['show_in_form'])){	$value['show_in_form'] = 'yes';}
+		//if(!isset($value['show_in_form'])){	$value['show_in_form'] = 'yes';}
 
-		$arr_run_query[] = sprintf("INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '%d', queryTypeCode = '%s', queryTypeName = '%s', queryTypeResult = '%d', queryTypePublic = '%s', queryTypeShowInForm = '%s'", $key, $value['code'], $value['name'], $value['result'], $value['public'], $value['show_in_form']);
+		$arr_run_query[] = sprintf("INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '%d', queryTypeCode = '%s', queryTypeName = '%s', queryTypeResult = '%d', queryTypePublic = '%s'", $key, $value['code'], $value['name'], $value['result'], $value['public']); //, queryTypeShowInForm = '%s', $value['show_in_form']
 	}
 
 	$query_temp = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES";

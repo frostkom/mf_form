@@ -135,6 +135,21 @@ jQuery(function($)
 		{
 			if($.Storage)
 			{
+				var remember_count = 0;
+
+				function show_or_hide_clear_button()
+				{
+					if(remember_count > 0)
+					{
+						$('.form_button .button-secondary').removeClass("hide");
+					}
+
+					else
+					{
+						$('.form_button .button-secondary').addClass("hide");
+					}
+				}
+
 				remember_fields.each(function()
 				{
 					var dom_obj = $(this).find('input, select, textarea'),
@@ -144,8 +159,12 @@ jQuery(function($)
 					if(typeof dom_value !== 'undefined')
 					{
 						dom_obj.val(dom_value);
+
+						remember_count++;
 					}
 				});
+
+				show_or_hide_clear_button();
 
 				remember_fields.on('blur', 'input, select, textarea', function()
 				{
@@ -156,12 +175,44 @@ jQuery(function($)
 					if(dom_value != '')
 					{
 						$.Storage.set(dom_name, dom_value);
+
+						remember_count++;
 					}
 
 					else
 					{
-						$.Storage.remove(dom_name);
+						var dom_value = $.Storage.get(dom_name);
+
+						if(typeof dom_value !== 'undefined')
+						{
+							$.Storage.remove(dom_name);
+
+							remember_count--;
+						}
 					}
+
+					show_or_hide_clear_button();
+				});
+
+				$('.form_button button[name=btnFormClear]').on('click', function()
+				{
+					remember_fields.each(function()
+					{
+						var dom_obj = $(this).find('input, select, textarea'),
+							dom_name = dom_obj.attr('name'),
+							dom_value = $.Storage.get(dom_name);
+
+						if(typeof dom_value !== 'undefined')
+						{
+							dom_obj.val('');
+
+							$.Storage.remove(dom_name);
+						}
+					});
+
+					remember_count = 0;
+
+					show_or_hide_clear_button();
 				});
 			}
 		});

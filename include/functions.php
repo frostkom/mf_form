@@ -428,6 +428,11 @@ function mf_form_mail($data)
 
 	$data['content'] = nl2br($data['content']);
 
+	if($data['content'] == "")
+	{
+		do_log("Email not sent because it was empty (".var_export($data, true).")");
+	}
+
 	$mail_sent = wp_mail($data['to'], $data['subject'], $data['content'], $data['headers']);
 
 	if(isset($data['answer_id']))
@@ -709,7 +714,7 @@ function show_query_form($data)
 					//do_action('action_form_on_submit');
 					$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strFormName), 'notify_page' => $intQueryEmailNotifyPage, 'arr_mail_content' => $arr_email_content));
 
-					$arr_email_content = $email_content_temp['arr_mail_content'];
+					$arr_email_content = isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0 ? $email_content_temp['arr_mail_content'] : $arr_email_content;
 
 					if($intAnswerID > 0)
 					{
@@ -945,33 +950,36 @@ function show_query_form($data)
 							//do_action('action_form_after_fields');
 
 							$out .= apply_filters('filter_form_after_fields', '')
-							."<div class='form_button'>";
+							."<div class='form_button_container'>
+								<div class='form_button'>"; //flex_flow
 
-								if($has_required_email)
-								{
-									$out .= "<div class='updated hide'><p>".__("Does the e-mail address look right?", 'lang_form')." ".$strQueryButtonText." ".__("or", 'lang_form')." <a href='#' class='show_none_email'>".__("Change", 'lang_form')."</a></p></div>";
-								}
-
-								$out .= show_submit(array('name' => "btnFormSubmit", 'text' => $strQueryButtonSymbol.$strQueryButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
-								.wp_nonce_field('form_submit', '_wpnonce', true, false)
-								.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id));
-
-								if(isset($data['send_to']) && $data['send_to'] != '')
-								{
-									$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $data['send_to'])));
-								}
-
-								if(is_user_logged_in() && IS_ADMIN)
-								{
-									if($intQueryPaymentProvider > 0)
+									if($has_required_email)
 									{
-										$out .= show_checkbox(array('name' => "intQueryPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
+										$out .= "<div class='updated hide'><p>".__("Does the e-mail address look right?", 'lang_form')." ".$strQueryButtonText." ".__("or", 'lang_form')." <a href='#' class='show_none_email'>".__("Change", 'lang_form')."</a></p></div>";
 									}
 
-									$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."'>".__("Edit this form", 'lang_form')."</a>";
-								}
+									$out .= show_submit(array('name' => "btnFormSubmit", 'text' => $strQueryButtonSymbol.$strQueryButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
+									.show_submit(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
-							$out .= "</div>";
+									if(is_user_logged_in() && IS_ADMIN)
+									{
+										if($intQueryPaymentProvider > 0)
+										{
+											$out .= show_checkbox(array('name' => "intQueryPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
+										}
+
+										$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."' class='button button-secondary'>".__("Edit this form", 'lang_form')."</a>";
+									}
+
+									if(isset($data['send_to']) && $data['send_to'] != '')
+									{
+										$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $data['send_to'])));
+									}
+
+								$out .= "</div>"
+								.wp_nonce_field('form_submit', '_wpnonce', true, false)
+								.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
+							."</div>";
 						}
 
 					$out .= "</form>";
