@@ -93,7 +93,7 @@ function delete_form($post_id)
 
 		/*$obj_form = new mf_form();
 		$intQueryID = $obj_form->get_form_id($post_id);
-		
+
 		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $intQueryID));
 
 		$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
@@ -347,7 +347,7 @@ function notices_form()
 			{
 				$intQueryID = $r->queryID;
 				$intAnswerSent = $r->answerSent;
-				
+
 				$obj_form = new mf_form($intQueryID);
 				$strFormName = $obj_form->get_post_info(array('select' => 'post_title'));
 
@@ -496,7 +496,7 @@ function show_query_form($data)
 			{
 				$email_from = $error_text = "";
 				$arr_email_content = array(
-					'fields' => array(),	
+					'fields' => array(),
 				);
 
 				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
@@ -831,7 +831,7 @@ function show_query_form($data)
 		$obj_font_icons = new mf_font_icons();
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryEmailCheckConfirm FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
-		
+
 		foreach($result as $r)
 		{
 			$intQueryShowAnswers = $r->queryShowAnswers;

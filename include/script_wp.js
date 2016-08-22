@@ -255,7 +255,7 @@ jQuery(function($)
 			$('.query_email_confirm_page').addClass('hide');
 		}
 	});
-	
+
 	$('#intQueryEmailNotify').on('click', function()
 	{
 		if(this.checked)

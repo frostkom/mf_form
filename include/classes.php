@@ -364,7 +364,7 @@ class mf_form
 			{
 				$strCityName = $r->cityName;
 				//$strMunicipalityName = $r->municipalityName;
-				
+
 				$out = $strCityName; //.($strMunicipalityName != '' && $strMunicipalityName != $strCityName ? ", ".$strMunicipalityName : "");
 				break;
 			}
@@ -457,7 +457,7 @@ class mf_form
 					foreach($arr_types as $key => $arr_value)
 					{
 						$out_fields .= $arr_value['label'];
-						
+
 						if(isset($arr_value['value']) && $arr_value['value'] != '')
 						{
 							if(substr($arr_value['label'], -1) != ":")
@@ -466,13 +466,13 @@ class mf_form
 							}
 
 							$out_fields .= " ".$arr_value['value'];
-							
+
 							if(isset($arr_value['xtra']))
 							{
 								$out_fields .= $arr_value['xtra'];
 							}
 						}
-						
+
 						$out_fields .= "\n";
 					}
 				break;
@@ -481,21 +481,21 @@ class mf_form
 					foreach($arr_types as $key => $arr_value)
 					{
 						$out_doc_types .= $arr_value['label'];
-						
+
 						if(substr($arr_value['label'], -1) != ":")
 						{
 							$out_doc_types .= ":";
 						}
 
 						$out_doc_types .= " ".$arr_value['value'];
-						
+
 						$out_doc_types .= "\n";
 					}
 				break;
 
 				case 'products':
 					$out_products .= $arr_types['label'];
-					
+
 					if($arr_types['value'] != '')
 					{
 						if(substr($arr_types['label'], -1) != ":")
@@ -505,7 +505,7 @@ class mf_form
 
 						$out_products .= " ".$arr_types['value'];
 					}
-					
+
 					$out_products .= "\n";
 				break;
 			}
@@ -514,17 +514,17 @@ class mf_form
 		if($data['template'] == false)
 		{
 			$out = "";
-			
+
 			if($out_fields != '')
 			{
 				$out .= "\n".$out_fields;
 			}
-			
+
 			if($out_doc_types != '')
 			{
 				$out .= "\n".$out_doc_types;
 			}
-			
+
 			if($out_products != '')
 			{
 				$out .= "\n".$out_products;
@@ -556,7 +556,7 @@ class mf_form
 			{
 				$mail_subject = $r->post_title;
 				$mail_template = apply_filters('the_content', $r->post_content);
-				
+
 				$mail_content = $this->render_mail_content(array('array' => $arr_email_content, 'template' => $mail_template));
 
 				add_filter('wp_mail_content_type', 'set_html_content_type');
@@ -690,7 +690,7 @@ class mf_form
 
 		return $arr_data;
 	}*/
-	
+
 	function get_form_type_for_select($data)
 	{
 		if(!isset($data['add_choose_here'])){	$data['add_choose_here'] = false;}
@@ -1697,7 +1697,7 @@ class mf_form_table extends mf_list_table
 						$actions = array();
 
 						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intQueryID=".$obj_form->id."'>".__("Show", 'lang_form')."</a>"; 
-						
+
 						$actions['export_csv'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportAction=csv", 'export_run')."'>".__("CSV", 'lang_form')."</a>";
 
 						if(is_plugin_active("mf_phpexcel/index.php"))
@@ -1931,7 +1931,7 @@ class mf_form_output
 				}
 
 				$field_data['data'] = $arr_data;
-				
+
 				if($data['show_label'] == true)
 				{
 					$field_data['text'] = $arr_content1[0];
@@ -1960,7 +1960,7 @@ class mf_form_output
 
 					$arr_data[$arr_content3[0]] = $arr_content3[1];
 				}
-				
+
 				$field_data['name'] .= "[]";
 				$field_data['data'] = $arr_data;
 
@@ -1985,7 +1985,7 @@ class mf_form_output
 				{
 					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."form_zipcode";
 				}
-				
+
 				if($this->has_required_email && $this->is_required_email)
 				{
 					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."this_is_required_email";

@@ -315,7 +315,7 @@ echo "<div class='wrap'>
 								<div>";
 
 									$result = $wpdb->get_results("SELECT checkID, checkName FROM ".$wpdb->base_prefix."query_check WHERE checkPublic = '1' ORDER BY checkName ASC");
-									
+
 									if($wpdb->num_rows > 0)
 									{
 										$arr_data = array();
@@ -530,7 +530,7 @@ echo "<div class='wrap'>
 									echo show_checkbox(array('name' => 'intQueryEmailConfirm', 'text' => __("Send confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intQueryEmailConfirm))
 									.show_select(array('data' => $arr_data_pages, 'name' => 'intQueryEmailConfirmPage', 'compare' => $intQueryEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form'), 'class' => "query_email_confirm_page".($intQueryEmailConfirm == 1 ? " " : " hide"))); //, 'description' => __("If you don't choose a page, the content of the form will be sent as content", 'lang_form')
 								}
-								
+
 								if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'required' => true, 'check_code' => 'email')))
 								{
 									echo show_checkbox(array('name' => 'strQueryEmailCheckConfirm', 'text' => __("Make questionnaire confirm their address", 'lang_form'), 'value' => 'yes', 'compare' => $strQueryEmailCheckConfirm));
