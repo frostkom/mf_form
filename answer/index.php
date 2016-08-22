@@ -17,8 +17,8 @@ if($query_answers > 0)
 	{
 		$query_pie = true;
 
-		mf_enqueue_script('jquery-flot', plugins_url()."/mf_form/include/jquery.flot.min.js");
-		mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_form/include/jquery.flot.pie.min.js");
+		mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js");
+		mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js");
 	}
 }
 

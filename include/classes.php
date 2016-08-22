@@ -356,15 +356,18 @@ class mf_form
 
 		$out = "";
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT cityName FROM ".$wpdb->base_prefix."query_zipcode WHERE addressZipCode = '%d'", $zip)); //, municipalityName
-
-		foreach($result as $r)
+		if(get_bloginfo('language') == "sv-SE")
 		{
-			$strCityName = $r->cityName;
-			//$strMunicipalityName = $r->municipalityName;
-			
-			$out = $strCityName; //.($strMunicipalityName != '' && $strMunicipalityName != $strCityName ? ", ".$strMunicipalityName : "");
-			break;
+			$result = $wpdb->get_results($wpdb->prepare("SELECT cityName FROM ".$wpdb->base_prefix."query_zipcode WHERE addressZipCode = '%d'", $zip)); //, municipalityName
+
+			foreach($result as $r)
+			{
+				$strCityName = $r->cityName;
+				//$strMunicipalityName = $r->municipalityName;
+				
+				$out = $strCityName; //.($strMunicipalityName != '' && $strMunicipalityName != $strCityName ? ", ".$strMunicipalityName : "");
+				break;
+			}
 		}
 
 		return $out;
@@ -934,7 +937,7 @@ if(!class_exists('mf_form_payment'))
 				$out .= "<script>document.form_payment.submit();</script>";
 			}
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '102: ".__("Sent to payment", 'lang_base')."' WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", $this->orderid));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", "102: ".__("Sent to payment", 'lang_base'), $this->orderid));
 
 			return $out;
 		}
@@ -1062,7 +1065,7 @@ if(!class_exists('mf_form_payment'))
 		{
 			global $wpdb;
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '103: ".__("User canceled", 'lang_base')."' WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", $this->answer_id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", "103: ".__("User canceled", 'lang_base'), $this->answer_id));
 
 			mf_redirect(get_site_url());
 		}
@@ -1073,7 +1076,7 @@ if(!class_exists('mf_form_payment'))
 
 			if($this->answer_id > 0)
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '104: ".__("User has paid. Waiting for confirmation...", 'lang_base')."' WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", $this->answer_id));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", "104: ".__("User has paid. Waiting for confirmation...", 'lang_base'), $this->answer_id));
 
 				if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
 				{
@@ -1097,7 +1100,7 @@ if(!class_exists('mf_form_payment'))
 
 					if($intQueryAnswerURL != $wp_query->post->ID)
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_base')."' WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", $this->answer_id));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", "105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_base'), $this->answer_id));
 
 						$strQueryAnswerURL = get_permalink($intQueryAnswerURL);
 
@@ -1131,7 +1134,7 @@ if(!class_exists('mf_form_payment'))
 		{
 			global $wpdb;
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '116: ".$message."' WHERE answerID = '%d' AND query2TypeID = '0'", $this->answer_id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0'", "116: ".$message, $this->answer_id));
 
 			header("Status: 200 OK");
 		}
@@ -1140,7 +1143,7 @@ if(!class_exists('mf_form_payment'))
 		{
 			global $wpdb;
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '115: ".$message."' WHERE answerID = '%d' AND query2TypeID = '0'", $this->answer_id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0'", "115: ".$message, $this->answer_id));
 
 			header("Status: 400 Bad Request");
 		}

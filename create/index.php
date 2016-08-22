@@ -51,222 +51,221 @@ $strQueryTypeDefault = check_var('strQueryTypeDefault', '', true, 1);
 
 $error_text = $done_text = "";
 
-echo "<div class='wrap'>";
-
-	if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce'], 'form_update'))
+if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce'], 'form_update'))
+{
+	if($strFormName == '')
 	{
-		if($strFormName == '')
-		{
-			$error_text = __("Please, enter all required fields", 'lang_form');
-		}
-
-		else
-		{
-			if($obj_form->id > 0)
-			{
-				$post_data = array(
-					'ID' => $obj_form->post_id,
-					//'post_type' => 'mf_form',
-					'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
-					'post_title' => $strFormName,
-					'post_name' => $strFormURL,
-				);
-
-				wp_update_post($post_data);
-
-				$obj_form->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $dteFormDeadline));
-
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '%d', queryEmailCheckConfirm = %s, queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailNotifyPage = %s, queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $wpdb->blogid, $strQueryEmailCheckConfirm, $intQueryEmailConfirm, $intQueryEmailConfirmPage, $intQueryShowAnswers, $strFormName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $intQueryEmailNotifyPage, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentAmount, $obj_form->id));
-			}
-
-			else
-			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form' AND post_title = '%d'", $strFormName));
-
-				if($wpdb->num_rows > 0)
-				{
-					$error_text = __("There is already a form with that name. Try with another one.", 'lang_form');
-				}
-
-				else
-				{
-					$post_data = array(
-						'post_type' => 'mf_form',
-						'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
-						'post_title' => $strFormName,
-					);
-
-					$obj_form->post_id = wp_insert_post($post_data);
-
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query SET blogID = '%d', postID = '%d', queryName = %s, queryCreated = NOW(), userID = '%d'", $wpdb->blogid, $obj_form->post_id, $strFormName, get_current_user_id()));
-					$obj_form->id = $wpdb->insert_id;
-				}
-			}
-
-			if($wpdb->rows_affected > 0)
-			{
-				echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."'</script>";
-			}
-		}
+		$error_text = __("Please, enter all required fields", 'lang_form');
 	}
 
-	else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form_add'))
+	else
 	{
-		//Clean up settings if not used for the specific type of field
-		################
-		if($intQueryTypeID != 3)
+		if($obj_form->id > 0)
 		{
-			$intCheckID = "";
-		}
-		################
+			$post_data = array(
+				'ID' => $obj_form->post_id,
+				//'post_type' => 'mf_form',
+				'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
+				'post_title' => $strFormName,
+				'post_name' => $strFormURL,
+			);
 
-		if(($intQueryTypeID == 10 || $intQueryTypeID == 11) && $strQueryTypeSelect == "")
-		{
-			$error_text = __("Please, enter all required fields", 'lang_form');
+			wp_update_post($post_data);
+
+			$obj_form->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $dteFormDeadline));
+
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '%d', queryEmailCheckConfirm = %s, queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailNotifyPage = %s, queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $wpdb->blogid, $strQueryEmailCheckConfirm, $intQueryEmailConfirm, $intQueryEmailConfirmPage, $intQueryShowAnswers, $strFormName, $strQueryAnswerURL, $strQueryEmail, $intQueryEmailNotify, $intQueryEmailNotifyPage, $strQueryEmailName, $strQueryMandatoryText, $strQueryButtonText, $strQueryButtonSymbol, $intQueryPaymentProvider, $strQueryPaymentHmac, $strQueryPaymentMerchant, $strQueryPaymentPassword, $strQueryPaymentCurrency, $intQueryPaymentAmount, $obj_form->id));
 		}
 
 		else
 		{
-			switch($intQueryTypeID)
+			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form' AND post_title = '%d'", $strFormName));
+
+			if($wpdb->num_rows > 0)
 			{
-				case 2:
-					$strQueryTypeText = str_replace("|", "", $strQueryTypeText)."|".str_replace("|", "", $strQueryTypeMin)."|".str_replace("|", "", $strQueryTypeMax)."|".str_replace("|", "", $strQueryTypeDefault);
-				break;
-
-				case 10:
-				case 11:
-					$strQueryTypeText = str_replace(":", "", $strQueryTypeText).":".str_replace(":", "", $strQueryTypeSelect);
-				break;
-
-				case 13:
-				case 14:
-					$strQueryTypeText = $strQueryTypeText2;
-				break;
-			}
-
-			if($intQuery2TypeID > 0)
-			{
-				if($intQueryTypeID > 0 && ($intQueryTypeID == 6 || $intQueryTypeID == 9 || $strQueryTypeText != ''))
-				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, queryTypeActionEquals = %s, queryTypeActionShow = %s, userID = '%d' WHERE query2TypeID = '%d'", $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, $strQueryTypeActionEquals, $intQueryTypeActionShow, get_current_user_id(), $intQuery2TypeID));
-
-					if($intQueryTypeID == 13)
-					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeText = %s, userID = '%d' WHERE query2TypeID2 = '%d'", $strQueryTypeText, get_current_user_id(), $intQuery2TypeID)); //, queryTypeClass = %s, queryTypeFetchFrom = %s, $strQueryTypeClass, $strQueryTypeFetchFrom
-					}
-
-					$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = $strQueryTypeActionEquals = $intQueryTypeActionShow = "";
-				}
-
-				else
-				{
-					$error_text = __("Couldn't update the field", 'lang_form');
-				}
+				$error_text = __("There is already a form with that name. Try with another one.", 'lang_form');
 			}
 
 			else
 			{
-				if($obj_form->id > 0 && $intQueryTypeID > 0 && ($intQueryTypeID == 6 || $intQueryTypeID == 9 || $strQueryTypeText != ''))
-				{
-					$intQuery2TypeOrder = $wpdb->get_var($wpdb->prepare("SELECT query2TypeOrder + 1 FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' ORDER BY query2TypeOrder DESC", $obj_form->id));
+				$post_data = array(
+					'post_type' => 'mf_form',
+					'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
+					'post_title' => $strFormName,
+				);
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, queryTypeActionEquals = %s, queryTypeActionShow = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, $strQueryTypeActionEquals, $intQueryTypeActionShow, $intQuery2TypeOrder, get_current_user_id()));
+				$obj_form->post_id = wp_insert_post($post_data);
 
-					if($intQueryTypeID == 13)
-					{
-						$intQuery2TypeID = $wpdb->insert_id;
-						$intQueryTypeID = 14;
-						$intQuery2TypeOrder++;
-
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET query2TypeID2 = '%d', queryID = '%d', queryTypeID = '%d', queryTypeText = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $intQuery2TypeID, $obj_form->id, $intQueryTypeID, $strQueryTypeText, $intQuery2TypeOrder, get_current_user_id())); //, queryTypeClass = %s, queryTypeFetchFrom = %s, $strQueryTypeClass, $strQueryTypeFetchFrom
-					}
-
-					if($wpdb->rows_affected > 0)
-					{
-						$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = $strQueryTypeActionEquals = $intQueryTypeActionShow = "";
-					}
-				}
-
-				else
-				{
-					$error_text = __("Couldn't insert the new field", 'lang_form');
-				}
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query SET blogID = '%d', postID = '%d', queryName = %s, queryCreated = NOW(), userID = '%d'", $wpdb->blogid, $obj_form->post_id, $strFormName, get_current_user_id()));
+				$obj_form->id = $wpdb->insert_id;
 			}
 		}
 
-		if($intQueryTypeID == 0)
+		if($wpdb->rows_affected > 0)
 		{
 			echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."'</script>";
 		}
 	}
+}
 
-	if($obj_form->id > 0)
+else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form_add'))
+{
+	//Clean up settings if not used for the specific type of field
+	################
+	if($intQueryTypeID != 3)
 	{
-		if(isset($_GET['recover']))
-		{
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0' WHERE queryID = '%d'", $obj_form->id));
-		}
+		$intCheckID = "";
+	}
+	################
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailCheckConfirm, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
-		$r = $result[0];
-		$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
-		$intQueryEmailConfirm = $r->queryEmailConfirm;
-		$intQueryEmailConfirmPage = $r->queryEmailConfirmPage;
-		$intQueryShowAnswers = $r->queryShowAnswers;
-		$strQueryAnswerURL = $r->queryAnswerURL;
-		$strQueryEmail = $r->queryEmail;
-		$intQueryEmailNotify = $r->queryEmailNotify;
-		$intQueryEmailNotifyPage = $r->queryEmailNotifyPage;
-		$strQueryEmailName = $r->queryEmailName;
-		$strQueryMandatoryText = $r->queryMandatoryText;
-		$strQueryButtonText = $r->queryButtonText;
-		$strQueryButtonSymbol = $r->queryButtonSymbol;
-		$intQueryPaymentProvider = $r->queryPaymentProvider;
-		$strQueryPaymentHmac = $r->queryPaymentHmac;
-		$strQueryPaymentMerchant = $r->queryPaymentMerchant;
-		$strQueryPaymentPassword = $r->queryPaymentPassword;
-		$strQueryPaymentCurrency = $r->queryPaymentCurrency;
-		$intQueryPaymentAmount = $r->queryPaymentAmount;
-		$strQueryCreated = $r->queryCreated;
-
-		$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
-		$strFormURL = $obj_form->get_post_info();
-		$dteFormDeadline = $obj_form->meta(array('action' => 'get', 'key' => 'deadline'));
+	if(($intQueryTypeID == 10 || $intQueryTypeID == 11) && $strQueryTypeSelect == "")
+	{
+		$error_text = __("Please, enter all required fields", 'lang_form');
 	}
 
-	if($intQuery2TypeID > 0)
+	else
 	{
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $intQuery2TypeID));
-		$r = $result[0];
-		$intQueryTypeID = $r->queryTypeID;
-		$strQueryTypeText = $r->queryTypeText;
-		$strQueryTypePlaceholder = $r->queryTypePlaceholder;
-		$intCheckID = $r->checkID;
-		$strQueryTypeTag = $r->queryTypeTag;
-		$strQueryTypeClass = $r->queryTypeClass;
-		$strQueryTypeFetchFrom = $r->queryTypeFetchFrom;
-		$strQueryTypeActionEquals = $r->queryTypeActionEquals;
-		$intQueryTypeActionShow = $r->queryTypeActionShow;
-
 		switch($intQueryTypeID)
 		{
 			case 2:
-				list($strQueryTypeText, $strQueryTypeMin, $strQueryTypeMax, $strQueryTypeDefault) = explode("|", $strQueryTypeText);
+				$strQueryTypeText = str_replace("|", "", $strQueryTypeText)."|".str_replace("|", "", $strQueryTypeMin)."|".str_replace("|", "", $strQueryTypeMax)."|".str_replace("|", "", $strQueryTypeDefault);
 			break;
 
 			case 10:
 			case 11:
-				list($strQueryTypeText, $strQueryTypeSelect) = explode(":", $strQueryTypeText);
+				$strQueryTypeText = str_replace(":", "", $strQueryTypeText).":".str_replace(":", "", $strQueryTypeSelect);
+			break;
+
+			case 13:
+			case 14:
+				$strQueryTypeText = $strQueryTypeText2;
 			break;
 		}
 
-		if(isset($_GET['btnFieldCopy']))
+		if($intQuery2TypeID > 0)
 		{
-			$intQuery2TypeID = "";
+			if($intQueryTypeID > 0 && ($intQueryTypeID == 6 || $intQueryTypeID == 9 || $strQueryTypeText != ''))
+			{
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, queryTypeActionEquals = %s, queryTypeActionShow = %s, userID = '%d' WHERE query2TypeID = '%d'", $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, $strQueryTypeActionEquals, $intQueryTypeActionShow, get_current_user_id(), $intQuery2TypeID));
+
+				if($intQueryTypeID == 13)
+				{
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeText = %s, userID = '%d' WHERE query2TypeID2 = '%d'", $strQueryTypeText, get_current_user_id(), $intQuery2TypeID)); //, queryTypeClass = %s, queryTypeFetchFrom = %s, $strQueryTypeClass, $strQueryTypeFetchFrom
+				}
+
+				$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = $strQueryTypeActionEquals = $intQueryTypeActionShow = "";
+			}
+
+			else
+			{
+				$error_text = __("Couldn't update the field", 'lang_form');
+			}
+		}
+
+		else
+		{
+			if($obj_form->id > 0 && $intQueryTypeID > 0 && ($intQueryTypeID == 6 || $intQueryTypeID == 9 || $strQueryTypeText != ''))
+			{
+				$intQuery2TypeOrder = $wpdb->get_var($wpdb->prepare("SELECT query2TypeOrder + 1 FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' ORDER BY query2TypeOrder DESC", $obj_form->id));
+
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, queryTypeActionEquals = %s, queryTypeActionShow = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intQueryTypeID, $strQueryTypeText, $strQueryTypePlaceholder, $intCheckID, $strQueryTypeTag, $strQueryTypeClass, $strQueryTypeFetchFrom, $strQueryTypeActionEquals, $intQueryTypeActionShow, $intQuery2TypeOrder, get_current_user_id()));
+
+				if($intQueryTypeID == 13)
+				{
+					$intQuery2TypeID = $wpdb->insert_id;
+					$intQueryTypeID = 14;
+					$intQuery2TypeOrder++;
+
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET query2TypeID2 = '%d', queryID = '%d', queryTypeID = '%d', queryTypeText = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $intQuery2TypeID, $obj_form->id, $intQueryTypeID, $strQueryTypeText, $intQuery2TypeOrder, get_current_user_id())); //, queryTypeClass = %s, queryTypeFetchFrom = %s, $strQueryTypeClass, $strQueryTypeFetchFrom
+				}
+
+				if($wpdb->rows_affected > 0)
+				{
+					$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $strQueryTypePlaceholder = $intCheckID = $strQueryTypeTag = $strQueryTypeClass = $strQueryTypeFetchFrom = $strQueryTypeActionEquals = $intQueryTypeActionShow = "";
+				}
+			}
+
+			else
+			{
+				$error_text = __("Couldn't insert the new field", 'lang_form');
+			}
 		}
 	}
 
-	echo "<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." ".$strFormName : __("Add New", 'lang_form'))."</h2>"
+	if($intQueryTypeID == 0)
+	{
+		echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."'</script>";
+	}
+}
+
+if($obj_form->id > 0)
+{
+	if(isset($_GET['recover']))
+	{
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0' WHERE queryID = '%d'", $obj_form->id));
+	}
+
+	$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailCheckConfirm, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
+	$r = $result[0];
+	$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
+	$intQueryEmailConfirm = $r->queryEmailConfirm;
+	$intQueryEmailConfirmPage = $r->queryEmailConfirmPage;
+	$intQueryShowAnswers = $r->queryShowAnswers;
+	$strQueryAnswerURL = $r->queryAnswerURL;
+	$strQueryEmail = $r->queryEmail;
+	$intQueryEmailNotify = $r->queryEmailNotify;
+	$intQueryEmailNotifyPage = $r->queryEmailNotifyPage;
+	$strQueryEmailName = $r->queryEmailName;
+	$strQueryMandatoryText = $r->queryMandatoryText;
+	$strQueryButtonText = $r->queryButtonText;
+	$strQueryButtonSymbol = $r->queryButtonSymbol;
+	$intQueryPaymentProvider = $r->queryPaymentProvider;
+	$strQueryPaymentHmac = $r->queryPaymentHmac;
+	$strQueryPaymentMerchant = $r->queryPaymentMerchant;
+	$strQueryPaymentPassword = $r->queryPaymentPassword;
+	$strQueryPaymentCurrency = $r->queryPaymentCurrency;
+	$intQueryPaymentAmount = $r->queryPaymentAmount;
+	$strQueryCreated = $r->queryCreated;
+
+	$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+	$strFormURL = $obj_form->get_post_info();
+	$dteFormDeadline = $obj_form->meta(array('action' => 'get', 'key' => 'deadline'));
+}
+
+if($intQuery2TypeID > 0)
+{
+	$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $intQuery2TypeID));
+	$r = $result[0];
+	$intQueryTypeID = $r->queryTypeID;
+	$strQueryTypeText = $r->queryTypeText;
+	$strQueryTypePlaceholder = $r->queryTypePlaceholder;
+	$intCheckID = $r->checkID;
+	$strQueryTypeTag = $r->queryTypeTag;
+	$strQueryTypeClass = $r->queryTypeClass;
+	$strQueryTypeFetchFrom = $r->queryTypeFetchFrom;
+	$strQueryTypeActionEquals = $r->queryTypeActionEquals;
+	$intQueryTypeActionShow = $r->queryTypeActionShow;
+
+	switch($intQueryTypeID)
+	{
+		case 2:
+			list($strQueryTypeText, $strQueryTypeMin, $strQueryTypeMax, $strQueryTypeDefault) = explode("|", $strQueryTypeText);
+		break;
+
+		case 10:
+		case 11:
+			list($strQueryTypeText, $strQueryTypeSelect) = explode(":", $strQueryTypeText);
+		break;
+	}
+
+	if(isset($_GET['btnFieldCopy']))
+	{
+		$intQuery2TypeID = "";
+	}
+}
+
+echo "<div class='wrap'>
+	<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." ".$strFormName : __("Add New", 'lang_form'))."</h2>"
 	.get_notification()
 	."<div id='poststuff'>";
 

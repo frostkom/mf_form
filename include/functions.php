@@ -807,7 +807,7 @@ function show_query_form($data)
 
 						if($intQueryPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
 						{
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = '101 (Sent to processing)'", $intAnswerID));
+							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $intAnswerID, "101: ".__("Sent to processing")));
 
 							$intQueryPaymentTest = isset($_POST['intQueryPaymentTest']) && is_user_logged_in() && IS_ADMIN ? 1 : 0;
 
@@ -968,7 +968,7 @@ function show_query_form($data)
 											$out .= show_checkbox(array('name' => "intQueryPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
 										}
 
-										$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."' class='button button-secondary'>".__("Edit this form", 'lang_form')."</a>";
+										//$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."' class='button button-secondary'>".__("Edit this form", 'lang_form')."</a>";
 									}
 
 									if(isset($data['send_to']) && $data['send_to'] != '')
