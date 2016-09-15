@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-22 11:33+0100\n"
+"POT-Creation-Date: 2016-09-10 16:56+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -216,7 +216,7 @@ msgstr "Ja"
 
 #: ../create/index.php:58
 #: ../create/index.php:123
-#: ../include/functions.php:701
+#: ../include/functions.php:706
 msgid "Please, enter all required fields"
 msgstr "Var vänlig fyll i alla obligatoriska fält"
 
@@ -234,12 +234,12 @@ msgstr "Det gick inte att lägga in det nya fältet"
 
 #: ../create/index.php:268
 #: ../create/index.php:423
-#: ../include/functions.php:943
+#: ../include/functions.php:948
 msgid "Update"
 msgstr "Uppdatera"
 
 #: ../create/index.php:268
-#: ../include/functions.php:323
+#: ../include/functions.php:324
 #: ../list/index.php:12
 msgid "Add New"
 msgstr "Lägg till ny"
@@ -412,7 +412,7 @@ msgid "Symbol"
 msgstr "Symbol"
 
 #: ../create/index.php:542
-#: ../include/functions.php:839
+#: ../include/functions.php:844
 msgid "Submit"
 msgstr "Skicka"
 
@@ -756,68 +756,68 @@ msgstr "Om du vill att alla e-postlänkar i text ska ersättas med ett formulär
 msgid "Unread answers"
 msgstr "Olästa svar"
 
-#: ../include/functions.php:325
+#: ../include/functions.php:327
 msgid "Last Answers"
 msgstr "Senaste svaren"
 
-#: ../include/functions.php:326
+#: ../include/functions.php:330
 msgid "Edit Last Answer"
 msgstr "Redigera senaste svar"
 
-#: ../include/functions.php:354
+#: ../include/functions.php:359
 msgid "in"
 msgstr "i"
 
-#: ../include/functions.php:357
+#: ../include/functions.php:362
 msgid "There were unsent messages"
 msgstr "Det finns oskickade meddelanden"
 
-#: ../include/functions.php:417
-#: ../include/functions.php:423
+#: ../include/functions.php:422
+#: ../include/functions.php:428
 msgid "Test"
 msgstr "Testa"
 
-#: ../include/functions.php:616
+#: ../include/functions.php:621
 msgid "You have to submit a file"
 msgstr "Du måste skicka med en fil"
 
-#: ../include/functions.php:624
+#: ../include/functions.php:629
 msgid "The file was not uploaded"
 msgstr "Filen laddades inte upp"
 
-#: ../include/functions.php:810
+#: ../include/functions.php:815
 msgid "Sent to processing"
 msgstr "Skickad för bearbetning"
 
-#: ../include/functions.php:827
+#: ../include/functions.php:832
 msgid "The form wasn't sent correctly"
 msgstr "Formuläret skickades inte korrekt"
 
-#: ../include/functions.php:894
+#: ../include/functions.php:899
 msgid "Thank you!"
 msgstr "Tack så mycket!"
 
-#: ../include/functions.php:902
+#: ../include/functions.php:907
 msgid "This form is not open for submissions anymore"
 msgstr "Detta formulär är inte öppet längre"
 
-#: ../include/functions.php:958
+#: ../include/functions.php:963
 msgid "Does the e-mail address look right?"
 msgstr "Ser e-postadressen rätt ut?"
 
-#: ../include/functions.php:958
+#: ../include/functions.php:963
 msgid "or"
 msgstr "eller"
 
-#: ../include/functions.php:958
+#: ../include/functions.php:963
 msgid "Change"
 msgstr "Ändra"
 
-#: ../include/functions.php:962
+#: ../include/functions.php:967
 msgid "Clear"
 msgstr "Rensa"
 
-#: ../include/functions.php:968
+#: ../include/functions.php:973
 msgid "Perform test payment"
 msgstr "Genomför testbetalning"
 

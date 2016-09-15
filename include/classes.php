@@ -231,16 +231,15 @@ class mf_form
 		global $wpdb;
 
 		$arr_data = array();
-
 		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
 
 		$result = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
 
 		foreach($result as $r)
 		{
-			$result = get_page_from_form($r->queryID);
+			$result2 = get_page_from_form($r->queryID);
 
-			if(count($result) > 0 || $check_from_form == false)
+			if(count($result2) > 0 || $check_from_form == false)
 			{
 				$obj_form = new mf_form($r->queryID);
 				$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
@@ -2249,14 +2248,13 @@ class widget_form extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $defaults);
 
 		$obj_form = new mf_form();
-		$arr_data = $obj_form->get_form_array();
+		$arr_data = $obj_form->get_form_array(false);
 
-		echo "<p>
-			<label for='".$this->get_field_id('form_heading')."'>".__("Heading", 'lang_form')."</label>
-			<input type='text' name='".$this->get_field_name('form_heading')."' value='".$instance['form_heading']."' class='widefat'>
-		</p>
+		echo "<p>"
+			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => "class='widefat'"))
+		."</p>
 		<p>"
-			.show_select(array('data' => $arr_data, 'name' => $this->get_field_id('form_id'), 'compare' => $instance['form_id']))
+			.show_select(array('data' => $arr_data, 'name' => $this->get_field_name('form_id'), 'compare' => $instance['form_id']))
 		."</p>";
 	}
 }

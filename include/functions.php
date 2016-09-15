@@ -316,14 +316,19 @@ function menu_form()
 
 	$count_message = get_count_message();
 
-	add_menu_page(__("Forms", 'lang_form'), __("Forms", 'lang_form').$count_message, $menu_capability, $menu_start, '', 'dashicons-forms');
+	$menu_title = __("Forms", 'lang_form');
+	add_menu_page($menu_title, $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms');
 
 	if($count_forms > 0)
 	{
-		add_submenu_page($menu_start, __("Add New", 'lang_form'), __("Add New", 'lang_form'), $menu_capability, $menu_root.'create/index.php');
+		$menu_title = __("Add New", 'lang_form');
+		add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'create/index.php');
 
-		add_submenu_page($menu_root, __("Last Answers", 'lang_form'), __("Last Answers", 'lang_form'), $menu_capability, $menu_root.'answer/index.php');
-		add_submenu_page($menu_root, __("Edit Last Answer", 'lang_form'), __("Edit Last Answer", 'lang_form'), $menu_capability, $menu_root.'view/index.php');
+		$menu_title = __("Last Answers", 'lang_form');
+		add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'answer/index.php');
+
+		$menu_title = __("Edit Last Answer", 'lang_form');
+		add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
 	}
 }
 
@@ -533,7 +538,10 @@ function show_query_form($data)
 						$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
 						$intQueryTypeRequired = $r->queryTypeRequired;
 
-						$arr_email_content['fields'][$intQuery2TypeID2] = array();
+						if(!isset($arr_email_content['fields'][$intQuery2TypeID2]))
+						{
+							$arr_email_content['fields'][$intQuery2TypeID2] = array();
+						}
 
 						$handle2fetch = $strFormPrefix.$intQuery2TypeID2;
 
@@ -689,11 +697,16 @@ function show_query_form($data)
 							if($strAnswerText_radio != '')
 							{
 								$arr_query[] = $wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '[answer_id]', query2TypeID = %s, answerText = ''", $strAnswerText_radio);
+
+								$strQueryTypeText_temp = $wpdb->get_var($wpdb->prepare("SELECT queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $strAnswerText_radio));
+
+								if(!isset($arr_email_content['fields'][$strAnswerText_radio]))
+								{
+									$arr_email_content['fields'][$strAnswerText_radio] = array();
+								}
+
+								$arr_email_content['fields'][$strAnswerText_radio]['value'] = "x";
 							}
-
-							$strQueryTypeText_temp = $wpdb->get_var($wpdb->prepare("SELECT queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $strAnswerText_radio));
-
-							$arr_email_content['fields'][$intQuery2TypeID2]['value'] = "x";
 						}
 
 						else if($intQueryTypeRequired == true && !in_array($intQueryTypeID2, array(5, 6, 9)) && $error_text == '')
