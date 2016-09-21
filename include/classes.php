@@ -2254,7 +2254,7 @@ class widget_form extends WP_Widget
 			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => "class='widefat'"))
 		."</p>
 		<p>"
-			.show_select(array('data' => $arr_data, 'name' => $this->get_field_name('form_id'), 'compare' => $instance['form_id']))
+			.show_select(array('data' => $arr_data, 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
 		."</p>";
 	}
 }

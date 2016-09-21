@@ -307,7 +307,7 @@ echo "<div class='wrap'>
 											}
 										}
 
-										echo show_select(array('data' => $arr_data, 'name' => 'intQueryTypeID', 'compare' => $intQueryTypeID, 'text' => __("Type", 'lang_form')));
+										echo show_select(array('data' => $arr_data, 'name' => 'intQueryTypeID', 'value' => $intQueryTypeID, 'text' => __("Type", 'lang_form')));
 									}
 
 									echo show_textarea(array('name' => 'strQueryTypeText', 'text' => __("Text", 'lang_form'), 'value' => $strQueryTypeText, 'class' => "show_textarea hide")) //, 'wysiwyg' => true, 'size' => 'small'
@@ -326,7 +326,7 @@ echo "<div class='wrap'>
 											$arr_data[$r->checkID] = __($r->checkName, 'lang_form');
 										}
 
-										echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"));
+										echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'value' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"));
 									}
 
 									echo show_textfield(array('name' => 'strQueryTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strQueryTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"));
@@ -336,7 +336,7 @@ echo "<div class='wrap'>
 										'fieldset' => "fieldset",
 									);
 
-									echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeText2', 'compare' => $strQueryTypeText, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
+									echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeText2', 'value' => $strQueryTypeText, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
 									."<div class='show_range flex_flow hide'>"
 										.show_textfield(array('name' => 'strQueryTypeMin', 'text' => __("Min value", 'lang_form'), 'value' => $strQueryTypeMin, 'maxlength' => 3, 'size' => 5))
 										.show_textfield(array('name' => 'strQueryTypeMax', 'text' => __("Max value", 'lang_form'), 'value' => $strQueryTypeMax, 'maxlength' => 3, 'size' => 5))
@@ -385,7 +385,7 @@ echo "<div class='wrap'>
 											'blockquote' => "blockquote",
 										);
 
-										echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeTag', 'compare' => $strQueryTypeTag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
+										echo show_select(array('data' => $arr_data, 'name' => 'strQueryTypeTag', 'value' => $strQueryTypeTag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
 										.show_textfield(array('name' => 'strQueryTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strQueryTypeClass, 'placeholder' => "bold italic aligncenter alignleft alignright", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"))
 										.show_textfield(array('name' => 'strQueryTypeFetchFrom', 'text' => __("Fetch From ID", 'lang_form'), 'value' => $strQueryTypeFetchFrom, 'maxlength' => 50, 'xtra_class' => "show_fetch_from hide"));
 
@@ -408,8 +408,8 @@ echo "<div class='wrap'>
 												if(count($arr_data_show) > 0)
 												{
 													echo "<div class='show_actions'>"
-														.show_select(array('data' => $arr_data_equals, 'name' => 'strQueryTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'compare' => $strQueryTypeActionEquals))
-														.show_select(array('data' => $arr_data_show, 'name' => 'intQueryTypeActionShow', 'compare' => $intQueryTypeActionShow, 'text' => __("...show this...", 'lang_form')))
+														.show_select(array('data' => $arr_data_equals, 'name' => 'strQueryTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'value' => $strQueryTypeActionEquals))
+														.show_select(array('data' => $arr_data_show, 'name' => 'intQueryTypeActionShow', 'value' => $intQueryTypeActionShow, 'text' => __("...show this...", 'lang_form')))
 													."</div>";
 												}
 											}
@@ -497,7 +497,7 @@ echo "<div class='wrap'>
 
 								$arr_data_pages = $arr_data;
 
-								echo show_select(array('data' => $arr_data_pages, 'name' => 'strQueryAnswerURL', 'compare' => $strQueryAnswerURL, 'text' => __("Confirmation page", 'lang_form')));
+								echo show_select(array('data' => $arr_data_pages, 'name' => 'strQueryAnswerURL', 'value' => $strQueryAnswerURL, 'text' => __("Confirmation page", 'lang_form')));
 
 								if($obj_form->is_poll())
 								{
@@ -522,13 +522,13 @@ echo "<div class='wrap'>
 									echo input_hidden(array('name' => "intQueryEmailNotify", 'value' => 1));
 								}
 
-								echo show_select(array('data' => $arr_data_pages, 'name' => 'intQueryEmailNotifyPage', 'compare' => $intQueryEmailNotifyPage, 'text' => __("Notification template", 'lang_form'), 'class' => "query_email_notify_page".($intQueryEmailNotify == 1 ? " " : " hide")))
+								echo show_select(array('data' => $arr_data_pages, 'name' => 'intQueryEmailNotifyPage', 'value' => $intQueryEmailNotifyPage, 'text' => __("Notification template", 'lang_form'), 'class' => "query_email_notify_page".($intQueryEmailNotify == 1 ? " " : " hide")))
 								."<h4>".__("Email to visitor", 'lang_form')."</h4>";
 
 								if($obj_form->has_email_field() > 0)
 								{
 									echo show_checkbox(array('name' => 'intQueryEmailConfirm', 'text' => __("Send confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intQueryEmailConfirm))
-									.show_select(array('data' => $arr_data_pages, 'name' => 'intQueryEmailConfirmPage', 'compare' => $intQueryEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form'), 'class' => "query_email_confirm_page".($intQueryEmailConfirm == 1 ? " " : " hide"))); //, 'description' => __("If you don't choose a page, the content of the form will be sent as content", 'lang_form')
+									.show_select(array('data' => $arr_data_pages, 'name' => 'intQueryEmailConfirmPage', 'value' => $intQueryEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form'), 'class' => "query_email_confirm_page".($intQueryEmailConfirm == 1 ? " " : " hide"))); //, 'description' => __("If you don't choose a page, the content of the form will be sent as content", 'lang_form')
 								}
 
 								if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'required' => true, 'check_code' => 'email')))
@@ -538,7 +538,7 @@ echo "<div class='wrap'>
 
 								echo "<h4>".__("Button", 'lang_form')."</h4>
 								<div class='flex_flow'>"
-									.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strQueryButtonSymbol', 'compare' => $strQueryButtonSymbol, 'text' => __("Symbol", 'lang_form')))
+									.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strQueryButtonSymbol', 'value' => $strQueryButtonSymbol, 'text' => __("Symbol", 'lang_form')))
 									.show_textfield(array('name' => 'strQueryButtonText', 'text' => __("Text", 'lang_form'), 'value' => $strQueryButtonText, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
 								."</div>
 							</div>
@@ -554,7 +554,7 @@ echo "<div class='wrap'>
 								$arr_data[3] = __("Paypal", 'lang_form');
 								$arr_data[2] = __("Skrill", 'lang_form');
 
-								echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentProvider', 'compare' => $intQueryPaymentProvider, 'text' => __("Provider", 'lang_form')));
+								echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentProvider', 'value' => $intQueryPaymentProvider, 'text' => __("Provider", 'lang_form')));
 
 								if($intQueryPaymentProvider == 1)
 								{
@@ -619,12 +619,12 @@ echo "<div class='wrap'>
 
 									$arr_data = array_sort(array('array' => $arr_data, 'on' => 1, 'keep_index' => true));
 
-									echo show_select(array('data' => $arr_data, 'name' => 'strQueryPaymentCurrency', 'compare' => $strQueryPaymentCurrency, 'text' => __("Currency", 'lang_form')));
+									echo show_select(array('data' => $arr_data, 'name' => 'strQueryPaymentCurrency', 'value' => $strQueryPaymentCurrency, 'text' => __("Currency", 'lang_form')));
 
 									list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(10, 12)));
 									$arr_data = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
 
-									echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentAmount', 'compare' => $intQueryPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')));
+									echo show_select(array('data' => $arr_data, 'name' => 'intQueryPaymentAmount', 'value' => $intQueryPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')));
 								}
 
 							echo "</div>

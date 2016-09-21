@@ -207,7 +207,7 @@ function setting_redirect_emails_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key, 'no');
 
-	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'compare' => $option, 'description' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
+	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'description' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
 }
 
 function setting_form_test_emails_callback()
@@ -215,7 +215,7 @@ function setting_form_test_emails_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'compare' => $option, 'description' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
+	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'description' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
 }
 
 function setting_form_permission_callback()
@@ -225,7 +225,7 @@ function setting_form_permission_callback()
 
 	$arr_data = get_roles_for_select(array('add_choose_here' => true));
 
-	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option));
+	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
 }
 
 function setting_form_permission_see_all_callback()
@@ -235,7 +235,7 @@ function setting_form_permission_see_all_callback()
 
 	$arr_data = get_roles_for_select(array('add_choose_here' => true));
 
-	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option));
+	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
 }
 
 function mf_form_setting_replacement_form_callback()
@@ -246,7 +246,7 @@ function mf_form_setting_replacement_form_callback()
 	$obj_form = new mf_form();
 	$arr_data = $obj_form->get_form_array(false);
 
-	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'compare' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 }
 
 function widgets_form()
