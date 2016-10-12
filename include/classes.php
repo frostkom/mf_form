@@ -2,7 +2,7 @@
 
 class mf_form
 {
-	function mf_form($id = 0)
+	function __construct($id = 0)
 	{
 		$this->id = $id > 0 ? $id : check_var('intQueryID');
 
@@ -743,7 +743,7 @@ if(!class_exists('mf_form_payment'))
 {
 	class mf_form_payment
 	{
-		function mf_form_payment($data = array())
+		function __construct($data = array())
 		{
 			global $wpdb;
 
