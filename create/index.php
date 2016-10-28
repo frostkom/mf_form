@@ -371,7 +371,7 @@ echo "<div class='wrap'>
 
 									//Advanced
 									#################
-									echo "<a href='#' class='toggler'><h3>".__("Advanced", 'lang_form')."</h3></a>
+									echo "<label class='toggler'><i class='fa fa-lg fa-caret-right'></i><span>".__("Advanced", 'lang_form')."</span></label>
 									<div>";
 
 										$arr_data = array(

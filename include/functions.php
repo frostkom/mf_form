@@ -889,7 +889,7 @@ function show_query_form($data)
 						$wpdb->set_prefix($wpdb->base_prefix);
 						####################
 
-						if($intQueryAnswerURL != $wp_query->post->ID)
+						if($intQueryAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 						{
 							$strQueryAnswerURL = get_permalink($intQueryAnswerURL);
 

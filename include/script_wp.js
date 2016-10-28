@@ -106,11 +106,6 @@ jQuery(function($)
 		$('.show_select input[name=strQueryTypeSelect]').val(select_value);
 	}
 
-	$('.toggler').on('click', function()
-	{
-		$(this).next().toggleClass('hide');
-	});
-
 	$('.ajax_link').on('click', function()
 	{
 		var self = $(this),

@@ -10,12 +10,6 @@
 		width: 50%;
 	}
 
-	.toggler
-	{
-		box-shadow: none !important;
-		cursor: pointer;
-	}
-
 	.mf_settings .alignleft
 	{
 		margin-right: 3%;
