@@ -1667,6 +1667,7 @@ class mf_form_table extends mf_list_table
 								}
 							}
 
+							$actions['add_post'] = "<a href='".admin_url("post-new.php?content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
 							$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 						}
 					}

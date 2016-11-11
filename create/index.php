@@ -372,7 +372,7 @@ echo "<div class='wrap'>
 									//Advanced
 									#################
 									echo "<label class='toggler'><i class='fa fa-lg fa-caret-right'></i><span>".__("Advanced", 'lang_form')."</span></label>
-									<div>";
+									<div class='toggle_container hide'>";
 
 										$arr_data = array(
 											'' => "-- ".__("Choose here", 'lang_form')." --",
