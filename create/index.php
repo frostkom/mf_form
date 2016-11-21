@@ -420,12 +420,12 @@ echo "<div class='wrap'>
 
 								echo "</div>
 							</div>"
-							.show_submit(array('name' => "btnFormAdd", 'text' => ($intQuery2TypeID > 0 ? __("Update", 'lang_form') : __("Add", 'lang_form'))));
+							.show_button(array('name' => "btnFormAdd", 'text' => ($intQuery2TypeID > 0 ? __("Update", 'lang_form') : __("Add", 'lang_form'))));
 
 							if($intQuery2TypeID > 0)
 							{
 								echo "&nbsp;<a href='?page=mf_form/create/index.php&intQueryID=".$obj_form->id."'>"
-									.show_submit(array('type' => 'button', 'text' => __("Cancel", 'lang_form'), 'class' => "button"))
+									.show_button(array('type' => 'button', 'text' => __("Cancel", 'lang_form'), 'class' => "button"))
 								."</a>"
 								.input_hidden(array('name' => 'intQuery2TypeID', 'value' => $intQuery2TypeID));
 							}
@@ -465,10 +465,10 @@ echo "<div class='wrap'>
 
 								if($form_output != '')
 								{
-									echo show_submit(array('name' => "btnFormPublish", 'text' => ($form_status == "publish" ? __("Save", 'lang_form') : __("Publish", 'lang_form'))));
+									echo show_button(array('name' => "btnFormPublish", 'text' => ($form_status == "publish" ? __("Save", 'lang_form') : __("Publish", 'lang_form'))));
 								}
 
-								echo show_submit(array('name' => "btnFormDraft", 'text' => __("Save Draft", 'lang_form'), 'class' => "button"));
+								echo show_button(array('name' => "btnFormDraft", 'text' => __("Save Draft", 'lang_form'), 'class' => "button"));
 
 								if($form_status == "publish")
 								{
@@ -641,7 +641,7 @@ echo "<div class='wrap'>
 					<h3 class='hndle'><span>".__("Add new", 'lang_form')."</span></h3>
 					<div class='inside'>"
 						.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intQuery2TypeID > 0 ? "" : "autofocus")))
-						.show_submit(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))
+						.show_button(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))
 						.input_hidden(array('name' => "intQueryID", 'value' => $obj_form->id))
 						.wp_nonce_field('form_update', '_wpnonce', true, false)
 					."</div>

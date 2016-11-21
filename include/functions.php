@@ -953,7 +953,7 @@ function show_query_form($data)
 
 						if($intAnswerID > 0)
 						{
-							$out .= show_submit(array('name' => "btnQueryUpdate", 'text' => __("Update", 'lang_form')))
+							$out .= show_button(array('name' => "btnQueryUpdate", 'text' => __("Update", 'lang_form')))
 							.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
 							.input_hidden(array('name' => 'intAnswerID', 'value' => $intAnswerID));
 						}
@@ -971,8 +971,8 @@ function show_query_form($data)
 										$out .= "<div class='updated hide'><p>".__("Does the e-mail address look right?", 'lang_form')." ".$strQueryButtonText." ".__("or", 'lang_form')." <a href='#' class='show_none_email'>".__("Change", 'lang_form')."</a></p></div>";
 									}
 
-									$out .= show_submit(array('name' => "btnFormSubmit", 'text' => $strQueryButtonSymbol.$strQueryButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
-									.show_submit(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
+									$out .= show_button(array('name' => "btnFormSubmit", 'text' => $strQueryButtonSymbol.$strQueryButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
+									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
 									if(is_user_logged_in() && IS_ADMIN)
 									{
