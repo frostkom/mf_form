@@ -390,7 +390,7 @@ echo "<div class='wrap'>
 									}
 								}
 
-								echo $strAnswerText;
+								echo stripslashes(stripslashes($strAnswerText));
 
 								if($strAnswerText != 1 && $value > 0)
 								{

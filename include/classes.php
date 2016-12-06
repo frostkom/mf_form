@@ -1762,7 +1762,16 @@ class mf_form_output
 
 			foreach($result as $r)
 			{
-				$this->answer_text = $r->answerText;
+				switch($this->row->queryTypeID)
+				{
+					default:
+						$this->answer_text = stripslashes(stripslashes($r->answerText));
+					break;
+
+					case 8:
+						$this->answer_text = $this->row->query2TypeID;
+					break;
+				}
 			}
 		}
 
