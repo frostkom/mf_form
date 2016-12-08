@@ -446,7 +446,7 @@ class mf_form
 	{
 		if(!isset($data['template'])){	$data['template'] = false;}
 
-		$out_fields = $out_doc_types = $out_products = "";
+		$out_fields = $out_doc_types = $out_products = $out_product = "";
 
 		foreach($data['array'] as $key => $arr_types)
 		{
@@ -503,6 +503,8 @@ class mf_form
 						}
 
 						$out_products .= " ".$arr_types['value'];
+
+						$out_product = $arr_types['value'];
 					}
 
 					$out_products .= "\n";
@@ -532,8 +534,8 @@ class mf_form
 
 		else
 		{
-			$arr_exclude = array("[form_fields]", "[doc_types]", "[products]");
-			$arr_include = array($out_fields, $out_doc_types, $out_products);
+			$arr_exclude = array("[form_fields]", "[doc_types]", "[products]", "[product]");
+			$arr_include = array($out_fields, $out_doc_types, $out_products, $out_product);
 
 			$out = str_replace($arr_exclude, $arr_include, $data['template']);
 		}

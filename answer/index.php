@@ -25,33 +25,16 @@ if($query_answers > 0)
 $paged = check_var('paged', 'int', true, '0');
 $strSearch = check_var('s', 'char', true);
 
+/*$strAnswerText2 = check_var('strAnswerText2');
+$dteQueryStartDate = check_var('dteQueryStartDate', 'char', true, date("Y-m-d", strtotime("-2 year")));
+$dteQueryEndDate = check_var('dteQueryEndDate', 'char', true, date("Y-m-d", strtotime("+1 day")));*/
+
 $intLimitAmount = 20;
 $intLimitStart = $paged * $intLimitAmount;
 
 if(!($obj_form->id > 0))
 {
 	$obj_form->id = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query LEFT JOIN ".$wpdb->base_prefix."query2answer USING (queryID) WHERE queryDeleted = '0' ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
-}
-
-$dteQueryStartDate = check_var('dteQueryStartDate', 'char', true, date("Y-m-d", strtotime("-2 year")));
-$dteQueryEndDate = check_var('dteQueryEndDate', 'char', true, date("Y-m-d", strtotime("+1 day")));
-
-$strQuerySearch = "";
-$strAnswerText2 = check_var('strAnswerText2');
-
-if($strAnswerText2 != '')
-{
-	$strQuerySearch .= " AND answerText LIKE '%".esc_sql($strAnswerText2)."%'";
-}
-
-if($dteQueryStartDate > DEFAULT_DATE)
-{
-	$strQuerySearch .= " AND answerCreated >= '".esc_sql($dteQueryStartDate)."'";
-}
-
-if($dteQueryEndDate > DEFAULT_DATE)
-{
-	$strQuerySearch .= " AND answerCreated <= '".esc_sql($dteQueryEndDate)."'";
 }
 
 $result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
@@ -193,14 +176,30 @@ echo "<div class='wrap'>
 		</script>";
 	}
 
-	$query_xtra = "";
+	$query_join = $query_where = "";
 
 	if($strSearch != '')
 	{
-		$query_xtra .= " AND (answerText LIKE '%".esc_sql($strSearch)."%' OR answerCreated LIKE '%".esc_sql($strSearch)."%')";
+		$query_join .= " LEFT JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)";
+		$query_where .= " AND (answerText LIKE '%".$strSearch."%' OR answerEmail LIKE '%".$strSearch."%' OR answerCreated LIKE '%".$strSearch."%')";
+	}
+	
+	/*if($strAnswerText2 != '')
+	{
+		$query_where .= " AND answerText LIKE '%".$strAnswerText2."%'";
 	}
 
-	$resultPagination = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC", $obj_form->id));
+	if($dteQueryStartDate > DEFAULT_DATE)
+	{
+		$query_where .= " AND answerCreated >= '".$dteQueryStartDate."'";
+	}
+
+	if($dteQueryEndDate > DEFAULT_DATE)
+	{
+		$query_where .= " AND answerCreated <= '".$dteQueryEndDate."'";
+	}*/
+
+	$resultPagination = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID)".$query_join." WHERE queryID = '".esc_sql($obj_form->id)."'".$query_where." GROUP BY answerID ORDER BY answerCreated DESC");
 
 	echo get_list_navigation($resultPagination)
 	."<table class='wp-list-table widefat striped'>";
@@ -218,12 +217,6 @@ echo "<div class='wrap'>
 				case 2:
 					list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
 				break;
-
-				/*case 8:
-					$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '%d'", $obj_form->id, $intQuery2TypeID2));
-
-					$strQueryTypeText .= " (".$intAnswerCount.")";
-				break;*/
 
 				case 10:
 				case 11:
@@ -247,7 +240,7 @@ echo "<div class='wrap'>
 
 			$strFormPrefix = $obj_form->get_post_info()."_";
 
-			$result = $wpdb->get_results("SELECT answerID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$obj_form->id."'".$query_xtra.$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".esc_sql($intLimitStart).", ".esc_sql($intLimitAmount));
+			$result = $wpdb->get_results("SELECT answerID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID)".$query_join." WHERE queryID = '".esc_sql($obj_form->id)."'".$query_where." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
 			$rows = $wpdb->num_rows;
 
 			if($rows == 0)
@@ -435,7 +428,7 @@ echo "<div class='wrap'>
 								{
 									$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
 
-									if($strSentTo != '')
+									if($strSentTo != '' && strlen($strSentTo) > 4)
 									{
 										echo " | ".__("Sent to", 'lang_form').": ".$strSentTo;
 									}
