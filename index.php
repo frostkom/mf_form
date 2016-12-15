@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 6.5.4
+Version: 7.3.3
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -146,7 +146,7 @@ function activate_form()
 		queryTypeName VARCHAR(30) DEFAULT NULL,
 		queryTypeResult enum('0','1') NOT NULL DEFAULT '1',
 		PRIMARY KEY (queryTypeID)
-	) DEFAULT CHARSET=".$default_charset); //queryTypeShowInForm ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
+	) DEFAULT CHARSET=".$default_charset);
 
 	if(get_bloginfo('language') == "sv-SE")
 	{
@@ -180,9 +180,7 @@ function activate_form()
 		'queryPaymentPassword' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER queryPaymentMerchant",
 		'queryEmailConfirmPage' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryEmailConfirm",
 		'blogID' => "ALTER TABLE [table] ADD [column] INT AFTER queryID",
-		//'queryImproveUX' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName",
 		'queryPaymentProvider' => "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryButtonText",
-		//'queryURL' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryName",
 		'queryPaymentCurrency' => "ALTER TABLE [table] ADD [column] VARCHAR(3) AFTER queryPaymentMerchant",
 		'queryButtonSymbol' => "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText",
 		'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER blogID",
@@ -214,7 +212,6 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."query_type"] = array(
 		'queryTypePublic' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeID",
 		'queryTypeCode' => "ALTER TABLE [table] ADD [column] VARCHAR(30) AFTER queryTypePublic",
-		//'queryTypeShowInForm' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeResult",
 	);
 
 	add_columns($arr_add_column);
@@ -293,7 +290,7 @@ function activate_form()
 		13 => array('code' => 'custom_tag',			'name' => __("Custom tag", 'lang_form'),			'result' => 0),
 		14 => array('code' => 'custom_tag_end',		'name' => __("Custom tag (end)", 'lang_form'),		'result' => 0,		'public' => 'no'),
 		15 => array('code' => 'file',				'name' => __("File", 'lang_form'),					'result' => 1),
-		//16 => array('code' => 'email_text',			'name' => __("Email text", 'lang_form'),			'result' => 0,		'show_in_form' => 'no'),
+		//16 => array('code' => 'email_text',			'name' => __("Email text", 'lang_form'),		'result' => 0,		'show_in_form' => 'no'),
 	);
 
 	foreach($arr_query_types as $key => $value)
@@ -301,7 +298,7 @@ function activate_form()
 		if(!isset($value['public'])){	$value['public'] = 'yes';}
 		//if(!isset($value['show_in_form'])){	$value['show_in_form'] = 'yes';}
 
-		$arr_run_query[] = sprintf("INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '%d', queryTypeCode = '%s', queryTypeName = '%s', queryTypeResult = '%d', queryTypePublic = '%s'", $key, $value['code'], $value['name'], $value['result'], $value['public']); //, queryTypeShowInForm = '%s', $value['show_in_form']
+		$arr_run_query[] = sprintf("INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '%d', queryTypeCode = '%s', queryTypeName = '%s', queryTypeResult = '%d', queryTypePublic = '%s'", $key, $value['code'], $value['name'], $value['result'], $value['public']);
 	}
 
 	$query_temp = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES";
@@ -399,7 +396,7 @@ function uninstall_form()
 {
 	mf_uninstall_plugin(array(
 		'uploads' => "mf_form",
-		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission', 'setting_form_permission_see_all', 'mf_form_setting_replacement_form', 'mf_forms_viewed', 'answer_viewed'),
+		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission', 'setting_form_permission_see_all', 'mf_form_setting_replacement_form', 'setting_link_yes_text', 'setting_link_no_text', 'mf_forms_viewed', 'answer_viewed'),
 		'tables' => array('query', 'query2answer', 'query2type', 'query_answer', 'query_answer_email', 'query_check', 'query_type', 'query_zipcode'),
 	));
 }

@@ -491,9 +491,7 @@ echo "<div class='wrap'>
 								//$arr_data_pages = $obj_form->get_pages_for_select();
 
 								$arr_data = array();
-								$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
-
-								get_post_children(array('output_array' => true), $arr_data);
+								get_post_children(array('add_choose_here' => true, 'output_array' => true), $arr_data);
 
 								$arr_data_pages = $arr_data;
 

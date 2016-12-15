@@ -181,11 +181,29 @@ function settings_form()
 
 	$arr_settings = array();
 
-	$arr_settings["setting_redirect_emails"] = __("Redirect all e-mails", 'lang_form');
-	$arr_settings["setting_form_test_emails"] = __("Redirect test e-mails", 'lang_form');
-	$arr_settings["setting_form_permission"] = __("Role to see forms", 'lang_form');
-	$arr_settings["setting_form_permission_see_all"] = __("Role to see all", 'lang_form');
-	$arr_settings["mf_form_setting_replacement_form"] = __("Form to replace all e-mail links", 'lang_form');
+	$arr_settings['setting_redirect_emails'] = __("Redirect all e-mails", 'lang_form');
+
+	if(get_option('setting_redirect_emails') != 'yes')
+	{
+		$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
+	}
+
+	$arr_settings['setting_form_permission'] = __("Role to see forms", 'lang_form');
+
+	if(get_option('setting_form_permission') != '')
+	{
+		$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
+	}
+
+	$arr_settings['mf_form_setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
+
+	$obj_form = new mf_form();
+
+	if($obj_form->has_template())
+	{
+		$arr_settings['setting_link_yes_text'] = __("Text to send as positive response", 'lang_form');
+		$arr_settings['setting_link_no_text'] = __("Text to send as negative response", 'lang_form');
+	}
 
 	foreach($arr_settings as $handle => $text)
 	{
@@ -249,6 +267,22 @@ function mf_form_setting_replacement_form_callback()
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 }
 
+function setting_link_yes_text_callback()
+{
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key);
+
+	echo show_textarea(array('name' => $setting_key, 'value' => $option, 'xtra' => " class='widefat'", 'placeholder' => __("Of course, the answer is yes", 'lang_form')));
+}
+
+function setting_link_no_text_callback()
+{
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key);
+
+	echo show_textarea(array('name' => $setting_key, 'value' => $option, 'xtra' => " class='widefat'", 'placeholder' => __("I am afraid that the answer is no", 'lang_form')));
+}
+
 function widgets_form()
 {
 	register_widget('widget_form');
@@ -260,11 +294,6 @@ function get_form_xtra($query_xtra = "", $search = "", $prefix = " WHERE", $fiel
 
 	$setting_form_permission_see_all = get_option('setting_form_permission_see_all');
 	$is_allowed_to_see_all_forms = $setting_form_permission_see_all != '' ? current_user_can($setting_form_permission_see_all) : true;
-
-	/*if(!IS_ADMIN)
-	{
-		$query_xtra .= ($query_xtra != '' ? " AND" : $prefix)." (blogID = '".$wpdb->blogid."' OR blogID IS null)";
-	}*/
 
 	if(!$is_allowed_to_see_all_forms)
 	{
@@ -411,7 +440,7 @@ function mf_form_mail($data)
 {
 	global $wpdb;
 
-	if(!isset($data['headers'])){		$data['headers'] = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";}
+	if(!isset($data['headers'])){	$data['headers'] = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";}
 
 	$out = "";
 
@@ -431,7 +460,7 @@ function mf_form_mail($data)
 
 	add_filter('wp_mail_content_type', 'set_html_content_type');
 
-	$data['content'] = nl2br($data['content']);
+	//$data['content'] = nl2br($data['content']);
 
 	if($data['content'] == "")
 	{
@@ -470,6 +499,110 @@ function show_query_form($data)
 	if(isset($_GET['accept']) || isset($_GET['callback']) || isset($_GET['cancel']))
 	{
 		$out .= $payment->process_callback();
+	}
+
+	else if(isset($_GET['btnFormLinkYes']))
+	{
+		$intAnswerID = check_var('answer_id', 'int');
+		$intProductID = check_var('product_id', 'int');
+		$strAnswerEmail = check_var('answer_email');
+		$hash = check_var('hash');
+
+		if($hash == md5(NONCE_SALT."_".$intAnswerID."_".$intProductID))
+		{
+			if($intProductID > 0)
+			{
+				$obj_webshop = new mf_webshop();
+
+				$mail_from_name = $obj_webshop->get_product_name(array('id' => $intProductID));
+			}
+
+			else
+			{
+				$mail_from_name = get_bloginfo('name');
+			}
+
+			$mail_from = $strAnswerEmail;
+			$mail_to = $obj_form->get_answer_email($intAnswerID);
+			$mail_subject = $obj_form->get_form_name();
+			$mail_content = str_replace("[product]", $mail_from_name, get_option('setting_link_yes_text'));
+
+			if($mail_content != '')
+			{
+				$mail_data = array(
+					'headers' => "From: ".$mail_from_name." <".$mail_from.">\r\n",
+					'to' => $mail_to,
+					'subject' => $mail_subject,
+					'content' => nl2br($mail_content),
+				);
+
+				mf_form_mail($mail_data);
+
+				$out .= "<p>".__("The message has been sent!", 'lang_form')."</p>";
+			}
+
+			else
+			{
+				$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as positive response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
+			}
+		}
+
+		else
+		{
+			$error_text = __("Oops! You don't seam to have the correct link or it has expired", 'lang_form');
+		}
+	}
+
+	else if(isset($_GET['btnFormLinkNo']))
+	{
+		$intAnswerID = check_var('answer_id', 'int');
+		$intProductID = check_var('product_id', 'int');
+		$strAnswerEmail = check_var('answer_email');
+		$hash = check_var('hash');
+
+		if($hash == md5(NONCE_SALT."_".$intAnswerID."_".$intProductID))
+		{
+			if($intProductID > 0)
+			{
+				$obj_webshop = new mf_webshop();
+
+				$mail_from_name = $obj_webshop->get_product_name(array('id' => $intProductID));
+			}
+
+			else
+			{
+				$mail_from_name = get_bloginfo('name');
+			}
+
+			$mail_from = $strAnswerEmail;
+			$mail_to = $obj_form->get_answer_email($intAnswerID);
+			$mail_subject = $obj_form->get_form_name();
+			$mail_content = str_replace("[product]", $mail_from_name, get_option('setting_link_no_text'));
+
+			if($mail_content != '')
+			{
+				$mail_data = array(
+					'headers' => "From: ".$mail_from_name." <".$mail_from.">\r\n",
+					'to' => $mail_to,
+					'subject' => $mail_subject,
+					'content' => nl2br($mail_content),
+				);
+
+				mf_form_mail($mail_data);
+
+				$out .= "<p>".__("The message has been sent!", 'lang_form')."</p>";
+			}
+
+			else
+			{
+				$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as negative response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
+			}
+		}
+
+		else
+		{
+			$error_text = __("Oops! You don't seam to have the correct link or it has expired", 'lang_form');
+		}
 	}
 
 	else
@@ -727,109 +860,128 @@ function show_query_form($data)
 					//do_action('action_form_on_submit');
 					$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strFormName), 'notify_page' => $intQueryEmailNotifyPage, 'arr_mail_content' => $arr_email_content));
 
-					$arr_email_content = isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0 ? $email_content_temp['arr_mail_content'] : $arr_email_content;
-
-					if($intAnswerID > 0)
+					if($error_text == '')
 					{
-						foreach($arr_query as $query)
-						{
-							$wpdb->query(str_replace("[answer_id]", $intAnswerID, $query));
+						$arr_email_content = isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0 ? $email_content_temp['arr_mail_content'] : $arr_email_content;
 
-							if($wpdb->rows_affected == 0)
+						if($intAnswerID > 0)
+						{
+							foreach($arr_query as $query)
 							{
-								$updated = false;
+								$wpdb->query(str_replace("[answer_id]", $intAnswerID, $query));
+
+								if($wpdb->rows_affected == 0)
+								{
+									$updated = false;
+								}
 							}
-						}
-					}
-
-					else
-					{
-						$updated = false;
-					}
-
-					if($updated == true)
-					{
-						$answer_data = "";
-
-						if(isset($data['send_to']) && $data['send_to'] != '')
-						{
-							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
-							$mail_content = $obj_form->render_mail_content(array('array' => $arr_email_content));
-
-							$mail_data = array(
-								'to' => $data['send_to'],
-								'subject' => $mail_subject,
-								'content' => $mail_content,
-								'answer_id' => $intAnswerID
-							);
-
-							if($email_from != '')
-							{
-								$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
-							}
-
-							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
-						}
-
-						if($intQueryEmailNotify == 1 && $strQueryEmail != '')
-						{
-							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
-
-							list($mail_subject, $mail_content) = $obj_form->get_page_content_for_email($intQueryEmailNotifyPage, $mail_subject, $arr_email_content);
-
-							$mail_data = array(
-								'to' => $strQueryEmail,
-								'subject' => $mail_subject,
-								'content' => $mail_content,
-								'answer_id' => $intAnswerID
-							);
-
-							if($email_from != '')
-							{
-								$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
-							}
-
-							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
-						}
-
-						if($intQueryEmailConfirm == 1 && isset($email_from) && $email_from != '')
-						{
-							$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
-
-							list($mail_subject, $mail_content) = $obj_form->get_page_content_for_email($intQueryEmailConfirmPage, $mail_subject, $arr_email_content);
-
-							$mail_data = array(
-								'to' => $email_from,
-								'subject' => $mail_subject,
-								'content' => $mail_content,
-								'answer_id' => $intAnswerID
-							);
-
-							if($strQueryEmail != '')
-							{
-								$mail_data['headers'] = "From: ".$strQueryEmail." <".$strQueryEmail.">\r\n";
-							}
-
-							$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
-						}
-
-						if($answer_data != '')
-						{
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $intAnswerID, $answer_data));
-						}
-
-						if($intQueryPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
-						{
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $intAnswerID, "101: ".__("Sent to processing")));
-
-							$intQueryPaymentTest = isset($_POST['intQueryPaymentTest']) && is_user_logged_in() && IS_ADMIN ? 1 : 0;
-
-							$out .= $payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $intAnswerID, 'test' => $intQueryPaymentTest));
 						}
 
 						else
 						{
-							$data['sent'] = true;
+							$updated = false;
+						}
+
+						if($updated == true)
+						{
+							$answer_data = "";
+
+							if(isset($data['send_to']) && $data['send_to'] != '')
+							{
+								$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
+								$mail_content = $obj_form->render_mail_content(array('array' => $arr_email_content));
+
+								$mail_data = array(
+									'to' => $data['send_to'],
+									'subject' => $mail_subject,
+									'content' => $mail_content,
+									'answer_id' => $intAnswerID,
+								);
+
+								if($email_from != '')
+								{
+									$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
+								}
+
+								$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
+							}
+
+							if($intQueryEmailNotify == 1 && $strQueryEmail != '')
+							{
+								$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
+								
+								$page_content_data = array(
+									'page_id' => $intQueryEmailNotifyPage,
+									'answer_id' => $intAnswerID,
+									'mail_to' => $strQueryEmail,
+									'subject' => $mail_subject,
+									'content' => $arr_email_content,
+								);
+
+								list($mail_subject, $mail_content) = $obj_form->get_page_content_for_email($page_content_data);
+
+								$mail_data = array(
+									'to' => $strQueryEmail,
+									'subject' => $mail_subject,
+									'content' => $mail_content,
+									'answer_id' => $intAnswerID,
+								);
+
+								if($email_from != '')
+								{
+									$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
+								}
+
+								$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
+							}
+
+							if($intQueryEmailConfirm == 1 && isset($email_from) && $email_from != '')
+							{
+								$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
+
+								$page_content_data = array(
+									'page_id' => $intQueryEmailConfirmPage,
+									'answer_id' => $intAnswerID,
+									'mail_to' => $email_from,
+									'subject' => $mail_subject,
+									'content' => $arr_email_content,
+								);
+
+								list($mail_subject, $mail_content) = $obj_form->get_page_content_for_email($page_content_data);
+
+								$mail_data = array(
+									'to' => $email_from,
+									'subject' => $mail_subject,
+									'content' => $mail_content,
+									'answer_id' => $intAnswerID,
+								);
+
+								if($strQueryEmail != '')
+								{
+									$mail_data['headers'] = "From: ".$strQueryEmail." <".$strQueryEmail.">\r\n";
+								}
+
+								$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
+							}
+
+							if($answer_data != '')
+							{
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $intAnswerID, $answer_data));
+							}
+
+							if($intQueryPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
+							{
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $intAnswerID, "101: ".__("Sent to processing")));
+
+								$intQueryPaymentTest = isset($_POST['intQueryPaymentTest']) && is_user_logged_in() && IS_ADMIN ? 1 : 0;
+
+								$out .= $payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $intAnswerID, 'test' => $intQueryPaymentTest));
+							}
+
+							else
+							{
+								$data['sent'] = true;
+							}
 						}
 					}
 				}
@@ -1000,6 +1152,8 @@ function show_query_form($data)
 			}
 		}
 	}
+
+	$out .= get_notification();
 
 	return $out;
 }

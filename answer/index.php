@@ -443,7 +443,7 @@ echo "<div class='wrap'>
 
 							if($count_temp > 0)
 							{
-								$li_out = "";
+								$li_out = $strAnswerEmail_temp = "";
 								$sent_successfully = 0;
 
 								foreach($result_emails as $r)
@@ -451,22 +451,26 @@ echo "<div class='wrap'>
 									$strAnswerEmail = $r->answerEmail;
 									$intAnswerSent = $r->answerSent;
 
-									$li_out .= "<li>";
+									if($intAnswerSent == 1)
+									{
+										$fa_class = "fa-check green";
 
-										if($intAnswerSent == 1)
-										{
-											$li_out .= "<i class='fa fa-check green'></i>";
+										$sent_successfully++;
+									}
 
-											$sent_successfully++;
-										}
+									else
+									{
+										$fa_class = "fa-close red";
+									}
 
-										else
-										{
-											$li_out .= "<i class='fa fa-close red'></i>";
-										}
+									if($strAnswerEmail != $strAnswerEmail_temp)
+									{
+										$li_out .= "<li>
+											<i class='fa ".$fa_class."'></i> ".$strAnswerEmail
+										."</li>";
 
-										$li_out .= " ".$strAnswerEmail
-									."</li>";
+										$strAnswerEmail_temp = $strAnswerEmail;
+									}
 								}
 
 								echo $sent_successfully.($count_temp != $sent_successfully ? "/".$count_temp : "")

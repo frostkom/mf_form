@@ -201,6 +201,22 @@ class mf_form
 		return $dup_ip;
 	}
 
+	function has_template()
+	{
+		global $wpdb;
+
+		$query_where = "";
+
+		if($this->id > 0)
+		{
+			$query_where .= " AND queryID = '".$this->id."'";
+		}
+
+		$intQueryID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE (queryEmailNotifyPage > 0 OR queryEmailConfirmPage > 0)".$query_where);
+
+		return ($intQueryID > 0 ? true : false);
+	}
+
 	function get_form_status($data = array())
 	{
 		global $wpdb;
@@ -344,9 +360,16 @@ class mf_form
 	{
 		global $wpdb;
 
-		$intQuery2TypeID = $wpdb->get_var($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND checkID = '5'", $this->id));
+		return $wpdb->get_var($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND checkID = '5'", $this->id));
+	}
 
-		return $this->get_post_info()."_".$intQuery2TypeID;
+	function get_answer_email($intAnswerID)
+	{
+		global $wpdb;
+
+		$intQuery2TypeID = $this->get_form_email_field();
+
+		return $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '%d'", $intAnswerID, $intQuery2TypeID));
 	}
 
 	function get_city_from_zip($zip)
@@ -378,9 +401,29 @@ class mf_form
 
 		$query_join = $query_where = "";
 
+		if(isset($data['query_type_id']) && $data['query_type_id'] > 0)
+		{
+			$query_where .= " AND queryTypeID = '".$data['query_type_id']."'";
+		}
+
 		if(isset($data['required']) && $data['required'] != '')
 		{
 			$query_where .= " AND queryTypeRequired = '".$data['required']."'";
+		}
+
+		if(isset($data['autofocus']) && $data['autofocus'] != '')
+		{
+			$query_where .= " AND queryTypeAutofocus = '".$data['autofocus']."'";
+		}
+
+		if(isset($data['remember']) && $data['remember'] != '')
+		{
+			$query_where .= " AND queryTypeRemember = '".$data['remember']."'";
+		}
+
+		if(isset($data['']) && $data[''] != '')
+		{
+			$query_where .= " AND queryTypeAutofocus = '".$data['']."'";
 		}
 
 		if(isset($data['check_code']) && $data['check_code'] != '')
@@ -389,7 +432,7 @@ class mf_form
 			$query_where .= " AND checkCode = '".$data['check_code']."'";
 		}
 
-		$intQuery2TypeID = $wpdb->get_var($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type".$query_join." WHERE queryID = '%d' AND queryTypeID = '%d'".$query_where, $this->id, $data['query_type_id']));
+		$intQuery2TypeID = $wpdb->get_var($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type".$query_join." WHERE queryID = '%d'".$query_where, $this->id));
 
 		return $intQuery2TypeID > 0 ? true : false;
 	}
@@ -444,9 +487,10 @@ class mf_form
 
 	function render_mail_content($data)
 	{
+		if(!isset($data['answer_id'])){	$data['answer_id'] = 0;}
 		if(!isset($data['template'])){	$data['template'] = false;}
 
-		$out_fields = $out_doc_types = $out_products = $out_product = "";
+		$out_fields = $out_doc_types = $out_products = $intProductID = $strProductName = "";
 
 		foreach($data['array'] as $key => $arr_types)
 		{
@@ -455,7 +499,7 @@ class mf_form
 				case 'fields':
 					foreach($arr_types as $key => $arr_value)
 					{
-						$out_fields .= $arr_value['label'];
+						$out_fields .= "- ".$arr_value['label'];
 
 						if(isset($arr_value['value']) && $arr_value['value'] != '')
 						{
@@ -464,22 +508,25 @@ class mf_form
 								$out_fields .= ":";
 							}
 
-							$out_fields .= " ".$arr_value['value'];
+							$out_fields .= " <strong>"
+								.$arr_value['value'];
 
-							if(isset($arr_value['xtra']))
-							{
-								$out_fields .= $arr_value['xtra'];
-							}
+								if(isset($arr_value['xtra']))
+								{
+									$out_fields .= $arr_value['xtra'];
+								}
+
+							$out_fields .= "</strong>";
 						}
 
-						$out_fields .= "\n";
+						$out_fields .= "<br>";
 					}
 				break;
 
 				case 'doc_types':
 					foreach($arr_types as $key => $arr_value)
 					{
-						$out_doc_types .= $arr_value['label'];
+						$out_doc_types .= "- ".$arr_value['label'];
 
 						if(substr($arr_value['label'], -1) != ":")
 						{
@@ -488,26 +535,30 @@ class mf_form
 
 						$out_doc_types .= " ".$arr_value['value'];
 
-						$out_doc_types .= "\n";
+						$out_doc_types .= "<br>";
 					}
 				break;
 
 				case 'products':
-					$out_products .= $arr_types['label'];
-
-					if($arr_types['value'] != '')
+					foreach($arr_types as $product)
 					{
-						if(substr($arr_types['label'], -1) != ":")
+						//$out_products .= "- ".$product['label'];
+
+						if($product['value'] != '')
 						{
-							$out_products .= ":";
+							/*if(substr($product['label'], -1) != ":")
+							{
+								$out_products .= ":";
+							}*/
+
+							$out_products .= "- ".$product['value']."<br>";
+
+							$intProductID = $product['id'];
+							$strProductName = $product['value'];
 						}
 
-						$out_products .= " ".$arr_types['value'];
-
-						$out_product = $arr_types['value'];
+						//$out_products .= "<br>";
 					}
-
-					$out_products .= "\n";
 				break;
 			}
 		}
@@ -518,24 +569,45 @@ class mf_form
 
 			if($out_fields != '')
 			{
-				$out .= "\n".$out_fields;
+				$out .= "<br>".$out_fields;
 			}
 
 			if($out_doc_types != '')
 			{
-				$out .= "\n".$out_doc_types;
+				$out .= "<br>".$out_doc_types;
 			}
 
 			if($out_products != '')
 			{
-				$out .= "\n".$out_products;
+				$out .= "<br>".$out_products;
 			}
 		}
 
 		else
 		{
-			$arr_exclude = array("[form_fields]", "[doc_types]", "[products]", "[product]");
-			$arr_include = array($out_fields, $out_doc_types, $out_products, $out_product);
+			$link_base_url = get_form_url($this->id)."?btnVar"
+				."&answer_email=".$data['mail_to']
+				."&answer_id=".$data['answer_id']
+				."&product_id=".$intProductID
+				."&hash=".md5(NONCE_SALT."_".$data['answer_id']."_".$intProductID);
+
+			$arr_exclude = array(
+				"[form_fields]",
+				"[doc_types]",
+				"[products]",
+				"[product]",
+				"[link_yes]",
+				"[link_no]",
+			);
+
+			$arr_include = array(
+				$out_fields,
+				$out_doc_types,
+				$out_products,
+				$strProductName,
+				str_replace("btnVar", "btnFormLinkYes", $link_base_url),
+				str_replace("btnVar", "btnFormLinkNo", $link_base_url),
+			);
 
 			$out = str_replace($arr_exclude, $arr_include, $data['template']);
 		}
@@ -543,33 +615,34 @@ class mf_form
 		return $out;
 	}
 
-	function get_page_content_for_email($page_id, $mail_subject, $arr_email_content)
+	function get_page_content_for_email($data)
 	{
 		global $wpdb;
 
 		$mail_content = "";
 
-		if($page_id > 0)
+		if($data['page_id'] > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $page_id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $data['page_id']));
 
 			foreach($result as $r)
 			{
-				$mail_subject = $r->post_title;
+				$data['subject'] = $r->post_title;
 				$mail_template = apply_filters('the_content', $r->post_content);
 
-				$mail_content = $this->render_mail_content(array('array' => $arr_email_content, 'template' => $mail_template));
+				$mail_content = $this->render_mail_content(array('answer_id' => $data['answer_id'], 'mail_to' => $data['mail_to'], 'array' => $data['content'], 'template' => $mail_template));
 
-				add_filter('wp_mail_content_type', 'set_html_content_type');
+				//This is already in mf_form_mail()
+				//add_filter('wp_mail_content_type', 'set_html_content_type');
 			}
 		}
 
 		if($mail_content == '')
 		{
-			$mail_content = $this->render_mail_content(array('array' => $arr_email_content));
+			$mail_content = $this->render_mail_content(array('array' => $data['content']));
 		}
 
-		return array($mail_subject, $mail_content);
+		return array($data['subject'], $mail_content);
 	}
 
 	function has_email_field()
@@ -594,103 +667,6 @@ class mf_form
 
 		return $arr_data;
 	}
-
-	/*function get_pages_for_select()
-	{
-		global $wpdb;
-
-		$arr_data = array();
-		$arr_data[''] = "-- ".__("Choose page here", 'lang_form')." --";
-
-		$arr_sites = array();
-
-		if(is_multisite())
-		{
-			$result = $wpdb->get_results("SELECT blog_id, domain FROM ".$wpdb->base_prefix."blogs ORDER BY blog_id ASC");
-
-			foreach($result as $r)
-			{
-				$blog_id = $r->blog_id;
-				$domain = $r->domain;
-
-				if(IS_ADMIN || $blog_id == $wpdb->blogid)
-				{
-					$arr_sites[$blog_id] = $domain;
-				}
-			}
-		}
-
-		else
-		{
-			$arr_sites[0] = "";
-		}
-
-		foreach($arr_sites as $key => $value)
-		{
-			$blog_id = $key;
-			$domain = $value;
-
-			if($blog_id > 0)
-			{
-				//Switch to temp site
-				####################
-				$wpdbobj = clone $wpdb;
-				$wpdb->blogid = $blog_id;
-				$wpdb->set_prefix($wpdb->base_prefix);
-				####################
-
-				$post_prefix = $blog_id."_";
-			}
-
-			else
-			{
-				$post_prefix = "";
-			}
-
-			$resultPosts = $wpdb->get_results("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = 'page' AND post_status = 'publish' AND post_parent = '0' AND post_title != '' ORDER BY menu_order ASC");
-
-			if($wpdb->num_rows > 0)
-			{
-				if(count($arr_sites) > 1 && $blog_id > 0)
-				{
-					$arr_data["opt_start_".$domain] = $domain;
-				}
-
-					foreach($resultPosts as $r)
-					{
-						$post_id = $r->ID;
-						$post_title = $r->post_title;
-
-						$arr_data[$post_prefix.$post_id] = $post_title;
-
-						$result2 = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title FROM ".$wpdb->posts." WHERE post_type = 'page' AND post_status = 'publish' AND post_parent = '%d' AND post_title != '' ORDER BY menu_order ASC", $post_id));
-
-						foreach($result2 as $r)
-						{
-							$post_id = $r->ID;
-							$post_title = $r->post_title;
-
-							$arr_data[$post_prefix.$post_id] = "&nbsp;&nbsp;&nbsp;&nbsp;".$post_title;
-						}
-					}
-
-				if(count($arr_sites) > 1 && $blog_id > 0)
-				{
-					$arr_data["opt_end_".$domain] = "";
-				}
-			}
-
-			if($blog_id > 0)
-			{
-				//Switch back to orig site
-				###################
-				$wpdb = clone $wpdbobj;
-				###################
-			}
-		}
-
-		return $arr_data;
-	}*/
 
 	function get_form_type_for_select($data)
 	{
@@ -737,7 +713,7 @@ class mf_form
 			$query_where_id = $this->id;
 		}
 
-		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeRemember, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id)); //, queryTypeShowInForm
+		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeRemember, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
 	}
 }
 
@@ -1599,6 +1575,7 @@ class mf_form_table extends mf_list_table
 		$this->set_columns(array(
 			//'cb' => '<input type="checkbox">',
 			'post_title' => __("Name", 'lang_form'),
+			'content' => __("Content", 'lang_form'),
 			'answers' => __("Answers", 'lang_form'),
 			'post_modified' => __("Modified", 'lang_form'),
 		));
@@ -1684,6 +1661,111 @@ class mf_form_table extends mf_list_table
 					.$strFormName
 				."</a>"
 				.$this->row_actions($actions);
+			break;
+
+			case 'content':
+				if($post_status == 'publish')
+				{
+					echo "<i class='fa fa-lg fa-link' title='".__("Public", 'lang_form')."'></i> ";
+				}
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmail, queryEmailNotifyPage, queryEmailConfirm, queryEmailConfirmPage, queryPaymentProvider FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $obj_form->id));
+
+				foreach($result as $r)
+				{
+					$strQueryEmail = $r->queryEmail;
+					$intQueryEmailNotifyPage = $r->queryEmailNotifyPage;
+					$intQueryEmailConfirm = $r->queryEmailConfirm;
+					$intQueryEmailConfirmPage = $r->queryEmailConfirmPage;
+					$intQueryPaymentProvider = $r->queryPaymentProvider;
+
+					if($strQueryEmail != '')
+					{
+						if($intQueryEmailNotifyPage > 0)
+						{
+							echo "<i class='fa fa-lg fa-send green' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strQueryEmail)."'></i> ";
+						}
+
+						else
+						{
+							echo "<i class='fa fa-lg fa-send green' title='".sprintf(__("Emails will be sent to %s on every answer", 'lang_form'), $strQueryEmail)."'></i> ";
+						}
+					}
+
+					if($intQueryEmailConfirm > 0)
+					{
+						if($intQueryEmailConfirmPage > 0)
+						{
+							echo "<i class='fa fa-lg fa-send-o blue' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
+						}
+
+						else
+						{
+							echo "<i class='fa fa-lg fa-send-o blue' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
+						}
+					}
+
+					if($intQueryPaymentProvider > 0)
+					{
+						switch($intQueryPaymentProvider)
+						{
+							case 3:
+								$icon = "fa-paypal";
+							break;
+
+							default:
+								$icon = "fa-shopping-cart";
+							break;
+						}
+
+						echo "<i class='fa fa-lg ".$icon." blue' title='".__("Provider", 'lang_form')."'></i> ";
+					}
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
+				{
+					echo "<i class='fa fa-lg fa-at' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 1)))
+				{
+					echo "<i class='fa fa-lg fa-check-square-o' title='".__("Checkbox", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 2)))
+				{
+					echo "<i class='fa fa-lg fa-sliders' title='".__("Range", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
+				{
+					echo "<i class='fa fa-lg fa-calendar' title='".__("Datepicker", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 8)))
+				{
+					echo "<i class='fa fa-lg fa-circle-o' title='".__("Radio button", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
+				{
+					echo "<i class='fa fa-lg fa-file-o' title='".__("File", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('required' => true)))
+				{
+					echo "<i class='fa fa-lg fa-asterisk red' title='".__("There are required fields", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('autofocus' => true)))
+				{
+					echo "<i class='fa fa-lg fa-i-cursor' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('remember' => true)))
+				{
+					echo "<i class='fa fa-lg fa-refresh' title='".__("There are remembered fields", 'lang_form')."'></i> ";
+				}
 			break;
 
 			case 'answers':
