@@ -272,7 +272,13 @@ function setting_link_yes_text_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	echo show_textarea(array('name' => $setting_key, 'value' => $option, 'xtra' => " class='widefat'", 'placeholder' => __("Of course, the answer is yes", 'lang_form')));
+	//echo show_textarea(array('name' => $setting_key, 'value' => $option, 'xtra' => " class='widefat'", 'placeholder' => __("Of course, the answer is yes", 'lang_form')));
+	echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
+		'class' => "hide_media_button hide_tabs",
+		'mini_toolbar' => true,
+		'textarea_rows' => 5,
+		'statusbar' => false,
+	));
 }
 
 function setting_link_no_text_callback()
@@ -280,7 +286,13 @@ function setting_link_no_text_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	echo show_textarea(array('name' => $setting_key, 'value' => $option, 'xtra' => " class='widefat'", 'placeholder' => __("I am afraid that the answer is no", 'lang_form')));
+	//echo show_textarea(array('name' => $setting_key, 'value' => $option, 'xtra' => " class='widefat'", 'placeholder' => __("I am afraid that the answer is no", 'lang_form')));
+	echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
+		'class' => "hide_media_button hide_tabs",
+		'mini_toolbar' => true,
+		'textarea_rows' => 5,
+		'statusbar' => false,
+	));
 }
 
 function widgets_form()
@@ -538,7 +550,8 @@ function show_query_form($data)
 
 				mf_form_mail($mail_data);
 
-				$out .= "<p>".__("The message has been sent!", 'lang_form')."</p>";
+				$out .= "<p>".__("The message has been sent!", 'lang_form')."</p>
+				<p class='grey'>".nl2br($mail_content)."</p>";
 			}
 
 			else
@@ -590,7 +603,15 @@ function show_query_form($data)
 
 				mf_form_mail($mail_data);
 
-				$out .= "<p>".__("The message has been sent!", 'lang_form')."</p>";
+				$out .= "<p>".__("The message has been sent!", 'lang_form')."</p>
+				<p class='grey'>".nl2br($mail_content)."</p>";
+
+				/*if(isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '')
+				{
+					$out .= "<div class='form_button alignleft'>
+						<a href='javascript:history.go(-1)' class='button button-primary'>&laquo; ".__("Go back", 'lang_form')."</a>
+					</div>";
+				}*/
 			}
 
 			else
@@ -854,15 +875,16 @@ function show_query_form($data)
 					$updated = true;
 
 					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerCreated = NOW()", $obj_form->id, $strAnswerIP));
-
 					$intAnswerID = $wpdb->insert_id;
 
-					//do_action('action_form_on_submit');
 					$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strFormName), 'notify_page' => $intQueryEmailNotifyPage, 'arr_mail_content' => $arr_email_content));
 
 					if($error_text == '')
 					{
-						$arr_email_content = isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0 ? $email_content_temp['arr_mail_content'] : $arr_email_content;
+						if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
+						{
+							$arr_email_content = $email_content_temp['arr_mail_content'];
+						}
 
 						if($intAnswerID > 0)
 						{
@@ -1105,18 +1127,16 @@ function show_query_form($data)
 
 						if($intAnswerID > 0)
 						{
-							$out .= show_button(array('name' => "btnQueryUpdate", 'text' => __("Update", 'lang_form')))
+							$out .= show_button(array('name' => "btnFormUpdate", 'text' => __("Update", 'lang_form')))
 							.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
 							.input_hidden(array('name' => 'intAnswerID', 'value' => $intAnswerID));
 						}
 
 						else if($data['edit'] == false)
 						{
-							//do_action('action_form_after_fields');
-
 							$out .= apply_filters('filter_form_after_fields', '')
 							."<div class='form_button_container'>
-								<div class='form_button'>"; //flex_flow
+								<div class='form_button'>";
 
 									if($has_required_email)
 									{

@@ -101,7 +101,7 @@ class mf_form
 			}
 		}
 
-		else if(isset($_POST['btnQueryUpdate']))
+		else if(isset($_POST['btnFormUpdate']))
 		{
 			$strFormPrefix = $this->get_post_info()."_";
 
@@ -1666,7 +1666,7 @@ class mf_form_table extends mf_list_table
 			case 'content':
 				if($post_status == 'publish')
 				{
-					echo "<i class='fa fa-lg fa-link' title='".__("Public", 'lang_form')."'></i> ";
+					echo "<i class='fa fa-lg fa-link grey' title='".__("Public", 'lang_form')."'></i> ";
 				}
 
 				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmail, queryEmailNotifyPage, queryEmailConfirm, queryEmailConfirmPage, queryPaymentProvider FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $obj_form->id));
@@ -1683,12 +1683,12 @@ class mf_form_table extends mf_list_table
 					{
 						if($intQueryEmailNotifyPage > 0)
 						{
-							echo "<i class='fa fa-lg fa-send green' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strQueryEmail)."'></i> ";
+							echo "<i class='fa fa-lg fa-send grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strQueryEmail)."'></i> ";
 						}
 
 						else
 						{
-							echo "<i class='fa fa-lg fa-send green' title='".sprintf(__("Emails will be sent to %s on every answer", 'lang_form'), $strQueryEmail)."'></i> ";
+							echo "<i class='fa fa-lg fa-send grey' title='".sprintf(__("Emails will be sent to %s on every answer", 'lang_form'), $strQueryEmail)."'></i> ";
 						}
 					}
 
@@ -1696,12 +1696,12 @@ class mf_form_table extends mf_list_table
 					{
 						if($intQueryEmailConfirmPage > 0)
 						{
-							echo "<i class='fa fa-lg fa-send-o blue' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
+							echo "<i class='fa fa-lg fa-send-o grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
 						}
 
 						else
 						{
-							echo "<i class='fa fa-lg fa-send-o blue' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
+							echo "<i class='fa fa-lg fa-send-o grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
 						}
 					}
 
@@ -1718,53 +1718,55 @@ class mf_form_table extends mf_list_table
 							break;
 						}
 
-						echo "<i class='fa fa-lg ".$icon." blue' title='".__("Provider", 'lang_form')."'></i> ";
+						echo "<i class='fa fa-lg ".$icon." grey' title='".__("Provider", 'lang_form')."'></i> ";
 					}
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
-				{
-					echo "<i class='fa fa-lg fa-at' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 1)))
-				{
-					echo "<i class='fa fa-lg fa-check-square-o' title='".__("Checkbox", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 2)))
-				{
-					echo "<i class='fa fa-lg fa-sliders' title='".__("Range", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
-				{
-					echo "<i class='fa fa-lg fa-calendar' title='".__("Datepicker", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 8)))
-				{
-					echo "<i class='fa fa-lg fa-circle-o' title='".__("Radio button", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
-				{
-					echo "<i class='fa fa-lg fa-file-o' title='".__("File", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('required' => true)))
 				{
-					echo "<i class='fa fa-lg fa-asterisk red' title='".__("There are required fields", 'lang_form')."'></i> ";
+					echo "<i class='fa fa-lg fa-asterisk grey' title='".__("There are required fields", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('autofocus' => true)))
 				{
-					echo "<i class='fa fa-lg fa-i-cursor' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
+					echo "<i class='fa fa-lg fa-i-cursor grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('remember' => true)))
 				{
-					echo "<i class='fa fa-lg fa-refresh' title='".__("There are remembered fields", 'lang_form')."'></i> ";
+					echo "<i class='fa fa-lg fa-refresh grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
+				}
+
+				echo "<br>";
+				
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
+				{
+					echo "<i class='fa fa-lg fa-at grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 1)))
+				{
+					echo "<i class='fa fa-lg fa-check-square-o grey' title='".__("Checkbox", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 2)))
+				{
+					echo "<i class='fa fa-lg fa-sliders grey' title='".__("Range", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
+				{
+					echo "<i class='fa fa-lg fa-calendar grey' title='".__("Datepicker", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 8)))
+				{
+					echo "<i class='fa fa-lg fa-circle-o grey' title='".__("Radio button", 'lang_form')."'></i> ";
+				}
+
+				if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
+				{
+					echo "<i class='fa fa-lg fa-file-o grey' title='".__("File", 'lang_form')."'></i> ";
 				}
 			break;
 
@@ -2249,8 +2251,8 @@ class mf_form_output
 			$out .= "<mf-form-row id='type_".$this->row->query2TypeID."' class='flex_flow".($data['query2type_id'] == $this->row->query2TypeID ? " active" : "")."'>"
 				.$this->output;
 
-				if($this->row->queryTypeID != 14)
-				{
+				/*if($this->row->queryTypeID != 14)
+				{*/
 					$out .= "<div class='row_settings'>";
 
 						if($this->show_required == true)
@@ -2271,7 +2273,7 @@ class mf_form_output
 						$out .= "<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$this->row->query2TypeID."'>".__("Edit", 'lang_form')."</a> | 
 						<a href='#delete/type/".$this->row->query2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a> | <a href='?page=mf_form/create/index.php&btnFieldCopy&intQueryID=".$data['query_id']."&intQuery2TypeID=".$this->row->query2TypeID."'>".__("Copy", 'lang_form')."</a>
 					</div>";
-				}
+				//}
 
 			$out .= "</mf-form-row>";
 		}

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-15 11:32+0100\n"
+"POT-Creation-Date: 2016-12-17 10:40+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -221,7 +221,7 @@ msgstr "Ja"
 
 #: ../create/index.php:58
 #: ../create/index.php:123
-#: ../include/functions.php:847
+#: ../include/functions.php:863
 msgid "Please, enter all required fields"
 msgstr "Var vänlig fyll i alla obligatoriska fält"
 
@@ -239,12 +239,12 @@ msgstr "Det gick inte att lägga in det nya fältet"
 
 #: ../create/index.php:268
 #: ../create/index.php:423
-#: ../include/functions.php:1108
+#: ../include/functions.php:1124
 msgid "Update"
 msgstr "Uppdatera"
 
 #: ../create/index.php:268
-#: ../include/functions.php:353
+#: ../include/functions.php:365
 #: ../list/index.php:12
 msgid "Add New"
 msgstr "Lägg till ny"
@@ -418,7 +418,7 @@ msgid "Symbol"
 msgstr "Symbol"
 
 #: ../create/index.php:540
-#: ../include/functions.php:1004
+#: ../include/functions.php:1020
 msgid "Submit"
 msgstr "Skicka"
 
@@ -757,7 +757,7 @@ msgstr "Välj ett formulär"
 #: ../include/functions.php:58
 #: ../include/functions.php:60
 #: ../include/functions.php:220
-#: ../include/functions.php:348
+#: ../include/functions.php:360
 #: ../list/index.php:11
 msgid "Forms"
 msgstr "Formulär"
@@ -806,102 +806,104 @@ msgstr "När en administratör är inloggad och testar att skicka e-post går al
 msgid "If you would like all e-mail links in text to be replaced by a form, choose one here"
 msgstr "Om du vill att alla e-postlänkar i text ska ersättas med ett formulär, välj det här"
 
-#: ../include/functions.php:275
-msgid "Of course, the answer is yes"
-msgstr "Så klart, svaret är ja"
-
-#: ../include/functions.php:283
-msgid "I am afraid that the answer is no"
-msgstr "Jag är rädd att svaret är nej"
-
-#: ../include/functions.php:325
+#: ../include/functions.php:337
 msgid "Unread answers"
 msgstr "Olästa svar"
 
-#: ../include/functions.php:356
+#: ../include/functions.php:368
 msgid "Last Answers"
 msgstr "Senaste svaren"
 
-#: ../include/functions.php:359
+#: ../include/functions.php:371
 msgid "Edit Last Answer"
 msgstr "Redigera senaste svar"
 
-#: ../include/functions.php:388
+#: ../include/functions.php:400
 msgid "in"
 msgstr "i"
 
-#: ../include/functions.php:391
+#: ../include/functions.php:403
 msgid "There were unsent messages"
 msgstr "Det finns oskickade meddelanden"
 
-#: ../include/functions.php:451
-#: ../include/functions.php:457
+#: ../include/functions.php:463
+#: ../include/functions.php:469
 msgid "Test"
 msgstr "Testa"
 
-#: ../include/functions.php:541
-#: ../include/functions.php:593
+#: ../include/functions.php:553
+#: ../include/functions.php:605
 msgid "The message has been sent!"
 msgstr "Meddelandet har skickats!"
 
-#: ../include/functions.php:546
+#: ../include/functions.php:558
 #, php-format
 msgid "There was no content to send. You have to enter text into the field 'Text to send as positive response' in %sMy Settings%s"
 msgstr "Det fanns inget innehåll att skicka. Du måste lägga in en text i fältet 'Meddelande att skicka som positivt svar' i %sMina inställningar%s"
 
-#: ../include/functions.php:552
-#: ../include/functions.php:604
+#: ../include/functions.php:564
+#: ../include/functions.php:620
 msgid "Oops! You don't seam to have the correct link or it has expired"
 msgstr "Hoppsan! Du verkar ha en felaktig länk eller så har den gått ut"
 
-#: ../include/functions.php:598
+#: ../include/functions.php:608
+msgid "Close the window"
+msgstr "Stäng fönstret"
+
+#: ../include/functions.php:614
 #, php-format
 msgid "There was no content to send. You have to enter text into the field 'Text to send as negative response' in %sMy Settings%s"
 msgstr "Det fanns inget innehåll att skicka. Du måste lägga in en text i fältet 'Meddelande att skicka som negativt svar' i %sMina inställningar%s"
 
-#: ../include/functions.php:757
+#: ../include/functions.php:773
 msgid "You have to submit a file"
 msgstr "Du måste skicka med en fil"
 
-#: ../include/functions.php:765
+#: ../include/functions.php:781
 msgid "The file was not uploaded"
 msgstr "Filen laddades inte upp"
 
-#: ../include/functions.php:974
+#: ../include/functions.php:990
 msgid "Sent to processing"
 msgstr "Skickad för bearbetning"
 
-#: ../include/functions.php:992
+#: ../include/functions.php:1008
 msgid "The form wasn't sent correctly"
 msgstr "Formuläret skickades inte korrekt"
 
-#: ../include/functions.php:1059
+#: ../include/functions.php:1075
 msgid "Thank you!"
 msgstr "Tack så mycket!"
 
-#: ../include/functions.php:1067
+#: ../include/functions.php:1083
 msgid "This form is not open for submissions anymore"
 msgstr "Detta formulär är inte öppet längre"
 
-#: ../include/functions.php:1123
+#: ../include/functions.php:1139
 msgid "Does the e-mail address look right?"
 msgstr "Ser e-postadressen rätt ut?"
 
-#: ../include/functions.php:1123
+#: ../include/functions.php:1139
 msgid "or"
 msgstr "eller"
 
-#: ../include/functions.php:1123
+#: ../include/functions.php:1139
 msgid "Change"
 msgstr "Ändra"
 
-#: ../include/functions.php:1127
+#: ../include/functions.php:1143
 msgid "Clear"
 msgstr "Rensa"
 
-#: ../include/functions.php:1133
+#: ../include/functions.php:1149
 msgid "Perform test payment"
 msgstr "Genomför testbetalning"
+
+#~ msgid "Of course, the answer is yes"
+#~ msgstr "Så klart, svaret är ja"
+
+#~ msgid "I am afraid that the answer is no"
+#~ msgstr "Jag är rädd att svaret är nej"
 
 #~ msgid "Edit this form"
 #~ msgstr "Redigera formuläret"
