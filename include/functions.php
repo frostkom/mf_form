@@ -203,6 +203,7 @@ function settings_form()
 	{
 		$arr_settings['setting_link_yes_text'] = __("Text to send as positive response", 'lang_form');
 		$arr_settings['setting_link_no_text'] = __("Text to send as negative response", 'lang_form');
+		$arr_settings['setting_link_thanks_text'] = __("Thank you message after sending response", 'lang_form');
 	}
 
 	foreach($arr_settings as $handle => $text)
@@ -272,7 +273,6 @@ function setting_link_yes_text_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	//echo show_textarea(array('name' => $setting_key, 'value' => $option, 'xtra' => " class='widefat'", 'placeholder' => __("Of course, the answer is yes", 'lang_form')));
 	echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
 		'class' => "hide_media_button hide_tabs",
 		'mini_toolbar' => true,
@@ -286,7 +286,19 @@ function setting_link_no_text_callback()
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
 
-	//echo show_textarea(array('name' => $setting_key, 'value' => $option, 'xtra' => " class='widefat'", 'placeholder' => __("I am afraid that the answer is no", 'lang_form')));
+	echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
+		'class' => "hide_media_button hide_tabs",
+		'mini_toolbar' => true,
+		'textarea_rows' => 5,
+		'statusbar' => false,
+	));
+}
+
+function setting_link_thanks_text_callback()
+{
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key);
+
 	echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
 		'class' => "hide_media_button hide_tabs",
 		'mini_toolbar' => true,
@@ -513,7 +525,7 @@ function show_query_form($data)
 		$out .= $payment->process_callback();
 	}
 
-	else if(isset($_GET['btnFormLinkYes']))
+	else if(isset($_GET['btnFormLinkYes']) || isset($_GET['btnFormLinkNo']))
 	{
 		$intAnswerID = check_var('answer_id', 'int');
 		$intProductID = check_var('product_id', 'int');
@@ -537,86 +549,38 @@ function show_query_form($data)
 			$mail_from = $strAnswerEmail;
 			$mail_to = $obj_form->get_answer_email($intAnswerID);
 			$mail_subject = $obj_form->get_form_name();
-			$mail_content = str_replace("[product]", $mail_from_name, get_option('setting_link_yes_text'));
+			$mail_content = (isset($_GET['btnFormLinkYes']) ? get_option('setting_link_yes_text') : get_option('setting_link_no_text'));
 
 			if($mail_content != '')
 			{
+				$mail_content = nl2br(str_replace("[product]", $mail_from_name, $mail_content));
+
 				$mail_data = array(
 					'headers' => "From: ".$mail_from_name." <".$mail_from.">\r\n",
 					'to' => $mail_to,
 					'subject' => $mail_subject,
-					'content' => nl2br($mail_content),
+					'content' => $mail_content,
 				);
 
 				mf_form_mail($mail_data);
 
-				$out .= "<p>".__("The message has been sent!", 'lang_form')."</p>
-				<p class='grey'>".nl2br($mail_content)."</p>";
+				$setting_link_thanks_text = nl2br(get_option_or_default('setting_link_thanks_text', __("The message has been sent!", 'lang_form')));
+
+				$out .= "<p>".$setting_link_thanks_text."</p>
+				<p class='grey'>".$mail_content."</p>";
 			}
 
 			else
 			{
-				$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as positive response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
-			}
-		}
-
-		else
-		{
-			$error_text = __("Oops! You don't seam to have the correct link or it has expired", 'lang_form');
-		}
-	}
-
-	else if(isset($_GET['btnFormLinkNo']))
-	{
-		$intAnswerID = check_var('answer_id', 'int');
-		$intProductID = check_var('product_id', 'int');
-		$strAnswerEmail = check_var('answer_email');
-		$hash = check_var('hash');
-
-		if($hash == md5(NONCE_SALT."_".$intAnswerID."_".$intProductID))
-		{
-			if($intProductID > 0)
-			{
-				$obj_webshop = new mf_webshop();
-
-				$mail_from_name = $obj_webshop->get_product_name(array('id' => $intProductID));
-			}
-
-			else
-			{
-				$mail_from_name = get_bloginfo('name');
-			}
-
-			$mail_from = $strAnswerEmail;
-			$mail_to = $obj_form->get_answer_email($intAnswerID);
-			$mail_subject = $obj_form->get_form_name();
-			$mail_content = str_replace("[product]", $mail_from_name, get_option('setting_link_no_text'));
-
-			if($mail_content != '')
-			{
-				$mail_data = array(
-					'headers' => "From: ".$mail_from_name." <".$mail_from.">\r\n",
-					'to' => $mail_to,
-					'subject' => $mail_subject,
-					'content' => nl2br($mail_content),
-				);
-
-				mf_form_mail($mail_data);
-
-				$out .= "<p>".__("The message has been sent!", 'lang_form')."</p>
-				<p class='grey'>".nl2br($mail_content)."</p>";
-
-				/*if(isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '')
+				if(isset($_GET['btnFormLinkYes']))
 				{
-					$out .= "<div class='form_button alignleft'>
-						<a href='javascript:history.go(-1)' class='button button-primary'>&laquo; ".__("Go back", 'lang_form')."</a>
-					</div>";
-				}*/
-			}
+					$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as positive response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
+				}
 
-			else
-			{
-				$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as negative response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
+				else
+				{
+					$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as negative response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
+				}
 			}
 		}
 

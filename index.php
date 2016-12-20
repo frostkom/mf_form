@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 7.3.10
+Version: 7.3.13
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -396,7 +396,7 @@ function uninstall_form()
 {
 	mf_uninstall_plugin(array(
 		'uploads' => "mf_form",
-		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission', 'setting_form_permission_see_all', 'mf_form_setting_replacement_form', 'setting_link_yes_text', 'setting_link_no_text', 'mf_forms_viewed', 'answer_viewed'),
+		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission', 'setting_form_permission_see_all', 'mf_form_setting_replacement_form', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'mf_forms_viewed', 'answer_viewed'),
 		'tables' => array('query', 'query2answer', 'query2type', 'query_answer', 'query_answer_email', 'query_check', 'query_type', 'query_zipcode'),
 	));
 }

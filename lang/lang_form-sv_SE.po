@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-17 10:40+0100\n"
+"POT-Creation-Date: 2016-12-20 08:32+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -16,12 +16,12 @@ msgstr ""
 "X-Poedit-SearchPath-0: ..\n"
 
 #: ../index.php:278
-#: ../include/classes.php:1732
+#: ../include/classes.php:1749
 msgid "Checkbox"
 msgstr "Kryssruta"
 
 #: ../index.php:279
-#: ../include/classes.php:1737
+#: ../include/classes.php:1754
 msgid "Range"
 msgstr "Spann"
 
@@ -40,17 +40,17 @@ msgid "Text"
 msgstr "Text"
 
 #: ../index.php:283
-#: ../include/classes.php:2156
+#: ../include/classes.php:2158
 msgid "Space"
 msgstr "Mellanrum"
 
 #: ../index.php:284
-#: ../include/classes.php:1742
+#: ../include/classes.php:1759
 msgid "Datepicker"
 msgstr "Datumväljare"
 
 #: ../index.php:285
-#: ../include/classes.php:1747
+#: ../include/classes.php:1764
 msgid "Radio button"
 msgstr "Alternativ"
 
@@ -79,7 +79,7 @@ msgid "Custom tag (end)"
 msgstr "Anpassat element (slut)"
 
 #: ../index.php:292
-#: ../include/classes.php:1752
+#: ../include/classes.php:1769
 msgid "File"
 msgstr "Fil"
 
@@ -171,14 +171,14 @@ msgstr "Det finns inget att visa"
 
 #: ../answer/index.php:395
 #: ../include/classes.php:1614
-#: ../include/classes.php:2271
+#: ../include/classes.php:2273
 #: ../view/index.php:8
 msgid "Edit"
 msgstr "Redigera"
 
 #: ../answer/index.php:396
 #: ../include/classes.php:1615
-#: ../include/classes.php:2272
+#: ../include/classes.php:2274
 msgid "Delete"
 msgstr "Radera"
 
@@ -221,7 +221,7 @@ msgstr "Ja"
 
 #: ../create/index.php:58
 #: ../create/index.php:123
-#: ../include/functions.php:863
+#: ../include/functions.php:832
 msgid "Please, enter all required fields"
 msgstr "Var vänlig fyll i alla obligatoriska fält"
 
@@ -239,12 +239,12 @@ msgstr "Det gick inte att lägga in det nya fältet"
 
 #: ../create/index.php:268
 #: ../create/index.php:423
-#: ../include/functions.php:1124
+#: ../include/functions.php:1094
 msgid "Update"
 msgstr "Uppdatera"
 
 #: ../create/index.php:268
-#: ../include/functions.php:365
+#: ../include/functions.php:377
 #: ../list/index.php:12
 msgid "Add New"
 msgstr "Lägg till ny"
@@ -418,7 +418,7 @@ msgid "Symbol"
 msgstr "Symbol"
 
 #: ../create/index.php:540
-#: ../include/functions.php:1020
+#: ../include/functions.php:990
 msgid "Submit"
 msgstr "Skicka"
 
@@ -642,7 +642,7 @@ msgid "Modified"
 msgstr "Uppdaterad"
 
 #: ../include/classes.php:1618
-#: ../include/classes.php:2272
+#: ../include/classes.php:2274
 msgid "Copy"
 msgstr "Kopiera"
 
@@ -685,68 +685,68 @@ msgid "A confirmation email will be sent to the visitor"
 msgstr "Ett bekräftelseepost baserat på en mall kommer att skickas till besökaren"
 
 #: ../include/classes.php:1727
-msgid "There is a field for entering email adress"
-msgstr "Det finns ett fält för att fylla i epostadress"
-
-#: ../include/classes.php:1757
 msgid "There are required fields"
 msgstr "Det finns obligatoriska fält"
 
-#: ../include/classes.php:1762
+#: ../include/classes.php:1732
 msgid "There are autofocus fields"
 msgstr "Det finns autofokus-fält"
 
-#: ../include/classes.php:1767
+#: ../include/classes.php:1737
 msgid "There are remembered fields"
 msgstr "Det finns kom-ihåg-fält"
 
-#: ../include/classes.php:1783
+#: ../include/classes.php:1744
+msgid "There is a field for entering email adress"
+msgstr "Det finns ett fält för att fylla i epostadress"
+
+#: ../include/classes.php:1785
 msgid "Show"
 msgstr "Visa"
 
-#: ../include/classes.php:1785
+#: ../include/classes.php:1787
 msgid "CSV"
 msgstr "CSV"
 
-#: ../include/classes.php:1789
+#: ../include/classes.php:1791
 msgid "XLS"
 msgstr "XLS"
 
-#: ../include/classes.php:2148
+#: ../include/classes.php:2150
 msgid "Only in e-mail"
 msgstr "Endast i e-post"
 
-#: ../include/classes.php:2165
-#: ../include/classes.php:2180
+#: ../include/classes.php:2167
+#: ../include/classes.php:2182
 msgid "Hidden"
 msgstr "Dold"
 
-#: ../include/classes.php:2234
+#: ../include/classes.php:2236
 msgid "There was no code for this type"
 msgstr "Det fanns ingen kod för denna typ"
 
-#: ../include/classes.php:2258
+#: ../include/classes.php:2260
 msgid "Required"
 msgstr "Obligatoriskt"
 
-#: ../include/classes.php:2263
+#: ../include/classes.php:2265
 msgid "Autofocus"
 msgstr "Fokusera automatiskt"
 
-#: ../include/classes.php:2268
+#: ../include/classes.php:2270
 msgid "Remember answer"
 msgstr "Kom ihåg svar"
 
-#: ../include/classes.php:2294
+#: ../include/classes.php:2296
 msgid "Display a form that you've previously created"
 msgstr "Visa ett formulär som du har skapat"
 
-#: ../include/classes.php:2299
+#: ../include/classes.php:2301
 #: ../include/functions.php:59
 msgid "Form"
 msgstr "Formulär"
 
-#: ../include/classes.php:2348
+#: ../include/classes.php:2350
 msgid "Heading"
 msgstr "Rubrik"
 
@@ -756,8 +756,8 @@ msgstr "Välj ett formulär"
 
 #: ../include/functions.php:58
 #: ../include/functions.php:60
-#: ../include/functions.php:220
-#: ../include/functions.php:360
+#: ../include/functions.php:221
+#: ../include/functions.php:372
 #: ../list/index.php:11
 msgid "Forms"
 msgstr "Formulär"
@@ -794,110 +794,111 @@ msgstr "Meddelande att skicka som positivt svar"
 msgid "Text to send as negative response"
 msgstr "Meddelande att skicka som negativt svar"
 
-#: ../include/functions.php:228
+#: ../include/functions.php:206
+msgid "Thank you message after sending response"
+msgstr "Tack-meddelande efter skickat svar"
+
+#: ../include/functions.php:229
 msgid "When a visitor sends an e-mail through the site it is redirected to the admins address"
 msgstr "När en besökare skickar e-post via webbsidan skickas det till administratörens adress istället"
 
-#: ../include/functions.php:236
+#: ../include/functions.php:237
 msgid "When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address"
 msgstr "När en administratör är inloggad och testar att skicka e-post går alla utgående meddelanden till administratörens adress"
 
-#: ../include/functions.php:267
+#: ../include/functions.php:268
 msgid "If you would like all e-mail links in text to be replaced by a form, choose one here"
 msgstr "Om du vill att alla e-postlänkar i text ska ersättas med ett formulär, välj det här"
 
-#: ../include/functions.php:337
+#: ../include/functions.php:349
 msgid "Unread answers"
 msgstr "Olästa svar"
 
-#: ../include/functions.php:368
+#: ../include/functions.php:380
 msgid "Last Answers"
 msgstr "Senaste svaren"
 
-#: ../include/functions.php:371
+#: ../include/functions.php:383
 msgid "Edit Last Answer"
 msgstr "Redigera senaste svar"
 
-#: ../include/functions.php:400
+#: ../include/functions.php:412
 msgid "in"
 msgstr "i"
 
-#: ../include/functions.php:403
+#: ../include/functions.php:415
 msgid "There were unsent messages"
 msgstr "Det finns oskickade meddelanden"
 
-#: ../include/functions.php:463
-#: ../include/functions.php:469
+#: ../include/functions.php:475
+#: ../include/functions.php:481
 msgid "Test"
 msgstr "Testa"
 
-#: ../include/functions.php:553
-#: ../include/functions.php:605
+#: ../include/functions.php:567
 msgid "The message has been sent!"
 msgstr "Meddelandet har skickats!"
 
-#: ../include/functions.php:558
+#: ../include/functions.php:577
 #, php-format
 msgid "There was no content to send. You have to enter text into the field 'Text to send as positive response' in %sMy Settings%s"
 msgstr "Det fanns inget innehåll att skicka. Du måste lägga in en text i fältet 'Meddelande att skicka som positivt svar' i %sMina inställningar%s"
 
-#: ../include/functions.php:564
-#: ../include/functions.php:620
-msgid "Oops! You don't seam to have the correct link or it has expired"
-msgstr "Hoppsan! Du verkar ha en felaktig länk eller så har den gått ut"
-
-#: ../include/functions.php:608
-msgid "Close the window"
-msgstr "Stäng fönstret"
-
-#: ../include/functions.php:614
+#: ../include/functions.php:582
 #, php-format
 msgid "There was no content to send. You have to enter text into the field 'Text to send as negative response' in %sMy Settings%s"
 msgstr "Det fanns inget innehåll att skicka. Du måste lägga in en text i fältet 'Meddelande att skicka som negativt svar' i %sMina inställningar%s"
 
-#: ../include/functions.php:773
+#: ../include/functions.php:589
+msgid "Oops! You don't seam to have the correct link or it has expired"
+msgstr "Hoppsan! Du verkar ha en felaktig länk eller så har den gått ut"
+
+#: ../include/functions.php:742
 msgid "You have to submit a file"
 msgstr "Du måste skicka med en fil"
 
-#: ../include/functions.php:781
+#: ../include/functions.php:750
 msgid "The file was not uploaded"
 msgstr "Filen laddades inte upp"
 
-#: ../include/functions.php:990
+#: ../include/functions.php:960
 msgid "Sent to processing"
 msgstr "Skickad för bearbetning"
 
-#: ../include/functions.php:1008
+#: ../include/functions.php:978
 msgid "The form wasn't sent correctly"
 msgstr "Formuläret skickades inte korrekt"
 
-#: ../include/functions.php:1075
+#: ../include/functions.php:1045
 msgid "Thank you!"
 msgstr "Tack så mycket!"
 
-#: ../include/functions.php:1083
+#: ../include/functions.php:1053
 msgid "This form is not open for submissions anymore"
 msgstr "Detta formulär är inte öppet längre"
 
-#: ../include/functions.php:1139
+#: ../include/functions.php:1107
 msgid "Does the e-mail address look right?"
 msgstr "Ser e-postadressen rätt ut?"
 
-#: ../include/functions.php:1139
+#: ../include/functions.php:1107
 msgid "or"
 msgstr "eller"
 
-#: ../include/functions.php:1139
+#: ../include/functions.php:1107
 msgid "Change"
 msgstr "Ändra"
 
-#: ../include/functions.php:1143
+#: ../include/functions.php:1111
 msgid "Clear"
 msgstr "Rensa"
 
-#: ../include/functions.php:1149
+#: ../include/functions.php:1117
 msgid "Perform test payment"
 msgstr "Genomför testbetalning"
+
+#~ msgid "Close the window"
+#~ msgstr "Stäng fönstret"
 
 #~ msgid "Of course, the answer is yes"
 #~ msgstr "Så klart, svaret är ja"
