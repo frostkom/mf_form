@@ -745,13 +745,14 @@ if(!class_exists('mf_form_payment'))
 			}
 		}
 
-		function PPHttpPost($methodName_, $nvpStr_, $PayPalApiUsername, $PayPalApiPassword, $PayPalApiSignature, $PayPalMode)
+		function PPHttpPost($methodName_, $nvpStr_, $PayPalApiUsername, $PayPalApiPassword, $PayPalApiSignature) //, $PayPalMode
 		{
 			// Set up your API credentials, PayPal end point, and API version.
 			$API_UserName = urlencode($PayPalApiUsername);
 			$API_Password = urlencode($PayPalApiPassword);
 			$API_Signature = urlencode($PayPalApiSignature);
 
+			$PayPalMode = $this->test == 1 ? 'sandbox' : 'live';
 			$paypalmode = ($PayPalMode == 'sandbox') ? '.sandbox' : '';
 
 			$API_Endpoint = "https://api-3t".$paypalmode.".paypal.com/nvp";
@@ -933,7 +934,7 @@ if(!class_exists('mf_form_payment'))
 
 			$out = "";
 
-			$PayPalMode = $this->test == 1 ? 'sandbox' : 'live';
+			//$PayPalMode = $this->test == 1 ? 'sandbox' : 'live';
 
 			$PayPalReturnURL = $this->base_callback_url."?accept";
 			$PayPalCancelURL = $this->base_callback_url."?cancel";
@@ -957,7 +958,7 @@ if(!class_exists('mf_form_payment'))
 				//'&ALLOWNOTE=1';
 
 			//We need to execute the "SetExpressCheckOut" method to obtain paypal token
-			$httpParsedResponseAr = $this->PPHttpPost('SetExpressCheckout', $padata, $this->merchant, $this->password, $this->hmac, $PayPalMode);
+			$httpParsedResponseAr = $this->PPHttpPost('SetExpressCheckout', $padata, $this->merchant, $this->password, $this->hmac); //, $PayPalMode
 
 			//Respond according to message we receive from Paypal
 			if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
@@ -1285,7 +1286,7 @@ if(!class_exists('mf_form_payment'))
 					'&PAYMENTREQUEST_0_CURRENCYCODE='.urlencode($this->currency);
 
 				//We need to execute the "DoExpressCheckoutPayment" at this point to Receive payment from user.
-				$httpParsedResponseAr = $this->PPHttpPost('DoExpressCheckoutPayment', $padata, $this->merchant, $this->password, $this->hmac, $PayPalMode);
+				$httpParsedResponseAr = $this->PPHttpPost('DoExpressCheckoutPayment', $padata, $this->merchant, $this->password, $this->hmac); //, $PayPalMode
 
 				//Check if everything went ok..
 				if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"])) 
@@ -1308,7 +1309,7 @@ if(!class_exists('mf_form_payment'))
 					// GetTransactionDetails requires a Transaction ID, and GetExpressCheckoutDetails requires Token returned by SetExpressCheckOut
 					$padata = '&TOKEN='.urlencode($this->token);
 
-					$httpParsedResponseAr = $this->PPHttpPost('GetExpressCheckoutDetails', $padata, $this->merchant, $this->password, $this->hmac, $PayPalMode);
+					$httpParsedResponseAr = $this->PPHttpPost('GetExpressCheckoutDetails', $padata, $this->merchant, $this->password, $this->hmac); //, $PayPalMode
 
 					if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"])) 
 					{
