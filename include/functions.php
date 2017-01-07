@@ -676,7 +676,7 @@ function show_query_form($data)
 										$error_text = __("You are not allowed to enter code in the text fields", 'lang_form');
 									}
 
-									else if($obj_form->contains_urls($strAnswerText))
+									else if($intQueryTypeID2 != 9 && $obj_form->contains_urls($strAnswerText))
 									{
 										do_log(__("The string contained links", 'lang_form')." (".$strQueryTypeText.": ".$strAnswerText.")");
 										//$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');
