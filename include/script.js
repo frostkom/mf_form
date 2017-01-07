@@ -20,6 +20,14 @@ jQuery(function($)
 		return false;
 	});
 
+	$('.mf_form_inline .error').each(function()
+	{
+		if($(this).length > 0)
+		{
+			$(this).parents('.mf_form_inline').show();
+		}
+	});
+
 	var range_inputs = $('.mf_form input[type=range]');
 
 	range_inputs.each(function()

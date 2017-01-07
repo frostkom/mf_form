@@ -201,6 +201,63 @@ class mf_form
 		return $dup_ip;
 	}
 
+	function is_correct_form($data)
+	{
+		$email_encrypted = check_var('email_encrypted', 'char');
+
+		$log_text = "";
+
+		if($data['query_id'] != $this->id)
+		{
+			$log_text = $data['query_id']." != ".$this->id;
+		}
+
+		if(isset($data['send_to']) && $data['send_to'] != '' && $email_encrypted != hash('sha512', $data['send_to']))
+		{
+			$log_text = $email_encrypted." != ".hash('sha512', $data['send_to']);
+		}
+
+		if($log_text != '')
+		{
+			do_log(__("The form wasn't sent correctly", 'lang_form'))." (".$log_text.")";
+
+			return false;
+		}
+
+		else
+		{
+			return true;
+		}
+	}
+
+	function contains_html($string)
+	{
+		$string_decoded = htmlspecialchars_decode($string);
+
+		if($string != strip_tags($string) || $string_decoded != strip_tags($string_decoded))
+        {
+			return true;
+		}
+
+		else
+		{
+			return false;
+		}
+	}
+
+	function contains_urls($string)
+	{
+		if(preg_match("/(http|https|ftp|ftps)\:/i", $string))
+        {
+			return true;
+		}
+
+		else
+		{
+			return false;
+		}
+	}
+
 	function has_template()
 	{
 		global $wpdb;

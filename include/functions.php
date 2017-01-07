@@ -596,7 +596,7 @@ function show_query_form($data)
 
 		if(isset($_POST['btnFormSubmit']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit'))
 		{
-			$email_encrypted = check_var('email_encrypted', 'char');
+			/*$email_encrypted = check_var('email_encrypted', 'char');
 
 			$is_correct_form = true;
 			$log_text = "";
@@ -613,9 +613,9 @@ function show_query_form($data)
 				$is_correct_form = false;
 
 				$log_text = $email_encrypted." != ".hash('sha512', $data['send_to']);
-			}
+			}*/
 
-			if($is_correct_form == true)
+			if($obj_form->is_correct_form($data)) //$is_correct_form == true
 			{
 				$email_from = $error_text = "";
 				$arr_email_content = array(
@@ -665,9 +665,31 @@ function show_query_form($data)
 
 						$strAnswerText = $strAnswerText_send = check_var($handle2fetch, $strCheckCode, true, '', true, 'post');
 
-						if($strAnswerText != '' && $intQueryTypeID2 == 3 && $strCheckCode == 'email')
+						if($strAnswerText != '')
 						{
-							$email_from = $strAnswerText;
+							switch($strCheckCode)
+							{
+								//Add specific check here to prevent HTML in messages
+								case 'char':
+									if($obj_form->contains_html($strAnswerText))
+									{
+										$error_text = __("You are not allowed to enter code in the text fields", 'lang_form');
+									}
+
+									else if($obj_form->contains_urls($strAnswerText))
+									{
+										do_log(__("The string contained links", 'lang_form')." (".$strQueryTypeText.": ".$strAnswerText.")");
+										//$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');
+									}
+								break;
+
+								case 'email':
+									if($intQueryTypeID2 == 3)
+									{
+										$email_from = $strAnswerText;
+									}
+								break;
+							}
 						}
 
 						switch($intQueryTypeID2)
@@ -973,10 +995,10 @@ function show_query_form($data)
 				}
 			}
 
-			else if($log_text != '')
+			/*else if($obj_form->log_text != '')
 			{
-				do_log(__("The form wasn't sent correctly", 'lang_form'))." (".$log_text.")";
-			}
+				do_log(__("The form wasn't sent correctly", 'lang_form'))." (".$obj_form->log_text.")";
+			}*/
 		}
 
 		$obj_font_icons = new mf_font_icons();
