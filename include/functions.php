@@ -668,8 +668,8 @@ function show_query_form($data)
 
 									else if($intQueryTypeID2 != 9 && contains_urls($strAnswerText))
 									{
-										do_log(__("The string contained links", 'lang_form')." (".$strQueryTypeText.": ".$strAnswerText.")");
-										//$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');
+										do_log(__("The string contained links and was stopped", 'lang_form')." (".$strQueryTypeText.": ".$strAnswerText.")");
+										$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');
 									}
 								break;
 
