@@ -1,5 +1,10 @@
 @media all
 {
+	.row-actions > ul
+	{
+		margin: 0;
+	}
+
 	.widefat thead th, .row-actions li
 	{
 		white-space: nowrap;

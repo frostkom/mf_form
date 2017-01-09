@@ -86,10 +86,9 @@ function delete_form($post_id)
 	{
 		$mail_to = "martin.fors@frostkom.se";
 		$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
-		$mail_subject = "Delete postID (#".$post_id.") from ".$wpdb->base_prefix."query";
-		$mail_content = $mail_subject;
+		$mail_content = $mail_subject = "Delete postID (#".$post_id.") from ".$wpdb->base_prefix."query";
 
-		wp_mail($mail_to, $mail_subject, $mail_content, $mail_headers);
+		send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers));
 
 		/*$obj_form = new mf_form();
 		$intQueryID = $obj_form->get_form_id($post_id);
@@ -464,7 +463,7 @@ function mf_form_mail($data)
 {
 	global $wpdb;
 
-	if(!isset($data['headers'])){	$data['headers'] = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";}
+	//if(!isset($data['headers'])){	$data['headers'] = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";}
 
 	$out = "";
 
@@ -482,16 +481,7 @@ function mf_form_mail($data)
 		$data['to'] = get_bloginfo('admin_email');
 	}
 
-	add_filter('wp_mail_content_type', 'set_html_content_type');
-
-	//$data['content'] = nl2br($data['content']);
-
-	if($data['content'] == "")
-	{
-		do_log("Email not sent because it was empty (".var_export($data, true).")");
-	}
-
-	$mail_sent = wp_mail($data['to'], $data['subject'], $data['content'], $data['headers']);
+	$mail_sent = send_email($data);
 
 	if(isset($data['answer_id']))
 	{
@@ -671,12 +661,12 @@ function show_query_form($data)
 							{
 								//Add specific check here to prevent HTML in messages
 								case 'char':
-									if($obj_form->contains_html($strAnswerText))
+									if(contains_html($strAnswerText))
 									{
 										$error_text = __("You are not allowed to enter code in the text fields", 'lang_form');
 									}
 
-									else if($intQueryTypeID2 != 9 && $obj_form->contains_urls($strAnswerText))
+									else if($intQueryTypeID2 != 9 && contains_urls($strAnswerText))
 									{
 										do_log(__("The string contained links", 'lang_form')." (".$strQueryTypeText.": ".$strAnswerText.")");
 										//$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');

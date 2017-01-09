@@ -230,34 +230,6 @@ class mf_form
 		}
 	}
 
-	function contains_html($string)
-	{
-		$string_decoded = htmlspecialchars_decode($string);
-
-		if($string != strip_tags($string) || $string_decoded != strip_tags($string_decoded))
-        {
-			return true;
-		}
-
-		else
-		{
-			return false;
-		}
-	}
-
-	function contains_urls($string)
-	{
-		if(preg_match("/(http|https|ftp|ftps)\:/i", $string))
-        {
-			return true;
-		}
-
-		else
-		{
-			return false;
-		}
-	}
-
 	function has_template()
 	{
 		global $wpdb;
