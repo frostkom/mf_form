@@ -984,11 +984,6 @@ function show_query_form($data)
 					}
 				}
 			}
-
-			/*else if($obj_form->log_text != '')
-			{
-				do_log(__("The form wasn't sent correctly", 'lang_form'))." (".$obj_form->log_text.")";
-			}*/
 		}
 
 		$obj_font_icons = new mf_font_icons();

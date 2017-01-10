@@ -219,7 +219,7 @@ class mf_form
 
 		if($log_text != '')
 		{
-			do_log(__("The form wasn't sent correctly", 'lang_form'))." (".$log_text.")";
+			do_log(__("The form wasn't sent correctly", 'lang_form')." (".$log_text.")");
 
 			return false;
 		}
