@@ -5,9 +5,9 @@ function update_range_text(dom_obj)
 
 jQuery(function($)
 {
-	$('.mf_form_link').on('click', function()
+	$(document).on('click', '.mf_form_link', function()
 	{
-		var dom_obj = $(this).parent().next('.mf_form_inline'),
+		var dom_obj = $(this).next('.mf_form_inline'), //.parent()
 			is_visible = dom_obj.is(':visible');
 
 		$('.mf_form_inline').hide();

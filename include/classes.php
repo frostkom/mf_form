@@ -212,14 +212,15 @@ class mf_form
 			$log_text = $data['query_id']." != ".$this->id;
 		}
 
+		//This most likely means that there are multiple forms/email-links on the page and we only want it to be sent to the actual recepient, not the rest aswell
 		if(isset($data['send_to']) && $data['send_to'] != '' && $email_encrypted != hash('sha512', $data['send_to']))
 		{
-			$log_text = $email_encrypted." != ".hash('sha512', $data['send_to']);
+			$log_text = shorten_text($email_encrypted, 10)." != ".shorten_text(hash('sha512', $data['send_to']), 10)." (".$data['send_to'].", ".$_SERVER['HTTP_REFERER'].", ".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].")";
 		}
 
 		if($log_text != '')
 		{
-			do_log(__("The form wasn't sent correctly", 'lang_form')." (".$log_text.")");
+			//do_log(__("The form wasn't sent correctly", 'lang_form')." (".$log_text.")");
 
 			return false;
 		}
@@ -757,10 +758,11 @@ if(!class_exists('mf_form_payment'))
 			$this->query_id = $data['query_id'];
 			$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'];
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryAnswerURL FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->query_id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryAnswerURL FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->query_id));
 
 			foreach($result as $r)
 			{
+				$this->name = $r->queryName;
 				$this->provider = $r->queryPaymentProvider;
 				$this->hmac = $r->queryPaymentHmac;
 				$this->merchant = $r->queryPaymentMerchant;
@@ -781,8 +783,8 @@ if(!class_exists('mf_form_payment'))
 			$API_Password = urlencode($PayPalApiPassword);
 			$API_Signature = urlencode($PayPalApiSignature);
 
-			$PayPalMode = $this->test == 1 ? 'sandbox' : 'live';
-			$paypalmode = ($PayPalMode == 'sandbox') ? '.sandbox' : '';
+			//$PayPalMode = $this->test == 1 ? 'sandbox' : 'live';
+			$paypalmode = $this->test == 1 ? '.sandbox' : '';
 
 			$API_Endpoint = "https://api-3t".$paypalmode.".paypal.com/nvp";
 			$version = urlencode('109.0');
@@ -944,7 +946,7 @@ if(!class_exists('mf_form_payment'))
 				$out .= "<script>document.form_payment.submit();</script>";
 			}
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", "102: ".__("Sent to payment", 'lang_base'), $this->orderid));
+			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."102: ".__("Sent to payment", 'lang_base')."' WHERE answerID = '".$this->orderid."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 			return $out;
 		}
@@ -957,6 +959,7 @@ if(!class_exists('mf_form_payment'))
 		}
 
 		//https://developer.paypal.com/webapps/developer/docs/classic/express-checkout/integration-guide/ECCustomizing/
+		//https://developer.paypal.com/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/
 		function process_passthru_paypal()
 		{
 			global $wpdb;
@@ -964,6 +967,7 @@ if(!class_exists('mf_form_payment'))
 			$out = "";
 
 			//$PayPalMode = $this->test == 1 ? 'sandbox' : 'live';
+			$paypalmode = $this->test == 1 ? '.sandbox' : '';
 
 			$PayPalReturnURL = $this->base_callback_url."?accept";
 			$PayPalCancelURL = $this->base_callback_url."?cancel";
@@ -971,20 +975,23 @@ if(!class_exists('mf_form_payment'))
 			$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "last"));
 
 			//Parameters for SetExpressCheckout, which will be sent to PayPal
-			$padata = '&METHOD=SetExpressCheckout'.
-				'&RETURNURL='.urlencode($PayPalReturnURL).
-				'&CANCELURL='.urlencode($PayPalCancelURL).
-				'&PAYMENTREQUEST_0_PAYMENTACTION='.urlencode("SALE").
-				//'&L_PAYMENTREQUEST_0_AMT0='.urlencode($this->amount).
-				'&NOSHIPPING=0'. //set 1 to hide buyer's shipping address, in-case products that does not require shipping
-				//'&PAYMENTREQUEST_0_ITEMAMT='.urlencode($this->amount).
-				'&PAYMENTREQUEST_0_AMT='.urlencode($this->amount).
-				//'&L_PAYMENTREQUEST_0_QTY0=1'.
-				'&PAYMENTREQUEST_0_CURRENCYCODE='.urlencode($this->currency).
-				'&LOCALECODE='.$this->language; //PayPal pages to match the language on your website.
-				//'&LOGOIMG='."http://". //site logo
-				//'&CARTBORDERCOLOR=FFFFFF'. //border color of cart
-				//'&ALLOWNOTE=1';
+			$padata = '&METHOD=SetExpressCheckout'
+				.'&RETURNURL='.urlencode($PayPalReturnURL)
+				.'&CANCELURL='.urlencode($PayPalCancelURL)
+				.'&PAYMENTREQUEST_0_PAYMENTACTION='.urlencode("SALE")
+				//.'&L_PAYMENTREQUEST_0_AMT0='.urlencode($this->amount)
+				.'&NOSHIPPING=0' //set 1 to hide buyer's shipping address, in-case products that does not require shipping
+				//.'&PAYMENTREQUEST_0_ITEMAMT='.urlencode($this->amount)
+				.'&PAYMENTREQUEST_0_AMT='.urlencode($this->amount)
+				//.'&L_PAYMENTREQUEST_0_QTY0=1'
+				.'&PAYMENTREQUEST_0_CURRENCYCODE='.urlencode($this->currency)
+				//."&L_PAYMENTREQUEST_0_NAME=".urlencode($this->name)
+				."&PAYMENTREQUEST_0_DESC=".urlencode($this->name)
+				."&LANDINGPAGE=Billing" //Billing / Login
+				.'&LOCALECODE='.$this->language; //PayPal pages to match the language on your website.
+				//.'&LOGOIMG='."http://". //site logo
+				//.'&CARTBORDERCOLOR=FFFFFF'. //border color of cart
+				//.'&ALLOWNOTE=1';
 
 			//We need to execute the "SetExpressCheckOut" method to obtain paypal token
 			$httpParsedResponseAr = $this->PPHttpPost('SetExpressCheckout', $padata, $this->merchant, $this->password, $this->hmac); //, $PayPalMode
@@ -992,25 +999,15 @@ if(!class_exists('mf_form_payment'))
 			//Respond according to message we receive from Paypal
 			if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
 			{
+				echo "<i class='fa fa-lg fa-spin fa-spinner'></i>";
+
 				$this->token = $httpParsedResponseAr["TOKEN"];
 
-				$this->action = 'https://www'.$paypalmode.'.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token='.$this->token;
+				$this->action = "https://www".$paypalmode.".paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=".$this->token;
 
 				$this->save_token_with_answer_id();
 
 				mf_redirect($this->action);
-
-				/*$out .= "<form name='form_payment' action='".$this->action."' method='get'></form>";
-
-				if(isset($this->test) && $this->test == 1)
-				{
-					$out .= "<button type='button' onclick='document.form_payment.submit();'>".__("Send in test mode (No money will be charged)", 'lang_base')."</button>";
-				}
-
-				else
-				{
-					$out .= "<script>document.form_payment.submit();</script>";
-				}*/
 			}
 
 			else
@@ -1072,7 +1069,7 @@ if(!class_exists('mf_form_payment'))
 		{
 			global $wpdb;
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", "103: ".__("User canceled", 'lang_base'), $this->answer_id));
+			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."103: ".__("User canceled", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 			mf_redirect(get_site_url());
 		}
@@ -1083,7 +1080,7 @@ if(!class_exists('mf_form_payment'))
 
 			if($this->answer_id > 0)
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", "104: ".__("User has paid. Waiting for confirmation...", 'lang_base'), $this->answer_id));
+				$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."104: ".__("User has paid. Waiting for confirmation...", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 				if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
 				{
@@ -1107,7 +1104,7 @@ if(!class_exists('mf_form_payment'))
 
 					if($intQueryAnswerURL != $wp_query->post->ID)
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0' AND answerText LIKE '10%'", "105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_base'), $this->answer_id));
+						$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 						$strQueryAnswerURL = get_permalink($intQueryAnswerURL);
 

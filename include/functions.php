@@ -586,26 +586,7 @@ function show_query_form($data)
 
 		if(isset($_POST['btnFormSubmit']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit'))
 		{
-			/*$email_encrypted = check_var('email_encrypted', 'char');
-
-			$is_correct_form = true;
-			$log_text = "";
-
-			if($data['query_id'] != $obj_form->id)
-			{
-				$is_correct_form = false;
-
-				$log_text = $data['query_id']." != ".$obj_form->id;
-			}
-
-			if(isset($data['send_to']) && $data['send_to'] != '' && $email_encrypted != hash('sha512', $data['send_to']))
-			{
-				$is_correct_form = false;
-
-				$log_text = $email_encrypted." != ".hash('sha512', $data['send_to']);
-			}*/
-
-			if($obj_form->is_correct_form($data)) //$is_correct_form == true
+			if($obj_form->is_correct_form($data))
 			{
 				$email_from = $error_text = "";
 				$arr_email_content = array(
