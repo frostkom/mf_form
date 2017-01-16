@@ -661,9 +661,6 @@ class mf_form
 				$mail_template = apply_filters('the_content', $r->post_content);
 
 				$mail_content = $this->render_mail_content(array('answer_id' => $data['answer_id'], 'mail_to' => $data['mail_to'], 'array' => $data['content'], 'template' => $mail_template));
-
-				//This is already in mf_form_mail()
-				//add_filter('wp_mail_content_type', 'set_html_content_type');
 			}
 		}
 

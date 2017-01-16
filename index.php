@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 7.5.6
+Version: 7.6.4
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -40,6 +40,8 @@ add_shortcode('mf_form', 'shortcode_form');
 add_shortcode('form_shortcode', 'shortcode_form');
 
 add_filter('single_template', 'custom_templates_form');
+
+add_action('phpmailer_init', 'phpmailer_init_form');
 
 load_plugin_textdomain('lang_form', false, dirname(plugin_basename(__FILE__)).'/lang/');
 

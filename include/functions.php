@@ -459,15 +459,37 @@ function get_poll_results($data)
 	return $out;
 }
 
+function phpmailer_init_form($phpmailer)
+{
+	if(is_user_logged_in() && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
+	{
+		$user_data = get_userdata(get_current_user_id());
+
+		//do_log("Test 1: ".var_export($phpmailer->getToAddresses(), true).", ".var_export($phpmailer, true));
+
+		$phpmailer->Subject = __("Test", 'lang_form')." (".$phpmailer->getToAddresses()[0][0]."): ".$phpmailer->Subject;
+		$phpmailer->clearAddresses();
+		$phpmailer->addAddress($user_data->user_email);
+
+		//do_log("Test 2: ".var_export($phpmailer->getToAddresses(), true).", ".var_export($phpmailer, true));
+	}
+
+	else if(get_option('setting_redirect_emails') == 'yes')
+	{
+		$phpmailer->Subject = __("Redirect", 'lang_form')." (".$phpmailer->getToAddresses()[0][0]."): ".$phpmailer->Subject;
+		$phpmailer->clearAddresses();
+		$phpmailer->addAddress(get_bloginfo('admin_email'));
+	}
+}
+
 function mf_form_mail($data)
 {
 	global $wpdb;
 
-	//if(!isset($data['headers'])){	$data['headers'] = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";}
+	//$out = "";
 
-	$out = "";
-
-	if(is_user_logged_in() && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
+	//Moved to phpmailer_init_form()
+	/*if(is_user_logged_in() && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
 	{
 		$user_data = get_userdata(get_current_user_id());
 
@@ -479,7 +501,7 @@ function mf_form_mail($data)
 	{
 		$data['subject'] = __("Test", 'lang_form')." (".$data['to']."): ".$data['subject'];
 		$data['to'] = get_bloginfo('admin_email');
-	}
+	}*/
 
 	$mail_sent = send_email($data);
 
@@ -488,7 +510,7 @@ function mf_form_mail($data)
 		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer_email SET answerID = '%d', answerEmail = %s, answerSent = '%d'", $data['answer_id'], $data['to'], $mail_sent));
 	}
 
-	return $out;
+	//return $out;
 }
 
 ################################
@@ -882,7 +904,8 @@ function show_query_form($data)
 									$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
 								}
 
-								$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
+								mf_form_mail($mail_data);
+								//$answer_data .= ($answer_data != '' ? ", " : "").
 							}
 
 							if($intQueryEmailNotify == 1 && $strQueryEmail != '')
@@ -911,7 +934,8 @@ function show_query_form($data)
 									$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
 								}
 
-								$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
+								mf_form_mail($mail_data);
+								//$answer_data .= ($answer_data != '' ? ", " : "").
 							}
 
 							if($intQueryEmailConfirm == 1 && isset($email_from) && $email_from != '')
@@ -940,7 +964,8 @@ function show_query_form($data)
 									$mail_data['headers'] = "From: ".$strQueryEmail." <".$strQueryEmail.">\r\n";
 								}
 
-								$answer_data .= ($answer_data != '' ? ", " : "").mf_form_mail($mail_data);
+								mf_form_mail($mail_data);
+								//$answer_data .= ($answer_data != '' ? ", " : "").
 							}
 
 							if($answer_data != '')
