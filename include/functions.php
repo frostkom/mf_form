@@ -467,7 +467,9 @@ function phpmailer_init_form($phpmailer)
 
 		//do_log("Test 1: ".var_export($phpmailer->getToAddresses(), true).", ".var_export($phpmailer, true));
 
-		$phpmailer->Subject = __("Test", 'lang_form')." (".$phpmailer->getToAddresses()[0][0]."): ".$phpmailer->Subject;
+		$mail_to = $phpmailer->getToAddresses();
+
+		$phpmailer->Subject = __("Test", 'lang_form')." (".$mail_to[0][0]."): ".$phpmailer->Subject;
 		$phpmailer->clearAddresses();
 		$phpmailer->addAddress($user_data->user_email);
 
@@ -476,7 +478,9 @@ function phpmailer_init_form($phpmailer)
 
 	else if(get_option('setting_redirect_emails') == 'yes')
 	{
-		$phpmailer->Subject = __("Redirect", 'lang_form')." (".$phpmailer->getToAddresses()[0][0]."): ".$phpmailer->Subject;
+		$mail_to = $phpmailer->getToAddresses();
+
+		$phpmailer->Subject = __("Redirect", 'lang_form')." (".$mail_to[0][0]."): ".$phpmailer->Subject;
 		$phpmailer->clearAddresses();
 		$phpmailer->addAddress(get_bloginfo('admin_email'));
 	}
