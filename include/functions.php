@@ -91,15 +91,15 @@ function delete_form($post_id)
 		send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers));
 
 		/*$obj_form = new mf_form();
-		$intQueryID = $obj_form->get_form_id($post_id);
+		$intFormID = $obj_form->get_form_id($post_id);
 
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $intQueryID));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $intFormID));
 
-		$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
+		$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intFormID));
 		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d'", $intAnswerID));
 
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intQueryID));
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));*/
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intFormID));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intFormID));*/
 	}
 }
 
@@ -152,11 +152,15 @@ function preg_email_concat($matches)
 	/*list($before_at, $after_at) = explode("@", $email);
 	$before_at = substr($before_at, 0, 1);*/
 
+	$obj_form = new mf_form($replacement_form);
+
 	//$before_at."***@".$after_at
-	return "<a href='#' class='mf_form_link'>".__("Click here to send e-mail", 'lang_form')."</a>
+	$out = "<a href='#' class='mf_form_link'>".__("Click here to send e-mail", 'lang_form')."</a>
 	<div class='mf_form_inline'>"
-		.show_query_form(array('query_id' => $replacement_form, 'send_to' => $email))
+		.$obj_form->get_form(array('send_to' => $email))
 	."</div>";
+
+	return $out;
 }
 
 function my_replace_content($html)
@@ -339,6 +343,7 @@ function get_count_message($id = 0)
 
 	$last_viewed = get_user_meta(get_current_user_id(), 'mf_forms_viewed', true);
 	$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($id > 0 ? " AND queryID = '".$id."'" : ""));
+	$query_xtra .= " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)";
 
 	$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID)".$query_xtra, $last_viewed));
 	$rows = $wpdb->num_rows;
@@ -402,13 +407,13 @@ function notices_form()
 
 			foreach($result as $r)
 			{
-				$intQueryID = $r->queryID;
+				$intFormID = $r->queryID;
 				$intAnswerSent = $r->answerSent;
 
-				$obj_form = new mf_form($intQueryID);
+				$obj_form = new mf_form($intFormID);
 				$strFormName = $obj_form->get_post_info(array('select' => 'post_title'));
 
-				$unsent_links .= ($unsent_links != '' ? ", " : "")."<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intQueryID=".$intQueryID)."'>".$intAnswerSent." ".__("in", 'lang_form')." ".$strFormName."</a>";
+				$unsent_links .= ($unsent_links != '' ? ", " : "")."<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$intFormID)."'>".$intAnswerSent." ".__("in", 'lang_form')." ".$strFormName."</a>";
 			}
 
 			$error_text = __("There were unsent messages", 'lang_form')." (".$unsent_links.")";
@@ -424,20 +429,20 @@ function get_poll_results($data)
 
 	$out = "";
 
-	$obj_form = new mf_form($data['query_id']);
+	$obj_form = new mf_form($data['form_id']);
 	list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(5, 8)));
 
 	foreach($result as $r)
 	{
-		$intQuery2TypeID2 = $r->query2TypeID;
-		$intQueryTypeID2 = $r->queryTypeID;
-		$strQueryTypeText2 = $r->queryTypeText;
+		$intForm2TypeID2 = $r->query2TypeID;
+		$intFormTypeID2 = $r->queryTypeID;
+		$strFormTypeText2 = $r->queryTypeText;
 
-		$out .= "<div".($intQueryTypeID2 == 8 ? " class='form_radio'" : "").">";
+		$out .= "<div".($intFormTypeID2 == 8 ? " class='form_radio'" : "").">";
 
-			if($intQueryTypeID2 == 8)
+			if($intFormTypeID2 == 8)
 			{
-				$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'", $obj_form->id)); //$data['query_id']
+				$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '".$intForm2TypeID2."'", $obj_form->id));
 
 				$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
 
@@ -445,9 +450,9 @@ function get_poll_results($data)
 			}
 
 			$out .= "<p>"
-				.$strQueryTypeText2;
+				.$strFormTypeText2;
 
-				if($intQueryTypeID2 == 8)
+				if($intFormTypeID2 == 8)
 				{
 					$out .= "<span>".$intAnswerPercent."%</span>";
 				}
@@ -516,646 +521,3 @@ function mf_form_mail($data)
 
 	//return $out;
 }
-
-################################
-function show_query_form($data)
-{
-	global $wpdb, $wp_query, $error_text, $done_text;
-
-	$out = "";
-
-	if(!isset($data['edit'])){			$data['edit'] = false;}
-	if(!isset($data['sent'])){			$data['sent'] = false;}
-	if(!isset($data['query2type_id'])){	$data['query2type_id'] = 0;}
-
-	$intAnswerID = isset($data['answer_id']) ? $data['answer_id'] : "";
-
-	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
-
-	$obj_form = new mf_form(isset($data['query_id']) && $data['query_id'] > 0 ? $data['query_id'] : 0);
-
-	$payment = new mf_form_payment(array('query_id' => $obj_form->id));
-
-	if(isset($_GET['accept']) || isset($_GET['callback']) || isset($_GET['cancel']))
-	{
-		$out .= $payment->process_callback();
-	}
-
-	else if(isset($_GET['btnFormLinkYes']) || isset($_GET['btnFormLinkNo']))
-	{
-		$intAnswerID = check_var('answer_id', 'int');
-		$intProductID = check_var('product_id', 'int');
-		$strAnswerEmail = check_var('answer_email');
-		$hash = check_var('hash');
-
-		if($hash == md5(NONCE_SALT."_".$intAnswerID."_".$intProductID))
-		{
-			if($intProductID > 0)
-			{
-				$obj_webshop = new mf_webshop();
-
-				$mail_from_name = $obj_webshop->get_product_name(array('id' => $intProductID));
-			}
-
-			else
-			{
-				$mail_from_name = get_bloginfo('name');
-			}
-
-			$mail_from = $strAnswerEmail;
-			$mail_to = $obj_form->get_answer_email($intAnswerID);
-			$mail_subject = $obj_form->get_form_name();
-			$mail_content = (isset($_GET['btnFormLinkYes']) ? get_option('setting_link_yes_text') : get_option('setting_link_no_text'));
-
-			if($mail_content != '')
-			{
-				$mail_content = nl2br(str_replace("[product]", $mail_from_name, $mail_content));
-
-				$mail_data = array(
-					'headers' => "From: ".$mail_from_name." <".$mail_from.">\r\n",
-					'to' => $mail_to,
-					'subject' => $mail_subject,
-					'content' => $mail_content,
-				);
-
-				mf_form_mail($mail_data);
-
-				$setting_link_thanks_text = nl2br(get_option_or_default('setting_link_thanks_text', __("The message has been sent!", 'lang_form')));
-
-				$out .= "<p>".$setting_link_thanks_text."</p>
-				<p class='grey'>".$mail_content."</p>";
-			}
-
-			else
-			{
-				if(isset($_GET['btnFormLinkYes']))
-				{
-					$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as positive response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
-				}
-
-				else
-				{
-					$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as negative response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
-				}
-			}
-		}
-
-		else
-		{
-			$error_text = __("Oops! You don't seam to have the correct link or it has expired", 'lang_form');
-		}
-	}
-
-	else
-	{
-		$dup_ip = $obj_form->check_if_duplicate();
-
-		if(isset($_POST['btnFormSubmit']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit'))
-		{
-			if($obj_form->is_correct_form($data))
-			{
-				$email_from = $error_text = "";
-				$arr_email_content = array(
-					'fields' => array(),
-				);
-
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
-				$r = $result[0];
-				$intQueryEmailConfirm = $r->queryEmailConfirm;
-				$intQueryEmailConfirmPage = $r->queryEmailConfirmPage;
-				$strQueryEmail = $r->queryEmail;
-				$intQueryEmailNotify = $r->queryEmailNotify;
-				$intQueryEmailNotifyPage = $r->queryEmailNotifyPage;
-				$strQueryEmailName = $r->queryEmailName;
-				$strQueryMandatoryText = $r->queryMandatoryText;
-				$intQueryPaymentProvider = $r->queryPaymentProvider;
-				$intQueryPaymentAmount = $r->queryPaymentAmount;
-
-				$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
-				$strFormPrefix = $obj_form->get_post_info()."_";
-
-				$dblQueryPaymentAmount_value = 0;
-
-				if($dup_ip == true)
-				{
-					$data['sent'] = true;
-				}
-
-				else
-				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
-
-					foreach($result as $r)
-					{
-						$intQuery2TypeID2 = $r->query2TypeID;
-						$intQueryTypeID2 = $r->queryTypeID;
-						$strQueryTypeText = $r->queryTypeText;
-						$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
-						$intQueryTypeRequired = $r->queryTypeRequired;
-
-						if(!isset($arr_email_content['fields'][$intQuery2TypeID2]))
-						{
-							$arr_email_content['fields'][$intQuery2TypeID2] = array();
-						}
-
-						$handle2fetch = $strFormPrefix.$intQuery2TypeID2;
-
-						$strAnswerText = $strAnswerText_send = check_var($handle2fetch, $strCheckCode, true, '', true, 'post');
-
-						if($strAnswerText != '')
-						{
-							switch($strCheckCode)
-							{
-								//Add specific check here to prevent HTML in messages
-								case 'char':
-									if(contains_html($strAnswerText))
-									{
-										$error_text = __("You are not allowed to enter code in the text fields", 'lang_form');
-									}
-
-									else if($intQueryTypeID2 != 9 && contains_urls($strAnswerText))
-									{
-										do_log(__("The string contained links and was stopped", 'lang_form')." (".$strQueryTypeText.": ".$strAnswerText.")");
-										$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');
-									}
-								break;
-
-								case 'email':
-									if($intQueryTypeID2 == 3)
-									{
-										$email_from = $strAnswerText;
-									}
-								break;
-							}
-						}
-
-						switch($intQueryTypeID2)
-						{
-							case 2:
-								list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
-							break;
-
-							case 7:
-								$strAnswerText_send = format_date($strAnswerText);
-							break;
-
-							case 10:
-								$arr_content1 = explode(":", $strQueryTypeText);
-								$arr_content2 = explode(",", $arr_content1[1]);
-
-								foreach($arr_content2 as $str_content)
-								{
-									$arr_content3 = explode("|", $str_content);
-
-									if($strAnswerText == $arr_content3[0])
-									{
-										$strAnswerText_send = $arr_content3[1];
-									}
-								}
-
-								$strQueryTypeText = $arr_content1[0];
-							break;
-
-							case 11:
-								$strAnswerText = "";
-
-								if(is_array($_POST[$handle2fetch]))
-								{
-									foreach($_POST[$handle2fetch] as $value)
-									{
-										$strAnswerText .= ($strAnswerText != '' ? "," : "").check_var($strFormPrefix.$value, $strCheckCode, false);
-									}
-								}
-
-								$arr_content1 = explode(":", $strQueryTypeText);
-								$arr_content2 = explode(",", $arr_content1[1]);
-
-								$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
-
-								$strAnswerText_send = "";
-
-								foreach($arr_content2 as $str_content)
-								{
-									$arr_content3 = explode("|", $str_content);
-
-									if(in_array($arr_content3[0], $arr_answer_text))
-									{
-										$strAnswerText_send .= ($strAnswerText_send != '' ? ", " : "").$arr_content3[1];
-									}
-								}
-
-								$strQueryTypeText = $arr_content1[0];
-							break;
-
-							case 15:
-								if(isset($_FILES[$handle2fetch]))
-								{
-									$file_name = $_FILES[$handle2fetch]['name'];
-									$file_location = $_FILES[$handle2fetch]['tmp_name'];
-									$file_mime = $_FILES[$handle2fetch]['type'];
-
-									if($file_name == '')
-									{
-										if($intQueryTypeRequired == true)
-										{
-											$error_text = __("You have to submit a file", 'lang_form');
-										}
-									}
-
-									else if(!is_uploaded_file($file_location))
-									{
-										if($intQueryTypeRequired == true)
-										{
-											$error_text = __("The file was not uploaded", 'lang_form');
-										}
-									}
-
-									else
-									{
-										$file_content = get_file_content(array('file' => $file_location));
-										$file_mime = "";
-
-										$intFileID = insert_attachment(array(
-											'content' => $file_content,
-											'mime' => $file_mime,
-											'name' => $file_name,
-										));
-
-										if($intFileID > 0)
-										{
-											$strAnswerText = $intFileID;
-										}
-									}
-								}
-							break;
-
-							default:
-								if($strCheckCode != '')
-								{
-									switch($strCheckCode)
-									{
-										case 'zip':
-											$city_name = $obj_form->get_city_from_zip($strAnswerText);
-
-											if($city_name != '')
-											{
-												$arr_email_content['fields'][$intQuery2TypeID2]['xtra'] = ", ".$city_name;
-											}
-										break;
-									}
-								}
-							break;
-						}
-
-						if($strQueryTypeText != '')
-						{
-							$arr_email_content['fields'][$intQuery2TypeID2]['label'] = $strQueryTypeText;
-						}
-
-						if($strAnswerText != '')
-						{
-							if($intQueryPaymentAmount == $intQuery2TypeID2)
-							{
-								$dblQueryPaymentAmount_value = $strAnswerText;
-							}
-
-							$arr_query[] = $wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '[answer_id]', query2TypeID = '%d', answerText = %s", $intQuery2TypeID2, $strAnswerText);
-
-							if($strAnswerText_send != '')
-							{
-								$arr_email_content['fields'][$intQuery2TypeID2]['value'] = $strAnswerText_send;
-							}
-						}
-
-						else if($intQueryTypeID2 == 8)
-						{
-							$strAnswerText_radio = isset($_POST["radio_".$intQuery2TypeID2]) ? check_var($_POST["radio_".$intQuery2TypeID2], 'int', false) : '';
-
-							if($strAnswerText_radio != '')
-							{
-								$arr_query[] = $wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '[answer_id]', query2TypeID = %s, answerText = ''", $strAnswerText_radio);
-
-								$strQueryTypeText_temp = $wpdb->get_var($wpdb->prepare("SELECT queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $strAnswerText_radio));
-
-								if(!isset($arr_email_content['fields'][$strAnswerText_radio]))
-								{
-									$arr_email_content['fields'][$strAnswerText_radio] = array();
-								}
-
-								$arr_email_content['fields'][$strAnswerText_radio]['value'] = "x";
-							}
-						}
-
-						else if($intQueryTypeRequired == true && !in_array($intQueryTypeID2, array(5, 6, 9)) && $error_text == '')
-						{
-							$error_text = ($strQueryMandatoryText != '' ? $strQueryMandatoryText : __("Please, enter all required fields", 'lang_form'))." (".$strQueryTypeText.")";
-						}
-					}
-				}
-
-				if($error_text == '' && $data['sent'] == false && isset($arr_query))
-				{
-					$updated = true;
-
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerCreated = NOW()", $obj_form->id, $strAnswerIP));
-					$intAnswerID = $wpdb->insert_id;
-
-					$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $intAnswerID, 'mail_from' => $email_from, 'mail_subject' => ($strQueryEmailName != "" ? $strQueryEmailName : $strFormName), 'notify_page' => $intQueryEmailNotifyPage, 'arr_mail_content' => $arr_email_content));
-
-					if($error_text == '')
-					{
-						if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
-						{
-							$arr_email_content = $email_content_temp['arr_mail_content'];
-						}
-
-						if($intAnswerID > 0)
-						{
-							foreach($arr_query as $query)
-							{
-								$wpdb->query(str_replace("[answer_id]", $intAnswerID, $query));
-
-								if($wpdb->rows_affected == 0)
-								{
-									$updated = false;
-								}
-							}
-						}
-
-						else
-						{
-							$updated = false;
-						}
-
-						if($updated == true)
-						{
-							$answer_data = "";
-
-							if(isset($data['send_to']) && $data['send_to'] != '')
-							{
-								$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
-								$mail_content = $obj_form->render_mail_content(array('array' => $arr_email_content));
-
-								$mail_data = array(
-									'to' => $data['send_to'],
-									'subject' => $mail_subject,
-									'content' => $mail_content,
-									'answer_id' => $intAnswerID,
-								);
-
-								if($email_from != '')
-								{
-									$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
-								}
-
-								mf_form_mail($mail_data);
-								//$answer_data .= ($answer_data != '' ? ", " : "").
-							}
-
-							if($intQueryEmailNotify == 1 && $strQueryEmail != '')
-							{
-								$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
-								
-								$page_content_data = array(
-									'page_id' => $intQueryEmailNotifyPage,
-									'answer_id' => $intAnswerID,
-									'mail_to' => $strQueryEmail,
-									'subject' => $mail_subject,
-									'content' => $arr_email_content,
-								);
-
-								list($mail_subject, $mail_content) = $obj_form->get_page_content_for_email($page_content_data);
-
-								$mail_data = array(
-									'to' => $strQueryEmail,
-									'subject' => $mail_subject,
-									'content' => $mail_content,
-									'answer_id' => $intAnswerID,
-								);
-
-								if($email_from != '')
-								{
-									$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
-								}
-
-								mf_form_mail($mail_data);
-								//$answer_data .= ($answer_data != '' ? ", " : "").
-							}
-
-							if($intQueryEmailConfirm == 1 && isset($email_from) && $email_from != '')
-							{
-								$mail_subject = $strQueryEmailName != "" ? $strQueryEmailName : $strFormName;
-
-								$page_content_data = array(
-									'page_id' => $intQueryEmailConfirmPage,
-									'answer_id' => $intAnswerID,
-									'mail_to' => $email_from,
-									'subject' => $mail_subject,
-									'content' => $arr_email_content,
-								);
-
-								list($mail_subject, $mail_content) = $obj_form->get_page_content_for_email($page_content_data);
-
-								$mail_data = array(
-									'to' => $email_from,
-									'subject' => $mail_subject,
-									'content' => $mail_content,
-									'answer_id' => $intAnswerID,
-								);
-
-								if($strQueryEmail != '')
-								{
-									$mail_data['headers'] = "From: ".$strQueryEmail." <".$strQueryEmail.">\r\n";
-								}
-
-								mf_form_mail($mail_data);
-								//$answer_data .= ($answer_data != '' ? ", " : "").
-							}
-
-							if($answer_data != '')
-							{
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $intAnswerID, $answer_data));
-							}
-
-							if($intQueryPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
-							{
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $intAnswerID, "101: ".__("Sent to processing")));
-
-								$intQueryPaymentTest = isset($_POST['intQueryPaymentTest']) && is_user_logged_in() && IS_ADMIN ? 1 : 0;
-
-								$out .= $payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $intAnswerID, 'test' => $intQueryPaymentTest));
-							}
-
-							else
-							{
-								$data['sent'] = true;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		$obj_font_icons = new mf_font_icons();
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryEmailCheckConfirm FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
-
-		foreach($result as $r)
-		{
-			$intQueryShowAnswers = $r->queryShowAnswers;
-			$strQueryAnswerURL = $r->queryAnswerURL;
-			$strQueryButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_form');
-			$strQueryButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
-			$intQueryPaymentProvider = $r->queryPaymentProvider;
-			$strQueryEmailCheckConfirm = $r->queryEmailCheckConfirm;
-
-			$strFormPrefix = $obj_form->get_post_info()."_";
-
-			if($strQueryAnswerURL != '' && preg_match("/_/", $strQueryAnswerURL))
-			{
-				list($blog_id, $intQueryAnswerURL) = explode("_", $strQueryAnswerURL);
-			}
-
-			else
-			{
-				$blog_id = 0;
-				$intQueryAnswerURL = $strQueryAnswerURL;
-			}
-
-			$dteFormDeadline = $obj_form->meta(array('action' => 'get', 'key' => 'deadline'));
-
-			if($data['edit'] == false && ($data['sent'] == true || $dup_ip == true))
-			{
-				$out .= "<div class='mf_form mf_form_results'>";
-
-					$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8'", $obj_form->id));
-
-					if($intQueryShowAnswers == 1 && $data['total_answers'] > 0)
-					{
-						$out .= get_poll_results($data);
-					}
-
-					else if($intQueryAnswerURL > 0)
-					{
-						//Switch to temp site
-						####################
-						$wpdbobj = clone $wpdb;
-						$wpdb->blogid = $blog_id;
-						$wpdb->set_prefix($wpdb->base_prefix);
-						####################
-
-						if($intQueryAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
-						{
-							$strQueryAnswerURL = get_permalink($intQueryAnswerURL);
-
-							mf_redirect($strQueryAnswerURL);
-						}
-
-						//Switch back to orig site
-						###################
-						$wpdb = clone $wpdbobj;
-						###################
-					}
-
-					else
-					{
-						$out .= "<h2>".__("Thank you!", 'lang_form')."</h2>";
-					}
-
-				$out .= "</div>";
-			}
-
-			else if($dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
-			{
-				$out .= "<p>".__("This form is not open for submissions anymore", 'lang_form')."</p>";
-			}
-
-			else if($out == '')
-			{
-				$cols = $data['edit'] == true ? 5 : 2;
-
-				$result = $obj_form->get_form_type_result();
-				$intTotalRows = $wpdb->num_rows;
-
-				if($intTotalRows > 0)
-				{
-					$out .= "<form method='post' action='' id='form_".$obj_form->id."' class='mf_form".($data['edit'] == true ? " mf_sortable" : "")."' enctype='multipart/form-data'>";
-
-						if($data['edit'] == false)
-						{
-							$out .= get_notification();
-						}
-
-						$i = 1;
-
-						$intQueryTypeID2_temp = $intQuery2TypeID2_temp = "";
-
-						$has_required_email = false;
-
-						foreach($result as $r)
-						{
-							$r->queryTypeText = stripslashes($r->queryTypeText);
-
-							$obj_form_output = new mf_form_output(array('result' => $r, 'in_edit_mode' => $data['edit'], 'query_prefix' => $strFormPrefix, 'email_check_confirm' => $strQueryEmailCheckConfirm));
-
-							$obj_form_output->calculate_value($intAnswerID);
-							$obj_form_output->get_form_fields();
-
-							$out .= $obj_form_output->get_output($data);
-
-							$i++;
-						}
-
-						if($intAnswerID > 0)
-						{
-							$out .= show_button(array('name' => "btnFormUpdate", 'text' => __("Update", 'lang_form')))
-							.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
-							.input_hidden(array('name' => 'intAnswerID', 'value' => $intAnswerID));
-						}
-
-						else if($data['edit'] == false)
-						{
-							$out .= apply_filters('filter_form_after_fields', '')
-							."<div class='form_button_container'>
-								<div class='form_button'>";
-
-									if($has_required_email)
-									{
-										$out .= "<div class='updated hide'><p>".__("Does the e-mail address look right?", 'lang_form')." ".$strQueryButtonText." ".__("or", 'lang_form')." <a href='#' class='show_none_email'>".__("Change", 'lang_form')."</a></p></div>";
-									}
-
-									$out .= show_button(array('name' => "btnFormSubmit", 'text' => $strQueryButtonSymbol.$strQueryButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
-									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
-
-									if(is_user_logged_in() && IS_ADMIN)
-									{
-										if($intQueryPaymentProvider > 0)
-										{
-											$out .= show_checkbox(array('name' => "intQueryPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
-										}
-
-										//$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intQueryID=".$obj_form->id)."' class='button button-secondary'>".__("Edit this form", 'lang_form')."</a>";
-									}
-
-									if(isset($data['send_to']) && $data['send_to'] != '')
-									{
-										$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $data['send_to'])));
-									}
-
-								$out .= "</div>"
-								.wp_nonce_field('form_submit', '_wpnonce', true, false)
-								.input_hidden(array('name' => 'intQueryID', 'value' => $obj_form->id))
-							."</div>";
-						}
-
-					$out .= "</form>";
-				}
-			}
-		}
-	}
-
-	$out .= get_notification();
-
-	return $out;
-}
-################################

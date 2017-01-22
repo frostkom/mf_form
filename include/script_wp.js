@@ -70,7 +70,7 @@ jQuery(function($)
 
 		$('.select_rows').append("<div>" + dom_content + "</div>");
 
-		var dom_obj = $('.select_rows > div:last-child input[name=strQueryTypeSelect_id]'),
+		var dom_obj = $('.select_rows > div:last-child input[name=strFormTypeSelect_id]'),
 			dom_value = dom_obj.attr('value');
 
 		if(parseInt(dom_value) == dom_value)
@@ -81,7 +81,7 @@ jQuery(function($)
 			});
 		}
 
-		$('.select_rows > div:last-child input[name=strQueryTypeSelect_value]').attr(
+		$('.select_rows > div:last-child input[name=strFormTypeSelect_value]').attr(
 		{
 			'value': ''
 		});
@@ -94,16 +94,16 @@ jQuery(function($)
 
 		$('.select_rows > div').each(function()
 		{
-			var temp_id = $(this).find('input[name=strQueryTypeSelect_id]').val() + "",
-				temp_value = $(this).find('input[name=strQueryTypeSelect_value]').val() + "";
+			var temp_id = $(this).find('input[name=strFormTypeSelect_id]').val() + "",
+				temp_value = $(this).find('input[name=strFormTypeSelect_value]').val() + "";
 
-			if(temp_value != "") //temp_id != "" && 
+			if(temp_value != "")
 			{
 				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value;
 			}
 		});
 
-		$('.show_select input[name=strQueryTypeSelect]').val(select_value);
+		$('.show_select input[name=strFormTypeSelect]').val(select_value);
 	}
 
 	$('.ajax_link').on('click', function()
@@ -183,9 +183,9 @@ jQuery(function($)
 		});
 	});
 
-	show_query_settings($('#intQueryTypeID').val());
+	show_query_settings($('#intFormTypeID').val());
 
-	$('#intQueryTypeID').on('change', function()
+	$('#intFormTypeID').on('change', function()
 	{
 		show_query_settings($(this).val());
 	});
@@ -238,7 +238,7 @@ jQuery(function($)
 		});
 	}
 
-	$('#intQueryEmailConfirm').on('click', function()
+	$('#intFormEmailConfirm').on('click', function()
 	{
 		if(this.checked)
 		{
@@ -251,7 +251,7 @@ jQuery(function($)
 		}
 	});
 
-	$('#intQueryEmailNotify').on('click', function()
+	$('#intFormEmailNotify').on('click', function()
 	{
 		if(this.checked)
 		{

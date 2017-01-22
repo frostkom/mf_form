@@ -7,5 +7,5 @@ echo $obj_form->save_data();
 echo "<div class='wrap'>
 	<h2>".__("Edit", 'lang_form')."</h2>"
 	.get_notification()
-	.show_query_form(array('query_id' => $obj_form->id, 'answer_id' => $obj_form->answer_id))
+	.$obj_form->get_form(array('answer_id' => $obj_form->answer_id))
 ."</div>";

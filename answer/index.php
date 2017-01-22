@@ -25,10 +25,6 @@ if($query_answers > 0)
 $paged = check_var('paged', 'int', true, '0');
 $strSearch = check_var('s', 'char', true);
 
-/*$strAnswerText2 = check_var('strAnswerText2');
-$dteQueryStartDate = check_var('dteQueryStartDate', 'char', true, date("Y-m-d", strtotime("-2 year")));
-$dteQueryEndDate = check_var('dteQueryEndDate', 'char', true, date("Y-m-d", strtotime("+1 day")));*/
-
 $intLimitAmount = 20;
 $intLimitStart = $paged * $intLimitAmount;
 
@@ -43,11 +39,11 @@ foreach($result as $r)
 {
 	$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 
-	$intQueryShowAnswers = $r->queryShowAnswers;
-	$intQueryPaymentProvider = $r->queryPaymentProvider;
-	$intQueryPaymentAmount = $r->queryPaymentAmount;
+	$intFormShowAnswers = $r->queryShowAnswers;
+	$intFormPaymentProvider = $r->queryPaymentProvider;
+	$intFormPaymentAmount = $r->queryPaymentAmount;
 
-	$has_payment = $intQueryPaymentProvider > 0 && $intQueryPaymentAmount > 0;
+	$has_payment = $intFormPaymentProvider > 0 && $intFormPaymentAmount > 0;
 }
 
 echo "<div class='wrap'>
@@ -63,15 +59,15 @@ echo "<div class='wrap'>
 
 		foreach($resultPie as $r)
 		{
-			$intQuery2TypeID2 = $r->query2TypeID;
-			$intQueryTypeID = $r->queryTypeID;
-			$strQueryTypeText2 = $r->queryTypeText;
-			$strQuery2TypeOrder2 = $r->query2TypeOrder;
+			$intForm2TypeID2 = $r->query2TypeID;
+			$intFormTypeID = $r->queryTypeID;
+			$strFormTypeText2 = $r->queryTypeText;
+			$strForm2TypeOrder2 = $r->query2TypeOrder;
 
-			switch($intQueryTypeID)
+			switch($intFormTypeID)
 			{
 				case 8:
-					if($order_temp != '' && $strQuery2TypeOrder2 != ($order_temp + 1))
+					if($order_temp != '' && $strForm2TypeOrder2 != ($order_temp + 1))
 					{
 						$i++;
 					}
@@ -84,19 +80,19 @@ echo "<div class='wrap'>
 
 			if(!isset($data[$i])){	$data[$i] = "";}
 
-			$order_temp = $strQuery2TypeOrder2;
+			$order_temp = $strForm2TypeOrder2;
 
-			switch($intQueryTypeID)
+			switch($intFormTypeID)
 			{
 				case 8:
-					$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d'", $obj_form->id, $intQueryTypeID, $intQuery2TypeID2));
+					$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d'", $obj_form->id, $intFormTypeID, $intForm2TypeID2));
 
-					$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($strQueryTypeText2, 20)."', data: ".$intAnswerCount."}";
+					$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($strFormTypeText2, 20)."', data: ".$intAnswerCount."}";
 				break;
 
 				case 10:
-					list($strQueryTypeText2, $strQueryTypeSelect) = explode(":", $strQueryTypeText2);
-					$arr_select_rows = explode(",", $strQueryTypeSelect);
+					list($strFormTypeText2, $strFormTypeSelect) = explode(":", $strFormTypeText2);
+					$arr_select_rows = explode(",", $strFormTypeSelect);
 
 					foreach($arr_select_rows as $select_row)
 					{
@@ -104,7 +100,7 @@ echo "<div class='wrap'>
 
 						if($arr_select_row_content[0] > 0 && $arr_select_row_content[1] != '')
 						{
-							$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d' AND answerText = %s", $obj_form->id, $intQueryTypeID, $intQuery2TypeID2, $arr_select_row_content[0]));
+							$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d' AND answerText = %s", $obj_form->id, $intFormTypeID, $intForm2TypeID2, $arr_select_row_content[0]));
 
 							if($intAnswerCount > 0)
 							{
@@ -208,23 +204,23 @@ echo "<div class='wrap'>
 
 		foreach($result as $r)
 		{
-			$intQueryTypeID = $r->queryTypeID;
-			$strQueryTypeText = $r->queryTypeText;
-			$intQuery2TypeID2 = $r->query2TypeID;
+			$intFormTypeID = $r->queryTypeID;
+			$strFormTypeText = $r->queryTypeText;
+			$intForm2TypeID2 = $r->query2TypeID;
 
-			switch($intQueryTypeID)
+			switch($intFormTypeID)
 			{
 				case 2:
-					list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+					list($strFormTypeText, $rest) = explode("|", $strFormTypeText);
 				break;
 
 				case 10:
 				case 11:
-					list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
+					list($strFormTypeText, $rest) = explode(":", $strFormTypeText);
 				break;
 			}
 
-			$arr_header[] = $strQueryTypeText;
+			$arr_header[] = $strFormTypeText;
 		}
 
 		if($has_payment)
@@ -265,15 +261,15 @@ echo "<div class='wrap'>
 
 						foreach($resultText as $r)
 						{
-							$intQuery2TypeID = $r->query2TypeID;
-							$intQueryTypeID = $r->queryTypeID;
-							$strQueryTypeText = $r->queryTypeText;
+							$intForm2TypeID = $r->query2TypeID;
+							$intFormTypeID = $r->queryTypeID;
+							$strFormTypeText = $r->queryTypeText;
 							$strCheckCode = $r->checkCode;
 
 							$value = 0;
 							$xtra = $row_actions = "";
 
-							$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intQuery2TypeID, $intAnswerID));
+							$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
 							$rowsAnswer = $wpdb->num_rows;
 
 							if($rowsAnswer > 0)
@@ -281,7 +277,7 @@ echo "<div class='wrap'>
 								$r = $resultAnswer[0];
 								$strAnswerText = $r->answerText;
 
-								switch($intQueryTypeID)
+								switch($intFormTypeID)
 								{
 									case 8:
 										$strAnswerText = 1;
@@ -292,7 +288,7 @@ echo "<div class='wrap'>
 									break;
 
 									case 10:
-										$arr_content1 = explode(":", $strQueryTypeText);
+										$arr_content1 = explode(":", $strFormTypeText);
 										$arr_content2 = explode(",", $arr_content1[1]);
 
 										foreach($arr_content2 as $str_content)
@@ -307,7 +303,7 @@ echo "<div class='wrap'>
 									break;
 
 									case 11:
-										$arr_content1 = explode(":", $strQueryTypeText);
+										$arr_content1 = explode(":", $strFormTypeText);
 										$arr_content2 = explode(",", $arr_content1[1]);
 
 										$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
@@ -392,7 +388,7 @@ echo "<div class='wrap'>
 
 								if($j == 0)
 								{
-									$row_actions = "<span class='edit'><a href='?page=mf_form/view/index.php&intQueryID=".$obj_form->id."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_form')."</a></span> | "
+									$row_actions = "<span class='edit'><a href='?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_form')."</a></span> | "
 									."<span class='delete'><a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a></span>";
 								}
 

@@ -134,10 +134,10 @@ if(get_current_user_id() > 0)
 
 			foreach($result as $r)
 			{
-				$intQueryID = $r->queryID;
+				$intFormID = $r->queryID;
 			}
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeAutofocus = '0' WHERE queryID = '%d'", $intQueryID));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeAutofocus = '0' WHERE queryID = '%d'", $intFormID));
 
 			if($state_id == "true")
 			{

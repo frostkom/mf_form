@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 7.6.5
+Version: 8.2.0
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -224,22 +224,22 @@ function activate_form()
 
 	foreach($result as $r)
 	{
-		$intQueryID = $r->queryID;
-		$strQueryAnswerURL = $r->queryAnswerURL;
-		$strQueryEmailConfirmPage = $r->queryEmailConfirmPage;
+		$intFormID = $r->queryID;
+		$strFormAnswerURL = $r->queryAnswerURL;
+		$strFormEmailConfirmPage = $r->queryEmailConfirmPage;
 
-		if(strpos($strQueryAnswerURL, "_"))
+		if(strpos($strFormAnswerURL, "_"))
 		{
-			list($rest, $strQueryAnswerURL) = explode("_", $strQueryAnswerURL);
+			list($rest, $strFormAnswerURL) = explode("_", $strFormAnswerURL);
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryAnswerURL = %s WHERE queryID = '%d'", $strQueryAnswerURL, $intQueryID));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryAnswerURL = %s WHERE queryID = '%d'", $strFormAnswerURL, $intFormID));
 		}
 
-		if(strpos($strQueryEmailConfirmPage, "_"))
+		if(strpos($strFormEmailConfirmPage, "_"))
 		{
-			list($rest, $intQueryEmailConfirmPage) = explode("_", $strQueryEmailConfirmPage);
+			list($rest, $intFormEmailConfirmPage) = explode("_", $strFormEmailConfirmPage);
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryEmailConfirmPage = %s WHERE queryID = '%d'", $intQueryEmailConfirmPage, $intQueryID));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryEmailConfirmPage = %s WHERE queryID = '%d'", $intFormEmailConfirmPage, $intFormID));
 		}
 	}
 	#################################
@@ -341,13 +341,12 @@ function activate_form()
 
 		foreach($result as $r)
 		{
-			$intQueryID = $r->queryID;
+			$intFormID = $r->queryID;
 			$intBlogID = $r->blogID;
 			$intPostID = $r->postID;
 			$strFormName = $r->queryName;
-			$intQueryDeleted = $r->queryDeleted;
+			$intFormDeleted = $r->queryDeleted;
 
-			//if($intBlogID > 0 && $intBlogID != $wpdb->blog_id){}
 			if(!($intPostID > 0))
 			{
 				//Switch to temp site
@@ -365,14 +364,14 @@ function activate_form()
 
 				$intPostID = wp_insert_post($post_data);
 
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET postID = '%d' WHERE queryID = '%d'", $intPostID, $intQueryID));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET postID = '%d' WHERE queryID = '%d'", $intPostID, $intFormID));
 
 				if(!($intBlogID > 0))
 				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '%d' WHERE queryID = '%d'", $wpdb->blog_id, $intQueryID));
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '%d' WHERE queryID = '%d'", $wpdb->blog_id, $intFormID));
 				}
 
-				if($intQueryDeleted == 1)
+				if($intFormDeleted == 1)
 				{
 					wp_trash_post($intPostID);
 				}
@@ -409,7 +408,9 @@ function shortcode_form($atts)
 		'id' => ''
 	), $atts));
 
-	return show_query_form(array('query_id' => $id));
+	$obj_form = new mf_form($id);
+
+	return $obj_form->get_form();
 }
 
 function custom_templates_form($single_template)
