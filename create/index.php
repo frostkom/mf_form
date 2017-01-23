@@ -435,7 +435,7 @@ echo "<div class='wrap'>
 						."</form>
 					</div>";
 
-					$form_output = $obj_form->get_form(array('edit' => true, 'query2type_id' => $intForm2TypeID));
+					$form_output = $obj_form->process_form(array('edit' => true, 'query2type_id' => $intForm2TypeID));
 
 					if($form_output != '')
 					{

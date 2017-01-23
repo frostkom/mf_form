@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 8.2.0
+Version: 8.3.5
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -410,7 +410,7 @@ function shortcode_form($atts)
 
 	$obj_form = new mf_form($id);
 
-	return $obj_form->get_form();
+	return $obj_form->process_form();
 }
 
 function custom_templates_form($single_template)

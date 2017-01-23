@@ -164,7 +164,7 @@ jQuery(function($)
 						dom_name = dom_obj.attr('name'),
 						dom_value = $.Storage.get(dom_name);
 
-					if(typeof dom_value !== 'undefined')
+					if(typeof dom_value !== 'undefined' && dom_obj.val() == '')
 					{
 						dom_obj.val(dom_value);
 

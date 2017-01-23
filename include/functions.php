@@ -157,7 +157,7 @@ function preg_email_concat($matches)
 	//$before_at."***@".$after_at
 	$out = "<a href='#' class='mf_form_link'>".__("Click here to send e-mail", 'lang_form')."</a>
 	<div class='mf_form_inline'>"
-		.$obj_form->get_form(array('send_to' => $email))
+		.$obj_form->process_form(array('send_to' => $email))
 	."</div>";
 
 	return $out;

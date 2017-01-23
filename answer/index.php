@@ -284,7 +284,15 @@ echo "<div class='wrap'>
 									break;
 
 									case 7:
-										$strAnswerText = format_date($strAnswerText);
+										if(strlen($strAnswerText) > 10)
+										{
+											$strAnswerText = format_date($strAnswerText);
+										}
+
+										else
+										{
+											$strAnswerText = $strAnswerText;
+										}
 									break;
 
 									case 10:
