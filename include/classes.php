@@ -1246,7 +1246,7 @@ class mf_form
 						$wpdb->set_prefix($wpdb->base_prefix);
 						####################
 
-						if($intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
+						if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 						{
 							$strFormAnswerURL = get_permalink($intFormAnswerURL);
 
@@ -1329,12 +1329,9 @@ class mf_form
 									$out .= show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
 									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
-									if(is_user_logged_in() && IS_ADMIN)
+									if($intFormPaymentProvider > 0 && is_user_logged_in() && IS_ADMIN)
 									{
-										if($intFormPaymentProvider > 0)
-										{
-											$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
-										}
+										$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
 									}
 
 									if(isset($data['send_to']) && $data['send_to'] != '')
@@ -1437,7 +1434,7 @@ if(!class_exists('mf_form_payment'))
 			$API_Signature = urlencode($PayPalApiSignature);
 
 			//$PayPalMode = $this->test == 1 ? 'sandbox' : 'live';
-			$paypalmode = $this->test == 1 ? '.sandbox' : '';
+			$paypalmode = isset($this->test) && $this->test == 1 ? '.sandbox' : '';
 
 			$API_Endpoint = "https://api-3t".$paypalmode.".paypal.com/nvp";
 			$version = urlencode('109.0');
@@ -1493,7 +1490,6 @@ if(!class_exists('mf_form_payment'))
 
 			$this->amount = $data['amount'];
 			$this->orderid = $data['orderid'];
-
 			$this->test = $data['test'];
 
 			if($this->provider == 1)
@@ -1755,7 +1751,7 @@ if(!class_exists('mf_form_payment'))
 					$wpdb->set_prefix($wpdb->base_prefix);
 					####################
 
-					if($intFormAnswerURL != $wp_query->post->ID)
+					if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 					{
 						$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
