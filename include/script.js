@@ -1,30 +1,51 @@
-function update_range_text(dom_obj)
-{
-	dom_obj.siblings('label').children('span').text(dom_obj.val());
-}
-
 jQuery(function($)
 {
-	$(document).on('click', '.mf_form_link', function()
+	function update_range_text(dom_obj)
 	{
-		var dom_obj = $(this).next('.mf_form_inline'), //.parent()
+		dom_obj.siblings('label').children('span').text(dom_obj.val());
+	}
+
+	$.fn.nextElementInDom = function(selector, options)
+	{
+		var defaults = { stopAt : 'body' };
+		options = $.extend(defaults, options);
+
+		var parent = $(this).parent(),
+			found = parent.find(selector);
+
+		switch(true)
+		{
+			case (found.length > 0):
+			return found;
+	
+			case (parent.length === 0 || parent.is(options.stopAt)):
+			return $([]);
+	
+			default:
+			return parent.nextElementInDom(selector);
+		}
+    };
+
+	$(document).on('click', '.form_link', function()
+	{
+		var dom_obj = $(this).nextElementInDom('.form_inline'),
 			is_visible = dom_obj.is(':visible');
 
-		$('.mf_form_inline').hide();
+		$('.form_inline').addClass('hide');
 
 		if(is_visible == false)
 		{
-			dom_obj.show();
+			dom_obj.removeClass('hide');
 		}
 
 		return false;
 	});
 
-	$('.mf_form_inline .error').each(function()
+	$('.form_inline .error').each(function()
 	{
 		if($(this).length > 0)
 		{
-			$(this).parents('.mf_form_inline').show();
+			$(this).parents('.form_inline').show();
 		}
 	});
 

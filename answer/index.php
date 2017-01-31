@@ -5,491 +5,513 @@ mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.j
 
 $obj_form = new mf_form();
 
-$query_pie = $query_table = false;
-
-$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND (queryTypeID = '8' OR queryTypeID = '10')", $obj_form->id));
-
-if($query_answers > 0)
+if($obj_form->id > 0)
 {
-	list($resultPie, $rowsPie) = $obj_form->get_form_type_info(array('query_type_id' => array(8, 10)));
+	$query_pie = $query_table = false;
 
-	if($rowsPie > 0)
+	$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND (queryTypeID = '8' OR queryTypeID = '10')", $obj_form->id));
+
+	if($query_answers > 0)
 	{
-		$query_pie = true;
+		list($resultPie, $rowsPie) = $obj_form->get_form_type_info(array('query_type_id' => array(8, 10)));
 
-		mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js");
-		mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js");
-	}
-}
-
-$paged = check_var('paged', 'int', true, '0');
-$strSearch = check_var('s', 'char', true);
-
-$intLimitAmount = 20;
-$intLimitStart = $paged * $intLimitAmount;
-
-if(!($obj_form->id > 0))
-{
-	$obj_form->id = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query LEFT JOIN ".$wpdb->base_prefix."query2answer USING (queryID) WHERE queryDeleted = '0' ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
-}
-
-$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
-
-foreach($result as $r)
-{
-	$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
-
-	$intFormShowAnswers = $r->queryShowAnswers;
-	$intFormPaymentProvider = $r->queryPaymentProvider;
-	$intFormPaymentAmount = $r->queryPaymentAmount;
-
-	$has_payment = $intFormPaymentProvider > 0 && $intFormPaymentAmount > 0;
-}
-
-echo "<div class='wrap'>
-	<h2>".__("Answers in", 'lang_form')." ".$strFormName."</h2>"
-	.get_notification();
-
-	if($query_pie == true)
-	{
-		$out = $js_out = $order_temp = "";
-		$data = array();
-
-		$i = 0;
-
-		foreach($resultPie as $r)
+		if($rowsPie > 0)
 		{
-			$intForm2TypeID2 = $r->query2TypeID;
-			$intFormTypeID = $r->queryTypeID;
-			$strFormTypeText2 = $r->queryTypeText;
-			$strForm2TypeOrder2 = $r->query2TypeOrder;
+			$query_pie = true;
 
-			switch($intFormTypeID)
-			{
-				case 8:
-					if($order_temp != '' && $strForm2TypeOrder2 != ($order_temp + 1))
-					{
-						$i++;
-					}
-				break;
-
-				case 10:
-					$i++;
-				break;
-			}
-
-			if(!isset($data[$i])){	$data[$i] = "";}
-
-			$order_temp = $strForm2TypeOrder2;
-
-			switch($intFormTypeID)
-			{
-				case 8:
-					$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d'", $obj_form->id, $intFormTypeID, $intForm2TypeID2));
-
-					$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($strFormTypeText2, 20)."', data: ".$intAnswerCount."}";
-				break;
-
-				case 10:
-					list($strFormTypeText2, $strFormTypeSelect) = explode(":", $strFormTypeText2);
-					$arr_select_rows = explode(",", $strFormTypeSelect);
-
-					foreach($arr_select_rows as $select_row)
-					{
-						$arr_select_row_content = explode("|", $select_row);
-
-						if($arr_select_row_content[0] > 0 && $arr_select_row_content[1] != '')
-						{
-							$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d' AND answerText = %s", $obj_form->id, $intFormTypeID, $intForm2TypeID2, $arr_select_row_content[0]));
-
-							if($intAnswerCount > 0)
-							{
-								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($arr_select_row_content[1], 20)."', data: ".$intAnswerCount."}";
-							}
-						}
-					}
-				break;
-			}
+			mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js");
+			mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js");
 		}
-
-		foreach($data as $key => $value)
-		{
-			$out .= "<div id='flot_pie_".$key."' class='flot_pie'></div>";
-			$js_out .= "$.plot($('#flot_pie_".$key."'), [".$value."],
-			{
-				series:
-				{
-					pie:
-					{
-						innerRadius: 0.3,
-						show: true,
-						radius: 1,
-						label:
-						{
-							show: true,
-							radius: 3/5,
-							formatter: function(label, series)
-							{
-								return series.data[0][1]; /*Math.round(series.percent) + '%'*/
-							},
-							/*threshold: 0.1,*/
-							background:
-							{
-								opacity: 0.5
-							}
-						}
-					}
-				},
-				legend: {
-					show: true
-				}
-			});";
-			
-			/*pie:
-			{
-				combine:
-				{
-					color: '#999',
-					label: '".__("Other", 'lang_form')."',
-					threshold: 0.1
-				}
-			}*/
-
-			/*series:{},
-			grid:
-			{
-				hoverable: true,
-				clickable: true
-			}*/
-		}
-
-		echo $out
-		."<script>
-			jQuery(function($)
-			{"
-				.$js_out
-			."});
-		</script>";
 	}
 
-	$query_join = $query_where = "";
+	$paged = check_var('paged', 'int', true, '0');
+	$strSearch = check_var('s', 'char', true);
 
-	if($strSearch != '')
-	{
-		$query_join .= " LEFT JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)";
-		$query_where .= " AND (answerText LIKE '%".$strSearch."%' OR answerEmail LIKE '%".$strSearch."%' OR answerCreated LIKE '%".$strSearch."%')";
-	}
-	
-	/*if($strAnswerText2 != '')
-	{
-		$query_where .= " AND answerText LIKE '%".$strAnswerText2."%'";
-	}
+	$intLimitAmount = 20;
+	$intLimitStart = $paged * $intLimitAmount;
 
-	if($dteQueryStartDate > DEFAULT_DATE)
+	/*if(!($obj_form->id > 0))
 	{
-		$query_where .= " AND answerCreated >= '".$dteQueryStartDate."'";
-	}
-
-	if($dteQueryEndDate > DEFAULT_DATE)
-	{
-		$query_where .= " AND answerCreated <= '".$dteQueryEndDate."'";
+		$obj_form->id = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query LEFT JOIN ".$wpdb->base_prefix."query2answer USING (queryID) WHERE queryDeleted = '0' ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
 	}*/
 
-	$resultPagination = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID)".$query_join." WHERE queryID = '".esc_sql($obj_form->id)."'".$query_where." GROUP BY answerID ORDER BY answerCreated DESC");
+	$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
 
-	echo get_list_navigation($resultPagination)
-	."<table class='wp-list-table widefat striped'>";
+	foreach($result as $r)
+	{
+		$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
+		$intFormShowAnswers = $r->queryShowAnswers;
+		$intFormPaymentProvider = $r->queryPaymentProvider;
+		$intFormPaymentAmount = $r->queryPaymentAmount;
 
-		foreach($result as $r)
+		$obj_form->has_payment = $intFormPaymentProvider > 0 && $intFormPaymentAmount > 0;
+	}
+
+	echo "<div class='wrap'>
+		<h2>".__("Answers in", 'lang_form')." ".$strFormName."</h2>"
+		.get_notification();
+
+		if($query_pie == true)
 		{
-			$intFormTypeID = $r->queryTypeID;
-			$strFormTypeText = $r->queryTypeText;
-			$intForm2TypeID2 = $r->query2TypeID;
+			$out = $js_out = $order_temp = "";
+			$data = array();
 
-			switch($intFormTypeID)
+			$i = 0;
+
+			foreach($resultPie as $r)
 			{
-				case 2:
-					list($strFormTypeText, $rest) = explode("|", $strFormTypeText);
-				break;
+				$intForm2TypeID2 = $r->query2TypeID;
+				$intFormTypeID = $r->queryTypeID;
+				$strFormTypeText2 = $r->queryTypeText;
+				$strForm2TypeOrder2 = $r->query2TypeOrder;
 
-				case 10:
-				case 11:
-					list($strFormTypeText, $rest) = explode(":", $strFormTypeText);
-				break;
-			}
-
-			$arr_header[] = $strFormTypeText;
-		}
-
-		if($has_payment)
-		{
-			$arr_header[] = __("Payment", 'lang_form');
-		}
-
-		$arr_header[] = __("Created", 'lang_form');
-		$arr_header[] = __("Sent e-mails", 'lang_form');
-
-		echo show_table_header($arr_header)
-		."<tbody>";
-
-			$strFormPrefix = $obj_form->get_post_info()."_";
-
-			$result = $wpdb->get_results("SELECT answerID, answerCreated, answerIP, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID)".$query_join." WHERE queryID = '".esc_sql($obj_form->id)."'".$query_where." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
-			$rows = $wpdb->num_rows;
-
-			if($rows == 0)
-			{
-				echo "<tr><td colspan='".count($arr_header)."'>".__("There is nothing to show", 'lang_form')."</td></tr>";
-			}
-
-			else
-			{
-				foreach($result as $r)
+				switch($intFormTypeID)
 				{
-					$intAnswerID = $r->answerID;
-					$strAnswerCreated = $r->answerCreated;
-					$strAnswerIP = $r->answerIP;
-					$strAnswerToken = $r->answerToken;
-
-					echo "<tr>";
-
-						$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
-
-						$j = 0;
-
-						foreach($resultText as $r)
+					case 8:
+						if($order_temp != '' && $strForm2TypeOrder2 != ($order_temp + 1))
 						{
-							$intForm2TypeID = $r->query2TypeID;
-							$intFormTypeID = $r->queryTypeID;
-							$strFormTypeText = $r->queryTypeText;
-							$strCheckCode = $r->checkCode;
+							$i++;
+						}
+					break;
 
-							$value = 0;
-							$xtra = $row_actions = "";
+					case 10:
+						$i++;
+					break;
+				}
 
-							$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
-							$rowsAnswer = $wpdb->num_rows;
+				if(!isset($data[$i])){	$data[$i] = "";}
 
-							if($rowsAnswer > 0)
+				$order_temp = $strForm2TypeOrder2;
+
+				switch($intFormTypeID)
+				{
+					case 8:
+						$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d'", $obj_form->id, $intFormTypeID, $intForm2TypeID2));
+
+						$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($strFormTypeText2, 20)."', data: ".$intAnswerCount."}";
+					break;
+
+					case 10:
+						list($strFormTypeText2, $strFormTypeSelect) = explode(":", $strFormTypeText2);
+						$arr_select_rows = explode(",", $strFormTypeSelect);
+
+						foreach($arr_select_rows as $select_row)
+						{
+							$arr_select_row_content = explode("|", $select_row);
+
+							if($arr_select_row_content[0] > 0 && $arr_select_row_content[1] != '')
 							{
-								$r = $resultAnswer[0];
-								$strAnswerText = $r->answerText;
+								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d' AND answerText = %s", $obj_form->id, $intFormTypeID, $intForm2TypeID2, $arr_select_row_content[0]));
 
-								switch($intFormTypeID)
+								if($intAnswerCount > 0)
 								{
-									case 8:
-										$strAnswerText = 1;
-									break;
-
-									case 7:
-										if(strlen($strAnswerText) > 10)
-										{
-											$strAnswerText = format_date($strAnswerText);
-										}
-
-										else
-										{
-											$strAnswerText = $strAnswerText;
-										}
-									break;
-
-									case 10:
-										$arr_content1 = explode(":", $strFormTypeText);
-										$arr_content2 = explode(",", $arr_content1[1]);
-
-										foreach($arr_content2 as $str_content)
-										{
-											$arr_content3 = explode("|", $str_content);
-
-											if($strAnswerText == $arr_content3[0])
-											{
-												$strAnswerText = $arr_content3[1];
-											}
-										}
-									break;
-
-									case 11:
-										$arr_content1 = explode(":", $strFormTypeText);
-										$arr_content2 = explode(",", $arr_content1[1]);
-
-										$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
-
-										$strAnswerText = "";
-
-										foreach($arr_content2 as $str_content)
-										{
-											$arr_content3 = explode("|", $str_content);
-
-											if(in_array($arr_content3[0], $arr_answer_text))
-											{
-												$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
-											}
-										}
-
-										if($strAnswerText == '')
-										{
-											$strAnswerText = implode(",", $arr_answer_text);
-										}
-									break;
-
-									case 15:
-										$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
-
-										foreach($result as $r)
-										{
-											$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
-										}
-									break;
-
-									default:
-										if($strCheckCode != '')
-										{
-											switch($strCheckCode)
-											{
-												case 'url':
-													$strAnswerText = "<a href='".$strAnswerText."'>".$strAnswerText."</a>";
-												break;
-
-												case 'email':
-													$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
-												break;
-
-												case 'zip':
-													$obj_form = new mf_form();
-
-													$row_actions = $obj_form->get_city_from_zip($strAnswerText);
-												break;
-											}
-										}
-									break;
+									$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($arr_select_row_content[1], 20)."', data: ".$intAnswerCount."}";
 								}
 							}
+						}
+					break;
+				}
+			}
 
-							else
+			foreach($data as $key => $value)
+			{
+				$out .= "<div id='flot_pie_".$key."' class='flot_pie'></div>";
+				$js_out .= "$.plot($('#flot_pie_".$key."'), [".$value."],
+				{
+					series:
+					{
+						pie:
+						{
+							innerRadius: 0.3,
+							show: true,
+							radius: 1,
+							label:
 							{
-								$strAnswerText = "";
+								show: true,
+								radius: 3/5,
+								formatter: function(label, series)
+								{
+									return series.data[0][1]; /*Math.round(series.percent) + '%'*/
+								},
+								/*threshold: 0.1,*/
+								background:
+								{
+									opacity: 0.5
+								}
 							}
+						}
+					},
+					legend: {
+						show: true
+					}
+				});";
+				
+				/*pie:
+				{
+					combine:
+					{
+						color: '#999',
+						label: '".__("Other", 'lang_form')."',
+						threshold: 0.1
+					}
+				}*/
 
-							echo "<td>";
+				/*series:{},
+				grid:
+				{
+					hoverable: true,
+					clickable: true
+				}*/
+			}
 
-								if($strAnswerText != 1)
+			echo $out
+			."<script>
+				jQuery(function($)
+				{"
+					.$js_out
+				."});
+			</script>";
+		}
+
+		$tbl_group = new mf_answer_table();
+
+		$tbl_group->select_data(array(
+			'select' => "answerID, answerCreated, answerIP, answerSpam, answerToken",
+			//'debug' => true,
+		));
+
+		$tbl_group->do_display();
+
+		/*$query_join = $query_where = "";
+
+		if($strSearch != '')
+		{
+			$query_join .= " LEFT JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)";
+			$query_where .= " AND (answerText LIKE '%".$strSearch."%' OR answerEmail LIKE '%".$strSearch."%' OR answerCreated LIKE '%".$strSearch."%')";
+		}
+
+		$resultPagination = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID)".$query_join." WHERE queryID = '".esc_sql($obj_form->id)."'".$query_where." GROUP BY answerID ORDER BY answerCreated DESC");
+
+		echo get_list_navigation($resultPagination)
+		."<table class='wp-list-table widefat striped'>";
+
+			$arr_header[] = "";
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
+
+			foreach($result as $r)
+			{
+				$intFormTypeID = $r->queryTypeID;
+				$strFormTypeText = $r->queryTypeText;
+				$intForm2TypeID2 = $r->query2TypeID;
+
+				switch($intFormTypeID)
+				{
+					case 2:
+						list($strFormTypeText, $rest) = explode("|", $strFormTypeText);
+					break;
+
+					case 10:
+					case 11:
+						list($strFormTypeText, $rest) = explode(":", $strFormTypeText);
+					break;
+				}
+
+				$arr_header[] = $strFormTypeText;
+			}
+
+			if($obj_form->has_payment)
+			{
+				$arr_header[] = __("Payment", 'lang_form');
+			}
+
+			$arr_header[] = __("Created", 'lang_form');
+			$arr_header[] = __("Sent e-mails", 'lang_form');
+
+			echo show_table_header($arr_header)
+			."<tbody>";
+
+				$result = $wpdb->get_results("SELECT answerID, answerCreated, answerIP, answerSpam, answerToken FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID)".$query_join." WHERE queryID = '".esc_sql($obj_form->id)."'".$query_where." GROUP BY answerID ORDER BY answerCreated DESC LIMIT ".$intLimitStart.", ".$intLimitAmount);
+				$rows = $wpdb->num_rows;
+
+				if($rows == 0)
+				{
+					echo "<tr><td colspan='".count($arr_header)."'>".__("There is nothing to show", 'lang_form')."</td></tr>";
+				}
+
+				else
+				{
+					foreach($result as $r)
+					{
+						$intAnswerID = $r->answerID;
+						$strAnswerCreated = $r->answerCreated;
+						$strAnswerIP = $r->answerIP;
+						$intAnswerSpam = $r->answerSpam;
+						$strAnswerToken = $r->answerToken;
+
+						echo "<tr>
+							<td>";
+
+								if($intAnswerSpam)
 								{
-									if($value == 2)
-									{
-										echo "<span class='red'>";
-									}
-
-									else if($value == 1)
-									{
-										echo "<span class='green'>";
-									}
+									echo "<i class='fa fa-lg fa-close red'></i>";
 								}
 
-								echo stripslashes(stripslashes($strAnswerText));
-
-								if($strAnswerText != 1 && $value > 0)
+								else
 								{
-									echo "</span>";
-								}
-
-								if($j == 0)
-								{
-									$row_actions = "<span class='edit'><a href='?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_form')."</a></span> | "
-									."<span class='delete'><a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a></span>";
-								}
-
-								if($row_actions != '')
-								{
-									echo "<div class='row-actions'>".$row_actions."</div>";
+									echo "<i class='fa fa-lg fa-check green'></i>";
 								}
 
 							echo "</td>";
 
-							$j++;
-						}
+							$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
 
-						if($has_payment)
-						{
-							$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
+							$j = 0;
 
-							echo "<td>".$strAnswerText_temp."</td>";
-						}
-
-						echo "<td>"
-							.format_date($strAnswerCreated)
-							."<div class='row-actions'>"
-								.__("ID", 'lang_form').": ".$intAnswerID
-								." | ".__("IP", 'lang_form').": ".$strAnswerIP;
-
-								if($strAnswerToken != '')
-								{
-									echo " | ".__("Token", 'lang_form').": ".$strAnswerToken;
-								}
-
-								if($has_payment == false)
-								{
-									$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
-
-									if($strSentTo != '' && strlen($strSentTo) > 4)
-									{
-										echo " | ".__("Sent to", 'lang_form').": ".$strSentTo;
-									}
-								}
-
-							echo "</div>
-						</td>
-						<td>";
-
-							$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d'", $intAnswerID));
-							$count_temp = $wpdb->num_rows;
-
-							if($count_temp > 0)
+							foreach($resultText as $r)
 							{
-								$li_out = $strAnswerEmail_temp = "";
-								$sent_successfully = 0;
+								$intForm2TypeID = $r->query2TypeID;
+								$intFormTypeID = $r->queryTypeID;
+								$strFormTypeText = $r->queryTypeText;
+								$strCheckCode = $r->checkCode;
 
-								foreach($result_emails as $r)
+								$value = 0;
+								$xtra = $row_actions = "";
+
+								$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
+								$rowsAnswer = $wpdb->num_rows;
+
+								if($rowsAnswer > 0)
 								{
-									$strAnswerEmail = $r->answerEmail;
-									$intAnswerSent = $r->answerSent;
+									$r = $resultAnswer[0];
+									$strAnswerText = $r->answerText;
 
-									if($intAnswerSent == 1)
+									switch($intFormTypeID)
 									{
-										$fa_class = "fa-check green";
+										case 8:
+											$strAnswerText = 1;
+										break;
 
-										$sent_successfully++;
-									}
+										case 7:
+											if(strlen($strAnswerText) > 10)
+											{
+												$strAnswerText = format_date($strAnswerText);
+											}
 
-									else
-									{
-										$fa_class = "fa-close red";
-									}
+											else
+											{
+												$strAnswerText = $strAnswerText;
+											}
+										break;
 
-									if($strAnswerEmail != $strAnswerEmail_temp)
-									{
-										$li_out .= "<li>
-											<i class='fa ".$fa_class."'></i> ".$strAnswerEmail
-										."</li>";
+										case 10:
+											$arr_content1 = explode(":", $strFormTypeText);
+											$arr_content2 = explode(",", $arr_content1[1]);
 
-										$strAnswerEmail_temp = $strAnswerEmail;
+											foreach($arr_content2 as $str_content)
+											{
+												$arr_content3 = explode("|", $str_content);
+
+												if($strAnswerText == $arr_content3[0])
+												{
+													$strAnswerText = $arr_content3[1];
+												}
+											}
+										break;
+
+										case 11:
+											$arr_content1 = explode(":", $strFormTypeText);
+											$arr_content2 = explode(",", $arr_content1[1]);
+
+											$strFormPrefix = $obj_form->get_post_info()."_";
+
+											$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
+
+											$strAnswerText = "";
+
+											foreach($arr_content2 as $str_content)
+											{
+												$arr_content3 = explode("|", $str_content);
+
+												if(in_array($arr_content3[0], $arr_answer_text))
+												{
+													$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
+												}
+											}
+
+											if($strAnswerText == '')
+											{
+												$strAnswerText = implode(",", $arr_answer_text);
+											}
+										break;
+
+										case 15:
+											$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+											foreach($result as $r)
+											{
+												$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
+											}
+										break;
+
+										default:
+											if($strCheckCode != '')
+											{
+												switch($strCheckCode)
+												{
+													case 'url':
+														$strAnswerText = "<a href='".$strAnswerText."'>".$strAnswerText."</a>";
+													break;
+
+													case 'email':
+														$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
+													break;
+
+													case 'zip':
+														$obj_form = new mf_form();
+
+														$row_actions = $obj_form->get_city_from_zip($strAnswerText);
+													break;
+												}
+											}
+										break;
 									}
 								}
 
-								echo $sent_successfully.($count_temp != $sent_successfully ? "/".$count_temp : "")
-								."<div class='row-actions'>
-									<ul>".$li_out."</ul>
-								</div>";
+								else
+								{
+									$strAnswerText = "";
+								}
+
+								echo "<td>";
+
+									if($strAnswerText != 1)
+									{
+										if($value == 2)
+										{
+											echo "<span class='red'>";
+										}
+
+										else if($value == 1)
+										{
+											echo "<span class='green'>";
+										}
+									}
+
+									echo stripslashes(stripslashes($strAnswerText));
+
+									if($strAnswerText != 1 && $value > 0)
+									{
+										echo "</span>";
+									}
+
+									if($j == 0)
+									{
+										$row_actions = "<span class='edit'><a href='?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_form')."</a></span> | "
+										."<span class='delete'><a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a></span>";
+									}
+
+									if($row_actions != '')
+									{
+										echo "<div class='row-actions'>".$row_actions."</div>";
+									}
+
+								echo "</td>";
+
+								$j++;
 							}
 
-						echo "</td>
-					</tr>";
+							if($obj_form->has_payment)
+							{
+								$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
+
+								echo "<td>".$strAnswerText_temp."</td>";
+							}
+
+							echo "<td>"
+								.format_date($strAnswerCreated)
+								."<div class='row-actions'>"
+									.__("ID", 'lang_form').": ".$intAnswerID
+									." | ".__("IP", 'lang_form').": ".$strAnswerIP;
+
+									if($strAnswerToken != '')
+									{
+										echo " | ".__("Token", 'lang_form').": ".$strAnswerToken;
+									}
+
+									if($obj_form->has_payment == false)
+									{
+										$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
+
+										if($strSentTo != '' && strlen($strSentTo) > 4)
+										{
+											echo " | ".__("Sent to", 'lang_form').": ".$strSentTo;
+										}
+									}
+
+								echo "</div>
+							</td>
+							<td>";
+
+								$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d'", $intAnswerID));
+								$count_temp = $wpdb->num_rows;
+
+								if($count_temp > 0)
+								{
+									$li_out = $strAnswerEmail_temp = "";
+									$sent_successfully = 0;
+
+									foreach($result_emails as $r)
+									{
+										$strAnswerEmail = $r->answerEmail;
+										$intAnswerSent = $r->answerSent;
+
+										if($intAnswerSent == 1)
+										{
+											$fa_class = "fa-check green";
+
+											$sent_successfully++;
+										}
+
+										else
+										{
+											$fa_class = "fa-close red";
+										}
+
+										if($strAnswerEmail != $strAnswerEmail_temp)
+										{
+											$li_out .= "<li>
+												<i class='fa ".$fa_class."'></i> ".$strAnswerEmail
+											."</li>";
+
+											$strAnswerEmail_temp = $strAnswerEmail;
+										}
+									}
+
+									echo $sent_successfully.($count_temp != $sent_successfully ? "/".$count_temp : "")
+									."<div class='row-actions'>
+										<ul>".$li_out."</ul>
+									</div>";
+								}
+
+							echo "</td>
+						</tr>";
+					}
 				}
-			}
 
-		echo "</tbody>
-	</table>
-</div>";
+			echo "</tbody>
+		</table>";*/
 
-update_user_meta(get_current_user_id(), 'answer_viewed', date("Y-m-d H:i:s"));
+	echo "</div>";
+
+	update_user_meta(get_current_user_id(), 'answer_viewed', date("Y-m-d H:i:s"));
+}
+
+else
+{
+	echo "<div class='wrap'>
+		<h2>".__("Answers", 'lang_form')."</h2>
+		<p><em>".sprintf(__("I could not find a form with the ID '%d'", 'lang_form'), $obj_form->id)."</em></p>
+	</div>";
+}

@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 8.3.6
+Version: 9.0.3
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -75,22 +75,12 @@ function activate_form()
 		queryPaymentCurrency VARCHAR(3),
 		queryPaymentCheck INT DEFAULT NULL,
 		queryPaymentAmount INT DEFAULT NULL,
-		queryCreated datetime DEFAULT NULL,
+		queryCreated DATETIME DEFAULT NULL,
 		queryDeleted ENUM('0', '1') NOT NULL DEFAULT '0',
-		queryDeletedDate datetime DEFAULT NULL,
+		queryDeletedDate DATETIME DEFAULT NULL,
 		queryDeletedID INT UNSIGNED DEFAULT '0',
 		userID INT UNSIGNED DEFAULT '0',
 		PRIMARY KEY (queryID)
-	) DEFAULT CHARSET=".$default_charset);
-
-	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2answer (
-		answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		queryID INT UNSIGNED NOT NULL,
-		answerIP VARCHAR(15) DEFAULT NULL,
-		answerToken VARCHAR(100) DEFAULT NULL,
-		answerCreated datetime DEFAULT NULL,
-		PRIMARY KEY (answerID),
-		KEY queryID (queryID)
 	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2type (
@@ -115,6 +105,17 @@ function activate_form()
 		PRIMARY KEY (query2TypeID),
 		KEY queryID (queryID),
 		KEY queryTypeID (queryTypeID)
+	) DEFAULT CHARSET=".$default_charset);
+
+	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2answer (
+		answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		queryID INT UNSIGNED NOT NULL,
+		answerIP VARCHAR(15) DEFAULT NULL,
+		answerSpam ENUM('0', '1') NOT NULL DEFAULT '0',
+		answerToken VARCHAR(100) DEFAULT NULL,
+		answerCreated DATETIME DEFAULT NULL,
+		PRIMARY KEY (answerID),
+		KEY queryID (queryID)
 	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_answer (
@@ -173,7 +174,7 @@ function activate_form()
 		'queryShowAnswers' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName",
 		'queryAnswerURL' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryAnswer",
 		'queryDeleted' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryCreated",
-		'queryDeletedDate' => "ALTER TABLE [table] ADD [column] datetime DEFAULT NULL AFTER queryDeleted",
+		'queryDeletedDate' => "ALTER TABLE [table] ADD [column] DATETIME DEFAULT NULL AFTER queryDeleted",
 		'queryDeletedID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT '0' AFTER queryDeletedDate",
 		'queryPaymentCheck' => "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryButtonText",
 		'queryPaymentAmount' => "ALTER TABLE [table] ADD [column] INT DEFAULT NULL AFTER queryPaymentCheck",
@@ -192,6 +193,7 @@ function activate_form()
 
 	$arr_add_column[$wpdb->base_prefix."query2answer"] = array(
 		'answerToken' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER answerIP",
+		'answerSpam' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER answerIP",
 	);
 
 	$arr_add_column[$wpdb->base_prefix."query_check"] = array(
@@ -220,7 +222,7 @@ function activate_form()
 
 	//Convert queryAnswerURL and queryEmailConfirmPage to INT
 	#################################
-	$result = $wpdb->get_results("SELECT queryID, queryAnswerURL, queryEmailConfirmPage FROM ".$wpdb->base_prefix."query WHERE queryAnswerURL LIKE '%_%' OR queryEmailConfirmPage LIKE '%_%'");
+	/*$result = $wpdb->get_results("SELECT queryID, queryAnswerURL, queryEmailConfirmPage FROM ".$wpdb->base_prefix."query WHERE queryAnswerURL LIKE '%_%' OR queryEmailConfirmPage LIKE '%_%'");
 
 	foreach($result as $r)
 	{
@@ -241,7 +243,7 @@ function activate_form()
 
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryEmailConfirmPage = %s WHERE queryID = '%d'", $intFormEmailConfirmPage, $intFormID));
 		}
-	}
+	}*/
 	#################################
 
 	$arr_update_column = array();
@@ -292,13 +294,11 @@ function activate_form()
 		13 => array('code' => 'custom_tag',			'name' => __("Custom tag", 'lang_form'),			'result' => 0),
 		14 => array('code' => 'custom_tag_end',		'name' => __("Custom tag (end)", 'lang_form'),		'result' => 0,		'public' => 'no'),
 		15 => array('code' => 'file',				'name' => __("File", 'lang_form'),					'result' => 1),
-		//16 => array('code' => 'email_text',			'name' => __("Email text", 'lang_form'),		'result' => 0,		'show_in_form' => 'no'),
 	);
 
 	foreach($arr_query_types as $key => $value)
 	{
 		if(!isset($value['public'])){	$value['public'] = 'yes';}
-		//if(!isset($value['show_in_form'])){	$value['show_in_form'] = 'yes';}
 
 		$arr_run_query[] = sprintf("INSERT IGNORE INTO ".$wpdb->base_prefix."query_type SET queryTypeID = '%d', queryTypeCode = '%s', queryTypeName = '%s', queryTypeResult = '%d', queryTypePublic = '%s'", $key, $value['code'], $value['name'], $value['result'], $value['public']);
 	}
@@ -333,7 +333,7 @@ function activate_form()
 	run_queries($arr_run_query);
 
 	//Migrate query table to posts table
-	if(IS_ADMIN)
+	/*if(IS_ADMIN)
 	{
 		//Step 1: Create post in posts table
 		#########################
@@ -383,7 +383,7 @@ function activate_form()
 			}
 		}
 		#########################
-	}
+	}*/
 }
 
 function deactivate_form()

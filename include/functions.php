@@ -155,8 +155,8 @@ function preg_email_concat($matches)
 	$obj_form = new mf_form($replacement_form);
 
 	//$before_at."***@".$after_at
-	$out = "<a href='#' class='mf_form_link'>".__("Click here to send e-mail", 'lang_form')."</a>
-	<div class='mf_form_inline'>"
+	$out = "<a href='#' class='form_link'>".__("Click here to send e-mail", 'lang_form')."</a>
+	<div class='form_inline hide'>"
 		.$obj_form->process_form(array('send_to' => $email))
 	."</div>";
 
@@ -170,7 +170,6 @@ function my_replace_content($html)
 	$char_after = "?=\s|$|\)|\'|\!|(\?)|\.|\]|\<|\[|;";
 
 	$html = preg_replace("/(".$char_before.")(".$chars.")(".$char_after.")/", "<a href='mailto:$1'>$1</a>", $html);
-
 	$html = preg_replace_callback("/<a.*?href=['\"]mailto:(.*?)['\"]>.*?<\/a>/i", "preg_email_concat", $html);
 
 	return $html;
@@ -495,8 +494,6 @@ function mf_form_mail($data)
 {
 	global $wpdb;
 
-	//$out = "";
-
 	//Moved to phpmailer_init_form()
 	/*if(is_user_logged_in() && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
 	{
@@ -512,12 +509,10 @@ function mf_form_mail($data)
 		$data['to'] = get_bloginfo('admin_email');
 	}*/
 
-	$mail_sent = send_email($data);
+	$sent = send_email($data);
 
 	if(isset($data['answer_id']))
 	{
-		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer_email SET answerID = '%d', answerEmail = %s, answerSent = '%d'", $data['answer_id'], $data['to'], $mail_sent));
+		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer_email SET answerID = '%d', answerEmail = %s, answerSent = '%d'", $data['answer_id'], $data['to'], $sent));
 	}
-
-	//return $out;
 }

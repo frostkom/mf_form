@@ -636,6 +636,11 @@ class mf_form
 	{
 		global $wpdb;
 
+		if(isset($data['answer_id']))
+		{
+			$this->answer_id = $data['answer_id'];
+		}
+
 		$mail_content = "";
 
 		if($data['page_id'] > 0)
@@ -647,7 +652,7 @@ class mf_form
 				$data['subject'] = $r->post_title;
 				$mail_template = apply_filters('the_content', $r->post_content);
 
-				$mail_content = $this->render_mail_content(array('answer_id' => $data['answer_id'], 'mail_to' => $data['mail_to'], 'array' => $data['content'], 'template' => $mail_template));
+				$mail_content = $this->render_mail_content(array('answer_id' => $this->answer_id, 'mail_to' => $data['mail_to'], 'array' => $data['content'], 'template' => $mail_template));
 			}
 		}
 
@@ -811,6 +816,7 @@ class mf_form
 		$arr_email_content = array(
 			'fields' => array(),
 		);
+		$this->is_spam = false;
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
 		$r = $result[0];
@@ -863,13 +869,15 @@ class mf_form
 						case 'char':
 							if(contains_html($strAnswerText))
 							{
-								$error_text = __("You are not allowed to enter code in the text fields", 'lang_form');
+								$this->is_spam = true;
+								//$error_text = __("You are not allowed to enter code in the text fields", 'lang_form');
 							}
 
 							else if($intFormTypeID2 != 9 && contains_urls($strAnswerText))
 							{
+								$this->is_spam = true;
 								//do_log(__("The string contained links and was stopped", 'lang_form')." (".$strFormTypeText.": ".$strAnswerText.")");
-								$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');
+								//$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');
 							}
 						break;
 
@@ -1050,7 +1058,7 @@ class mf_form
 		{
 			$updated = true;
 
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerCreated = NOW()", $this->id, $this->answer_ip));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerSpam = '%d', answerCreated = NOW()", $this->id, $this->answer_ip, $this->is_spam));
 			$this->answer_id = $wpdb->insert_id;
 
 			$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $email_from, 'mail_subject' => ($strFormEmailName != "" ? $strFormEmailName : $strFormName), 'notify_page' => $intFormEmailNotifyPage, 'arr_mail_content' => $arr_email_content));
@@ -1082,92 +1090,99 @@ class mf_form
 
 				if($updated == true)
 				{
-					$answer_data = "";
-
-					if(isset($data['send_to']) && $data['send_to'] != '')
+					if($this->is_spam == false)
 					{
-						$mail_subject = $strFormEmailName != "" ? $strFormEmailName : $strFormName;
-						$mail_content = $this->render_mail_content(array('array' => $arr_email_content));
+						$mail_data = array();
 
-						$mail_data = array(
-							'to' => $data['send_to'],
-							'subject' => $mail_subject,
-							'content' => $mail_content,
-							'answer_id' => $this->answer_id,
-						);
-
-						if($email_from != '')
+						if(isset($data['send_to']) && $data['send_to'] != '')
 						{
-							$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
+							$mail_data['to'] = $data['send_to'];
+							//$mail_data['subject'] = $strFormEmailName != "" ? $strFormEmailName : $strFormName;
+							//$mail_data['content'] = $this->render_mail_content(array('array' => $arr_email_content));
+
+							$page_content_data = array(
+								//'page_id' => $intFormEmailNotifyPage,
+								//'answer_id' => $this->answer_id,
+								'mail_to' => $mail_data['to'],
+								'subject' => ($strFormEmailName != "" ? $strFormEmailName : $strFormName),
+								'content' => $arr_email_content,
+							);
+
+							list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
+
+							/*$mail_data = array(
+								'to' => $data['send_to'],
+								'subject' => $mail_subject,
+								'content' => $mail_content,
+								'answer_id' => $this->answer_id,
+							);*/
+
+							if($email_from != '')
+							{
+								$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
+							}
 						}
 
-						mf_form_mail($mail_data);
-						//$answer_data .= ($answer_data != '' ? ", " : "").
-					}
-
-					if($intFormEmailNotify == 1 && $strFormEmail != '')
-					{
-						$mail_subject = $strFormEmailName != "" ? $strFormEmailName : $strFormName;
-						
-						$page_content_data = array(
-							'page_id' => $intFormEmailNotifyPage,
-							'answer_id' => $this->answer_id,
-							'mail_to' => $strFormEmail,
-							'subject' => $mail_subject,
-							'content' => $arr_email_content,
-						);
-
-						list($mail_subject, $mail_content) = $this->get_page_content_for_email($page_content_data);
-
-						$mail_data = array(
-							'to' => $strFormEmail,
-							'subject' => $mail_subject,
-							'content' => $mail_content,
-							'answer_id' => $this->answer_id,
-						);
-
-						if($email_from != '')
+						if($intFormEmailNotify == 1 && $strFormEmail != '')
 						{
-							$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
+							$mail_data['to'] = $strFormEmail;
+
+							$page_content_data = array(
+								'page_id' => $intFormEmailNotifyPage,
+								//'answer_id' => $this->answer_id,
+								'mail_to' => $mail_data['to'],
+								'subject' => ($strFormEmailName != "" ? $strFormEmailName : $strFormName),
+								'content' => $arr_email_content,
+							);
+
+							list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
+
+							/*$mail_data = array(
+								'to' => $strFormEmail,
+								'subject' => $mail_subject,
+								'content' => $mail_content,
+								'answer_id' => $this->answer_id,
+							);*/
+
+							if($email_from != '')
+							{
+								$mail_data['headers'] = "From: ".$email_from." <".$email_from.">\r\n";
+							}
 						}
 
-						mf_form_mail($mail_data);
-						//$answer_data .= ($answer_data != '' ? ", " : "").
-					}
-
-					if($intFormEmailConfirm == 1 && isset($email_from) && $email_from != '')
-					{
-						$mail_subject = $strFormEmailName != "" ? $strFormEmailName : $strFormName;
-
-						$page_content_data = array(
-							'page_id' => $intFormEmailConfirmPage,
-							'answer_id' => $this->answer_id,
-							'mail_to' => $email_from,
-							'subject' => $mail_subject,
-							'content' => $arr_email_content,
-						);
-
-						list($mail_subject, $mail_content) = $this->get_page_content_for_email($page_content_data);
-
-						$mail_data = array(
-							'to' => $email_from,
-							'subject' => $mail_subject,
-							'content' => $mail_content,
-							'answer_id' => $this->answer_id,
-						);
-
-						if($strFormEmail != '')
+						if($intFormEmailConfirm == 1 && isset($email_from) && $email_from != '')
 						{
-							$mail_data['headers'] = "From: ".$strFormEmail." <".$strFormEmail.">\r\n";
+							$mail_data['to'] = $email_from;
+
+							$page_content_data = array(
+								'page_id' => $intFormEmailConfirmPage,
+								//'answer_id' => $this->answer_id,
+								'mail_to' => $mail_data['to'],
+								'subject' => ($strFormEmailName != "" ? $strFormEmailName : $strFormName),
+								'content' => $arr_email_content,
+							);
+
+							list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
+
+							/*$mail_data = array(
+								'to' => $email_from,
+								'subject' => $mail_subject,
+								'content' => $mail_content,
+								'answer_id' => $this->answer_id,
+							);*/
+
+							if($strFormEmail != '')
+							{
+								$mail_data['headers'] = "From: ".$strFormEmail." <".$strFormEmail.">\r\n";
+							}
 						}
 
-						mf_form_mail($mail_data);
-						//$answer_data .= ($answer_data != '' ? ", " : "").
-					}
+						if(count($mail_data) > 0)
+						{
+							$mail_data['answer_id'] = $this->answer_id;
 
-					if($answer_data != '')
-					{
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $this->answer_id, $answer_data));
+							mf_form_mail($mail_data);
+						}
 					}
 
 					if($intFormPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
@@ -1355,12 +1370,10 @@ class mf_form
 
 	function process_form($data = array())
 	{
-		global $wpdb; //, $wp_query, $error_text, $done_text
+		global $wpdb;
 
 		$out = "";
 
-		//if(!isset($data['edit'])){			$data['edit'] = false;}
-		//if(!isset($data['sent'])){		$data['sent'] = false;}
 		if(!isset($data['query2type_id'])){	$data['query2type_id'] = 0;}
 
 		$this->edit_mode = isset($data['edit']) ? $data['edit'] : false;
@@ -2342,7 +2355,7 @@ class mf_form_table extends mf_list_table
 			case 'content':
 				if($post_status == 'publish')
 				{
-					echo "<i class='fa fa-lg fa-link grey' title='".__("Public", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-link grey' title='".__("Public", 'lang_form')."'></i> ";
 				}
 
 				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmail, queryEmailNotifyPage, queryEmailConfirm, queryEmailConfirmPage, queryPaymentProvider FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $obj_form->id));
@@ -2359,12 +2372,12 @@ class mf_form_table extends mf_list_table
 					{
 						if($intFormEmailNotifyPage > 0)
 						{
-							echo "<i class='fa fa-lg fa-send grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
+							$out .= "<i class='fa fa-lg fa-send grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
 						}
 
 						else
 						{
-							echo "<i class='fa fa-lg fa-send grey' title='".sprintf(__("Emails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
+							$out .= "<i class='fa fa-lg fa-send grey' title='".sprintf(__("Emails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
 						}
 					}
 
@@ -2372,12 +2385,12 @@ class mf_form_table extends mf_list_table
 					{
 						if($intFormEmailConfirmPage > 0)
 						{
-							echo "<i class='fa fa-lg fa-send-o grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
+							$out .= "<i class='fa fa-lg fa-send-o grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
 						}
 
 						else
 						{
-							echo "<i class='fa fa-lg fa-send-o grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
+							$out .= "<i class='fa fa-lg fa-send-o grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
 						}
 					}
 
@@ -2394,55 +2407,55 @@ class mf_form_table extends mf_list_table
 							break;
 						}
 
-						echo "<i class='fa fa-lg ".$icon." grey' title='".__("Provider", 'lang_form')."'></i> ";
+						$out .= "<i class='fa fa-lg ".$icon." grey' title='".__("Provider", 'lang_form')."'></i> ";
 					}
 				}
 
 				if($obj_form->is_form_field_type_used(array('required' => true)))
 				{
-					echo "<i class='fa fa-lg fa-asterisk grey' title='".__("There are required fields", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-asterisk grey' title='".__("There are required fields", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('autofocus' => true)))
 				{
-					echo "<i class='fa fa-lg fa-i-cursor grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-i-cursor grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('remember' => true)))
 				{
-					echo "<i class='fa fa-lg fa-refresh grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-refresh grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
 				}
 
-				echo "<br>";
+				$out .= "<br>";
 				
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
 				{
-					echo "<i class='fa fa-lg fa-at grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-at grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 1)))
 				{
-					echo "<i class='fa fa-lg fa-check-square-o grey' title='".__("Checkbox", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-check-square-o grey' title='".__("Checkbox", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 2)))
 				{
-					echo "<i class='fa fa-lg fa-sliders grey' title='".__("Range", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-sliders grey' title='".__("Range", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
 				{
-					echo "<i class='fa fa-lg fa-calendar grey' title='".__("Datepicker", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-calendar grey' title='".__("Datepicker", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 8)))
 				{
-					echo "<i class='fa fa-lg fa-circle-o grey' title='".__("Radio button", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-circle-o grey' title='".__("Radio button", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
 				{
-					echo "<i class='fa fa-lg fa-file-o grey' title='".__("File", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-lg fa-file-o grey' title='".__("File", 'lang_form')."'></i> ";
 				}
 			break;
 
@@ -2467,7 +2480,7 @@ class mf_form_table extends mf_list_table
 							$actions['export_xls'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportAction=xls", 'export_run')."'>".__("XLS", 'lang_form')."</a>";
 						}
 
-						echo $query_answers
+						$out .= $query_answers
 						.$count_message
 						.$this->row_actions($actions);
 					}
@@ -2482,6 +2495,354 @@ class mf_form_table extends mf_list_table
 				if(isset($item[$column_name]))
 				{
 					$out .= $item[$column_name];
+				}
+			break;
+		}
+
+		return $out;
+	}
+}
+
+class mf_answer_table extends mf_list_table
+{
+	function set_default()
+	{
+		global $wpdb, $obj_form;
+
+		$this->arr_settings['query_from'] = $wpdb->base_prefix."query2answer";
+		$this->post_type = "";
+
+		$this->arr_settings['query_select_id'] = "answerID";
+		$this->arr_settings['query_all_id'] = "0";
+		$this->arr_settings['query_trash_id'] = "1";
+		$this->orderby_default = "answerCreated";
+		$this->orderby_default_order = "desc";
+
+		$this->arr_settings['page_vars'] = "intFormID=".$obj_form->id;
+
+		//$this->arr_settings['has_autocomplete'] = true;
+		//$this->arr_settings['plugin_name'] = 'mf_form';
+
+		$this->query_where .= ($this->query_where != '' ? " AND " : "")."queryID = '".$obj_form->id."'";
+
+		if($this->search != '')
+		{
+			$query_join .= " LEFT JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)";
+			$query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%')";
+		}
+
+		$this->set_views(array(
+			'db_field' => 'answerSpam',
+			'types' => array(
+				'0' => __("All", 'lang_address'),
+				'1' => __("Spam", 'lang_address')
+			),
+		));
+
+		$arr_columns = array(
+			//'cb' => '<input type="checkbox">',
+			'answerSpam' => "",
+		);
+
+		$obj_form->answer_column = 0;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
+
+		foreach($result as $r)
+		{
+			$intFormTypeID = $r->queryTypeID;
+			$strFormTypeText = $r->queryTypeText;
+			$intForm2TypeID2 = $r->query2TypeID;
+
+			switch($intFormTypeID)
+			{
+				case 2:
+					list($strFormTypeText, $rest) = explode("|", $strFormTypeText);
+				break;
+
+				case 10:
+				case 11:
+					list($strFormTypeText, $rest) = explode(":", $strFormTypeText);
+				break;
+			}
+
+			$arr_columns[$intForm2TypeID2] = $strFormTypeText;
+		}
+
+		if($obj_form->has_payment)
+		{
+			$arr_columns['payment'] = __("Payment", 'lang_form');
+		}
+
+		$arr_columns['answerCreated'] = __("Created", 'lang_form');
+		$arr_columns['sent'] = __("Sent e-mails", 'lang_form');
+
+		$this->set_columns($arr_columns);
+
+		/*$this->set_sortable_columns(array(
+			'answerCreated',
+		));*/
+	}
+
+	function column_default($item, $column_name)
+	{
+		global $wpdb, $obj_form;
+
+		$out = "";
+
+		$intAnswerID = $item['answerID'];
+
+		switch($column_name)
+		{
+			case 'answerSpam':
+				$actions = array();
+
+				if($item[$column_name])
+				{
+					$out .= "<i class='fa fa-lg fa-close red'></i>";
+					/*$actions['approve'] = "<form action='' method='post'>"
+						.show_button(array('name' => "btnFormApprove", 'text' => __("Approve and send email", 'lang_form')))
+						.input_hidden(array('name' => "intAnswerID", 'value' => $intAnswerID))
+						.wp_nonce_field('form_approve', '_wpnonce', true, false)
+					."</form>";*/
+				}
+
+				else
+				{
+					$out .= "<i class='fa fa-lg fa-check green'></i>";
+				}
+
+				$out .= $this->row_actions($actions);
+			break;
+
+			case 'payment':
+				$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
+
+				$out .= $strAnswerText_temp;
+			break;
+
+			case 'answerCreated':
+				$actions = array();
+
+				$actions['id'] = __("ID", 'lang_form').": ".$intAnswerID;
+				$actions['ip'] = __("IP", 'lang_form').": ".$item['answerIP'];
+
+				if($item['answerToken'] != '')
+				{
+					$actions['token'] = __("Token", 'lang_form').": ".$item['answerToken'];
+				}
+
+				if($obj_form->has_payment == false)
+				{
+					$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
+
+					if($strSentTo != '' && strlen($strSentTo) > 4)
+					{
+						$actions['sent_to'] = __("Sent to", 'lang_form').": ".$strSentTo;
+					}
+				}
+
+				$out .= format_date($item['answerCreated'])
+				.$this->row_actions($actions);
+			break;
+
+			case 'sent':
+				$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d'", $intAnswerID));
+				$count_temp = $wpdb->num_rows;
+
+				if($count_temp > 0)
+				{
+					$li_out = $strAnswerEmail_temp = "";
+					$sent_successfully = 0;
+
+					foreach($result_emails as $r)
+					{
+						$strAnswerEmail = $r->answerEmail;
+						$intAnswerSent = $r->answerSent;
+
+						if($intAnswerSent == 1)
+						{
+							$fa_class = "fa-check green";
+
+							$sent_successfully++;
+						}
+
+						else
+						{
+							$fa_class = "fa-close red";
+						}
+
+						if($strAnswerEmail != $strAnswerEmail_temp)
+						{
+							$li_out .= "<li>
+								<i class='fa ".$fa_class."'></i> ".$strAnswerEmail
+							."</li>";
+
+							$strAnswerEmail_temp = $strAnswerEmail;
+						}
+					}
+
+					$out .= $sent_successfully.($count_temp != $sent_successfully ? "/".$count_temp : "")
+					."<div class='row-actions'>
+						<ul>".$li_out."</ul>
+					</div>";
+				}
+			break;
+
+			default:
+				if(isset($item[$column_name]))
+				{
+					$out .= $item[$column_name];
+				}
+
+				else
+				{
+					$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' AND query2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
+
+					foreach($resultText as $r)
+					{
+						$intForm2TypeID = $r->query2TypeID;
+						$intFormTypeID = $r->queryTypeID;
+						$strFormTypeText = $r->queryTypeText;
+						$strCheckCode = $r->checkCode;
+
+						//$value = 0;
+						$strAnswerText = ""; //$xtra = $row_actions = 
+						$actions = array();
+
+						$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
+						$rowsAnswer = $wpdb->num_rows;
+
+						if($rowsAnswer > 0)
+						{
+							$r = $resultAnswer[0];
+							$strAnswerText = $r->answerText;
+
+							switch($intFormTypeID)
+							{
+								case 8:
+									$strAnswerText = 1;
+								break;
+
+								case 7:
+									if(strlen($strAnswerText) > 10)
+									{
+										$strAnswerText = format_date($strAnswerText);
+									}
+
+									else
+									{
+										$strAnswerText = $strAnswerText;
+									}
+								break;
+
+								case 10:
+									$arr_content1 = explode(":", $strFormTypeText);
+									$arr_content2 = explode(",", $arr_content1[1]);
+
+									foreach($arr_content2 as $str_content)
+									{
+										$arr_content3 = explode("|", $str_content);
+
+										if($strAnswerText == $arr_content3[0])
+										{
+											$strAnswerText = $arr_content3[1];
+										}
+									}
+								break;
+
+								case 11:
+									$arr_content1 = explode(":", $strFormTypeText);
+									$arr_content2 = explode(",", $arr_content1[1]);
+
+									$strFormPrefix = $obj_form->get_post_info()."_";
+
+									$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
+
+									$strAnswerText = "";
+
+									foreach($arr_content2 as $str_content)
+									{
+										$arr_content3 = explode("|", $str_content);
+
+										if(in_array($arr_content3[0], $arr_answer_text))
+										{
+											$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
+										}
+									}
+
+									if($strAnswerText == '')
+									{
+										$strAnswerText = implode(",", $arr_answer_text);
+									}
+								break;
+
+								case 15:
+									$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+									foreach($result as $r)
+									{
+										$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
+									}
+								break;
+
+								default:
+									if($strCheckCode != '')
+									{
+										switch($strCheckCode)
+										{
+											case 'url':
+												$strAnswerText = "<a href='".$strAnswerText."'>".$strAnswerText."</a>";
+											break;
+
+											case 'email':
+												$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
+											break;
+
+											case 'zip':
+												//$obj_form = new mf_form();
+
+												$actions['zip'] = $obj_form->get_city_from_zip($strAnswerText);
+											break;
+										}
+									}
+								break;
+							}
+						}
+
+						if($strAnswerText != '')
+						{
+							/*if($strAnswerText != 1)
+							{
+								if($value == 2)
+								{
+									$out .= "<span class='red'>";
+								}
+
+								else if($value == 1)
+								{
+									$out .= "<span class='green'>";
+								}
+							}*/
+
+							$out .= stripslashes(stripslashes($strAnswerText));
+
+							/*if($strAnswerText != 1 && $value > 0)
+							{
+								$out .= "</span>";
+							}*/
+						}
+
+						if($obj_form->answer_column == 0)
+						{
+							$actions['edit'] = "<a href='?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_form')."</a>";
+							$actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+
+							$obj_form->answer_column++;
+						}
+
+						$out .= $this->row_actions($actions);
+					}
 				}
 			break;
 		}
