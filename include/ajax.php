@@ -28,24 +28,7 @@ $state_id = isset($arr_input[3]) ? $arr_input[3] : "";
 
 if(get_current_user_id() > 0)
 {
-	/*if($type == "table_search")
-	{
-		$tbl_group = new mf_form_table();
-
-		$tbl_group->select_data(array(
-			'select' => "post_title",
-			'limit' => 0, 'amount' => 10
-		));
-
-		foreach($tbl_group->data as $r)
-		{
-			$strFormName = $r['post_title'];
-
-			$json_output[] = $strFormName;
-		}
-	}
-
-	else */if($type_action == "delete")
+	if($type_action == "delete")
 	{
 		if($type_table == "query")
 		{
@@ -54,8 +37,6 @@ if(get_current_user_id() > 0)
 			if($wpdb->rows_affected > 0)
 			{
 				$obj_form = new mf_form($type_id);
-
-				//$intPostID = $obj_form->get_post_id($type_id);
 
 				if(wp_trash_post($obj_form->post_id))
 				{
@@ -186,7 +167,7 @@ if(get_current_user_id() > 0)
 	}
 }
 
-else if($type_action == "zipcode")
+if($type_action == "zipcode")
 {
 	$search = str_replace(" ", "", $type_id);
 

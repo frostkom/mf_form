@@ -176,7 +176,7 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 					$intFormTypeID = 14;
 					$intForm2TypeOrder++;
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET query2TypeID2 = '%d', queryID = '%d', queryTypeID = '%d', queryTypeText = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $intForm2TypeID, $obj_form->id, $intFormTypeID, $strFormTypeText, $intForm2TypeOrder, get_current_user_id())); //, queryTypeClass = %s, queryTypeFetchFrom = %s, $strFormTypeClass, $strFormTypeFetchFrom
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET query2TypeID2 = '%d', queryID = '%d', queryTypeID = '%d', queryTypeText = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $intForm2TypeID, $obj_form->id, $intFormTypeID, $strFormTypeText, $intForm2TypeOrder, get_current_user_id()));
 				}
 
 				if($wpdb->rows_affected > 0)
@@ -187,7 +187,7 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 
 			else
 			{
-				$error_text = __("Couldn't insert the new field", 'lang_form');
+				$error_text = __("I could not insert the new field for you", 'lang_form');
 			}
 		}
 	}

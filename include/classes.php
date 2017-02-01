@@ -393,23 +393,10 @@ class mf_form
 	{
 		global $wpdb;
 
-		$out = "";
-
 		if(get_bloginfo('language') == "sv-SE")
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT cityName FROM ".$wpdb->base_prefix."query_zipcode WHERE addressZipCode = '%d'", $zip)); //, municipalityName
-
-			foreach($result as $r)
-			{
-				$strCityName = $r->cityName;
-				//$strMunicipalityName = $r->municipalityName;
-
-				$out = $strCityName; //.($strMunicipalityName != '' && $strMunicipalityName != $strCityName ? ", ".$strMunicipalityName : "");
-				break;
-			}
+			return $wpdb->get_var($wpdb->prepare("SELECT cityName FROM ".$wpdb->base_prefix."query_zipcode WHERE addressZipCode = '%d' LIMIT 0, 1", $zip));
 		}
-
-		return $out;
 	}
 
 	function is_form_field_type_used($data)
@@ -805,6 +792,38 @@ class mf_form
 		return $out;
 	}
 
+	function check_if_spam($data)
+	{
+		global $wpdb;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT spamText FROM ".$wpdb->base_prefix."form_spam WHERE (spamInclude = '' OR spamInclude = %s) AND (spamExclude = '' OR spamExclude != '%s')", $data['code'], $data['code']));
+
+		foreach($result as $r)
+		{
+			$strSpamText = $r->spamText;
+
+			if(function_exists($strSpamText))
+			{
+				$string_decoded = htmlspecialchars_decode($data['text']);
+
+				if($data['text'] != strip_tags($data['text']) || $string_decoded != strip_tags($string_decoded))
+				{
+					$this->is_spam = true;
+					break;
+				}
+			}
+
+			else
+			{
+				if(preg_match($strSpamText, $data['text']))
+				{
+					$this->is_spam = true;
+					break;
+				}
+			}
+		}
+	}
+
 	function process_submit()
 	{
 		global $wpdb, $error_text, $done_text;
@@ -842,12 +861,13 @@ class mf_form
 
 		else
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $this->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $this->id));
 
 			foreach($result as $r)
 			{
 				$intForm2TypeID2 = $r->query2TypeID;
 				$intFormTypeID2 = $r->queryTypeID;
+				$strQueryTypeCode = $r->queryTypeCode;
 				$strFormTypeText = $r->queryTypeText;
 				$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
 				$intFormTypeRequired = $r->queryTypeRequired;
@@ -865,20 +885,21 @@ class mf_form
 				{
 					switch($strCheckCode)
 					{
-						//Add specific check here to prevent HTML in messages
 						case 'char':
-							if(contains_html($strAnswerText))
+							$this->check_if_spam(array('code' => $strQueryTypeCode, 'text' => $strAnswerText));
+
+							/*if($this->is_spam == false && contains_html($strAnswerText))
 							{
 								$this->is_spam = true;
 								//$error_text = __("You are not allowed to enter code in the text fields", 'lang_form');
 							}
 
-							else if($intFormTypeID2 != 9 && contains_urls($strAnswerText))
+							else if($this->is_spam == false && $intFormTypeID2 != 9 && contains_urls($strAnswerText))
 							{
 								$this->is_spam = true;
 								//do_log(__("The string contained links and was stopped", 'lang_form')." (".$strFormTypeText.": ".$strAnswerText.")");
 								//$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');
-							}
+							}*/
 						break;
 
 						case 'email':
@@ -2518,7 +2539,7 @@ class mf_answer_table extends mf_list_table
 		$this->orderby_default = "answerCreated";
 		$this->orderby_default_order = "desc";
 
-		$this->arr_settings['page_vars'] = "intFormID=".$obj_form->id;
+		$this->arr_settings['page_vars'] = array('intFormID' => $obj_form->id);
 
 		//$this->arr_settings['has_autocomplete'] = true;
 		//$this->arr_settings['plugin_name'] = 'mf_form';
@@ -2527,8 +2548,8 @@ class mf_answer_table extends mf_list_table
 
 		if($this->search != '')
 		{
-			$query_join .= " LEFT JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)";
-			$query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%')";
+			$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."query_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)";
+			$this->query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%')";
 		}
 
 		$this->set_views(array(
@@ -2595,6 +2616,8 @@ class mf_answer_table extends mf_list_table
 		switch($column_name)
 		{
 			case 'answerSpam':
+				$obj_form->answer_column = 0;
+
 				$actions = array();
 
 				if($item[$column_name])
@@ -2706,8 +2729,7 @@ class mf_answer_table extends mf_list_table
 						$strFormTypeText = $r->queryTypeText;
 						$strCheckCode = $r->checkCode;
 
-						//$value = 0;
-						$strAnswerText = ""; //$xtra = $row_actions = 
+						$strAnswerText = "";
 						$actions = array();
 
 						$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
@@ -2800,8 +2822,6 @@ class mf_answer_table extends mf_list_table
 											break;
 
 											case 'zip':
-												//$obj_form = new mf_form();
-
 												$actions['zip'] = $obj_form->get_city_from_zip($strAnswerText);
 											break;
 										}
@@ -2812,25 +2832,7 @@ class mf_answer_table extends mf_list_table
 
 						if($strAnswerText != '')
 						{
-							/*if($strAnswerText != 1)
-							{
-								if($value == 2)
-								{
-									$out .= "<span class='red'>";
-								}
-
-								else if($value == 1)
-								{
-									$out .= "<span class='green'>";
-								}
-							}*/
-
 							$out .= stripslashes(stripslashes($strAnswerText));
-
-							/*if($strAnswerText != 1 && $value > 0)
-							{
-								$out .= "</span>";
-							}*/
 						}
 
 						if($obj_form->answer_column == 0)
