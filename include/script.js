@@ -1,8 +1,183 @@
+function on_load_form()
+{
+	jQuery('.mf_form input[type=range]').each(function()
+	{
+		update_range_text(jQuery(this));
+	});
+
+	jQuery('.form_inline .error, .form_inline h2').each(function()
+	{
+		if(jQuery(this).length > 0)
+		{
+			jQuery(this).parents('.form_inline').show();
+		}
+	});
+
+	jQuery('.mf_form .form_zipcode input').each(function()
+	{
+		jQuery(this).after("<span></span>");
+	});
+
+	jQuery('.form_action select').each(function()
+	{
+		do_form_type_action(jQuery(this));
+	});
+
+	if(jQuery('.mf_form .remember').length > 0)
+	{
+		check_remember_fields();
+	}
+
+	jQuery('.mf_form .form_zipcode input').each(function()
+	{
+		check_zip_code(jQuery(this));
+	});
+}
+
+function update_range_text(selector)
+{
+	selector.siblings('label').children('span').text(selector.val());
+}
+
+function do_form_type_action(selector)
+{
+	var equals = selector.attr('data-equals'),
+		show = selector.attr('data-show'),
+		show_obj = jQuery('#' + show);
+
+	if(show_obj.is('checkbox')){		show_obj = show_obj.parents('.form_checkbox');}
+	else if(show_obj.is('textarea')){	show_obj = show_obj.parents('.form_textarea');}
+	else if(show_obj.is('select')){		show_obj = show_obj.parents('.form_select');}
+
+	if(selector.val() == equals){	show_obj.removeClass('hide');}
+	else{							show_obj.addClass('hide');}
+}
+
+function check_remember_fields()
+{
+	jQuery.getScript(script_forms.plugins_url + "/mf_base/include/jquery.Storage.js").done(function()
+	{
+		if(jQuery.Storage)
+		{
+			var remember_count = 0;
+
+			function show_or_hide_clear_button()
+			{
+				if(remember_count > 0)
+				{
+					jQuery('.form_button .button-secondary').removeClass("hide");
+				}
+
+				else
+				{
+					jQuery('.form_button .button-secondary').addClass("hide");
+				}
+			}
+
+			var remember_fields = jQuery('.mf_form .remember');
+
+			remember_fields.each(function()
+			{
+				var selector = jQuery(this).find('input, select, textarea'),
+					dom_name = selector.attr('name'),
+					dom_value = jQuery.Storage.get(dom_name);
+
+				if(typeof dom_value !== 'undefined' && selector.val() == '')
+				{
+					selector.val(dom_value);
+
+					remember_count++;
+				}
+			});
+
+			show_or_hide_clear_button();
+
+			remember_fields.on('blur', 'input, select, textarea', function()
+			{
+				var selector = jQuery(this),
+					dom_name = selector.attr('name'),
+					dom_value = selector.val();
+
+				if(dom_value != '')
+				{
+					jQuery.Storage.set(dom_name, dom_value);
+
+					remember_count++;
+				}
+
+				else
+				{
+					var dom_value = jQuery.Storage.get(dom_name);
+
+					if(typeof dom_value !== 'undefined')
+					{
+						jQuery.Storage.remove(dom_name);
+
+						remember_count--;
+					}
+				}
+
+				show_or_hide_clear_button();
+			});
+
+			jQuery('.form_button button[name=btnFormClear]').on('click', function()
+			{
+				remember_fields.each(function()
+				{
+					var selector = jQuery(this).find('input, select, textarea'),
+						dom_name = selector.attr('name'),
+						dom_value = jQuery.Storage.get(dom_name);
+
+					if(typeof dom_value !== 'undefined')
+					{
+						selector.val('');
+
+						jQuery.Storage.remove(dom_name);
+					}
+				});
+
+				remember_count = 0;
+
+				show_or_hide_clear_button();
+			});
+		}
+	});
+}
+
+function check_zip_code(selector)
+{
+	var search = selector.val();
+
+	if(search.length >= 5)
+	{
+		jQuery.ajax(
+		{
+			url: script_forms.plugin_url + 'ajax.php?type=zipcode/search/' + search,
+			type: 'get',
+			dataType: 'json',
+			success: function(data)
+			{
+				if(data.success)
+				{
+					selector.siblings('span').text(data.response);
+				}
+			}
+		});
+	}
+
+	else
+	{
+		selector.siblings('span').empty();
+	}
+}
+
 jQuery(function($)
 {
-	function update_range_text(dom_obj)
+	on_load_form();
+
+	if(typeof collect_on_load == 'function')
 	{
-		dom_obj.siblings('label').children('span').text(dom_obj.val());
+		collect_on_load('on_load_form'); 
 	}
 
 	$.fn.nextElementInDom = function(selector, options)
@@ -17,10 +192,10 @@ jQuery(function($)
 		{
 			case (found.length > 0):
 			return found;
-	
+
 			case (parent.length === 0 || parent.is(options.stopAt)):
 			return $([]);
-	
+
 			default:
 			return parent.nextElementInDom(selector);
 		}
@@ -28,64 +203,27 @@ jQuery(function($)
 
 	$(document).on('click', '.form_link', function()
 	{
-		var dom_obj = $(this).nextElementInDom('.form_inline'),
-			is_visible = dom_obj.is(':visible');
+		var selector = $(this).nextElementInDom('.form_inline'),
+			is_visible = selector.is(':visible');
 
 		$('.form_inline').addClass('hide');
 
 		if(is_visible == false)
 		{
-			dom_obj.removeClass('hide');
+			selector.removeClass('hide');
 		}
 
 		return false;
 	});
 
-	$('.form_inline .error').each(function()
-	{
-		if($(this).length > 0)
-		{
-			$(this).parents('.form_inline').show();
-		}
-	});
-
-	var range_inputs = $('.mf_form input[type=range]');
-
-	range_inputs.each(function()
+	$(document).on('change', '.mf_form input[type=range]', function()
 	{
 		update_range_text($(this));
 	});
 
-	range_inputs.on('change', function()
+	$(document).on('keyup, focusout', '.mf_form .form_zipcode input', function()
 	{
-		update_range_text($(this));
-	});
-
-	var zipcode_inputs = $('.mf_form .form_zipcode input');
-
-	zipcode_inputs.each(function()
-	{
-		$(this).after("<span></span>");
-	});
-
-	zipcode_inputs.on('focusout', function()
-	{
-		var dom_obj = $(this),
-			search = dom_obj.val();
-
-		$.ajax(
-		{
-			url: script_forms.plugin_url + 'ajax.php?type=zipcode/search/' + search,
-			type: 'get',
-			dataType: 'json',
-			success: function(data)
-			{
-				if(data.success)
-				{
-					dom_obj.siblings('span').text(data.response);
-				}
-			}
-		});
+		check_zip_code($(this));
 	});
 
 	/* Confirm required e-mail */
@@ -111,9 +249,9 @@ jQuery(function($)
 		}
 	}
 
-	$('.mf_form .has_required_email').on('click', has_required_email);
+	$(document).on('click', '.mf_form .has_required_email', has_required_email);
 
-	$('.mf_form .show_none_email').on('click', function()
+	$(document).on('click', '.mf_form .show_none_email', function()
 	{
 		var this_form = $(this).parents('.mf_form');
 
@@ -127,124 +265,8 @@ jQuery(function($)
 	});
 	/* ################## */
 
-	/* Form actions */
-	var action_selects = $('.form_action select');
-
-	function do_form_type_action(dom_obj)
-	{
-		var equals = dom_obj.attr('data-equals'),
-			show = dom_obj.attr('data-show'),
-			show_obj = $('#' + show);
-
-		if(show_obj.is('checkbox')){		show_obj = show_obj.parents('.form_checkbox');}
-		else if(show_obj.is('textarea')){	show_obj = show_obj.parents('.form_textarea');}
-		else if(show_obj.is('select')){		show_obj = show_obj.parents('.form_select');}
-
-		if(dom_obj.val() == equals){	show_obj.removeClass('hide');}
-		else{							show_obj.addClass('hide');}
-	}
-
-	action_selects.on('change', function()
+	$(document).on('change', '.form_action select', function()
 	{
 		do_form_type_action($(this));
 	});
-
-	action_selects.each(function()
-	{
-		do_form_type_action($(this));
-	});
-	/* ################## */
-
-	/* Remember input */
-	var remember_fields = $('.mf_form .remember');
-
-	if(remember_fields.length > 0)
-	{
-		$.getScript(script_forms.plugins_url + "/mf_base/include/jquery.Storage.js").done(function()
-		{
-			if($.Storage)
-			{
-				var remember_count = 0;
-
-				function show_or_hide_clear_button()
-				{
-					if(remember_count > 0)
-					{
-						$('.form_button .button-secondary').removeClass("hide");
-					}
-
-					else
-					{
-						$('.form_button .button-secondary').addClass("hide");
-					}
-				}
-
-				remember_fields.each(function()
-				{
-					var dom_obj = $(this).find('input, select, textarea'),
-						dom_name = dom_obj.attr('name'),
-						dom_value = $.Storage.get(dom_name);
-
-					if(typeof dom_value !== 'undefined' && dom_obj.val() == '')
-					{
-						dom_obj.val(dom_value);
-
-						remember_count++;
-					}
-				});
-
-				show_or_hide_clear_button();
-
-				remember_fields.on('blur', 'input, select, textarea', function()
-				{
-					var dom_obj = $(this),
-						dom_name = dom_obj.attr('name'),
-						dom_value = dom_obj.val();
-
-					if(dom_value != '')
-					{
-						$.Storage.set(dom_name, dom_value);
-
-						remember_count++;
-					}
-
-					else
-					{
-						var dom_value = $.Storage.get(dom_name);
-
-						if(typeof dom_value !== 'undefined')
-						{
-							$.Storage.remove(dom_name);
-
-							remember_count--;
-						}
-					}
-
-					show_or_hide_clear_button();
-				});
-
-				$('.form_button button[name=btnFormClear]').on('click', function()
-				{
-					remember_fields.each(function()
-					{
-						var dom_obj = $(this).find('input, select, textarea'),
-							dom_name = dom_obj.attr('name'),
-							dom_value = $.Storage.get(dom_name);
-
-						if(typeof dom_value !== 'undefined')
-						{
-							dom_obj.val('');
-
-							$.Storage.remove(dom_name);
-						}
-					});
-
-					remember_count = 0;
-
-					show_or_hide_clear_button();
-				});
-			}
-		});
-	}
-	/* ################## */
 });

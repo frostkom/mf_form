@@ -145,6 +145,14 @@ class mf_form
 			}
 		}
 
+		else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_approve'))
+		{
+			do_log("Unspam ".$this->answer_id." and send email if it should be done");
+
+			//answerSpam = '0'
+			//Loop thorugh content and send email with get_page_content_for_email
+		}
+
 		$obj_export = new mf_form_export();
 
 		return $out;
@@ -232,6 +240,22 @@ class mf_form
 		$intFormID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE (queryEmailNotifyPage > 0 OR queryEmailConfirmPage > 0)".$query_where);
 
 		return ($intFormID > 0 ? true : false);
+	}
+
+	function check_if_has_payment()
+	{
+		global $wpdb;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id)); //queryShowAnswers, 
+
+		foreach($result as $r)
+		{
+			//$intFormShowAnswers = $r->queryShowAnswers;
+			$intFormPaymentProvider = $r->queryPaymentProvider;
+			$intFormPaymentAmount = $r->queryPaymentAmount;
+
+			$this->has_payment = $intFormPaymentProvider > 0 && $intFormPaymentAmount > 0;
+		}
 	}
 
 	function get_form_status($data = array())
@@ -630,7 +654,7 @@ class mf_form
 
 		$mail_content = "";
 
-		if($data['page_id'] > 0)
+		if(isset($data['page_id']) && $data['page_id'] > 0)
 		{
 			$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $data['page_id']));
 
@@ -796,6 +820,9 @@ class mf_form
 	{
 		global $wpdb;
 
+		$arr_exclude = array("[qm]");
+		$arr_include = array("\?");
+
 		$result = $wpdb->get_results($wpdb->prepare("SELECT spamText FROM ".$wpdb->base_prefix."form_spam WHERE (spamInclude = '' OR spamInclude = %s) AND (spamExclude = '' OR spamExclude != '%s')", $data['code'], $data['code']));
 
 		foreach($result as $r)
@@ -815,7 +842,7 @@ class mf_form
 
 			else
 			{
-				if(preg_match($strSpamText, $data['text']))
+				if(preg_match(str_replace($arr_exclude, $arr_include, $strSpamText), $data['text']))
 				{
 					$this->is_spam = true;
 					break;
@@ -887,19 +914,6 @@ class mf_form
 					{
 						case 'char':
 							$this->check_if_spam(array('code' => $strQueryTypeCode, 'text' => $strAnswerText));
-
-							/*if($this->is_spam == false && contains_html($strAnswerText))
-							{
-								$this->is_spam = true;
-								//$error_text = __("You are not allowed to enter code in the text fields", 'lang_form');
-							}
-
-							else if($this->is_spam == false && $intFormTypeID2 != 9 && contains_urls($strAnswerText))
-							{
-								$this->is_spam = true;
-								//do_log(__("The string contained links and was stopped", 'lang_form')." (".$strFormTypeText.": ".$strAnswerText.")");
-								//$error_text = __("You are not allowed to enter links in the text fields", 'lang_form');
-							}*/
 						break;
 
 						case 'email':
@@ -1115,28 +1129,17 @@ class mf_form
 					{
 						$mail_data = array();
 
-						if(isset($data['send_to']) && $data['send_to'] != '')
+						if(isset($this->send_to) && $this->send_to != '')
 						{
-							$mail_data['to'] = $data['send_to'];
-							//$mail_data['subject'] = $strFormEmailName != "" ? $strFormEmailName : $strFormName;
-							//$mail_data['content'] = $this->render_mail_content(array('array' => $arr_email_content));
+							$mail_data['to'] = $this->send_to;
 
 							$page_content_data = array(
-								//'page_id' => $intFormEmailNotifyPage,
-								//'answer_id' => $this->answer_id,
 								'mail_to' => $mail_data['to'],
 								'subject' => ($strFormEmailName != "" ? $strFormEmailName : $strFormName),
 								'content' => $arr_email_content,
 							);
 
 							list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
-
-							/*$mail_data = array(
-								'to' => $data['send_to'],
-								'subject' => $mail_subject,
-								'content' => $mail_content,
-								'answer_id' => $this->answer_id,
-							);*/
 
 							if($email_from != '')
 							{
@@ -1150,20 +1153,12 @@ class mf_form
 
 							$page_content_data = array(
 								'page_id' => $intFormEmailNotifyPage,
-								//'answer_id' => $this->answer_id,
 								'mail_to' => $mail_data['to'],
 								'subject' => ($strFormEmailName != "" ? $strFormEmailName : $strFormName),
 								'content' => $arr_email_content,
 							);
 
 							list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
-
-							/*$mail_data = array(
-								'to' => $strFormEmail,
-								'subject' => $mail_subject,
-								'content' => $mail_content,
-								'answer_id' => $this->answer_id,
-							);*/
 
 							if($email_from != '')
 							{
@@ -1177,20 +1172,12 @@ class mf_form
 
 							$page_content_data = array(
 								'page_id' => $intFormEmailConfirmPage,
-								//'answer_id' => $this->answer_id,
 								'mail_to' => $mail_data['to'],
 								'subject' => ($strFormEmailName != "" ? $strFormEmailName : $strFormName),
 								'content' => $arr_email_content,
 							);
 
 							list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
-
-							/*$mail_data = array(
-								'to' => $email_from,
-								'subject' => $mail_subject,
-								'content' => $mail_content,
-								'answer_id' => $this->answer_id,
-							);*/
 
 							if($strFormEmail != '')
 							{
@@ -1370,9 +1357,9 @@ class mf_form
 										$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
 									}
 
-									if(isset($data['send_to']) && $data['send_to'] != '')
+									if(isset($this->send_to) && $this->send_to != '')
 									{
-										$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $data['send_to'])));
+										$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $this->send_to)));
 									}
 
 								$out .= "</div>"
@@ -1398,6 +1385,7 @@ class mf_form
 		if(!isset($data['query2type_id'])){	$data['query2type_id'] = 0;}
 
 		$this->edit_mode = isset($data['edit']) ? $data['edit'] : false;
+		$this->send_to = isset($data['send_to']) ? $data['send_to'] : "";
 		$this->is_sent = false;
 		$this->answer_id = isset($data['answer_id']) ? $data['answer_id'] : "";
 
@@ -1426,6 +1414,144 @@ class mf_form
 		}
 
 		$out .= get_notification();
+
+		return $out;
+	}
+
+	function get_pie_chart()
+	{
+		global $wpdb;
+		
+		$out = "";
+
+		$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND (queryTypeID = '1' OR queryTypeID = '8' OR queryTypeID = '10')", $this->id));
+
+		if($query_answers > 0)
+		{
+			list($resultPie, $rowsPie) = $this->get_form_type_info(array('query_type_id' => array(1, 8, 10)));
+
+			if($rowsPie > 0)
+			{
+				mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js");
+				mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js");
+
+				$js_out = $order_temp = "";
+				$data = array();
+
+				$i = 0;
+
+				foreach($resultPie as $r)
+				{
+					$intForm2TypeID2 = $r->query2TypeID;
+					$intFormTypeID = $r->queryTypeID;
+					$strFormTypeText2 = $r->queryTypeText;
+					$strForm2TypeOrder2 = $r->query2TypeOrder;
+
+					switch($intFormTypeID)
+					{
+						case 1:
+							if($order_temp != '' && $strForm2TypeOrder2 != ($order_temp + 1))
+							{
+								$i++;
+							}
+						break;
+
+						case 8:
+							if($order_temp != '' && $strForm2TypeOrder2 != ($order_temp + 1))
+							{
+								$i++;
+							}
+						break;
+
+						case 10:
+							$i++;
+						break;
+					}
+
+					if(!isset($data[$i])){	$data[$i] = "";}
+
+					$order_temp = $strForm2TypeOrder2;
+
+					switch($intFormTypeID)
+					{
+						case 1:
+							$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
+
+							$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($strFormTypeText2, 20)."', data: ".$intAnswerCount."}";
+						break;
+
+						case 8:
+							$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
+
+							$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($strFormTypeText2, 20)."', data: ".$intAnswerCount."}";
+						break;
+
+						case 10:
+							list($strFormTypeText2, $strFormTypeSelect) = explode(":", $strFormTypeText2);
+							$arr_select_rows = explode(",", $strFormTypeSelect);
+
+							foreach($arr_select_rows as $select_row)
+							{
+								$arr_select_row_content = explode("|", $select_row);
+
+								if($arr_select_row_content[0] > 0 && $arr_select_row_content[1] != '')
+								{
+									$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '%d' AND query2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID2, $arr_select_row_content[0]));
+
+									if($intAnswerCount > 0)
+									{
+										$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($arr_select_row_content[1], 20)."', data: ".$intAnswerCount."}";
+									}
+								}
+							}
+						break;
+					}
+				}
+
+				$out .= "<div class='flot_wrapper'>";
+
+					foreach($data as $key => $value)
+					{
+						$out .= "<div id='flot_pie_".$key."' class='flot_pie'></div>";
+						$js_out .= "$.plot($('#flot_pie_".$key."'), [".$value."],
+						{
+							series:
+							{
+								pie:
+								{
+									innerRadius: 0.3,
+									show: true,
+									radius: 1,
+									label:
+									{
+										show: true,
+										radius: 3/5,
+										formatter: function(label, series)
+										{
+											return series.data[0][1];
+										},
+										background:
+										{
+											opacity: 0.5
+										}
+									}
+								}
+							},
+							legend: {
+								show: true
+							}
+						});";
+					}
+
+				$out .= "</div>
+				<script>
+					jQuery(function($)
+					{"
+						.$js_out
+					."});
+				</script>";
+			}
+		}
 
 		return $out;
 	}
@@ -2267,6 +2393,8 @@ class mf_form_table extends mf_list_table
 		/*$this->arr_settings['has_autocomplete'] = true;
 		$this->arr_settings['plugin_name'] = 'mf_form';*/
 
+		$this->query_join .= " INNER JOIN ".$wpdb->base_prefix."query ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."query.postID";
+
 		if($this->search != '')
 		{
 			$this->query_where .= get_form_xtra("", $this->search, "", "post_title");
@@ -2325,7 +2453,7 @@ class mf_form_table extends mf_list_table
 						$actions['delete'] = "<a href='#delete/query/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 					}
 
-					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id, 'form_copy')."'>".__("Copy", 'lang_form')."</a>";
+					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id, 'form_copy')."'>".__("Copy", 'lang_form')." (".$post_id.")</a>";
 
 					if($post_status == 'publish' && $obj_form->id > 0)
 					{
@@ -2541,9 +2669,6 @@ class mf_answer_table extends mf_list_table
 
 		$this->arr_settings['page_vars'] = array('intFormID' => $obj_form->id);
 
-		//$this->arr_settings['has_autocomplete'] = true;
-		//$this->arr_settings['plugin_name'] = 'mf_form';
-
 		$this->query_where .= ($this->query_where != '' ? " AND " : "")."queryID = '".$obj_form->id."'";
 
 		if($this->search != '')
@@ -2562,8 +2687,12 @@ class mf_answer_table extends mf_list_table
 
 		$arr_columns = array(
 			//'cb' => '<input type="checkbox">',
-			'answerSpam' => "",
 		);
+
+		if(isset($_GET['answerSpam']) && $_GET['answerSpam'] == 1)
+		{
+			$arr_columns['answerSpam'] = __("Spam", 'lang_form');
+		}
 
 		$obj_form->answer_column = 0;
 
@@ -2596,13 +2725,17 @@ class mf_answer_table extends mf_list_table
 		}
 
 		$arr_columns['answerCreated'] = __("Created", 'lang_form');
-		$arr_columns['sent'] = __("Sent e-mails", 'lang_form');
+
+		if(!isset($_GET['answerSpam']) || $_GET['answerSpam'] == 0)
+		{
+			$arr_columns['sent'] = __("Sent", 'lang_form');
+		}
 
 		$this->set_columns($arr_columns);
 
-		/*$this->set_sortable_columns(array(
+		$this->set_sortable_columns(array(
 			'answerCreated',
-		));*/
+		));
 	}
 
 	function column_default($item, $column_name)
@@ -2616,24 +2749,19 @@ class mf_answer_table extends mf_list_table
 		switch($column_name)
 		{
 			case 'answerSpam':
-				$obj_form->answer_column = 0;
-
 				$actions = array();
 
 				if($item[$column_name])
 				{
 					$out .= "<i class='fa fa-lg fa-close red'></i>";
-					/*$actions['approve'] = "<form action='' method='post'>"
-						.show_button(array('name' => "btnFormApprove", 'text' => __("Approve and send email", 'lang_form')))
-						.input_hidden(array('name' => "intAnswerID", 'value' => $intAnswerID))
-						.wp_nonce_field('form_approve', '_wpnonce', true, false)
-					."</form>";*/
+
+					$actions['unspam'] = "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'answer_approve')."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
 				}
 
-				else
+				/*else
 				{
 					$out .= "<i class='fa fa-lg fa-check green'></i>";
-				}
+				}*/
 
 				$out .= $this->row_actions($actions);
 			break;
@@ -2645,6 +2773,8 @@ class mf_answer_table extends mf_list_table
 			break;
 
 			case 'answerCreated':
+				$obj_form->answer_column = 0;
+
 				$actions = array();
 
 				$actions['id'] = __("ID", 'lang_form').": ".$intAnswerID;

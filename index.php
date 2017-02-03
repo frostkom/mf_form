@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 9.1.4
+Version: 9.3.1
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -173,14 +173,6 @@ function activate_form()
 	$arr_add_column = array();
 
 	$arr_add_column[$wpdb->base_prefix."query"] = array(
-		'queryEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryAnswer",
-		'queryEmailNotify' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER queryEmail",
-		'queryEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryEmail",
-		'queryMandatoryText' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryEmailName",
-		'queryButtonText' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryMandatoryText",
-		'queryEmailConfirm' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName",
-		'queryShowAnswers' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName",
-		'queryAnswerURL' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryAnswer",
 		'queryDeleted' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryCreated",
 		'queryDeletedDate' => "ALTER TABLE [table] ADD [column] DATETIME DEFAULT NULL AFTER queryDeleted",
 		'queryDeletedID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT '0' AFTER queryDeletedDate",
@@ -200,17 +192,10 @@ function activate_form()
 	);
 
 	$arr_add_column[$wpdb->base_prefix."query2answer"] = array(
-		'answerToken' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER answerIP",
 		'answerSpam' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER answerIP",
 	);
 
-	$arr_add_column[$wpdb->base_prefix."query_check"] = array(
-		'checkPattern' => "ALTER TABLE [table] ADD [column] VARCHAR(200) AFTER checkCode",
-		'checkName' => "ALTER TABLE [table] ADD [column] VARCHAR(50) AFTER checkPublic",
-	);
-
 	$arr_add_column[$wpdb->base_prefix."query2type"] = array(
-		'queryTypeClass' => "ALTER TABLE [table] ADD [column] VARCHAR(50) AFTER checkID",
 		'queryTypeAutofocus' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '0' AFTER queryTypeClass",
 		'queryTypePlaceholder' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER queryTypeText",
 		'queryTypeTag' => "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER checkID",
@@ -221,39 +206,13 @@ function activate_form()
 		'queryTypeRemember' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '0' AFTER queryTypeAutofocus",
 	);
 
-	$arr_add_column[$wpdb->base_prefix."query_type"] = array(
-		'queryTypePublic' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryTypeID",
-		'queryTypeCode' => "ALTER TABLE [table] ADD [column] VARCHAR(30) AFTER queryTypePublic",
-	);
-
 	add_columns($arr_add_column);
 
 	$arr_update_column = array();
 
 	$arr_update_column[$wpdb->base_prefix."query"] = array(
-		'queryEmailNotify' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('0', '1') NOT NULL DEFAULT '1'",
-		'queryPaymentMerchant' => "ALTER TABLE [table] CHANGE [column] [column] VARCHAR(100) DEFAULT NULL",
-		'queryImproveUX' => "ALTER TABLE [table] DROP [column]",
-		'queryURL' => "ALTER TABLE [table] DROP [column]",
 		'queryAnswerURL' => "ALTER TABLE [table] CHANGE [column] [column] INT UNSIGNED NOT NULL DEFAULT '0'",
 		'queryEmailConfirmPage' => "ALTER TABLE [table] CHANGE [column] [column] INT UNSIGNED NOT NULL DEFAULT '0'",
-	);
-
-	$arr_update_column[$wpdb->base_prefix."query"] = array(
-		'queryEncrypted' => "ALTER TABLE [table] DROP [column]",
-	);
-
-	$arr_update_column[$wpdb->base_prefix."query2answer"] = array(
-		'userID' => "ALTER TABLE [table] DROP [column]",
-	);
-
-	$arr_update_column[$wpdb->base_prefix."query2type"] = array(
-		'queryTypeForced' => "ALTER TABLE [table] CHANGE [column] queryTypeRequired ENUM('0','1') NOT NULL DEFAULT '0'",
-	);
-
-	$arr_update_column[$wpdb->base_prefix."query_type"] = array(
-		'queryTypeLang' => "ALTER TABLE [table] CHANGE [column] queryTypeName VARCHAR(30) DEFAULT NULL",
-		'queryTypeShowInForm' => "ALTER TABLE [table] DROP [column]",
 	);
 
 	update_columns($arr_update_column);
@@ -310,6 +269,7 @@ function activate_form()
 	$arr_query_check = array(
 		1 => array(									'text' => "contains_html"),
 		2 => array('exclude' => "referer_url",		'text' => "/(http|https|ftp|ftps)\:/i"),
+		3 => array(									'text' => "/([qm]){5}/"),
 	);
 
 	foreach($arr_query_check as $key => $value)
@@ -317,7 +277,7 @@ function activate_form()
 		if(!isset($value['include'])){	$value['include'] = "";}
 		if(!isset($value['exclude'])){	$value['exclude'] = "";}
 
-		$arr_run_query[] = sprintf("INSERT IGNORE INTO ".$wpdb->base_prefix."form_spam SET spamID = '%d', spamInclude = '%s', spamExclude = '%s', spamText = '%s'", $key, $value['include'], $value['exclude'], $value['text']);
+		$arr_run_query[] = sprintf("INSERT IGNORE INTO ".$wpdb->base_prefix."form_spam SET spamID = '%d', spamInclude = '%s', spamExclude = '%s', spamText = '".$value['text']."'", $key, $value['include'], $value['exclude']);
 	}
 
 	if(get_bloginfo('language') == "sv-SE")
@@ -336,12 +296,22 @@ function activate_form()
 	}
 
 	run_queries($arr_run_query);
+
+	//Check for loose ends
+	#################################
+	$result = $wpdb->get_results("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->base_prefix."query ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."query.postID WHERE post_type = 'mf_form' AND postID IS NULL");
+
+	foreach($result as $r)
+	{
+		do_log("I could not find any forms connected to the post '".$r->post_title."'");
+	}
+	#################################
 }
 
 function deactivate_form()
 {
 	mf_uninstall_plugin(array(
-		'tables' => array('query_check', 'query_type', 'query_zipcode'),
+		'tables' => array('query_check', 'query_type', 'form_spam', 'query_zipcode'),
 	));
 }
 

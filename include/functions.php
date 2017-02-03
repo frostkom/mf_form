@@ -91,15 +91,15 @@ function delete_form($post_id)
 		send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers));
 
 		/*$obj_form = new mf_form();
-		$intFormID = $obj_form->get_form_id($post_id);
+		$obj_form->get_form_id($post_id);
 
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $intFormID));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $obj_form->id));
 
-		$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intFormID));
+		$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $obj_form->id));
 		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d'", $intAnswerID));
 
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $intFormID));
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intFormID));*/
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $obj_form->id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $obj_form->id));*/
 	}
 }
 
@@ -359,10 +359,7 @@ function get_count_message($id = 0)
 
 function menu_form()
 {
-	global $wpdb;
-
 	$obj_form = new mf_form();
-
 	$count_forms = $obj_form->count_forms();
 
 	$menu_root = 'mf_form/';
@@ -380,10 +377,10 @@ function menu_form()
 		$menu_title = __("Add New", 'lang_form');
 		add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'create/index.php');
 
-		$menu_title = __("Last Answers", 'lang_form');
+		$menu_title = __("Answers", 'lang_form');
 		add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'answer/index.php');
 
-		$menu_title = __("Edit Last Answer", 'lang_form');
+		$menu_title = __("Edit Answer", 'lang_form');
 		add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
 	}
 }
