@@ -52,7 +52,7 @@ class mf_form
 
 			if($rows > 0)
 			{
-				$copy_fields = ", blogID, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryEmailCheckConfirm, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount";
+				$copy_fields = ", blogID, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount"; //, queryEmailCheckConfirm
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -1217,13 +1217,13 @@ class mf_form
 
 	function get_form($data)
 	{
-		global $wpdb, $wp_query;
+		global $wpdb, $wp_query; //, $has_required_email
 
 		$out = "";
 
 		$obj_font_icons = new mf_font_icons();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryEmailCheckConfirm FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id)); //, queryEmailCheckConfirm
 
 		foreach($result as $r)
 		{
@@ -1232,7 +1232,7 @@ class mf_form
 			$strFormButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_form');
 			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
 			$intFormPaymentProvider = $r->queryPaymentProvider;
-			$strFormEmailCheckConfirm = $r->queryEmailCheckConfirm;
+			//$strFormEmailCheckConfirm = $r->queryEmailCheckConfirm;
 
 			$strFormPrefix = $this->get_post_info()."_";
 
@@ -1315,13 +1315,13 @@ class mf_form
 
 						$intFormTypeID2_temp = $intForm2TypeID2_temp = "";
 
-						$has_required_email = false;
+						//$has_required_email = false;
 
 						foreach($result as $r)
 						{
 							$r->queryTypeText = stripslashes($r->queryTypeText);
 
-							$obj_form_output = new mf_form_output(array('id' => $this->id, 'result' => $r, 'in_edit_mode' => $this->edit_mode, 'query_prefix' => $strFormPrefix, 'email_check_confirm' => $strFormEmailCheckConfirm));
+							$obj_form_output = new mf_form_output(array('id' => $this->id, 'result' => $r, 'in_edit_mode' => $this->edit_mode, 'query_prefix' => $strFormPrefix)); //, 'email_check_confirm' => $strFormEmailCheckConfirm
 
 							$obj_form_output->calculate_value($this->answer_id);
 							$obj_form_output->get_form_fields();
@@ -1344,12 +1344,12 @@ class mf_form
 							."<div class='form_button_container'>
 								<div class='form_button'>";
 
-									if($has_required_email)
+									/*if($has_required_email)
 									{
 										$out .= "<div class='updated hide'><p>".__("Does the e-mail address look right?", 'lang_form')." ".$strFormButtonText." ".__("or", 'lang_form')." <a href='#' class='show_none_email'>".__("Change", 'lang_form')."</a></p></div>";
-									}
+									}*/
 
-									$out .= show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText, 'class' => ($has_required_email ? "has_required_email" : "")))
+									$out .= show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText)) //, 'class' => ($has_required_email ? "has_required_email" : "")
 									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
 									if($intFormPaymentProvider > 0 && is_user_logged_in() && IS_ADMIN)
@@ -2248,7 +2248,7 @@ class mf_form_export extends mf_export
 
 	function get_export_data()
 	{
-		global $wpdb; //, $error_text
+		global $wpdb;
 
 		$obj_form = new mf_form($this->type);
 		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
@@ -2282,7 +2282,7 @@ class mf_form_export extends mf_export
 
 		$this->data[] = $this_row;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
 
 		foreach($result as $r)
 		{
@@ -2415,6 +2415,7 @@ class mf_form_table extends mf_list_table
 			'post_title' => __("Name", 'lang_form'),
 			'content' => __("Content", 'lang_form'),
 			'answers' => __("Answers", 'lang_form'),
+			'latest_answer' => __("Latest Answer", 'lang_form'),
 			'post_modified' => __("Modified", 'lang_form'),
 		));
 
@@ -2453,7 +2454,7 @@ class mf_form_table extends mf_list_table
 						$actions['delete'] = "<a href='#delete/query/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 					}
 
-					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id, 'form_copy')."'>".__("Copy", 'lang_form')." (".$post_id.")</a>";
+					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id, 'form_copy')."'>".__("Copy", 'lang_form')."</a>";
 
 					if($post_status == 'publish' && $obj_form->id > 0)
 					{
@@ -2611,12 +2612,15 @@ class mf_form_table extends mf_list_table
 			case 'answers':
 				if($post_status != 'trash')
 				{
-					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID", $obj_form->id));
+					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' AND answerSpam = '0' GROUP BY answerID", $obj_form->id));
 					$query_answers = $wpdb->num_rows;
 
-					if($query_answers > 0)
+					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' AND answerSpam = '1' GROUP BY answerID", $obj_form->id));
+					$query_spam = $wpdb->num_rows;
+
+					if($query_answers > 0 || $query_spam > 0)
 					{
-						$count_message = get_count_message($obj_form->id);
+						$count_message = get_count_answer_message($obj_form->id);
 
 						$actions = array();
 
@@ -2629,11 +2633,17 @@ class mf_form_table extends mf_list_table
 							$actions['export_xls'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportAction=xls", 'export_run')."'>".__("XLS", 'lang_form')."</a>";
 						}
 
-						$out .= $query_answers
+						$out .= $query_answers.($query_spam > 0 ? " <span class='grey'>(".$query_spam.")</span>" : "")
 						.$count_message
 						.$this->row_actions($actions);
 					}
 				}
+			break;
+
+			case 'latest_answer':
+				$latest_answer = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d' ORDER BY answerCreated DESC", $obj_form->id));
+
+				$out .= format_date($latest_answer);
 			break;
 
 			case 'post_modified':
@@ -2991,11 +3001,11 @@ class mf_form_output
 
 		$this->row = $data['result'];
 		$this->query_prefix = $data['query_prefix'];
-		$this->queryEmailCheckConfirm = isset($data['email_check_confirm']) ? $data['email_check_confirm'] : 'no';
+		//$this->queryEmailCheckConfirm = isset($data['email_check_confirm']) ? $data['email_check_confirm'] : 'no';
 
 		$this->output = "";
 
-		$this->show_required = $this->show_autofocus = $this->show_remember = $this->has_required_email = false;
+		$this->show_required = $this->show_autofocus = $this->show_remember = false; //$this->has_required_email = 
 
 		$this->answer_text = "";
 
@@ -3004,14 +3014,14 @@ class mf_form_output
 
 	function calculate_value($intAnswerID)
 	{
-		global $wpdb;
+		global $wpdb, $has_required_email;
 
-		$this->is_required_email = $this->row->queryTypeID == 3 && $this->row->checkCode == 'email' && $this->row->queryTypeRequired == 1;
+		/*$this->is_required_email = $this->row->queryTypeID == 3 && $this->row->checkCode == 'email' && $this->row->queryTypeRequired == 1;
 
 		if($this->queryEmailCheckConfirm == 'yes' && $this->is_required_email)
 		{
-			$this->has_required_email = true;
-		}
+			$has_required_email = true;
+		}*/
 
 		if($intAnswerID > 0)
 		{
@@ -3048,7 +3058,7 @@ class mf_form_output
 
 	function get_form_fields($data = array())
 	{
-		global $intFormTypeID2_temp, $intForm2TypeID2_temp;
+		global $intFormTypeID2_temp, $intForm2TypeID2_temp, $has_required_email;
 
 		if(!isset($data['show_label'])){		$data['show_label'] = true;}
 		if(!isset($data['ignore_required'])){	$data['ignore_required'] = false;}
@@ -3252,10 +3262,10 @@ class mf_form_output
 					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."form_zipcode";
 				}
 
-				if($this->has_required_email && $this->is_required_email)
+				/*if($has_required_email && $this->is_required_email)
 				{
 					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."this_is_required_email";
-				}
+				}*/
 
 				if($data['show_label'] == true)
 				{

@@ -334,15 +334,17 @@ function get_form_xtra($query_xtra = "", $search = "", $prefix = " WHERE", $fiel
 	return $query_xtra;
 }
 
-function get_count_message($id = 0)
+function get_count_answer_message($id = 0)
 {
 	global $wpdb;
 
 	$count_message = "";
 
 	$last_viewed = get_user_meta(get_current_user_id(), 'mf_forms_viewed', true);
-	$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($id > 0 ? " AND queryID = '".$id."'" : ""));
-	$query_xtra .= " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)";
+
+	$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($id > 0 ? " AND queryID = '".$id."'" : ""))
+		." AND (blogID = '".$wpdb->blogid."' OR blogID IS null)"
+		." AND answerSpam = '0'";
 
 	$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID)".$query_xtra, $last_viewed));
 	$rows = $wpdb->num_rows;
@@ -367,7 +369,7 @@ function menu_form()
 
 	$menu_capability = get_option_or_default('setting_form_permission', 'edit_pages');
 
-	$count_message = get_count_message();
+	$count_message = get_count_answer_message();
 
 	$menu_title = __("Forms", 'lang_form');
 	add_menu_page($menu_title, $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms');

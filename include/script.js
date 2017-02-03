@@ -7,10 +7,7 @@ function on_load_form()
 
 	jQuery('.form_inline .error, .form_inline h2').each(function()
 	{
-		if(jQuery(this).length > 0)
-		{
-			jQuery(this).parents('.form_inline').show();
-		}
+		jQuery(this).parents('.form_inline').removeClass('hide');
 	});
 
 	jQuery('.mf_form .form_zipcode input').each(function()
@@ -227,22 +224,23 @@ jQuery(function($)
 	});
 
 	/* Confirm required e-mail */
-	function has_required_email()
+	/*function has_required_email()
 	{
-		var this_form = $(this).parents('.mf_form');
+		console.log("has_required_email");
 
-		if(this_form.find(':required:invalid').length == 0)
+		var form_obj = $(this).parents('.mf_form');
+
+		if(form_obj.find(':required:invalid').length == 0)
 		{
-			this_form.children('.this_is_required_email').siblings('div:not(.form_button)').addClass('hide');
+			form_obj.children('.this_is_required_email').siblings('div:not(.form_button)').addClass('hide');
 
 			$(this).removeClass('has_required_email').off('click', has_required_email);
 
-			this_form.find('.form_button > div.updated').removeClass('hide');
+			form_obj.find('.form_button > div.updated').removeClass('hide');
 
-			/* Animate to top of form */
 			$('html, body').animate(
 			{
-				scrollTop: this_form.offset().top - 200
+				scrollTop: form_obj.offset().top - 200
 			}, 750, 'swing');
 
 			return false;
@@ -253,16 +251,16 @@ jQuery(function($)
 
 	$(document).on('click', '.mf_form .show_none_email', function()
 	{
-		var this_form = $(this).parents('.mf_form');
+		var form_obj = $(this).parents('.mf_form');
 
-		this_form.children('div:not(.form_button)').removeClass('hide');
+		form_obj.children('div:not(.form_button)').removeClass('hide');
 
-		this_form.find('.form_button button').addClass('has_required_email').on('click', has_required_email);
+		form_obj.find('.form_button button').addClass('has_required_email').on('click', has_required_email);
 
-		this_form.find('.form_button > div.updated').addClass('hide');
+		form_obj.find('.form_button > div.updated').addClass('hide');
 
 		return false;
-	});
+	});*/
 	/* ################## */
 
 	$(document).on('change', '.form_action select', function()
