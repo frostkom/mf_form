@@ -387,7 +387,7 @@ function menu_form()
 	}
 }
 
-function notices_form()
+/*function notices_form()
 {
 	global $wpdb, $error_text;
 
@@ -419,7 +419,7 @@ function notices_form()
 			echo get_notification();
 		}
 	}
-}
+}*/
 
 function get_poll_results($data)
 {
@@ -468,15 +468,11 @@ function phpmailer_init_form($phpmailer)
 	{
 		$user_data = get_userdata(get_current_user_id());
 
-		//do_log("Test 1: ".var_export($phpmailer->getToAddresses(), true).", ".var_export($phpmailer, true));
-
 		$mail_to = $phpmailer->getToAddresses();
 
 		$phpmailer->Subject = __("Test", 'lang_form')." (".$mail_to[0][0]."): ".$phpmailer->Subject;
 		$phpmailer->clearAddresses();
 		$phpmailer->addAddress($user_data->user_email);
-
-		//do_log("Test 2: ".var_export($phpmailer->getToAddresses(), true).", ".var_export($phpmailer, true));
 	}
 
 	else if(get_option('setting_redirect_emails') == 'yes')
@@ -489,29 +485,14 @@ function phpmailer_init_form($phpmailer)
 	}
 }
 
-function mf_form_mail($data)
+/*function mf_form_mail($data)
 {
 	global $wpdb;
-
-	//Moved to phpmailer_init_form()
-	/*if(is_user_logged_in() && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
-	{
-		$user_data = get_userdata(get_current_user_id());
-
-		$data['subject'] = __("Test", 'lang_form')." (".$data['to']."): ".$data['subject'];
-		$data['to'] = $user_data->user_email;
-	}
-
-	else if(get_option('setting_redirect_emails') == 'yes')
-	{
-		$data['subject'] = __("Test", 'lang_form')." (".$data['to']."): ".$data['subject'];
-		$data['to'] = get_bloginfo('admin_email');
-	}*/
-
+	
 	$sent = send_email($data);
 
 	if(isset($data['answer_id']))
 	{
 		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer_email SET answerID = '%d', answerEmail = %s, answerSent = '%d'", $data['answer_id'], $data['to'], $sent));
 	}
-}
+}*/

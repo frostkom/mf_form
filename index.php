@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 9.3.4
+Version: 9.4.3
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -28,7 +28,7 @@ if(is_admin())
 
 	add_action('admin_init', 'settings_form');
 	add_action('admin_menu', 'menu_form');
-	add_action('admin_notices', 'notices_form');
+	//add_action('admin_notices', 'notices_form');
 	add_action('before_delete_post', 'delete_form');
 	add_action('deleted_user', 'deleted_user_form');
 
@@ -128,6 +128,7 @@ function activate_form()
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query_answer_email (
 		answerID INT UNSIGNED DEFAULT NULL,
 		answerEmail VARCHAR(100),
+		answerType VARCHAR(20) DEFAULT NULL,
 		answerSent ENUM('0', '1') NOT NULL DEFAULT '0',
 		KEY answerID (answerID)
 	) DEFAULT CHARSET=".$default_charset);
@@ -205,6 +206,10 @@ function activate_form()
 		'queryTypeRemember' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '0' AFTER queryTypeAutofocus",
 	);
 
+	$arr_add_column[$wpdb->base_prefix."query_answer_email"] = array(
+		'answerType' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER answerEmail",
+	);
+
 	add_columns($arr_add_column);
 
 	$arr_update_column = array();
@@ -266,7 +271,7 @@ function activate_form()
 	}
 
 	$arr_query_check = array(
-		1 => array(									'text' => "contains_html"),
+		1 => array('exclude' => "select_multiple",	'text' => "contains_html"),
 		2 => array('exclude' => "referer_url",		'text' => "/(http|https|ftp|ftps)\:/i"),
 		3 => array(									'text' => "/([qm]){5}/"),
 	);
