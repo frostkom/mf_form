@@ -148,8 +148,13 @@ class mf_form
 		else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_approve'))
 		{
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
-			
-			$resultAnswerEmail = $wpdb->get_var($wpdb->prepare("SELECT answerID, answerEmail, answerType FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
+
+			$done_text = __("I have approved the answer for you", 'lang_form');
+		}
+		
+		else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'message_resend'))
+		{
+			$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -210,7 +215,6 @@ class mf_form
 
 				foreach($resultAnswerEmail as $r)
 				{
-					$intAnswerID = $r->answerID;
 					$strAnswerEmail = $r->answerEmail;
 					$strAnswerType = $r->answerType;
 
@@ -250,7 +254,7 @@ class mf_form
 				$this->process_transactional_emails();
 			}
 
-			$done_text = __("I have approved the answer for you", 'lang_form');
+			$done_text = __("I have resent the messages for you", 'lang_form');
 		}
 
 		$obj_export = new mf_form_export();
@@ -2908,7 +2912,7 @@ class mf_answer_table extends mf_list_table
 				{
 					$out .= "<i class='fa fa-lg fa-close red'></i>";
 
-					$actions['unspam'] = "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'answer_approve')."' rel='confirm' confirm_text='".__("Are you really sure that you want me to do this? This will mark it as a legitimate answer and send any unsent messages", 'lang_form')."'>".__("Approve", 'lang_form')."</a>";
+					$actions['unspam'] = "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'answer_approve')."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
 				}
 
 				/*else
@@ -2953,18 +2957,19 @@ class mf_answer_table extends mf_list_table
 			break;
 
 			case 'sent':
-				$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d'", $intAnswerID));
+				$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent, answerType FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d'", $intAnswerID));
 				$count_temp = $wpdb->num_rows;
 
 				if($count_temp > 0)
 				{
 					$li_out = $strAnswerEmail_temp = "";
-					$sent_successfully = 0;
+					$sent_successfully = $sent_failed = $sent_failed_w_type = 0;
 
 					foreach($result_emails as $r)
 					{
 						$strAnswerEmail = $r->answerEmail;
 						$intAnswerSent = $r->answerSent;
+						$strAnswerType = $r->answerType;
 
 						if($intAnswerSent == 1)
 						{
@@ -2976,6 +2981,13 @@ class mf_answer_table extends mf_list_table
 						else
 						{
 							$fa_class = "fa-close red";
+
+							$sent_failed++;
+
+							if($strAnswerType != '')
+							{
+								$sent_failed_w_type++;
+							}
 						}
 
 						if($strAnswerEmail != $strAnswerEmail_temp)
@@ -2988,10 +3000,16 @@ class mf_answer_table extends mf_list_table
 						}
 					}
 
-					$out .= $sent_successfully.($count_temp != $sent_successfully ? "/".$count_temp : "")
+					$out .= ($sent_failed > 0 ? $sent_successfully."/" : "").$count_temp
 					."<div class='row-actions'>
-						<ul>".$li_out."</ul>
-					</div>";
+						<ul>".$li_out."</ul>";
+
+						if($sent_failed_w_type > 0)
+						{
+							$out .= "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'message_resend')."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
+						}
+
+					$out .= "</div>";
 				}
 			break;
 
