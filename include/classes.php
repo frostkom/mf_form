@@ -37,6 +37,60 @@ class mf_form
 		$this->answer_id = check_var('intAnswerID');
 	}
 
+	function parse_range_label()
+	{
+		list($this->label, $rest) = explode("|", $this->label);
+	}
+
+	function parse_select_info($strAnswerText)
+	{
+		$arr_content1 = explode(":", $this->label);
+		$arr_content2 = explode(",", $arr_content1[1]);
+
+		foreach($arr_content2 as $str_content)
+		{
+			$arr_content3 = explode("|", $str_content);
+
+			if($strAnswerText == $arr_content3[0])
+			{
+				$strAnswerText = $arr_content3[1];
+			}
+		}
+
+		$this->label = $arr_content1[0];
+
+		return $strAnswerText;
+	}
+
+	function parse_multiple_info($strAnswerText)
+	{
+		$arr_content1 = explode(":", $this->label);
+		$arr_content2 = explode(",", $arr_content1[1]);
+
+		$arr_answer_text = explode(",", str_replace($this->prefix, "", $strAnswerText));
+
+		$strAnswerText = "";
+
+		foreach($arr_content2 as $str_content)
+		{
+			$arr_content3 = explode("|", $str_content);
+
+			if(in_array($arr_content3[0], $arr_answer_text))
+			{
+				$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
+			}
+		}
+
+		if($strAnswerText == '')
+		{
+			$strAnswerText = implode(",", $arr_answer_text);
+		}
+
+		$this->label = $arr_content1[0];
+
+		return $strAnswerText;
+	}
+
 	function save_data()
 	{
 		global $wpdb, $error_text, $done_text;
@@ -161,6 +215,7 @@ class mf_form
 				$this->email_visitor = "";
 
 				$strFormName = $this->get_post_info(array('select' => "post_title"));
+				$this->prefix = $this->get_post_info()."_";
 
 				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
 				$r = $result[0];
@@ -181,26 +236,65 @@ class mf_form
 				{
 					$intForm2TypeID2 = $r->query2TypeID;
 					$intFormTypeID2 = $r->queryTypeID;
-					$strFormTypeText = $r->queryTypeText;
+					$this->label = $r->queryTypeText;
 					$strCheckCode = $r->checkCode;
 					$strAnswerText = $r->answerText;
 
 					$this->arr_email_content['fields'][$intForm2TypeID2] = array();
 
-					if($strFormTypeText != '')
+					switch($intFormTypeID2)
 					{
-						$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $strFormTypeText;
+						case 1:
+							$strAnswerText = "x";
+						break;
+
+						case 2:
+							$this->parse_range_label();
+						break;
+
+						case 7:
+							$strAnswerText = format_date($strAnswerText);
+						break;
+
+						case 8:
+							$strAnswerText = "x";
+						break;
+
+						case 10:
+							$strAnswerText = $this->parse_select_info($strAnswerText);
+						break;
+
+						case 11:
+							$strAnswerText = $this->parse_multiple_info($strAnswerText);
+						break;
+
+						default:
+							if($strCheckCode != '')
+							{
+								switch($strCheckCode)
+								{
+									case 'zip':
+										$city_name = $this->get_city_from_zip($strAnswerText);
+
+										if($city_name != '')
+										{
+											$strAnswerText .= ", ".$city_name;
+										}
+									break;
+								}
+							}
+						break;
+					}
+
+					if($this->label != '')
+					{
+						$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $this->label;
 					}
 
 					if($strAnswerText != '')
 					{
 						$this->arr_email_content['fields'][$intForm2TypeID2]['value'] = $strAnswerText;
 					}
-
-					/*else if($intFormTypeID2 == 8)
-					{
-						$this->arr_email_content['fields'][$intForm2TypeID2]['value'] = "x";
-					}*/
 
 					switch($strCheckCode)
 					{
@@ -617,7 +711,6 @@ class mf_form
 
 	function render_mail_content($data)
 	{
-		//if(!isset($data['answer_id'])){	$data['answer_id'] = 0;}
 		if(!isset($data['template'])){	$data['template'] = false;}
 
 		$out_fields = $out_doc_types = $out_products = $intProductID = $strProductName = "";
@@ -663,9 +756,7 @@ class mf_form
 							$out_doc_types .= ":";
 						}
 
-						$out_doc_types .= " ".$arr_value['value'];
-
-						$out_doc_types .= "<br>";
+						$out_doc_types .= " ".$arr_value['value']."<br>";
 					}
 				break;
 
@@ -676,18 +767,11 @@ class mf_form
 
 						if($product['value'] != '')
 						{
-							/*if(substr($product['label'], -1) != ":")
-							{
-								$out_products .= ":";
-							}*/
-
 							$out_products .= "- ".$product['value']."<br>";
 
 							$intProductID = $product['id'];
 							$strProductName = $product['value'];
 						}
-
-						//$out_products .= "<br>";
 					}
 				break;
 			}
@@ -929,10 +1013,35 @@ class mf_form
 
 	function check_if_spam($data)
 	{
-		global $wpdb;
-
 		$arr_exclude = array("[qm]");
 		$arr_include = array("\?");
+
+		if(function_exists($data['rule']))
+		{
+			$string_decoded = htmlspecialchars_decode($data['text']);
+
+			if($data['text'] != strip_tags($data['text']) || $string_decoded != strip_tags($string_decoded))
+			{
+				//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
+
+				$this->is_spam = true;
+			}
+		}
+
+		else
+		{
+			if(preg_match(str_replace($arr_exclude, $arr_include, $data['rule']), $data['text']))
+			{
+				//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
+
+				$this->is_spam = true;
+			}
+		}
+	}
+
+	function get_spam_rules($data)
+	{
+		global $wpdb;
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT spamText FROM ".$wpdb->base_prefix."form_spam WHERE (spamInclude = '' OR spamInclude = %s) AND (spamExclude = '' OR spamExclude != '%s')", $data['code'], $data['code']));
 
@@ -940,33 +1049,22 @@ class mf_form
 		{
 			$strSpamText = $r->spamText;
 
-			/*if(is_array($data['text']))
+			if(is_array($data['text']))
 			{
-				do_log("Was array: ".var_export($data, true)." , ".var_export($this, true));
-			}*/
-
-			if(function_exists($strSpamText))
-			{
-				$string_decoded = htmlspecialchars_decode($data['text']);
-
-				if($data['text'] != strip_tags($data['text']) || $string_decoded != strip_tags($string_decoded))
+				foreach($data['text'] as $text)
 				{
-					//do_log("Is spam (HTML): ".var_export($data, true));
-
-					$this->is_spam = true;
-					break;
+					$this->check_if_spam(array('rule' => $strSpamText, 'text' => $text));
 				}
 			}
 
 			else
 			{
-				if(preg_match(str_replace($arr_exclude, $arr_include, $strSpamText), $data['text']))
-				{
-					//do_log("Is spam (".$strSpamText."): ".var_export($data, true));
+				$this->check_if_spam(array('rule' => $strSpamText, 'text' => $data['text']));
+			}
 
-					$this->is_spam = true;
-					break;
-				}
+			if($this->is_spam == true)
+			{
+				break;
 			}
 		}
 	}
@@ -1099,7 +1197,7 @@ class mf_form
 		$this->is_spam = false;
 
 		$strFormName = $this->get_post_info(array('select' => "post_title"));
-		$strFormPrefix = $this->get_post_info()."_";
+		$this->prefix = $this->get_post_info()."_";
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
 		$r = $result[0];
@@ -1129,7 +1227,7 @@ class mf_form
 				$intForm2TypeID2 = $r->query2TypeID;
 				$intFormTypeID2 = $r->queryTypeID;
 				$strQueryTypeCode = $r->queryTypeCode;
-				$strFormTypeText = $r->queryTypeText;
+				$this->label = $r->queryTypeText;
 				$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
 				$intFormTypeRequired = $r->queryTypeRequired;
 
@@ -1138,7 +1236,7 @@ class mf_form
 					$this->arr_email_content['fields'][$intForm2TypeID2] = array();
 				}
 
-				$handle2fetch = $strFormPrefix.$intForm2TypeID2;
+				$handle2fetch = $this->prefix.$intForm2TypeID2;
 
 				$strAnswerText = $strAnswerText_send = check_var($handle2fetch, $strCheckCode, true, '', true, 'post');
 
@@ -1147,7 +1245,7 @@ class mf_form
 					switch($strCheckCode)
 					{
 						case 'char':
-							$this->check_if_spam(array('code' => $strQueryTypeCode, 'text' => $strAnswerText));
+							$this->get_spam_rules(array('code' => $strQueryTypeCode, 'text' => $strAnswerText));
 						break;
 
 						case 'email':
@@ -1161,8 +1259,12 @@ class mf_form
 
 				switch($intFormTypeID2)
 				{
+					case 1:
+						$strAnswerText_send = "x";
+					break;
+
 					case 2:
-						list($strFormTypeText, $rest) = explode("|", $strFormTypeText);
+						$this->parse_range_label();
 					break;
 
 					case 7:
@@ -1170,20 +1272,7 @@ class mf_form
 					break;
 
 					case 10:
-						$arr_content1 = explode(":", $strFormTypeText);
-						$arr_content2 = explode(",", $arr_content1[1]);
-
-						foreach($arr_content2 as $str_content)
-						{
-							$arr_content3 = explode("|", $str_content);
-
-							if($strAnswerText == $arr_content3[0])
-							{
-								$strAnswerText_send = $arr_content3[1];
-							}
-						}
-
-						$strFormTypeText = $arr_content1[0];
+						$strAnswerText_send = $this->parse_select_info($strAnswerText);
 					break;
 
 					case 11:
@@ -1193,28 +1282,11 @@ class mf_form
 						{
 							foreach($_POST[$handle2fetch] as $value)
 							{
-								$strAnswerText .= ($strAnswerText != '' ? "," : "").check_var($strFormPrefix.$value, $strCheckCode, false);
+								$strAnswerText .= ($strAnswerText != '' ? "," : "").check_var($this->prefix.$value, $strCheckCode, false);
 							}
 						}
 
-						$arr_content1 = explode(":", $strFormTypeText);
-						$arr_content2 = explode(",", $arr_content1[1]);
-
-						$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
-
-						$strAnswerText_send = "";
-
-						foreach($arr_content2 as $str_content)
-						{
-							$arr_content3 = explode("|", $str_content);
-
-							if(in_array($arr_content3[0], $arr_answer_text))
-							{
-								$strAnswerText_send .= ($strAnswerText_send != '' ? ", " : "").$arr_content3[1];
-							}
-						}
-
-						$strFormTypeText = $arr_content1[0];
+						$strAnswerText_send = $this->parse_multiple_info($strAnswerText);
 					break;
 
 					case 15:
@@ -1277,9 +1349,9 @@ class mf_form
 					break;
 				}
 
-				if($strFormTypeText != '')
+				if($this->label != '')
 				{
-					$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $strFormTypeText;
+					$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $this->label;
 				}
 
 				if($strAnswerText != '')
@@ -1318,7 +1390,7 @@ class mf_form
 
 				else if($intFormTypeRequired == true && !in_array($intFormTypeID2, array(5, 6, 9)) && $error_text == '')
 				{
-					$error_text = ($strFormMandatoryText != '' ? $strFormMandatoryText : __("Please, enter all required fields", 'lang_form'))." (".$strFormTypeText.")";
+					$error_text = ($strFormMandatoryText != '' ? $strFormMandatoryText : __("Please, enter all required fields", 'lang_form'))." (".$this->label.")";
 				}
 			}
 		}
@@ -2412,21 +2484,21 @@ class mf_form_export extends mf_export
 		{
 			$intForm2TypeID = $r->query2TypeID;
 			$intFormTypeID = $r->queryTypeID;
-			$strFormTypeText = $r->queryTypeText;
+			$obj_form->label = $r->queryTypeText;
 
 			switch($intFormTypeID)
 			{
 				case 2:
-					list($strFormTypeText, $rest) = explode("|", $strFormTypeText);
+					$obj_form->parse_range_label();
 				break;
 
 				case 10:
 				case 11:
-					list($strFormTypeText, $rest) = explode(":", $strFormTypeText);
+					list($obj_form->label, $rest) = explode(":", $obj_form->label);
 				break;
 			}
 
-			$this_row[] = stripslashes(strip_tags($strFormTypeText));
+			$this_row[] = stripslashes(strip_tags($obj_form->label));
 		}
 
 		$this_row[] = __("Created", 'lang_form');
@@ -2450,7 +2522,7 @@ class mf_form_export extends mf_export
 			{
 				$intForm2TypeID = $r->query2TypeID;
 				$intFormTypeID = $r->queryTypeID;
-				$strFormTypeText = $r->queryTypeText;
+				$obj_form->label = $r->queryTypeText;
 
 				$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
 				$rowsAnswer = $wpdb->num_rows;
@@ -2471,7 +2543,9 @@ class mf_form_export extends mf_export
 						break;
 
 						case 10:
-							$arr_content1 = explode(":", $strFormTypeText);
+							$strAnswerText = $obj_form->parse_select_info($strAnswerText);
+
+							/*$arr_content1 = explode(":", $obj_form->label);
 							$arr_content2 = explode(",", $arr_content1[1]);
 
 							foreach($arr_content2 as $str_content)
@@ -2482,11 +2556,13 @@ class mf_form_export extends mf_export
 								{
 									$strAnswerText = $arr_content3[1];
 								}
-							}
+							}*/
 						break;
 
 						case 11:
-							$arr_content1 = explode(":", $strFormTypeText);
+							$strAnswerText = $obj_form->parse_multiple_info($strAnswerText);
+
+							/*$arr_content1 = explode(":", $obj_form->label);
 							$arr_content2 = explode(",", $arr_content1[1]);
 
 							$arr_answer_text = explode(",", $strAnswerText);
@@ -2501,7 +2577,7 @@ class mf_form_export extends mf_export
 								{
 									$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
 								}
-							}
+							}*/
 						break;
 
 						case 15:
@@ -2862,22 +2938,39 @@ class mf_answer_table extends mf_list_table
 		foreach($result as $r)
 		{
 			$intFormTypeID = $r->queryTypeID;
-			$strFormTypeText = $r->queryTypeText;
+			$obj_form->label = $r->queryTypeText;
 			$intForm2TypeID2 = $r->query2TypeID;
 
 			switch($intFormTypeID)
 			{
+				case 1:
+				case 8:
+					$label_limit = 10;
+				break;
+
 				case 2:
-					list($strFormTypeText, $rest) = explode("|", $strFormTypeText);
+					$obj_form->parse_range_label();
+
+					$label_limit = 10;
+				break;
+
+				case 7:
+					$label_limit = 15;
 				break;
 
 				case 10:
 				case 11:
-					list($strFormTypeText, $rest) = explode(":", $strFormTypeText);
+					list($obj_form->label, $rest) = explode(":", $obj_form->label);
+
+					$label_limit = 10;
+				break;
+
+				default:
+					$label_limit = 20;
 				break;
 			}
 
-			$arr_columns[$intForm2TypeID2] = $strFormTypeText;
+			$arr_columns[$intForm2TypeID2] = shorten_text($obj_form->label, $label_limit);
 		}
 
 		if($obj_form->has_payment)
@@ -3027,7 +3120,7 @@ class mf_answer_table extends mf_list_table
 					{
 						$intForm2TypeID = $r->query2TypeID;
 						$intFormTypeID = $r->queryTypeID;
-						$strFormTypeText = $r->queryTypeText;
+						$obj_form->label = $r->queryTypeText;
 						$strCheckCode = $r->checkCode;
 
 						$strAnswerText = "";
@@ -3060,7 +3153,9 @@ class mf_answer_table extends mf_list_table
 								break;
 
 								case 10:
-									$arr_content1 = explode(":", $strFormTypeText);
+									$strAnswerText = $obj_form->parse_select_info($strAnswerText);
+
+									/*$arr_content1 = explode(":", $obj_form->label);
 									$arr_content2 = explode(",", $arr_content1[1]);
 
 									foreach($arr_content2 as $str_content)
@@ -3071,16 +3166,18 @@ class mf_answer_table extends mf_list_table
 										{
 											$strAnswerText = $arr_content3[1];
 										}
-									}
+									}*/
 								break;
 
 								case 11:
-									$arr_content1 = explode(":", $strFormTypeText);
+									$obj_form->prefix = $obj_form->get_post_info()."_";
+
+									$strAnswerText = $obj_form->parse_multiple_info($strAnswerText);
+
+									/*$arr_content1 = explode(":", $obj_form->label);
 									$arr_content2 = explode(",", $arr_content1[1]);
 
-									$strFormPrefix = $obj_form->get_post_info()."_";
-
-									$arr_answer_text = explode(",", str_replace($strFormPrefix, "", $strAnswerText));
+									$arr_answer_text = explode(",", str_replace($obj_form->prefix, "", $strAnswerText));
 
 									$strAnswerText = "";
 
@@ -3097,7 +3194,7 @@ class mf_answer_table extends mf_list_table
 									if($strAnswerText == '')
 									{
 										$strAnswerText = implode(",", $arr_answer_text);
-									}
+									}*/
 								break;
 
 								case 15:

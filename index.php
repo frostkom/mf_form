@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 9.4.5
+Version: 9.5.3
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -307,7 +307,7 @@ function activate_form()
 
 	foreach($result as $r)
 	{
-		do_log("I could not find any forms connected to the post '".$r->post_title."'");
+		wp_trash_post($r->ID);
 	}
 	#################################
 }
