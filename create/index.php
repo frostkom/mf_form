@@ -510,15 +510,15 @@ echo "<div class='wrap'>
 									echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $strFormEmailName, 'maxlength' => 100));
 								}
 
-								if($strFormEmail != '')
-								{
+								/*if($strFormEmail != '')
+								{*/
 									echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Notification on new answer", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailNotify));
-								}
+								/*}
 
 								else
 								{
 									echo input_hidden(array('name' => "intFormEmailNotify", 'value' => 1));
-								}
+								}*/
 
 								echo show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Notification template", 'lang_form'), 'class' => "query_email_notify_page".($intFormEmailNotify == 1 ? " " : " hide")))
 								."<h4>".__("Email to visitor", 'lang_form')."</h4>";

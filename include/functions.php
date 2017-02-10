@@ -88,7 +88,7 @@ function delete_form($post_id)
 		$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
 		$mail_content = $mail_subject = "Delete postID (#".$post_id.") from ".$wpdb->base_prefix."query";
 
-		send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers));
+		$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers));
 
 		/*$obj_form = new mf_form();
 		$obj_form->get_form_id($post_id);
@@ -484,15 +484,3 @@ function phpmailer_init_form($phpmailer)
 		$phpmailer->addAddress(get_bloginfo('admin_email'));
 	}
 }
-
-/*function mf_form_mail($data)
-{
-	global $wpdb;
-	
-	$sent = send_email($data);
-
-	if(isset($data['answer_id']))
-	{
-		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer_email SET answerID = '%d', answerEmail = %s, answerSent = '%d'", $data['answer_id'], $data['to'], $sent));
-	}
-}*/

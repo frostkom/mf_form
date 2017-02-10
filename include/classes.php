@@ -1098,13 +1098,6 @@ class mf_form
 
 	function process_transactional_emails()
 	{
-		$mail_data = array();
-
-		if($this->email_visitor != '')
-		{
-			$mail_data['headers'] = "From: ".$this->email_visitor." <".$this->email_visitor.">\r\n";
-		}
-
 		$page_content_data = array(
 			'subject' => $this->email_subject,
 			'content' => $this->arr_email_content,
@@ -1112,20 +1105,29 @@ class mf_form
 
 		if(isset($this->send_to) && $this->send_to != '')
 		{
-			$mail_data['type'] = 'replace_link';
+			$mail_data = array(
+				'type' => 'replace_link',
+				'to' => $this->send_to,
+			);
 
-			$mail_data['to'] = $this->send_to; //$page_content_data['mail_to'] = 
+			if($this->email_visitor != '')
+			{
+				$mail_data['headers'] = "From: ".$this->email_visitor." <".$this->email_visitor.">\r\n";
+			}
 
 			list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
 
 			$this->send_transactional_email($mail_data);
 		}
 
-		if($this->email_notify == 1 && $this->email_admin != '')
+		if($this->email_notify == 1) // && $this->email_admin != ''
 		{
-			$mail_data['type'] = 'notify';
+			$mail_data = array(
+				'type' => 'notify',
+				'to' => $this->email_admin,
+			);
 
-			$page_content_data['mail_to'] = $mail_data['to'] = $this->email_admin;
+			$page_content_data['mail_to'] = $mail_data['to'];
 			$page_content_data['page_id'] = $this->email_notify_page;
 
 			list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
@@ -1135,17 +1137,20 @@ class mf_form
 
 		if($this->email_confirm == 1 && isset($this->email_visitor) && $this->email_visitor != '')
 		{
-			$mail_data['type'] = 'confirm';
-
-			$page_content_data['mail_to'] = $mail_data['to'] = $this->email_visitor;
-			$page_content_data['page_id'] = $this->email_confirm_page;
-
-			list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
+			$mail_data = array(
+				'type' => 'confirm',
+				'to' => $this->email_visitor,
+			);
 
 			if($this->email_admin != '')
 			{
 				$mail_data['headers'] = "From: ".$this->email_admin." <".$this->email_admin.">\r\n";
 			}
+
+			$page_content_data['mail_to'] = $mail_data['to'];
+			$page_content_data['page_id'] = $this->email_confirm_page;
+
+			list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
 
 			$this->send_transactional_email($mail_data);
 		}
