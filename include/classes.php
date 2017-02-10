@@ -3728,7 +3728,7 @@ class mf_form_output
 
 class widget_form extends WP_Widget
 {
-	function widget_form()
+	function __construct()
 	{
 		$widget_ops = array(
 			'classname' => 'form',
@@ -3737,7 +3737,7 @@ class widget_form extends WP_Widget
 
 		$control_ops = array('id_base' => 'form-widget');
 
-		$this->__construct('form-widget', __("Form", 'lang_form'), $widget_ops, $control_ops);
+		parent::__construct('form-widget', __("Form", 'lang_form'), $widget_ops, $control_ops);
 	}
 
 	function widget($args, $instance)
