@@ -226,8 +226,6 @@ jQuery(function($)
 	/* Confirm required e-mail */
 	/*function has_required_email()
 	{
-		console.log("has_required_email");
-
 		var form_obj = $(this).parents('.mf_form');
 
 		if(form_obj.find(':required:invalid').length == 0)
