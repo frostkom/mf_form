@@ -72,7 +72,7 @@ function init_form()
 
 	register_post_type('mf_form', $args);
 
-	if(get_option('mf_form_setting_replacement_form') > 0)
+	if(get_option_or_default('setting_replacement_form', get_option('mf_form_setting_replacement_form')) > 0)
 	{
 		add_filter('the_content', 'my_replace_content');
 	}
@@ -146,7 +146,7 @@ function get_form_url($form_id)
 
 function preg_email_concat($matches)
 {
-	$replacement_form = get_option('mf_form_setting_replacement_form');
+	$replacement_form = get_option_or_default('setting_replacement_form', get_option('mf_form_setting_replacement_form'));
 	$email = $matches[1];
 
 	/*list($before_at, $after_at) = explode("@", $email);
@@ -197,7 +197,7 @@ function settings_form()
 		$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
 	}
 
-	$arr_settings['mf_form_setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
+	$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
 
 	$obj_form = new mf_form();
 
@@ -259,10 +259,10 @@ function setting_form_permission_see_all_callback()
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
 }
 
-function mf_form_setting_replacement_form_callback()
+function setting_replacement_form_callback()
 {
 	$setting_key = get_setting_key(__FUNCTION__);
-	$option = get_option($setting_key);
+	$option = get_option_or_default($setting_key, get_option('mf_form_setting_replacement_form'));
 
 	$obj_form = new mf_form();
 	$arr_data = $obj_form->get_form_array(false);

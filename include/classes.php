@@ -413,7 +413,7 @@ class mf_form
 
 			if($email_encrypted != hash('sha512', $data['send_to']))
 			{
-				$log_text = shorten_text($email_encrypted, 10)." != ".shorten_text(hash('sha512', $data['send_to']), 10)." (".$data['send_to'].", ".$_SERVER['HTTP_REFERER'].", ".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].")";
+				$log_text = shorten_text(array('string' => $email_encrypted, 'limit' => 10))." != ".shorten_text(array('string' => hash('sha512', $data['send_to']), 'limit' => 10))." (".$data['send_to'].", ".$_SERVER['HTTP_REFERER'].", ".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].")";
 
 				return false;
 			}
@@ -1704,13 +1704,13 @@ class mf_form
 							case 1:
 								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) INNER JOIN ".$wpdb->base_prefix."query2answer USING (answerID) WHERE ".$wpdb->base_prefix."query2type.queryID = '%d' AND answerSpam = '0' AND queryTypeID = '%d' AND query2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
 
-								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($strFormTypeText2, 20)."', data: ".$intAnswerCount."}";
+								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText2, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
 
 							case 8:
 								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) INNER JOIN ".$wpdb->base_prefix."query2answer USING (answerID) WHERE ".$wpdb->base_prefix."query2type.queryID = '%d' AND answerSpam = '0' AND queryTypeID = '%d' AND query2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
 
-								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($strFormTypeText2, 20)."', data: ".$intAnswerCount."}";
+								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText2, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
 
 							case 10:
@@ -1727,7 +1727,7 @@ class mf_form
 
 										if($intAnswerCount > 0)
 										{
-											$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text($arr_select_row_content[1], 20)."', data: ".$intAnswerCount."}";
+											$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_select_row_content[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
 										}
 									}
 								}
@@ -2975,7 +2975,7 @@ class mf_answer_table extends mf_list_table
 				break;
 			}
 
-			$arr_columns[$intForm2TypeID2] = shorten_text($obj_form->label, $label_limit);
+			$arr_columns[$intForm2TypeID2] = shorten_text(array('string' => $obj_form->label, 'limit' => $label_limit));
 		}
 
 		if($obj_form->has_payment)
