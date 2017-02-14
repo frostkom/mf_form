@@ -72,7 +72,7 @@ function init_form()
 
 	register_post_type('mf_form', $args);
 
-	if(get_option_or_default('setting_replacement_form', get_option('mf_form_setting_replacement_form')) > 0)
+	if(get_option('setting_replacement_form') > 0)
 	{
 		add_filter('the_content', 'my_replace_content');
 	}
@@ -146,15 +146,11 @@ function get_form_url($form_id)
 
 function preg_email_concat($matches)
 {
-	$replacement_form = get_option_or_default('setting_replacement_form', get_option('mf_form_setting_replacement_form'));
+	$replacement_form = get_option('setting_replacement_form');
 	$email = $matches[1];
-
-	/*list($before_at, $after_at) = explode("@", $email);
-	$before_at = substr($before_at, 0, 1);*/
 
 	$obj_form = new mf_form($replacement_form);
 
-	//$before_at."***@".$after_at
 	$out = "<a href='#' class='form_link'>".__("Click here to send e-mail", 'lang_form')."</a>
 	<div class='form_inline hide'>"
 		.$obj_form->process_form(array('send_to' => $email))
@@ -262,7 +258,7 @@ function setting_form_permission_see_all_callback()
 function setting_replacement_form_callback()
 {
 	$setting_key = get_setting_key(__FUNCTION__);
-	$option = get_option_or_default($setting_key, get_option('mf_form_setting_replacement_form'));
+	$option = get_option($setting_key);
 
 	$obj_form = new mf_form();
 	$arr_data = $obj_form->get_form_array(false);
