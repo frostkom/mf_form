@@ -460,18 +460,28 @@ function phpmailer_init_form($phpmailer)
 		$user_data = get_userdata(get_current_user_id());
 
 		$mail_to = $phpmailer->getToAddresses();
+		$mail_to_old = $mail_to[0][0];
+		$mail_to_new = $user_data->user_email;
 
-		$phpmailer->Subject = __("Test", 'lang_form')." (".$mail_to[0][0]."): ".$phpmailer->Subject;
-		$phpmailer->clearAddresses();
-		$phpmailer->addAddress($user_data->user_email);
+		if($mail_to_new != $mail_to_old && $phpmailer->FromName != "WordPress") //$phpmailer->From
+		{
+			$phpmailer->Subject = __("Redirect Test", 'lang_form')." (".$mail_to_old."): ".$phpmailer->Subject;
+			$phpmailer->clearAddresses();
+			$phpmailer->addAddress($mail_to_new);
+		}
 	}
 
 	else if(get_option('setting_redirect_emails') == 'yes')
 	{
 		$mail_to = $phpmailer->getToAddresses();
+		$mail_to_old = $mail_to[0][0];
+		$mail_to_new = get_bloginfo('admin_email');
 
-		$phpmailer->Subject = __("Redirect", 'lang_form')." (".$mail_to[0][0]."): ".$phpmailer->Subject;
-		$phpmailer->clearAddresses();
-		$phpmailer->addAddress(get_bloginfo('admin_email'));
+		if($mail_to_new != $mail_to_old)
+		{
+			$phpmailer->Subject = __("Redirect All", 'lang_form')." (".$mail_to_old."): ".$phpmailer->Subject;
+			$phpmailer->clearAddresses();
+			$phpmailer->addAddress($mail_to_new);
+		}
 	}
 }
