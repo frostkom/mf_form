@@ -1124,7 +1124,7 @@ class mf_form
 		{
 			$mail_data = array(
 				'type' => 'notify',
-				'to' => $this->email_admin,
+				'to' => ($this->email_admin != '' ? $this->email_admin : get_bloginfo('admin_email')),
 			);
 
 			$page_content_data['mail_to'] = $mail_data['to'];
@@ -1496,6 +1496,8 @@ class mf_form
 
 						if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 						{
+							echo "<i class='fa fa-lg fa-spin fa-spinner fa-3x'></i>";
+
 							$strFormAnswerURL = get_permalink($intFormAnswerURL);
 
 							mf_redirect($strFormAnswerURL);
@@ -2036,7 +2038,7 @@ if(!class_exists('mf_form_payment'))
 			//Respond according to message we receive from Paypal
 			if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
 			{
-				echo "<i class='fa fa-lg fa-spin fa-spinner'></i>";
+				echo "<i class='fa fa-lg fa-spin fa-spinner fa-3x'></i>";
 
 				$this->token = $httpParsedResponseAr["TOKEN"];
 
@@ -2106,6 +2108,8 @@ if(!class_exists('mf_form_payment'))
 		{
 			global $wpdb;
 
+			echo "<i class='fa fa-lg fa-spin fa-spinner fa-3x'></i>";
+
 			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."103: ".__("User canceled", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 			mf_redirect(get_site_url());
@@ -2141,6 +2145,8 @@ if(!class_exists('mf_form_payment'))
 
 					if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 					{
+						echo "<i class='fa fa-lg fa-spin fa-spinner fa-3x'></i>";
+
 						$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 						$strFormAnswerURL = get_permalink($intFormAnswerURL);

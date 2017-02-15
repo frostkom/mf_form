@@ -180,12 +180,7 @@ function settings_form()
 	$arr_settings = array();
 
 	$arr_settings['setting_redirect_emails'] = __("Redirect all e-mails", 'lang_form');
-
-	if(get_option('setting_redirect_emails') != 'yes')
-	{
-		$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
-	}
-
+	$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
 	$arr_settings['setting_form_permission'] = __("Role to see forms", 'lang_form');
 
 	if(get_option('setting_form_permission') != '')
