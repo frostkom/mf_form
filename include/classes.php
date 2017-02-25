@@ -1013,8 +1013,7 @@ class mf_form
 
 	function check_if_spam($data)
 	{
-		$arr_exclude = array("[qm]");
-		$arr_include = array("\?");
+		global $wpdb;
 
 		if(function_exists($data['rule']))
 		{
@@ -1030,7 +1029,12 @@ class mf_form
 
 		else
 		{
-			if(preg_match(str_replace($arr_exclude, $arr_include, $data['rule']), $data['text']))
+			$arr_exclude = array("[qm]");
+			$arr_include = array("\?");
+
+			$reg_exp = str_replace($arr_exclude, $arr_include, $data['rule']);
+
+			if(preg_match($reg_exp, $data['text']) || preg_match($reg_exp, esc_sql($data['text'])))
 			{
 				//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
 
@@ -1126,6 +1130,11 @@ class mf_form
 				'type' => 'notify',
 				'to' => ($this->email_admin != '' ? $this->email_admin : get_bloginfo('admin_email')),
 			);
+
+			if($this->email_visitor != '')
+			{
+				$mail_data['headers'] = "From: ".$this->email_visitor." <".$this->email_visitor.">\r\n";
+			}
 
 			$page_content_data['mail_to'] = $mail_data['to'];
 			$page_content_data['page_id'] = $this->email_notify_page;
