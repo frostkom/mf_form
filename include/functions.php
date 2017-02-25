@@ -2,11 +2,14 @@
 
 function count_shortcode_button_form($count)
 {
-	$obj_form = new mf_form();
-
-	if($obj_form->count_forms(array('post_status' => 'publish')) > 0)
+	if($count == 0)
 	{
-		$count++;
+		$obj_form = new mf_form();
+
+		if($obj_form->count_forms(array('post_status' => 'publish')) > 0)
+		{
+			$count++;
+		}
 	}
 
 	return $count;
