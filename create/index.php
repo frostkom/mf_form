@@ -265,7 +265,7 @@ if($intForm2TypeID > 0)
 }
 
 echo "<div class='wrap'>
-	<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." ".$strFormName : __("Add New", 'lang_form'))."</h2>"
+	<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." (".$strFormName.")" : __("Add New", 'lang_form'))."</h2>"
 	.get_notification()
 	."<div id='poststuff'>";
 

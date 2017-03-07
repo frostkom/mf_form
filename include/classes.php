@@ -199,6 +199,13 @@ class mf_form
 			}
 		}
 
+		else if(isset($_GET['btnAnswerSpam']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_spam_'.$this->answer_id))
+		{
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2answer SET answerSpam = '1' WHERE answerID = '%d'", $this->answer_id));
+
+			$done_text = __("I have marked the email as spam for you", 'lang_form');
+		}
+
 		else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_approve_'.$this->answer_id))
 		{
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
@@ -1043,7 +1050,7 @@ class mf_form
 		}
 	}
 
-	function get_spam_rules($data)
+	function check_spam_rules($data)
 	{
 		global $wpdb;
 
@@ -1069,6 +1076,23 @@ class mf_form
 			if($this->is_spam == true)
 			{
 				break;
+			}
+		}
+	}
+
+	function check_spam_email($data)
+	{
+		global $wpdb;
+
+		if($this->is_spam == false)
+		{
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE answerSpam = '1' AND answerText = %s LIMIT 0, 1", $data['text'])); // AND query2TypeID = '%d', $data['id']
+
+			if($wpdb->num_rows > 0)
+			{
+				//do_log(sprintf(__("The email %s has previously been marked as spam at least once (%s)", 'lang_form'), $data['text'], $wpdb->last_query));
+
+				$this->is_spam = true;
 			}
 		}
 	}
@@ -1259,10 +1283,12 @@ class mf_form
 					switch($strCheckCode)
 					{
 						case 'char':
-							$this->get_spam_rules(array('code' => $strQueryTypeCode, 'text' => $strAnswerText));
+							$this->check_spam_rules(array('code' => $strQueryTypeCode, 'text' => $strAnswerText));
 						break;
 
 						case 'email':
+							$this->check_spam_email(array('text' => $strAnswerText)); //'id' => $intForm2TypeID2, 
+
 							if($intFormTypeID2 == 3)
 							{
 								$this->email_visitor = $strAnswerText;
@@ -3021,7 +3047,7 @@ class mf_answer_table extends mf_list_table
 			case 'answerSpam':
 				$actions = array();
 
-				if($item[$column_name])
+				if($item[$column_name] == true)
 				{
 					$out .= "<i class='fa fa-lg fa-close red'></i>";
 
@@ -3174,47 +3200,12 @@ class mf_answer_table extends mf_list_table
 
 								case 10:
 									$strAnswerText = $obj_form->parse_select_info($strAnswerText);
-
-									/*$arr_content1 = explode(":", $obj_form->label);
-									$arr_content2 = explode(",", $arr_content1[1]);
-
-									foreach($arr_content2 as $str_content)
-									{
-										$arr_content3 = explode("|", $str_content);
-
-										if($strAnswerText == $arr_content3[0])
-										{
-											$strAnswerText = $arr_content3[1];
-										}
-									}*/
 								break;
 
 								case 11:
 									$obj_form->prefix = $obj_form->get_post_info()."_";
 
 									$strAnswerText = $obj_form->parse_multiple_info($strAnswerText);
-
-									/*$arr_content1 = explode(":", $obj_form->label);
-									$arr_content2 = explode(",", $arr_content1[1]);
-
-									$arr_answer_text = explode(",", str_replace($obj_form->prefix, "", $strAnswerText));
-
-									$strAnswerText = "";
-
-									foreach($arr_content2 as $str_content)
-									{
-										$arr_content3 = explode("|", $str_content);
-
-										if(in_array($arr_content3[0], $arr_answer_text))
-										{
-											$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
-										}
-									}
-
-									if($strAnswerText == '')
-									{
-										$strAnswerText = implode(",", $arr_answer_text);
-									}*/
 								break;
 
 								case 15:
@@ -3237,6 +3228,11 @@ class mf_answer_table extends mf_list_table
 
 											case 'email':
 												$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
+
+												if($item['answerSpam'] == false)
+												{
+													$actions['spam'] = "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'answer_spam_'.$intAnswerID)."' rel='confirm'>".__("Mark as Spam", 'lang_form')."</a>";
+												}
 											break;
 
 											case 'zip':
