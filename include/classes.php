@@ -97,7 +97,7 @@ class mf_form
 
 		$out = "";
 
-		if(isset($_GET['btnFormCopy']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'form_copy'))
+		if(isset($_GET['btnFormCopy']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'form_copy_'.$this->id))
 		{
 			$inserted = true;
 
@@ -199,14 +199,14 @@ class mf_form
 			}
 		}
 
-		else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_approve'))
+		else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_approve_'.$this->answer_id))
 		{
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
 
 			$done_text = __("I have approved the answer for you", 'lang_form');
 		}
 		
-		else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'message_resend'))
+		else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'message_resend_'.$this->answer_id))
 		{
 			$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
 
@@ -1599,8 +1599,8 @@ class mf_form
 									}
 
 								$out .= "</div>"
-								.wp_nonce_field('form_submit_'.$this->id, '_wpnonce', true, false)
 								.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
+								.wp_nonce_field('form_submit_'.$this->id, '_wpnonce', true, false)
 							."</div>";
 						}
 
@@ -2701,7 +2701,7 @@ class mf_form_table extends mf_list_table
 						$actions['delete'] = "<a href='#delete/query/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 					}
 
-					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id, 'form_copy')."'>".__("Copy", 'lang_form')."</a>";
+					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id, 'form_copy_'.$obj_form->id)."'>".__("Copy", 'lang_form')."</a>";
 
 					if($post_status == 'publish' && $obj_form->id > 0)
 					{
@@ -3025,7 +3025,7 @@ class mf_answer_table extends mf_list_table
 				{
 					$out .= "<i class='fa fa-lg fa-close red'></i>";
 
-					$actions['unspam'] = "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'answer_approve')."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
+					$actions['unspam'] = "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'answer_approve_'.$intAnswerID)."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
 				}
 
 				/*else
@@ -3119,7 +3119,7 @@ class mf_answer_table extends mf_list_table
 
 						if($sent_failed_w_type > 0)
 						{
-							$out .= "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'message_resend')."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
+							$out .= "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'message_resend_'.$intAnswerID)."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
 						}
 
 					$out .= "</div>";

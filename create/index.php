@@ -51,7 +51,7 @@ $strFormTypeDefault = check_var('strFormTypeDefault', '', true, 1);
 
 $error_text = $done_text = "";
 
-if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce'], 'form_update'))
+if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce'], 'form_update_'.$obj_form->id))
 {
 	if($strFormName == '')
 	{
@@ -108,7 +108,7 @@ if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_veri
 	}
 }
 
-else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form_add'))
+else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form_add_'.$obj_form->id))
 {
 	//Clean up settings if not used for the specific type of field
 	################
@@ -431,7 +431,7 @@ echo "<div class='wrap'>
 							}
 
 							echo input_hidden(array('name' => 'intFormID', 'value' => $obj_form->id))
-							.wp_nonce_field('form_add', '_wpnonce', true, false)
+							.wp_nonce_field('form_add_'.$obj_form->id, '_wpnonce', true, false)
 						."</form>
 					</div>";
 
@@ -481,7 +481,7 @@ echo "<div class='wrap'>
 								}
 
 								echo input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))
-								.wp_nonce_field('form_update', '_wpnonce', true, false)
+								.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce', true, false)
 							."</div>
 						</div>
 						<div class='postbox'>
@@ -641,7 +641,7 @@ echo "<div class='wrap'>
 						.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
 						.show_button(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))
 						.input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))
-						.wp_nonce_field('form_update', '_wpnonce', true, false)
+						.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce', true, false)
 					."</div>
 				</div>
 			</form>";
