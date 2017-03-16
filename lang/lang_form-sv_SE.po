@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-07 14:42+0100\n"
+"POT-Creation-Date: 2017-03-16 10:32+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,125 +15,125 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../index.php:227
+#: ../index.php:226
 #: ../include/classes.php:2861
 msgid "Checkbox"
 msgstr "Kryssruta"
 
-#: ../index.php:228
+#: ../index.php:227
 #: ../include/classes.php:2866
 msgid "Range"
 msgstr "Spann"
 
-#: ../index.php:229
+#: ../index.php:228
 msgid "Input field"
 msgstr "Inmatningsfält (en rad)"
 
-#: ../index.php:230
+#: ../index.php:229
 msgid "Textarea"
 msgstr "Inmatningsfält (flera rader)"
 
-#: ../index.php:231
+#: ../index.php:230
 #: ../create/index.php:313
 #: ../create/index.php:540
 msgid "Text"
 msgstr "Text"
 
-#: ../index.php:232
+#: ../index.php:231
 #: ../include/classes.php:3613
 msgid "Space"
 msgstr "Mellanrum"
 
-#: ../index.php:233
+#: ../index.php:232
 #: ../include/classes.php:2871
 msgid "Datepicker"
 msgstr "Datumväljare"
 
-#: ../index.php:234
+#: ../index.php:233
 #: ../include/classes.php:2876
 msgid "Radio button"
 msgstr "Alternativ"
 
-#: ../index.php:235
+#: ../index.php:234
 msgid "Referer URL"
 msgstr "Referens-URL"
 
-#: ../index.php:236
+#: ../index.php:235
 msgid "Dropdown"
 msgstr "Rullgardin"
 
-#: ../index.php:237
+#: ../index.php:236
 msgid "Multiple selection"
 msgstr "Rullgardin (flerval)"
 
-#: ../index.php:238
+#: ../index.php:237
 msgid "Hidden field"
 msgstr "Dolt fält"
 
-#: ../index.php:239
+#: ../index.php:238
 msgid "Custom tag"
 msgstr "Anpassat element"
 
-#: ../index.php:240
+#: ../index.php:239
 msgid "Custom tag (end)"
 msgstr "Anpassat element (slut)"
 
-#: ../index.php:241
+#: ../index.php:240
 #: ../include/classes.php:2881
 msgid "File"
 msgstr "Fil"
 
-#: ../index.php:252
+#: ../index.php:251
 msgid "Number"
 msgstr "Nummer"
 
-#: ../index.php:253
+#: ../index.php:252
 #: ../create/index.php:505
 msgid "Email"
 msgstr "Epost"
 
-#: ../index.php:254
+#: ../index.php:253
 msgid "Phone no"
 msgstr "Telefonnummer"
 
-#: ../index.php:255
+#: ../index.php:254
 msgid "Decimal number"
 msgstr "Decimaltal"
 
-#: ../index.php:256
+#: ../index.php:255
 msgid "URL"
 msgstr "URL"
 
-#: ../index.php:261
+#: ../index.php:260
 msgid "Zip code"
 msgstr "Postnummer"
 
+#: ../index.php:261
 #: ../index.php:262
-#: ../index.php:263
 msgid "Social security no"
 msgstr "Personnummer"
 
-#: ../index.php:294
+#: ../index.php:293
 msgid "aring"
 msgstr "å"
 
-#: ../index.php:294
+#: ../index.php:293
 msgid "auml"
 msgstr "ä"
 
-#: ../index.php:294
+#: ../index.php:293
 msgid "ouml"
 msgstr "ö"
 
-#: ../index.php:294
+#: ../index.php:293
 msgid "Aring"
 msgstr "Å"
 
-#: ../index.php:294
+#: ../index.php:293
 msgid "Auml"
 msgstr "Ä"
 
-#: ../index.php:294
+#: ../index.php:293
 msgid "Ouml"
 msgstr "Ö"
 
@@ -146,7 +146,7 @@ msgstr "Är du säker?"
 #: ../answer/index.php:16
 #: ../answer/index.php:37
 #: ../include/classes.php:2690
-#: ../include/functions.php:376
+#: ../include/functions.php:387
 msgid "Answers"
 msgstr "Svar"
 
@@ -201,7 +201,7 @@ msgid "Update"
 msgstr "Uppdatera"
 
 #: ../create/index.php:268
-#: ../include/functions.php:373
+#: ../include/functions.php:384
 #: ../list/index.php:12
 msgid "Add New"
 msgstr "Lägg till ny"
@@ -828,73 +828,73 @@ msgstr "Välj ett formulär"
 
 #: ../include/functions.php:61
 #: ../include/functions.php:63
-#: ../include/functions.php:217
-#: ../include/functions.php:368
+#: ../include/functions.php:228
+#: ../include/functions.php:379
 #: ../list/index.php:11
 msgid "Forms"
 msgstr "Formulär"
 
-#: ../include/functions.php:157
+#: ../include/functions.php:168
 msgid "Click here to send e-mail"
 msgstr "Klicka här för att skicka e-post"
 
-#: ../include/functions.php:185
+#: ../include/functions.php:196
 msgid "Redirect all e-mails"
 msgstr "Omdirigera alla meddelanden"
 
-#: ../include/functions.php:186
+#: ../include/functions.php:197
 msgid "Redirect test e-mails"
 msgstr "Omdirigera testmeddelanden"
 
-#: ../include/functions.php:187
+#: ../include/functions.php:198
 msgid "Role to see forms"
 msgstr "Roll för att se formulär"
 
-#: ../include/functions.php:191
+#: ../include/functions.php:202
 msgid "Role to see all"
 msgstr "Roll för att se alla"
 
-#: ../include/functions.php:194
+#: ../include/functions.php:205
 msgid "Form to replace all e-mail links"
 msgstr "Formulär för att ersätta alla e-postlänkar"
 
-#: ../include/functions.php:200
+#: ../include/functions.php:211
 msgid "Text to send as positive response"
 msgstr "Meddelande att skicka som positivt svar"
 
-#: ../include/functions.php:201
+#: ../include/functions.php:212
 msgid "Text to send as negative response"
 msgstr "Meddelande att skicka som negativt svar"
 
-#: ../include/functions.php:202
+#: ../include/functions.php:213
 msgid "Thank you message after sending response"
 msgstr "Tack-meddelande efter skickat svar"
 
-#: ../include/functions.php:225
+#: ../include/functions.php:236
 msgid "When a visitor sends an e-mail through the site it is redirected to the admins address"
 msgstr "När en besökare skickar e-post via webbsidan skickas det till administratörens adress istället"
 
-#: ../include/functions.php:233
+#: ../include/functions.php:244
 msgid "When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address"
 msgstr "När en administratör är inloggad och testar att skicka e-post går alla utgående meddelanden till administratörens adress"
 
-#: ../include/functions.php:264
+#: ../include/functions.php:275
 msgid "If you would like all e-mail links in text to be replaced by a form, choose one here"
 msgstr "Om du vill att alla e-postlänkar i text ska ersättas med ett formulär, välj det här"
 
-#: ../include/functions.php:348
+#: ../include/functions.php:359
 msgid "Unread answers"
 msgstr "Olästa svar"
 
-#: ../include/functions.php:379
+#: ../include/functions.php:390
 msgid "Edit Answer"
 msgstr "Redigera svar"
 
-#: ../include/functions.php:471
+#: ../include/functions.php:482
 msgid "Redirect Test"
 msgstr "Omdirigera test"
 
-#: ../include/functions.php:485
+#: ../include/functions.php:496
 msgid "Redirect All"
 msgstr "Omdirigera alla"
 

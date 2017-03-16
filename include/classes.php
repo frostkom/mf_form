@@ -399,7 +399,7 @@ class mf_form
 			}
 		}
 
-		else
+		/*else
 		{
 			$rowsIP = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d' AND answerIP = %s AND answerCreated > DATE_SUB(NOW(), INTERVAL 30 SECOND) LIMIT 0, 1", $this->id, $this->answer_ip));
 
@@ -407,7 +407,7 @@ class mf_form
 			{
 				$dup_ip = true;
 			}
-		}
+		}*/
 
 		return $dup_ip;
 	}

@@ -81,6 +81,17 @@ function init_form()
 	}
 }
 
+function shortcode_form($atts)
+{
+	extract(shortcode_atts(array(
+		'id' => ''
+	), $atts));
+
+	$obj_form = new mf_form($id);
+
+	return $obj_form->process_form();
+}
+
 function delete_form($post_id)
 {
 	global $post_type;

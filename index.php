@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 9.7.2
+Version: 9.7.4
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -37,7 +37,6 @@ if(is_admin())
 }
 
 add_shortcode('mf_form', 'shortcode_form');
-add_shortcode('form_shortcode', 'shortcode_form');
 
 add_filter('single_template', 'custom_templates_form');
 
@@ -328,17 +327,6 @@ function uninstall_form()
 		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'mf_forms_viewed', 'answer_viewed'),
 		'tables' => array('query', 'query2answer', 'query2type', 'query_answer', 'query_answer_email', 'query_check', 'query_type', 'form_spam', 'query_zipcode'),
 	));
-}
-
-function shortcode_form($atts)
-{
-	extract(shortcode_atts(array(
-		'id' => ''
-	), $atts));
-
-	$obj_form = new mf_form($id);
-
-	return $obj_form->process_form();
 }
 
 function custom_templates_form($single_template)
