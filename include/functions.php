@@ -476,8 +476,10 @@ function phpmailer_init_form($phpmailer)
 		$mail_to = $phpmailer->getToAddresses();
 		$mail_to_old = $mail_to[0][0];
 		$mail_to_new = $user_data->user_email;
+		
+		$reject_subject_start = "[".get_bloginfo('name')."] ";
 
-		if($mail_to_new != $mail_to_old && $phpmailer->FromName != "WordPress") //$phpmailer->From
+		if($mail_to_new != $mail_to_old && $phpmailer->FromName != "WordPress" && substr($phpmailer->Subject, 0, strlen($reject_subject_start)) != $reject_subject_start)
 		{
 			$phpmailer->Subject = __("Redirect Test", 'lang_form')." (".$mail_to_old."): ".$phpmailer->Subject;
 			$phpmailer->clearAddresses();
