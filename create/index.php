@@ -636,7 +636,7 @@ echo "<div class='wrap'>
 		{
 			echo "<form method='post' action='' class='mf_form mf_settings'>
 				<div class='postbox'>
-					<h3 class='hndle'><span>".__("Add new", 'lang_form')."</span></h3>
+					<h3 class='hndle'><span>".__("Add New", 'lang_form')."</span></h3>
 					<div class='inside'>"
 						.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
 						.show_button(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))

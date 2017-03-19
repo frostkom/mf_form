@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-16 10:32+0100\n"
+"POT-Creation-Date: 2017-03-19 12:11+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -201,10 +201,11 @@ msgid "Update"
 msgstr "Uppdatera"
 
 #: ../create/index.php:268
+#: ../create/index.php:639
 #: ../include/functions.php:384
 #: ../list/index.php:12
 msgid "Add New"
-msgstr "Lägg till ny"
+msgstr "Skapa ny"
 
 #: ../create/index.php:277
 #: ../include/classes.php:2689
@@ -494,10 +495,6 @@ msgstr "Valuta"
 msgid "Field for payment cost"
 msgstr "Fält för kostnad"
 
-#: ../create/index.php:639
-msgid "Add new"
-msgstr "Lägg till ny"
-
 #: ../include/classes.php:121
 msgid "copy"
 msgstr "kopia"
@@ -691,11 +688,11 @@ msgstr "Visa sida"
 
 #: ../include/classes.php:2761
 msgid "Add New Post"
-msgstr "Lägg till nytt inlägg"
+msgstr "Skapa nytt inlägg"
 
 #: ../include/classes.php:2762
 msgid "Add New Page"
-msgstr "Lägg till ny sida"
+msgstr "Skapa ny sida"
 
 #: ../include/classes.php:2769
 msgid "Recover"
@@ -890,11 +887,11 @@ msgstr "Olästa svar"
 msgid "Edit Answer"
 msgstr "Redigera svar"
 
-#: ../include/functions.php:482
+#: ../include/functions.php:484
 msgid "Redirect Test"
 msgstr "Omdirigera test"
 
-#: ../include/functions.php:496
+#: ../include/functions.php:498
 msgid "Redirect All"
 msgstr "Omdirigera alla"
 
