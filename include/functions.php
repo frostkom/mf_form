@@ -39,7 +39,7 @@ function get_shortcode_output_form($out)
 			$arr_data[$obj_form->get_form_id($template->ID)] = $template->post_title;
 		}
 
-		$out .= show_select(array('data' => $arr_data, 'name' => 'select_form_id', 'xtra' => " rel='mf_form'"));
+		$out .= show_select(array('data' => $arr_data, 'xtra' => " rel='mf_form'"));
 	}
 
 	return $out;
