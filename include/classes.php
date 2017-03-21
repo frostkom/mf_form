@@ -2667,6 +2667,7 @@ class mf_form_table extends mf_list_table
 		$this->arr_settings['plugin_name'] = 'mf_form';*/
 
 		$this->query_join .= " INNER JOIN ".$wpdb->base_prefix."query ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."query.postID";
+		$this->query_where .= ($this->query_where != '' ? " AND " : "")."blogID = '".$wpdb->blogid."'";
 
 		if($this->search != '')
 		{

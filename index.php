@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 9.7.7
+Version: 9.7.8
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -79,7 +79,7 @@ function activate_form()
 		queryDeletedID INT UNSIGNED DEFAULT '0',
 		userID INT UNSIGNED DEFAULT '0',
 		PRIMARY KEY (queryID)
-	) DEFAULT CHARSET=".$default_charset); //queryEmailCheckConfirm ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
+	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2type (
 		query2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -186,7 +186,6 @@ function activate_form()
 		'queryPaymentCurrency' => "ALTER TABLE [table] ADD [column] VARCHAR(3) AFTER queryPaymentMerchant",
 		'queryButtonSymbol' => "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText",
 		'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER blogID",
-		//'queryEmailCheckConfirm' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER queryEmailName",
 		'queryEmailNotifyPage' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryEmailNotify",
 	);
 
