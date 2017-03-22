@@ -195,12 +195,12 @@ function settings_form()
 
 	$arr_settings['setting_redirect_emails'] = __("Redirect all e-mails", 'lang_form');
 	$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
-	$arr_settings['setting_form_permission'] = __("Role to see forms", 'lang_form');
+	/*$arr_settings['setting_form_permission'] = __("Role to see forms", 'lang_form');
 
 	if(get_option('setting_form_permission') != '')
-	{
+	{*/
 		$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
-	}
+	//}
 
 	$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
 
@@ -244,7 +244,7 @@ function setting_form_test_emails_callback()
 	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
 }
 
-function setting_form_permission_callback()
+/*function setting_form_permission_callback()
 {
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key);
@@ -252,7 +252,7 @@ function setting_form_permission_callback()
 	$arr_data = get_roles_for_select(array('add_choose_here' => true));
 
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
-}
+}*/
 
 function setting_form_permission_see_all_callback()
 {
@@ -372,7 +372,8 @@ function menu_form()
 	$menu_root = 'mf_form/';
 	$menu_start = $count_forms > 0 ? $menu_root."list/index.php" : $menu_root."create/index.php";
 
-	$menu_capability = get_option_or_default('setting_form_permission', 'edit_pages');
+	//$menu_capability = get_option_or_default('setting_form_permission', 'edit_pages');
+	$menu_capability = 'edit_pages';
 
 	$count_message = get_count_answer_message();
 
