@@ -52,7 +52,7 @@ function activate_form()
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query (
 		queryID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		blogID INT UNSIGNED,
+		blogID TINYINT UNSIGNED,
 		postID INT UNSIGNED NOT NULL DEFAULT '0',
 		queryName VARCHAR(100) DEFAULT NULL,
 		queryAnswerURL VARCHAR(20) DEFAULT NULL,
@@ -248,7 +248,7 @@ function activate_form()
 
 	$arr_query_check = array(
 		1 => array('name' => __("Number", 'lang_form'),				'code' => 'int',		'pattern' => '[0-9]*'),
-		5 => array('name' => __("Email", 'lang_form'),				'code' => 'email',		'pattern' => ''),
+		5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email',		'pattern' => ''),
 		6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno',		'pattern' => ''),
 		7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
 		8 => array('name' => __("URL", 'lang_form'),				'code' => 'url',		'pattern' => ''),

@@ -491,7 +491,7 @@ echo "<div class='wrap'>
 								//$arr_data_pages = $obj_form->get_pages_for_select();
 
 								$arr_data = array();
-								get_post_children(array('add_choose_here' => true, 'output_array' => true), $arr_data);
+								get_post_children(array('add_choose_here' => true), $arr_data);
 
 								$arr_data_pages = $arr_data;
 
@@ -502,7 +502,7 @@ echo "<div class='wrap'>
 									echo show_checkbox(array('name' => 'intFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => 1, 'compare' => $intFormShowAnswers));
 								}
 
-								echo "<h4>".__("Email", 'lang_form')."</h4>"
+								echo "<h4>".__("E-mail", 'lang_form')."</h4>"
 								.show_textfield(array('name' => 'strFormEmail', 'text' => __("Send from/to", 'lang_form'), 'value' => $strFormEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
 
 								if($strFormEmailName != '')
@@ -521,7 +521,7 @@ echo "<div class='wrap'>
 								}*/
 
 								echo show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Notification template", 'lang_form'), 'class' => "query_email_notify_page".($intFormEmailNotify == 1 ? " " : " hide")))
-								."<h4>".__("Email to visitor", 'lang_form')."</h4>";
+								."<h4>".__("E-mail to visitor", 'lang_form')."</h4>";
 
 								if($obj_form->has_email_field() > 0)
 								{

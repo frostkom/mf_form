@@ -2801,7 +2801,7 @@ class mf_form_table extends mf_list_table
 
 						else
 						{
-							$out .= "<i class='fa fa-lg fa-send grey' title='".sprintf(__("Emails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
+							$out .= "<i class='fa fa-lg fa-send grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
 						}
 					}
 
