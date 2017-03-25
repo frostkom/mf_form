@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 9.7.9
+Version: 9.8.0
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -79,7 +79,7 @@ function activate_form()
 		queryDeletedID INT UNSIGNED DEFAULT '0',
 		userID INT UNSIGNED DEFAULT '0',
 		PRIMARY KEY (queryID)
-	) DEFAULT CHARSET=".$default_charset);
+	) DEFAULT CHARSET=".$default_charset); //queryConverted ENUM('0', '1') NOT NULL DEFAULT '0',
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."query2type (
 		query2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -187,6 +187,7 @@ function activate_form()
 		'queryButtonSymbol' => "ALTER TABLE [table] ADD [column] VARCHAR(20) AFTER queryButtonText",
 		'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER blogID",
 		'queryEmailNotifyPage' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER queryEmailNotify",
+		//'queryConverted' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER userID",
 	);
 
 	$arr_add_column[$wpdb->base_prefix."query2answer"] = array(
@@ -307,6 +308,19 @@ function activate_form()
 	{
 		wp_trash_post($r->ID);
 	}
+	#################################
+
+	//Convert wp_query to wp_posts
+	#################################
+	/*$result = $wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix."query WHERE post_type = 'mf_form' AND queryConverted = '0'");
+
+	foreach($result as $r)
+	{
+		$intFormID = $r->queryID;
+		//...
+
+		//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryConverted = '1' WHERE queryID = '%d'", $intFormID));
+	}*/
 	#################################
 
 	replace_option(array('old' => 'mf_form_setting_replacement_form', 'new' => 'setting_replacement_form'));

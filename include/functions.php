@@ -192,7 +192,6 @@ function settings_form()
 	add_settings_section($options_area, "", $options_area."_callback", BASE_OPTIONS_PAGE);
 
 	$arr_settings = array();
-
 	$arr_settings['setting_redirect_emails'] = __("Redirect all e-mails", 'lang_form');
 	$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
 	/*$arr_settings['setting_form_permission'] = __("Role to see forms", 'lang_form');
@@ -213,12 +212,7 @@ function settings_form()
 		$arr_settings['setting_link_thanks_text'] = __("Thank you message after sending response", 'lang_form');
 	}
 
-	foreach($arr_settings as $handle => $text)
-	{
-		add_settings_field($handle, $text, $handle."_callback", BASE_OPTIONS_PAGE, $options_area);
-
-		register_setting(BASE_OPTIONS_PAGE, $handle);
-	}
+	show_settings_fields(array('area' => $options_area, 'settings' => $arr_settings));
 }
 
 function settings_form_callback()
