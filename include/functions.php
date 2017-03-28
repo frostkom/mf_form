@@ -77,7 +77,7 @@ function init_form()
 
 	if(get_option('setting_replacement_form') > 0)
 	{
-		add_filter('the_content', 'my_replace_content');
+		add_filter('the_content', 'the_content_form');
 	}
 }
 
@@ -173,7 +173,7 @@ function preg_email_concat($matches)
 	return $out;
 }
 
-function my_replace_content($html)
+function the_content_form($html)
 {
 	$char_before = "?<=^|\s|\(|\[";
 	$chars = "[-A-Za-z\d_.]+[@][A-Za-z\d_-]+([.][A-Za-z\d_-]+)*[.][A-Za-z]{2,8}";
