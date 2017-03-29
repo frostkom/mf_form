@@ -371,8 +371,7 @@ echo "<div class='wrap'>
 
 									//Advanced
 									#################
-									echo "<label class='toggler'><i class='fa fa-lg fa-caret-right'></i><span>".__("Advanced", 'lang_form')."</span></label>
-									<div class='toggle_container hide'>";
+									echo get_toggler_container(array('type' => 'start', 'text' => __("Advanced", 'lang_form')));
 
 										$arr_data = array(
 											'' => "-- ".__("Choose here", 'lang_form')." --",
@@ -415,7 +414,7 @@ echo "<div class='wrap'>
 											}
 										}
 
-									echo "</div>";
+									echo get_toggler_container(array('type' => 'end'));
 									#################
 
 								echo "</div>
