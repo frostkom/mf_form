@@ -1,0 +1,893 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-30 11:23+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Martin Fors\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: da_DK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: esc_html__;esc_html_e;esc_attr__;esc_attr_e;__;_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../index.php:226
+#: ../include/classes.php:2862
+msgid "Checkbox"
+msgstr ""
+
+#: ../index.php:227
+#: ../include/classes.php:2867
+msgid "Range"
+msgstr ""
+
+#: ../index.php:228
+msgid "Input field"
+msgstr ""
+
+#: ../index.php:229
+msgid "Textarea"
+msgstr ""
+
+#: ../index.php:230
+#: ../create/index.php:313
+#: ../create/index.php:539
+msgid "Text"
+msgstr ""
+
+#: ../index.php:231
+#: ../include/classes.php:3614
+msgid "Space"
+msgstr ""
+
+#: ../index.php:232
+#: ../include/classes.php:2872
+msgid "Datepicker"
+msgstr ""
+
+#: ../index.php:233
+#: ../include/classes.php:2877
+msgid "Radio button"
+msgstr ""
+
+#: ../index.php:234
+msgid "Referer URL"
+msgstr ""
+
+#: ../index.php:235
+msgid "Dropdown"
+msgstr ""
+
+#: ../index.php:236
+msgid "Multiple selection"
+msgstr ""
+
+#: ../index.php:237
+msgid "Hidden field"
+msgstr ""
+
+#: ../index.php:238
+msgid "Custom tag"
+msgstr ""
+
+#: ../index.php:239
+msgid "Custom tag (end)"
+msgstr ""
+
+#: ../index.php:240
+#: ../include/classes.php:2882
+msgid "File"
+msgstr ""
+
+#: ../index.php:251
+msgid "Number"
+msgstr ""
+
+#: ../index.php:252
+#: ../create/index.php:504
+msgid "E-mail"
+msgstr ""
+
+#: ../index.php:253
+msgid "Phone no"
+msgstr ""
+
+#: ../index.php:254
+msgid "Decimal number"
+msgstr ""
+
+#: ../index.php:255
+msgid "URL"
+msgstr ""
+
+#: ../index.php:260
+msgid "Zip code"
+msgstr ""
+
+#: ../index.php:261
+#: ../index.php:262
+msgid "Social security no"
+msgstr ""
+
+#: ../index.php:293
+msgid "aring"
+msgstr ""
+
+#: ../index.php:293
+msgid "auml"
+msgstr ""
+
+#: ../index.php:293
+msgid "ouml"
+msgstr ""
+
+#: ../index.php:293
+msgid "Aring"
+msgstr ""
+
+#: ../index.php:293
+msgid "Auml"
+msgstr ""
+
+#: ../index.php:293
+msgid "Ouml"
+msgstr ""
+
+#: ../answer/index.php:4
+#: ../create/index.php:7
+#: ../list/index.php:3
+msgid "Are you sure?"
+msgstr ""
+
+#: ../answer/index.php:16
+#: ../answer/index.php:37
+#: ../include/classes.php:2691
+#: ../include/functions.php:382
+msgid "Answers"
+msgstr ""
+
+#: ../answer/index.php:38
+#, php-format
+msgid "I could not find a form with the ID '%d'"
+msgstr ""
+
+#: ../create/index.php:47
+#: ../create/index.php:298
+#: ../create/index.php:322
+#: ../create/index.php:377
+#: ../create/index.php:549
+#: ../create/index.php:579
+#: ../include/classes.php:494
+#: ../include/classes.php:881
+#: ../include/classes.php:902
+#: ../include/functions.php:35
+msgid "Choose here"
+msgstr ""
+
+#: ../create/index.php:47
+msgid "No"
+msgstr ""
+
+#: ../create/index.php:47
+msgid "Yes"
+msgstr ""
+
+#: ../create/index.php:58
+#: ../create/index.php:123
+#: ../include/classes.php:1433
+msgid "Please, enter all required fields"
+msgstr ""
+
+#: ../create/index.php:86
+msgid "There is already a form with that name. Try with another one."
+msgstr ""
+
+#: ../create/index.php:161
+msgid "Couldn't update the field"
+msgstr ""
+
+#: ../create/index.php:190
+msgid "I could not insert the new field for you"
+msgstr ""
+
+#: ../create/index.php:268
+#: ../create/index.php:422
+#: ../include/classes.php:1598
+msgid "Update"
+msgstr ""
+
+#: ../create/index.php:268
+#: ../create/index.php:638
+#: ../include/functions.php:379
+#: ../list/index.php:12
+msgid "Add New"
+msgstr ""
+
+#: ../create/index.php:277
+#: ../include/classes.php:2690
+msgid "Content"
+msgstr ""
+
+#: ../create/index.php:291
+#: ../create/index.php:310
+#: ../create/index.php:339
+msgid "Type"
+msgstr ""
+
+#: ../create/index.php:329
+msgid "Validate as"
+msgstr ""
+
+#: ../create/index.php:332
+msgid "Placeholder Text"
+msgstr ""
+
+#: ../create/index.php:332
+msgid "Feel free to write anything you like here"
+msgstr ""
+
+#: ../create/index.php:341
+msgid "Min value"
+msgstr ""
+
+#: ../create/index.php:342
+msgid "Max value"
+msgstr ""
+
+#: ../create/index.php:343
+msgid "Default value"
+msgstr ""
+
+#: ../create/index.php:346
+msgid "Value"
+msgstr ""
+
+#: ../create/index.php:364
+msgid "Enter option here"
+msgstr ""
+
+#: ../create/index.php:374
+msgid "Advanced"
+msgstr ""
+
+#: ../create/index.php:387
+msgid "Custom HTML Tag"
+msgstr ""
+
+#: ../create/index.php:388
+msgid "Custom CSS class"
+msgstr ""
+
+#: ../create/index.php:389
+msgid "Fetch From ID"
+msgstr ""
+
+#: ../create/index.php:410
+msgid "If this equals..."
+msgstr ""
+
+#: ../create/index.php:411
+msgid "...show this..."
+msgstr ""
+
+#: ../create/index.php:422
+#: ../create/index.php:641
+msgid "Add"
+msgstr ""
+
+#: ../create/index.php:427
+msgid "Cancel"
+msgstr ""
+
+#: ../create/index.php:442
+msgid "Overview"
+msgstr ""
+
+#: ../create/index.php:453
+#: ../create/index.php:467
+msgid "Publish"
+msgstr ""
+
+#: ../create/index.php:455
+#: ../create/index.php:640
+#: ../include/classes.php:2689
+msgid "Name"
+msgstr ""
+
+#: ../create/index.php:456
+msgid "Permalink"
+msgstr ""
+
+#: ../create/index.php:462
+msgid "Deadline"
+msgstr ""
+
+#: ../create/index.php:467
+msgid "Save"
+msgstr "Spare"
+
+#: ../create/index.php:470
+msgid "Save Draft"
+msgstr ""
+
+#: ../create/index.php:478
+#: ../include/classes.php:2758
+msgid "View form"
+msgstr ""
+
+#: ../create/index.php:487
+msgid "Settings"
+msgstr ""
+
+#: ../create/index.php:497
+msgid "Confirmation page"
+msgstr ""
+
+#: ../create/index.php:501
+msgid "Show Answers"
+msgstr ""
+
+#: ../create/index.php:505
+msgid "Send from/to"
+msgstr ""
+
+#: ../create/index.php:509
+msgid "Subject"
+msgstr ""
+
+#: ../create/index.php:514
+msgid "Notification on new answer"
+msgstr ""
+
+#: ../create/index.php:522
+msgid "Notification template"
+msgstr ""
+
+#: ../create/index.php:523
+msgid "E-mail to visitor"
+msgstr ""
+
+#: ../create/index.php:527
+msgid "Send confirmation to questionnaire"
+msgstr ""
+
+#: ../create/index.php:528
+msgid "Confirmation template"
+msgstr ""
+
+#: ../create/index.php:536
+msgid "Button"
+msgstr ""
+
+#: ../create/index.php:538
+msgid "Symbol"
+msgstr ""
+
+#: ../create/index.php:539
+#: ../include/classes.php:1492
+msgid "Submit"
+msgstr ""
+
+#: ../create/index.php:544
+#: ../include/classes.php:3025
+msgid "Payment"
+msgstr ""
+
+#: ../create/index.php:550
+msgid "DIBS"
+msgstr ""
+
+#: ../create/index.php:551
+msgid "Paypal"
+msgstr ""
+
+#: ../create/index.php:552
+msgid "Skrill"
+msgstr ""
+
+#: ../create/index.php:554
+#: ../include/classes.php:2834
+msgid "Provider"
+msgstr ""
+
+#: ../create/index.php:558
+msgid "Merchant ID"
+msgstr ""
+
+#: ../create/index.php:559
+msgid "HMAC key"
+msgstr ""
+
+#: ../create/index.php:564
+msgid "Username"
+msgstr ""
+
+#: ../create/index.php:565
+msgid "Password"
+msgstr ""
+
+#: ../create/index.php:566
+msgid "Signature"
+msgstr ""
+
+#: ../create/index.php:571
+msgid "Merchant E-mail"
+msgstr ""
+
+#: ../create/index.php:572
+msgid "Secret word"
+msgstr ""
+
+#: ../create/index.php:584
+#: ../create/index.php:601
+msgid "Danish Krone"
+msgstr ""
+
+#: ../create/index.php:585
+#: ../create/index.php:602
+msgid "Euro"
+msgstr ""
+
+#: ../create/index.php:586
+#: ../create/index.php:603
+msgid "US Dollar"
+msgstr ""
+
+#: ../create/index.php:587
+#: ../create/index.php:604
+msgid "English Pound"
+msgstr ""
+
+#: ../create/index.php:588
+#: ../create/index.php:605
+msgid "Swedish Krona"
+msgstr ""
+
+#: ../create/index.php:589
+#: ../create/index.php:606
+msgid "Australian Dollar"
+msgstr ""
+
+#: ../create/index.php:590
+#: ../create/index.php:607
+msgid "Canadian Dollar"
+msgstr ""
+
+#: ../create/index.php:591
+#: ../create/index.php:608
+msgid "Icelandic Krona"
+msgstr ""
+
+#: ../create/index.php:592
+#: ../create/index.php:609
+msgid "Japanese Yen"
+msgstr ""
+
+#: ../create/index.php:593
+#: ../create/index.php:610
+msgid "New Zealand Dollar"
+msgstr ""
+
+#: ../create/index.php:594
+#: ../create/index.php:611
+msgid "Norwegian Krone"
+msgstr ""
+
+#: ../create/index.php:595
+#: ../create/index.php:612
+msgid "Swiss Franc"
+msgstr ""
+
+#: ../create/index.php:596
+#: ../create/index.php:613
+msgid "Turkish Lira"
+msgstr ""
+
+#: ../create/index.php:619
+msgid "Currency"
+msgstr ""
+
+#: ../create/index.php:624
+msgid "Field for payment cost"
+msgstr ""
+
+#: ../include/classes.php:121
+msgid "copy"
+msgstr ""
+
+#: ../include/classes.php:151
+msgid "Something went wrong. Contact your admin and add this URL as reference"
+msgstr ""
+
+#: ../include/classes.php:156
+msgid "Wow! The form was copied successfully!"
+msgstr ""
+
+#: ../include/classes.php:206
+msgid "I have marked the email as spam for you"
+msgstr ""
+
+#: ../include/classes.php:213
+msgid "I have approved the answer for you"
+msgstr ""
+
+#: ../include/classes.php:358
+msgid "I have resent the messages for you"
+msgstr ""
+
+#: ../include/classes.php:987
+msgid "The message has been sent!"
+msgstr ""
+
+#: ../include/classes.php:995
+msgid "I am sorry, but I could not send the message that was requested"
+msgstr ""
+
+#: ../include/classes.php:1003
+#, php-format
+msgid "There was no content to send. You have to enter text into the field 'Text to send as positive response' in %sMy Settings%s"
+msgstr ""
+
+#: ../include/classes.php:1008
+#, php-format
+msgid "There was no content to send. You have to enter text into the field 'Text to send as negative response' in %sMy Settings%s"
+msgstr ""
+
+#: ../include/classes.php:1015
+msgid "Oops! You don't seam to have the correct link or it has expired"
+msgstr ""
+
+#: ../include/classes.php:1343
+msgid "You have to submit a file"
+msgstr ""
+
+#: ../include/classes.php:1351
+msgid "The file was not uploaded"
+msgstr ""
+
+#: ../include/classes.php:1458
+msgid "Sent to processing"
+msgstr ""
+
+#: ../include/classes.php:1549
+msgid "Thank you!"
+msgstr ""
+
+#: ../include/classes.php:1557
+msgid "This form is not open for submissions anymore"
+msgstr ""
+
+#: ../include/classes.php:1615
+msgid "Clear"
+msgstr ""
+
+#: ../include/classes.php:1619
+msgid "Perform test payment"
+msgstr ""
+
+#: ../include/classes.php:2014
+msgid "See DIBS test info"
+msgstr ""
+
+#: ../include/classes.php:2015
+#: ../include/classes.php:2131
+msgid "Send in test mode (No money will be charged)"
+msgstr ""
+
+#: ../include/classes.php:2023
+msgid "Sent to payment"
+msgstr ""
+
+#: ../include/classes.php:2148
+msgid "User canceled"
+msgstr ""
+
+#: ../include/classes.php:2159
+msgid "User has paid. Waiting for confirmation..."
+msgstr ""
+
+#: ../include/classes.php:2185
+msgid "User has paid & has been sent to confirmation page. Waiting for confirmation..."
+msgstr ""
+
+#: ../include/classes.php:2266
+msgid "Processing..."
+msgstr ""
+
+#: ../include/classes.php:2335
+#: ../include/classes.php:2340
+#: ../include/classes.php:2420
+#: ../include/classes.php:2425
+#: ../include/classes.php:2437
+msgid "Payment done"
+msgstr ""
+
+#: ../include/classes.php:2340
+#: ../include/classes.php:2425
+#: ../include/classes.php:2437
+#: ../include/classes.php:2497
+msgid "But could not verify"
+msgstr ""
+
+#: ../include/classes.php:2484
+msgid "Failed"
+msgstr ""
+
+#: ../include/classes.php:2485
+msgid "Processed"
+msgstr ""
+
+#: ../include/classes.php:2486
+msgid "Pending"
+msgstr ""
+
+#: ../include/classes.php:2487
+msgid "Cancelled"
+msgstr ""
+
+#: ../include/classes.php:2550
+#: ../include/classes.php:3028
+msgid "Created"
+msgstr ""
+
+#: ../include/classes.php:2680
+#: ../include/classes.php:2967
+msgid "All"
+msgstr "Alle"
+
+#: ../include/classes.php:2681
+#: ../include/classes.php:2782
+msgid "Public"
+msgstr ""
+
+#: ../include/classes.php:2682
+msgid "Draft"
+msgstr ""
+
+#: ../include/classes.php:2683
+msgid "Trash"
+msgstr ""
+
+#: ../include/classes.php:2692
+msgid "Latest Answer"
+msgstr ""
+
+#: ../include/classes.php:2693
+msgid "Modified"
+msgstr ""
+
+#: ../include/classes.php:2727
+#: ../include/classes.php:3255
+#: ../include/classes.php:3729
+#: ../view/index.php:8
+msgid "Edit"
+msgstr "Redigera"
+
+#: ../include/classes.php:2728
+#: ../include/classes.php:3256
+#: ../include/classes.php:3730
+msgid "Delete"
+msgstr ""
+
+#: ../include/classes.php:2731
+#: ../include/classes.php:3730
+msgid "Copy"
+msgstr ""
+
+#: ../include/classes.php:2745
+msgid "Edit Page"
+msgstr ""
+
+#: ../include/classes.php:2746
+msgid "View page"
+msgstr ""
+
+#: ../include/classes.php:2762
+msgid "Add New Post"
+msgstr ""
+
+#: ../include/classes.php:2763
+msgid "Add New Page"
+msgstr ""
+
+#: ../include/classes.php:2770
+msgid "Recover"
+msgstr ""
+
+#: ../include/classes.php:2799
+#, php-format
+msgid "A notification email based on a template will be sent to %s"
+msgstr ""
+
+#: ../include/classes.php:2804
+#, php-format
+msgid "E-mails will be sent to %s on every answer"
+msgstr ""
+
+#: ../include/classes.php:2812
+msgid "A confirmation email based on a template will be sent to the visitor"
+msgstr ""
+
+#: ../include/classes.php:2817
+msgid "A confirmation email will be sent to the visitor"
+msgstr ""
+
+#: ../include/classes.php:2840
+msgid "There are required fields"
+msgstr ""
+
+#: ../include/classes.php:2845
+msgid "There are autofocus fields"
+msgstr ""
+
+#: ../include/classes.php:2850
+msgid "There are remembered fields"
+msgstr ""
+
+#: ../include/classes.php:2857
+msgid "There is a field for entering email adress"
+msgstr ""
+
+#: ../include/classes.php:2901
+msgid "Show"
+msgstr ""
+
+#: ../include/classes.php:2903
+msgid "CSV"
+msgstr ""
+
+#: ../include/classes.php:2907
+msgid "XLS"
+msgstr ""
+
+#: ../include/classes.php:2968
+#: ../include/classes.php:2978
+msgid "Spam"
+msgstr ""
+
+#: ../include/classes.php:3029
+msgid "Sent"
+msgstr ""
+
+#: ../include/classes.php:3055
+msgid "Approve"
+msgstr ""
+
+#: ../include/classes.php:3077
+msgid "ID"
+msgstr ""
+
+#: ../include/classes.php:3078
+msgid "IP"
+msgstr ""
+
+#: ../include/classes.php:3082
+msgid "Token"
+msgstr ""
+
+#: ../include/classes.php:3091
+msgid "Sent to"
+msgstr ""
+
+#: ../include/classes.php:3149
+msgid "Resend"
+msgstr ""
+
+#: ../include/classes.php:3235
+msgid "Mark as Spam"
+msgstr ""
+
+#: ../include/classes.php:3606
+msgid "Only in e-mail"
+msgstr ""
+
+#: ../include/classes.php:3623
+#: ../include/classes.php:3638
+msgid "Hidden"
+msgstr ""
+
+#: ../include/classes.php:3692
+msgid "There was no code for this type"
+msgstr ""
+
+#: ../include/classes.php:3716
+msgid "Required"
+msgstr ""
+
+#: ../include/classes.php:3721
+msgid "Autofocus"
+msgstr ""
+
+#: ../include/classes.php:3726
+msgid "Remember answer"
+msgstr ""
+
+#: ../include/classes.php:3752
+msgid "Display a form that you've previously created"
+msgstr ""
+
+#: ../include/classes.php:3757
+#: ../include/functions.php:62
+msgid "Form"
+msgstr ""
+
+#: ../include/classes.php:3808
+msgid "Heading"
+msgstr ""
+
+#: ../include/functions.php:32
+msgid "Choose a Form"
+msgstr ""
+
+#: ../include/functions.php:61
+#: ../include/functions.php:63
+#: ../include/functions.php:222
+#: ../include/functions.php:374
+#: ../list/index.php:11
+msgid "Forms"
+msgstr ""
+
+#: ../include/functions.php:168
+msgid "Click here to send e-mail"
+msgstr "Klik her for at sende e-mail"
+
+#: ../include/functions.php:195
+msgid "Redirect all e-mails"
+msgstr ""
+
+#: ../include/functions.php:196
+msgid "Redirect test e-mails"
+msgstr ""
+
+#: ../include/functions.php:201
+msgid "Role to see all"
+msgstr ""
+
+#: ../include/functions.php:204
+msgid "Form to replace all e-mail links"
+msgstr ""
+
+#: ../include/functions.php:210
+msgid "Text to send as positive response"
+msgstr ""
+
+#: ../include/functions.php:211
+msgid "Text to send as negative response"
+msgstr ""
+
+#: ../include/functions.php:212
+msgid "Thank you message after sending response"
+msgstr ""
+
+#: ../include/functions.php:230
+msgid "When a visitor sends an e-mail through the site it is redirected to the admins address"
+msgstr ""
+
+#: ../include/functions.php:238
+msgid "When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address"
+msgstr ""
+
+#: ../include/functions.php:269
+msgid "If you would like all e-mail links in text to be replaced by a form, choose one here"
+msgstr ""
+
+#: ../include/functions.php:353
+msgid "Unread answers"
+msgstr ""
+
+#: ../include/functions.php:385
+msgid "Edit Answer"
+msgstr ""
+
+#: ../include/functions.php:479
+msgid "Redirect Test"
+msgstr ""
+
+#: ../include/functions.php:493
+msgid "Redirect All"
+msgstr ""
+
