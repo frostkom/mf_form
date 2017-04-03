@@ -3713,17 +3713,17 @@ class mf_form_output
 
 						if($this->show_required == true)
 						{
-							$out .= show_checkbox(array('name' => "require_".$this->row->query2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$this->row->query2TypeID."'"));
+							$out .= show_checkbox(array('name' => "require_".$this->row->query2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->query2TypeID."'"));
 						}
 
 						if($this->show_autofocus == true)
 						{
-							$out .= show_checkbox(array('name' => "autofocus_".$this->row->query2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeAutofocus, 'xtra' => " class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->query2TypeID."'"));
+							$out .= show_checkbox(array('name' => "autofocus_".$this->row->query2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->query2TypeID."'"));
 						}
 
 						if($this->show_remember == true)
 						{
-							$out .= show_checkbox(array('name' => "remember_".$this->row->query2TypeID, 'text' => __("Remember answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRemember, 'xtra' => " class='ajax_checkbox remember' rel='remember/type/".$this->row->query2TypeID."'"));
+							$out .= show_checkbox(array('name' => "remember_".$this->row->query2TypeID, 'text' => __("Remember answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->query2TypeID."'"));
 						}
 
 						$out .= "<a href='?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->query2TypeID."'>".__("Edit", 'lang_form')."</a> | 

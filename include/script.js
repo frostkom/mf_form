@@ -198,19 +198,48 @@ jQuery(function($)
 		}
     };
 
-	$(document).on('click', '.form_link', function()
+	$(document).on('click', '.form_link', function(event)
 	{
-		var selector = $(this).nextElementInDom('.form_inline'),
-			is_visible = selector.is(':visible');
+		var dom_obj_link = $(this),
+			dom_obj_inline = dom_obj_link.nextElementInDom('.form_inline');
+
+		/*var is_visible = dom_obj_inline.is(':visible');
 
 		$('.form_inline').addClass('hide');
 
 		if(is_visible == false)
 		{
-			selector.removeClass('hide');
+			dom_obj_inline.removeClass('hide');
+		}*/
+
+		var dom_overlay = $('#overlay_form > div');
+
+		if(dom_overlay.length == 0)
+		{
+			$('#wrapper').append("<div id='overlay_form'><div></div></div>");
+
+			dom_overlay = $('#overlay_form > div');
+		}
+
+		if(dom_overlay.children().length > 0)
+		{
+			dom_overlay.html('').parent('#overlay_form').fadeOut();
+		}
+
+		else
+		{
+			dom_overlay.html(dom_obj_inline.html()).parent('#overlay_form').fadeIn();
 		}
 
 		return false;
+	});
+
+	$(document).on('click', '#overlay_form', function(e)
+	{
+		if(e.target == e.currentTarget)
+		{
+			$(this).fadeOut().children('div').html('');
+		}
 	});
 
 	$(document).on('change', '.mf_form input[type=range]', function()

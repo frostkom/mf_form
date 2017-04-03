@@ -39,7 +39,7 @@ function get_shortcode_output_form($out)
 			$arr_data[$obj_form->get_form_id($template->ID)] = $template->post_title;
 		}
 
-		$out .= show_select(array('data' => $arr_data, 'xtra' => " rel='mf_form'"));
+		$out .= show_select(array('data' => $arr_data, 'xtra' => "rel='mf_form'"));
 	}
 
 	return $out;
@@ -77,6 +77,8 @@ function init_form()
 
 	if(get_option('setting_replacement_form') > 0)
 	{
+		wp_enqueue_style('style_forms', plugin_dir_url(__FILE__)."style.css");
+
 		add_filter('the_content', 'the_content_form');
 	}
 }
@@ -160,12 +162,14 @@ function get_form_url($form_id)
 
 function preg_email_concat($matches)
 {
-	$replacement_form = get_option('setting_replacement_form');
+	$setting_replacement_form = get_option('setting_replacement_form');
+	$setting_replacement_form_text = get_option_or_default('setting_replacement_form_text', __("Click here to send e-mail", 'lang_form'));
+
 	$email = $matches[1];
 
-	$obj_form = new mf_form($replacement_form);
+	$obj_form = new mf_form($setting_replacement_form);
 
-	$out = "<a href='#' class='form_link'>".__("Click here to send e-mail", 'lang_form')."</a>
+	$out = "<a href='#' class='form_link'>".$setting_replacement_form_text."</a>
 	<div class='form_inline hide'>"
 		.$obj_form->process_form(array('send_to' => $email))
 	."</div>";
@@ -202,6 +206,11 @@ function settings_form()
 	//}
 
 	$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
+
+	if(get_option('setting_replacement_form') > 0)
+	{
+		$arr_settings['setting_replacement_form_text'] = __("Text to replace all e-mail links", 'lang_form');
+	}
 
 	$obj_form = new mf_form();
 
@@ -267,6 +276,14 @@ function setting_replacement_form_callback()
 	$arr_data = $obj_form->get_form_array(false);
 
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+}
+
+function setting_replacement_form_text_callback()
+{
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key);
+
+	echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Click here to send e-mail", 'lang_form'), 'xtra' => "class='widefat'"));
 }
 
 function setting_link_yes_text_callback()
