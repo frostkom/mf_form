@@ -17,12 +17,12 @@ function count_shortcode_button_form($count)
 
 function get_shortcode_output_form($out)
 {
-	$templates = get_posts(array( 
-		'post_type' 		=> 'mf_form', 
-		'posts_per_page'	=> -1,
-		'post_status' 		=> 'publish',
-		'order'				=> 'ASC',
-		'orderby'			=> 'title'
+	$templates = get_posts(array(
+		'post_type' => 'mf_form',
+		'posts_per_page' => -1,
+		'post_status' => 'publish',
+		'order' => 'ASC',
+		'orderby' => 'title'
 	));
 
 	if(count($templates) > 0)
@@ -488,7 +488,7 @@ function phpmailer_init_form($phpmailer)
 		$mail_to = $phpmailer->getToAddresses();
 		$mail_to_old = $mail_to[0][0];
 		$mail_to_new = $user_data->user_email;
-		
+
 		$reject_subject_start = "[".get_bloginfo('name')."] ";
 
 		if($mail_to_new != $mail_to_old && $phpmailer->FromName != "WordPress" && substr($phpmailer->Subject, 0, strlen($reject_subject_start)) != $reject_subject_start)

@@ -212,7 +212,7 @@ class mf_form
 
 			$done_text = __("I have approved the answer for you", 'lang_form');
 		}
-		
+
 		else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'message_resend_'.$this->answer_id))
 		{
 			$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
@@ -334,11 +334,11 @@ class mf_form
 						break;
 
 						case 'notify':
-							
+
 						break;
 
 						case 'confirm':
-							
+
 						break;
 
 						case 'product':
@@ -1683,7 +1683,7 @@ class mf_form
 	function get_pie_chart()
 	{
 		global $wpdb;
-		
+
 		$out = "";
 
 		if(!isset($_GET['answerSpam']) || $_GET['answerSpam'] == 0)
@@ -2393,7 +2393,7 @@ if(!class_exists('mf_form_payment'))
 				$httpParsedResponseAr = $this->PPHttpPost('DoExpressCheckoutPayment', $padata, $this->merchant, $this->password, $this->hmac); //, $PayPalMode
 
 				//Check if everything went ok..
-				if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"])) 
+				if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
 				{
 					$this->confirm_accept();
 
@@ -2415,7 +2415,7 @@ if(!class_exists('mf_form_payment'))
 
 					$httpParsedResponseAr = $this->PPHttpPost('GetExpressCheckoutDetails', $padata, $this->merchant, $this->password, $this->hmac); //, $PayPalMode
 
-					if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"])) 
+					if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
 					{
 						$this->confirm_paid(__("Payment done", 'lang_base')." (".$this->amount.")");
 					}
@@ -2851,7 +2851,7 @@ class mf_form_table extends mf_list_table
 				}
 
 				$out .= "<br>";
-				
+
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
 				{
 					$out .= "<i class='fa fa-lg fa-at grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
@@ -2898,7 +2898,7 @@ class mf_form_table extends mf_list_table
 
 						$actions = array();
 
-						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intFormID=".$obj_form->id."'>".__("Show", 'lang_form')."</a>"; 
+						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intFormID=".$obj_form->id."'>".__("Show", 'lang_form')."</a>";
 
 						$actions['export_csv'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportAction=csv", 'export_run')."'>".__("CSV", 'lang_form')."</a>";
 

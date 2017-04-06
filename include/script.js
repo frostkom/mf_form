@@ -174,7 +174,7 @@ jQuery(function($)
 
 	if(typeof collect_on_load == 'function')
 	{
-		collect_on_load('on_load_form'); 
+		collect_on_load('on_load_form');
 	}
 
 	$.fn.nextElementInDom = function(selector, options)

@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 9.8.5
+Version: 9.8.6
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -254,7 +254,7 @@ function activate_form()
 		7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
 		8 => array('name' => __("URL", 'lang_form'),				'code' => 'url',		'pattern' => ''),
 	);
-	
+
 	if(get_bloginfo('language') == "sv-SE")
 	{
 		$arr_query_check[2] = array('name' => __("Zip code", 'lang_form'),								'code' => 'zip',	'pattern' => '[0-9]{5}');

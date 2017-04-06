@@ -28,7 +28,7 @@ jQuery(function($)
 				$('.show_textarea').removeClass('hide');
 			}
 
-			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 12) //range, input_field, textarea, datepicker, select, hidden_field, 
+			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 12) //range, input_field, textarea, datepicker, select, hidden_field,
 			{
 				$('.show_fetch_from').removeClass('hide');
 				$('.toggler').removeClass('hide').next().addClass('hide');
