@@ -1148,12 +1148,29 @@ class mf_form
 			$this->send_transactional_email($mail_data);
 		}
 
-		if($this->email_notify == 1) // && $this->email_admin != ''
+		if($this->email_notify == 1)
 		{
 			$mail_data = array(
 				'type' => 'notify',
-				'to' => ($this->email_admin != '' ? $this->email_admin : get_bloginfo('admin_email')),
 			);
+
+			if($this->email_admin != '')
+			{
+				if(strpos($this->email_admin, "<"))
+				{
+					$mail_data['to'] = get_match("/\<(.*)\>/", $this->email_admin);
+				}
+
+				else
+				{
+					$mail_data['to'] = $this->email_admin;
+				}
+			}
+
+			else
+			{
+				$mail_data['to'] = get_bloginfo('admin_email');
+			}
 
 			if($this->email_visitor != '')
 			{
@@ -1177,7 +1194,15 @@ class mf_form
 
 			if($this->email_admin != '')
 			{
-				$mail_data['headers'] = "From: ".$this->email_admin." <".$this->email_admin.">\r\n";
+				if(strpos($this->email_admin, "<"))
+				{
+					$mail_data['headers'] = "From: ".$this->email_admin."\r\n";
+				}
+
+				else
+				{
+					$mail_data['headers'] = "From: ".$this->email_admin." <".$this->email_admin.">\r\n";
+				}
 			}
 
 			$page_content_data['mail_to'] = $mail_data['to'];

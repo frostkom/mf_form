@@ -177,42 +177,11 @@ jQuery(function($)
 		collect_on_load('on_load_form');
 	}
 
-	$.fn.nextElementInDom = function(selector, options)
-	{
-		var defaults = { stopAt : 'body' };
-		options = $.extend(defaults, options);
-
-		var parent = $(this).parent(),
-			found = parent.next(selector); //find -> next
-
-		switch(true)
-		{
-			case (found.length > 0):
-			return found;
-
-			case (parent.length === 0 || parent.is(options.stopAt)):
-			return $([]);
-
-			default:
-			return parent.nextElementInDom(selector);
-		}
-    };
-
 	$(document).on('click', '.form_link', function(event)
 	{
 		var dom_obj_link = $(this),
-			dom_obj_inline = dom_obj_link.nextElementInDom('.form_inline');
-
-		/*var is_visible = dom_obj_inline.is(':visible');
-
-		$('.form_inline').addClass('hide');
-
-		if(is_visible == false)
-		{
-			dom_obj_inline.removeClass('hide');
-		}*/
-
-		var dom_overlay = $('#overlay_form > div');
+			dom_obj_inline = dom_obj_link.nextElementInDom('.form_inline'),
+			dom_overlay = $('#overlay_form > div');
 
 		if(dom_overlay.length == 0)
 		{
