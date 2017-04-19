@@ -55,7 +55,7 @@ function deleted_user_form($user_id)
 
 function init_form()
 {
-	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__)));
+	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__)), get_plugin_version(__FILE__));
 
 	$labels = array(
 		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
@@ -77,7 +77,7 @@ function init_form()
 
 	if(get_option('setting_replacement_form') > 0)
 	{
-		wp_enqueue_style('style_forms', plugin_dir_url(__FILE__)."style.css");
+		mf_enqueue_style('style_forms', plugin_dir_url(__FILE__)."style.css", get_plugin_version(__FILE__));
 
 		add_filter('the_content', 'the_content_form');
 	}

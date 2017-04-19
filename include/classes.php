@@ -1721,8 +1721,8 @@ class mf_form
 
 				if($rowsPie > 0)
 				{
-					mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js");
-					mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js");
+					mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js", '0.7');
+					mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js", '1.1');
 
 					$js_out = $order_temp = "";
 					$data = array();
