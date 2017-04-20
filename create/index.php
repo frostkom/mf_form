@@ -371,7 +371,7 @@ echo "<div class='wrap'>
 
 									//Advanced
 									#################
-									echo get_toggler_container(array('type' => 'start', 'text' => __("Advanced", 'lang_form')));
+									echo get_toggler_container(array('type' => 'start', 'text' => __("Advanced", 'lang_form'), 'rel' => $obj_form->id));
 
 										$arr_data = array(
 											'' => "-- ".__("Choose here", 'lang_form')." --",
