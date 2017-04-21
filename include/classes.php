@@ -3829,11 +3829,9 @@ class widget_form extends WP_Widget
 		$obj_form = new mf_form();
 		$arr_data = $obj_form->get_form_array(false);
 
-		echo "<p>"
-			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => "class='widefat'"))
-		."</p>
-		<p>"
+		echo "<div class='mf_form'>"
+			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading']))
 			.show_select(array('data' => $arr_data, 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
-		."</p>";
+		."</div>";
 	}
 }
