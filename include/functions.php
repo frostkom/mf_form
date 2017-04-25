@@ -45,6 +45,25 @@ function get_shortcode_output_form($out)
 	return $out;
 }
 
+function get_shortcode_list_form($data)
+{
+	$post_id = $data[0];
+	$content_list = $data[1];
+
+	if($post_id > 0)
+	{
+		$obj_form = new mf_form();
+		$obj_form->get_form_id_from_post_content($post_id);
+
+		if($obj_form->id > 0)
+		{
+			$content_list .= "<li><a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."'>".$obj_form->get_form_name()." -> [mf_form id=".$obj_form->id."]</a></li>";
+		}
+	}
+
+	return array($post_id, $content_list);
+}
+
 function deleted_user_form($user_id)
 {
 	global $wpdb;
