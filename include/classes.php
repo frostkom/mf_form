@@ -3111,9 +3111,12 @@ class mf_answer_table extends mf_list_table
 				{
 					$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
 
+					$strSentTo = trim(trim($strSentTo), ', ');
+					$strSentTo = str_replace(", ", "<br>", $strSentTo);
+
 					if($strSentTo != '' && strlen($strSentTo) > 4)
 					{
-						$actions['sent_to'] = __("Sent to", 'lang_form').": ".$strSentTo;
+						$actions['sent_to'] = "<br><strong>".__("Sent to", 'lang_form')."</strong><br>".$strSentTo;
 					}
 				}
 
@@ -3122,7 +3125,7 @@ class mf_answer_table extends mf_list_table
 			break;
 
 			case 'sent':
-				$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent, answerType FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d'", $intAnswerID));
+				$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent, answerType FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
 				$count_temp = $wpdb->num_rows;
 
 				if($count_temp > 0)

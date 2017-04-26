@@ -218,18 +218,28 @@ jQuery(function($)
 
 		else
 		{
-			dom_overlay.html(dom_obj_inline.html()).parent('#overlay_form').fadeIn();
+			dom_overlay.html("<i class='fa fa-2x fa-close'></i>" + dom_obj_inline.html()).parent('#overlay_form').fadeIn();
 		}
 
 		return false;
 	});
 
+	function hide_form_overlay()
+	{
+		$('#overlay_form').fadeOut().children('div').html('');
+	}
+
 	$(document).on('click', '#overlay_form', function(e)
 	{
 		if(e.target == e.currentTarget)
 		{
-			$(this).fadeOut().children('div').html('');
+			hide_form_overlay();
 		}
+	});
+
+	$(document).on('click', '#overlay_form .fa-close', function(e)
+	{
+		hide_form_overlay();
 	});
 
 	$(document).on('change', '.mf_form input[type=range]', function()

@@ -57,7 +57,7 @@ function get_shortcode_list_form($data)
 
 		if($obj_form->id > 0)
 		{
-			$content_list .= "<li><a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."'>".$obj_form->get_form_name()." -> [mf_form id=".$obj_form->id."]</a></li>";
+			$content_list .= "<li><a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."'>".$obj_form->get_form_name()."</a> <span class='grey'>[mf_form id=".$obj_form->id."]</span></li>";
 		}
 	}
 
