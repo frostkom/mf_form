@@ -106,7 +106,7 @@ class mf_form
 
 			if($rows > 0)
 			{
-				$copy_fields = ", blogID, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount"; //, queryEmailCheckConfirm
+				$copy_fields = ", blogID, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount";
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -1199,6 +1199,15 @@ class mf_form
 					$mail_data['headers'] = "From: ".$this->email_admin."\r\n";
 				}
 
+				else if(strpos($this->email_admin, ","))
+				{
+					$arr_email_admin = explode(",", $this->email_admin);
+
+					$email_admin = trim($arr_email_admin[0]);
+
+					$mail_data['headers'] = "From: ".$email_admin." <".$email_admin.">\r\n";
+				}
+
 				else
 				{
 					$mail_data['headers'] = "From: ".$this->email_admin." <".$this->email_admin.">\r\n";
@@ -1508,7 +1517,7 @@ class mf_form
 
 		$obj_font_icons = new mf_font_icons();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id)); //, queryEmailCheckConfirm
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
@@ -1517,7 +1526,6 @@ class mf_form
 			$strFormButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_form');
 			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
 			$intFormPaymentProvider = $r->queryPaymentProvider;
-			//$strFormEmailCheckConfirm = $r->queryEmailCheckConfirm;
 
 			$strFormPrefix = $this->get_post_info()."_";
 
@@ -1602,13 +1610,11 @@ class mf_form
 
 						$intFormTypeID2_temp = $intForm2TypeID2_temp = "";
 
-						//$has_required_email = false;
-
 						foreach($result as $r)
 						{
 							$r->queryTypeText = stripslashes($r->queryTypeText);
 
-							$obj_form_output = new mf_form_output(array('id' => $this->id, 'result' => $r, 'in_edit_mode' => $this->edit_mode, 'query_prefix' => $strFormPrefix)); //, 'email_check_confirm' => $strFormEmailCheckConfirm
+							$obj_form_output = new mf_form_output(array('id' => $this->id, 'result' => $r, 'in_edit_mode' => $this->edit_mode, 'query_prefix' => $strFormPrefix));
 
 							$obj_form_output->calculate_value($this->answer_id);
 							$obj_form_output->get_form_fields();
@@ -1629,14 +1635,8 @@ class mf_form
 						{
 							$out .= apply_filters('filter_form_after_fields', '')
 							."<div class='form_button_container'>
-								<div class='form_button'>";
-
-									/*if($has_required_email)
-									{
-										$out .= "<div class='updated hide'><p>".__("Does the e-mail address look right?", 'lang_form')." ".$strFormButtonText." ".__("or", 'lang_form')." <a href='#' class='show_none_email'>".__("Change", 'lang_form')."</a></p></div>";
-									}*/
-
-									$out .= show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText)) //, 'class' => ($has_required_email ? "has_required_email" : "")
+								<div class='form_button'>"
+									.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
 									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
 									if($intFormPaymentProvider > 0 && is_user_logged_in() && IS_ADMIN)
@@ -3304,11 +3304,10 @@ class mf_form_output
 
 		$this->row = $data['result'];
 		$this->query_prefix = $data['query_prefix'];
-		//$this->queryEmailCheckConfirm = isset($data['email_check_confirm']) ? $data['email_check_confirm'] : 'no';
 
 		$this->output = "";
 
-		$this->show_required = $this->show_autofocus = $this->show_remember = false; //$this->has_required_email = 
+		$this->show_required = $this->show_autofocus = $this->show_remember = false;
 
 		$this->answer_text = "";
 
@@ -3318,13 +3317,6 @@ class mf_form_output
 	function calculate_value($intAnswerID)
 	{
 		global $wpdb, $has_required_email;
-
-		/*$this->is_required_email = $this->row->queryTypeID == 3 && $this->row->checkCode == 'email' && $this->row->queryTypeRequired == 1;
-
-		if($this->queryEmailCheckConfirm == 'yes' && $this->is_required_email)
-		{
-			$has_required_email = true;
-		}*/
 
 		if($intAnswerID > 0)
 		{
@@ -3378,7 +3370,7 @@ class mf_form_output
 		$class_output = $this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "";
 		$class_output_small = ($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "");
 
-		switch($this->row->queryTypeCode) //$this->row->queryTypeID
+		switch($this->row->queryTypeCode)
 		{
 			//case 1:
 			case 'checkbox':
@@ -3491,7 +3483,7 @@ class mf_form_output
 
 			//case 10:
 			case 'select':
-				if($this->row->queryTypeActionShow > 0) //$this->row->queryTypeActionEquals != '' && 
+				if($this->row->queryTypeActionShow > 0)
 				{
 					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."form_action";
 					$field_data['xtra'] = "data-equals='".$this->row->queryTypeActionEquals."' data-show='".$this->query_prefix.$this->row->queryTypeActionShow."'";
@@ -3564,11 +3556,6 @@ class mf_form_output
 				{
 					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."form_zipcode";
 				}
-
-				/*if($has_required_email && $this->is_required_email)
-				{
-					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."this_is_required_email";
-				}*/
 
 				if($data['show_label'] == true)
 				{
@@ -3733,31 +3720,27 @@ class mf_form_output
 		if($this->in_edit_mode == true)
 		{
 			$out .= "<mf-form-row id='type_".$this->row->query2TypeID."' class='flex_flow".($data['query2type_id'] == $this->row->query2TypeID ? " active" : "")."'>"
-				.$this->output;
+				.$this->output
+				."<div class='row_settings'>";
 
-				/*if($this->row->queryTypeID != 14)
-				{*/
-					$out .= "<div class='row_settings'>";
+					if($this->show_required == true)
+					{
+						$out .= show_checkbox(array('name' => "require_".$this->row->query2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->query2TypeID."'"));
+					}
 
-						if($this->show_required == true)
-						{
-							$out .= show_checkbox(array('name' => "require_".$this->row->query2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->query2TypeID."'"));
-						}
+					if($this->show_autofocus == true)
+					{
+						$out .= show_checkbox(array('name' => "autofocus_".$this->row->query2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->query2TypeID."'"));
+					}
 
-						if($this->show_autofocus == true)
-						{
-							$out .= show_checkbox(array('name' => "autofocus_".$this->row->query2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->query2TypeID."'"));
-						}
+					if($this->show_remember == true)
+					{
+						$out .= show_checkbox(array('name' => "remember_".$this->row->query2TypeID, 'text' => __("Remember answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->query2TypeID."'"));
+					}
 
-						if($this->show_remember == true)
-						{
-							$out .= show_checkbox(array('name' => "remember_".$this->row->query2TypeID, 'text' => __("Remember answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->query2TypeID."'"));
-						}
-
-						$out .= "<a href='?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->query2TypeID."'>".__("Edit", 'lang_form')."</a> | 
-						<a href='#delete/type/".$this->row->query2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a> | <a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->query2TypeID."'>".__("Copy", 'lang_form')."</a>
-					</div>";
-				//}
+					$out .= "<a href='?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->query2TypeID."'>".__("Edit", 'lang_form')."</a> | 
+					<a href='#delete/type/".$this->row->query2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a> | <a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->query2TypeID."'>".__("Copy", 'lang_form')."</a>
+				</div>";
 
 			$out .= "</mf-form-row>";
 		}
