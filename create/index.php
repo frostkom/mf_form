@@ -506,12 +506,12 @@ echo "<div class='wrap'>
 								}
 
 								echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Notification on new answer", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailNotify))
-								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Notification template", 'lang_form'), 'class' => "query_email_notify_page".($intFormEmailNotify == 1 ? " " : " hide")))
-								."<h4>".__("E-mail to visitor", 'lang_form')."</h4>";
+								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Notification template", 'lang_form'), 'class' => "query_email_notify_page".($intFormEmailNotify == 1 ? "" : " hide")));
 
 								if($obj_form->has_email_field() > 0)
 								{
-									echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailConfirm))
+									echo "<h4>".__("E-mail to visitor", 'lang_form')."</h4>"
+									.show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailConfirm))
 									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form'), 'class' => "query_email_confirm_page".($intFormEmailConfirm == 1 ? " " : " hide")));
 								}
 
