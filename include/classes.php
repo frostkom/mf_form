@@ -342,7 +342,7 @@ class mf_form
 						break;
 
 						case 'product':
-							$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content));
+							$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content));
 
 							if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
 							{
@@ -1474,7 +1474,7 @@ class mf_form
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerSpam = '%d', answerCreated = NOW()", $this->id, $this->answer_ip, $this->is_spam));
 			$this->answer_id = $wpdb->insert_id;
 
-			$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content));
+			$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content));
 
 			if($error_text == '')
 			{
@@ -1511,7 +1511,7 @@ class mf_form
 
 	function get_form($data)
 	{
-		global $wpdb, $wp_query; //, $has_required_email
+		global $wpdb, $wp_query;
 
 		$out = "";
 
