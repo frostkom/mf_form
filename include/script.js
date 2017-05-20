@@ -183,7 +183,7 @@ jQuery(function($)
 		options = $.extend(defaults, options);
 
 		var parent = $(this).parent(),
-			found = parent.next(selector); //find -> next
+			found = parent.next(selector); /*find -> next*/
 
 		switch(true)
 		{
