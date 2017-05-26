@@ -2269,7 +2269,7 @@ if(!class_exists('mf_form_payment'))
 
 			//Debug
 			##################
-			$file_suffix = "unknown";
+			/*$file_suffix = "unknown";
 
 			if($this->is_accept){			$file_suffix = "accept";}
 			else if($this->is_callback){	$file_suffix = "callback";}
@@ -2283,7 +2283,7 @@ if(!class_exists('mf_form_payment'))
 
 			list($upload_path, $upload_url) = get_uploads_folder("mf_form");
 
-			$success = set_file_content(array('file' => $upload_path.$file, 'mode' => 'a', 'content' => trim($debug)));
+			$success = set_file_content(array('file' => $upload_path.$file, 'mode' => 'a', 'content' => trim($debug)));*/
 			##################
 
 			$this->amount = check_var('amount', 'int');

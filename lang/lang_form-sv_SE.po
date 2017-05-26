@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-05 08:33+0100\n"
+"POT-Creation-Date: 2017-05-22 10:54+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -888,16 +888,11 @@ msgstr "Olästa svar"
 msgid "Edit Answer"
 msgstr "Redigera svar"
 
-#: ../include/functions.php:515
+#: ../include/functions.php:481
 msgid "Redirect Test"
 msgstr "Omdirigera test"
 
-#: ../include/functions.php:529
+#: ../include/functions.php:495
 msgid "Redirect All"
 msgstr "Omdirigera alla"
 
-#~ msgid "There is no field validated as e-mail"
-#~ msgstr "Det finns inget fält som är validerat som e-post"
-
-#~ msgid "Role to see forms"
-#~ msgstr "Roll för att se formulär"
