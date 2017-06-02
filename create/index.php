@@ -262,6 +262,8 @@ if($intForm2TypeID > 0)
 	}
 }
 
+$form_status = $obj_form->get_form_status();
+
 echo "<div class='wrap'>
 	<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." (".$strFormName.")" : __("Add New", 'lang_form'))."</h2>"
 	.get_notification()
@@ -448,17 +450,10 @@ echo "<div class='wrap'>
 				<div id='postbox-container-1'>
 					<form method='post' action='' class='mf_form mf_settings'>
 						<div class='postbox'>
-							<h3 class='hndle'><span>".__("Publish", 'lang_form')."</span></h3>
+							<h3 class='hndle'><span>".__("Save", 'lang_form')."</span></h3>
 							<div class='inside'>"
 								.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
 								.show_textfield(array('name' => 'strFormURL', 'text' => __("Permalink", 'lang_form'), 'value' => $strFormURL, 'maxlength' => 100, 'required' => 1));
-
-								$form_status = $obj_form->get_form_status();
-
-								if($form_status == "publish")
-								{
-									echo show_textfield(array('name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'type' => 'date'));
-								}
 
 								if($form_output != '')
 								{
@@ -519,8 +514,14 @@ echo "<div class='wrap'>
 								<div class='flex_flow'>"
 									.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $strFormButtonSymbol, 'text' => __("Symbol", 'lang_form')))
 									.show_textfield(array('name' => 'strFormButtonText', 'text' => __("Text", 'lang_form'), 'value' => $strFormButtonText, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
-								."</div>
-							</div>
+								."</div>";
+
+								if($form_status == "publish")
+								{
+									echo show_textfield(array('name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'type' => 'date'));
+								}
+
+							echo "</div>
 						</div>
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Payment", 'lang_form')."</span></h3>
@@ -616,9 +617,9 @@ echo "<div class='wrap'>
 		else
 		{
 			echo "<form method='post' action='' class='mf_form mf_settings'>
-				<div class='postbox'>
-					<h3 class='hndle'><span>".__("Add New", 'lang_form')."</span></h3>
-					<div class='inside'>"
+				<div class='postbox'>";
+					//<h3 class='hndle'><span>".__("Add New", 'lang_form')."</span></h3>
+					echo "<div class='inside'>"
 						.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
 						.show_button(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))
 						.input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))
