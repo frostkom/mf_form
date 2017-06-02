@@ -399,16 +399,6 @@ class mf_form
 			}
 		}
 
-		/*else
-		{
-			$rowsIP = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d' AND answerIP = %s AND answerCreated > DATE_SUB(NOW(), INTERVAL 30 SECOND) LIMIT 0, 1", $this->id, $this->answer_ip));
-
-			if($rowsIP > 0)
-			{
-				$dup_ip = true;
-			}
-		}*/
-
 		return $dup_ip;
 	}
 
@@ -1599,7 +1589,7 @@ class mf_form
 
 				if($intTotalRows > 0)
 				{
-					$out .= "<form method='post' action='' id='form_".$this->id."' class='mf_form".($this->edit_mode == true ? " mf_sortable" : "")."' enctype='multipart/form-data'>";
+					$out .= "<form method='post' action='' id='form_".$this->id."' class='mf_form mf_form_submit".($this->edit_mode == true ? " mf_sortable" : "")."' enctype='multipart/form-data'>";
 
 						if($this->edit_mode == false)
 						{

@@ -242,6 +242,53 @@ jQuery(function($)
 		hide_form_overlay();
 	});
 
+	/*$(document).on('submit', '.mf_form_submit', function()
+	{
+		var form_id = $(this).attr('id').replace('form_', '');
+
+		console.log("Is submitting..." , $(this).serialize());
+
+		var form_data = $(this).serialize();
+
+		form_data.action = "submit_form";
+		form_data.intFormID = form_id;
+
+		$.ajax(
+		{
+			type: "post",
+			dataType: "json",
+			url: script_forms.ajax_url,
+			data: form_data,
+			success: function(data)
+			{
+				if(data.success)
+				{
+					if(data.output)
+					{
+						$(this).html(data.output);
+					}
+
+					else
+					{
+						console.log("Redirect or echo success message");
+					}
+				}
+
+				else if(data.error)
+				{
+					console.log(data.error);
+				}
+
+				else
+				{
+					console.log("Something else...");
+				}
+			}
+		});
+
+		return false;
+	});*/
+
 	$(document).on('change', '.mf_form input[type=range]', function()
 	{
 		update_range_text($(this));
@@ -251,44 +298,6 @@ jQuery(function($)
 	{
 		check_zip_code($(this));
 	});
-
-	/* Confirm required e-mail */
-	/*function has_required_email()
-	{
-		var form_obj = $(this).parents('.mf_form');
-
-		if(form_obj.find(':required:invalid').length == 0)
-		{
-			form_obj.children('.this_is_required_email').siblings('div:not(.form_button)').addClass('hide');
-
-			$(this).removeClass('has_required_email').off('click', has_required_email);
-
-			form_obj.find('.form_button > div.updated').removeClass('hide');
-
-			$('html, body').animate(
-			{
-				scrollTop: form_obj.offset().top - 200
-			}, 750, 'swing');
-
-			return false;
-		}
-	}
-
-	$(document).on('click', '.mf_form .has_required_email', has_required_email);
-
-	$(document).on('click', '.mf_form .show_none_email', function()
-	{
-		var form_obj = $(this).parents('.mf_form');
-
-		form_obj.children('div:not(.form_button)').removeClass('hide');
-
-		form_obj.find('.form_button button').addClass('has_required_email').on('click', has_required_email);
-
-		form_obj.find('.form_button > div.updated').addClass('hide');
-
-		return false;
-	});*/
-	/* ################## */
 
 	$(document).on('change', '.form_action select', function()
 	{

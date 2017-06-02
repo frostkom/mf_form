@@ -74,7 +74,7 @@ function deleted_user_form($user_id)
 
 function init_form()
 {
-	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__)), get_plugin_version(__FILE__));
+	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__)), get_plugin_version(__FILE__));
 
 	$labels = array(
 		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
@@ -113,17 +113,45 @@ function shortcode_form($atts)
 	return $obj_form->process_form();
 }
 
+function submit_form()
+{
+	global $error_text;
+
+	$obj_form = new mf_form();
+
+	do_log("Tried to submit form ".$obj_form->id);
+
+	if(wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$obj_form->id))
+	{
+		$result['output'] = $this->process_submit();
+
+		if($error_text != '')
+		{
+			$result['error'] = $error_text;
+		}
+
+		else
+		{
+			$result['success'] = true;
+		}
+	}
+
+	else
+	{
+		$result['error'] = __("I could not validate the form submission correctly. If the problem persists, contact an admin", 'lang_auth');
+	}
+
+	echo json_encode($result);
+	die();
+}
+
 function delete_form($post_id)
 {
 	global $post_type;
 
 	if($post_type == 'mf_form')
 	{
-		$mail_to = "martin.fors@frostkom.se";
-		//$mail_headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
-		$mail_content = $mail_subject = "Delete postID (#".$post_id.") from ".$wpdb->base_prefix."query";
-
-		$sent = send_email(array('to' => $mail_to, 'subject' => $mail_subject, 'content' => $mail_content, 'headers' => $mail_headers));
+		do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."query");
 
 		/*$obj_form = new mf_form();
 		$obj_form->get_form_id($post_id);
