@@ -74,7 +74,9 @@ function deleted_user_form($user_id)
 
 function init_form()
 {
-	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__)), get_plugin_version(__FILE__));
+	$setting_form_reload = get_option_or_default('setting_form_reload', 'yes');
+
+	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__), 'reload' => $setting_form_reload), get_plugin_version(__FILE__));
 
 	$labels = array(
 		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
@@ -117,21 +119,30 @@ function submit_form()
 {
 	global $error_text;
 
+	$result = array();
+
 	$obj_form = new mf_form();
 
-	do_log("Tried to submit form ".$obj_form->id);
+	$obj_form->dup_ip = $obj_form->check_if_duplicate();
 
 	if(wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$obj_form->id))
 	{
-		$result['output'] = $this->process_submit();
+		$result['output'] = $obj_form->process_submit();
 
 		if($error_text != '')
 		{
-			$result['error'] = $error_text;
+			$result['output'] .= get_notification();
 		}
 
 		else
 		{
+			$result['output'] .= $obj_form->get_form(array('do_redirect' => false));
+
+			if(isset($obj_form->redirect_url) && $obj_form->redirect_url != '')
+			{
+				$result['redirect'] = $obj_form->redirect_url;
+			}
+
 			$result['success'] = true;
 		}
 	}
@@ -245,19 +256,15 @@ function settings_form()
 	$arr_settings = array();
 	$arr_settings['setting_redirect_emails'] = __("Redirect all e-mails", 'lang_form');
 	$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
-	/*$arr_settings['setting_form_permission'] = __("Role to see forms", 'lang_form');
-
-	if(get_option('setting_form_permission') != '')
-	{*/
-		$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
-	//}
-
+	$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
 	$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
 
 	if(get_option('setting_replacement_form') > 0)
 	{
 		$arr_settings['setting_replacement_form_text'] = __("Text to replace all e-mail links", 'lang_form');
 	}
+
+	$arr_settings['setting_form_reload'] = __("Reload page on form submission", 'lang_form');
 
 	$obj_form = new mf_form();
 
@@ -294,16 +301,6 @@ function setting_form_test_emails_callback()
 	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
 }
 
-/*function setting_form_permission_callback()
-{
-	$setting_key = get_setting_key(__FUNCTION__);
-	$option = get_option($setting_key);
-
-	$arr_data = get_roles_for_select(array('add_choose_here' => true));
-
-	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
-}*/
-
 function setting_form_permission_see_all_callback()
 {
 	$setting_key = get_setting_key(__FUNCTION__);
@@ -331,6 +328,14 @@ function setting_replacement_form_text_callback()
 	$option = get_option($setting_key);
 
 	echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Click here to send e-mail", 'lang_form')));
+}
+
+function setting_form_reload_callback()
+{
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key, 'yes');
+
+	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
 }
 
 function setting_link_yes_text_callback()
@@ -430,7 +435,6 @@ function menu_form()
 	$menu_root = 'mf_form/';
 	$menu_start = $count_forms > 0 ? $menu_root."list/index.php" : $menu_root."create/index.php";
 
-	//$menu_capability = get_option_or_default('setting_form_permission', 'edit_pages');
 	$menu_capability = 'edit_pages';
 
 	$count_message = get_count_answer_message();

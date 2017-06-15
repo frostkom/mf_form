@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 10.0.4
+Version: 10.0.11
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -37,7 +37,7 @@ if(is_admin())
 }
 
 add_shortcode('mf_form', 'shortcode_form');
-//add_action('wp_ajax_submit_form', 'submit_form');
+add_action('wp_ajax_submit_form', 'submit_form');
 add_action('wp_ajax_nopriv_submit_form', 'submit_form');
 
 add_filter('single_template', 'custom_templates_form');
@@ -331,6 +331,7 @@ function activate_form()
 function deactivate_form()
 {
 	mf_uninstall_plugin(array(
+		'options' => array('setting_form_permission'),
 		'tables' => array('query_check', 'query_type', 'form_spam', 'query_zipcode'),
 	));
 }
@@ -339,7 +340,7 @@ function uninstall_form()
 {
 	mf_uninstall_plugin(array(
 		'uploads' => "mf_form",
-		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'mf_forms_viewed', 'answer_viewed'),
+		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_form_reload', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'mf_forms_viewed', 'answer_viewed'),
 		'tables' => array('query', 'query2answer', 'query2type', 'query_answer', 'query_answer_email', 'query_check', 'query_type', 'form_spam', 'query_zipcode'),
 	));
 }

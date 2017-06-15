@@ -242,52 +242,64 @@ jQuery(function($)
 		hide_form_overlay();
 	});
 
-	/*$(document).on('submit', '.mf_form_submit', function()
+	if(script_forms.reload == 'no')
 	{
-		var form_id = $(this).attr('id').replace('form_', '');
-
-		console.log("Is submitting..." , $(this).serialize());
-
-		var form_data = $(this).serialize();
-
-		form_data.action = "submit_form";
-		form_data.intFormID = form_id;
-
-		$.ajax(
+		$(document).on('submit', '.mf_form_submit', function(e)
 		{
-			type: "post",
-			dataType: "json",
-			url: script_forms.ajax_url,
-			data: form_data,
-			success: function(data)
+			var self = $(this),
+				form_data = self.serialize();
+
+			form_data += "&action=submit_form";
+
+			$.ajax(
 			{
-				if(data.success)
+				type: "post",
+				dataType: "json",
+				url: script_forms.ajax_url,
+				data: form_data,
+				success: function(data)
 				{
-					if(data.output)
+					if(data.success)
 					{
-						$(this).html(data.output);
+						if(data.output)
+						{
+							self.html(data.output);
+						}
+
+						if(data.redirect)
+						{
+							if(typeof process_url == 'function')
+							{
+								process_url(data.redirect);
+							}
+
+							else
+							{
+								location.href = data.redirect;
+							}
+						}
+
+						if(!data.output && !data.redirect)
+						{
+							console.log("Some other success...");
+						}
+					}
+
+					else if(data.error)
+					{
+						console.log(data.error);
 					}
 
 					else
 					{
-						console.log("Redirect or echo success message");
+						console.log("Something else...");
 					}
 				}
+			});
 
-				else if(data.error)
-				{
-					console.log(data.error);
-				}
-
-				else
-				{
-					console.log("Something else...");
-				}
-			}
+			return false;
 		});
-
-		return false;
-	});*/
+	}
 
 	$(document).on('change', '.mf_form input[type=range]', function()
 	{

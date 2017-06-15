@@ -13,6 +13,8 @@ class mf_form
 
 		$this->answer_ip = $_SERVER['REMOTE_ADDR'];
 
+		$this->edit_mode = false;
+
 		if($this->id > 0)
 		{
 			$this->get_post_id();
@@ -1256,7 +1258,7 @@ class mf_form
 		$this->arr_email_content = array(
 			'fields' => array(),
 		);
-		$this->is_spam = false;
+		$this->is_spam = $this->is_sent = false;
 
 		$strFormName = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
@@ -1499,9 +1501,11 @@ class mf_form
 		return $out;
 	}
 
-	function get_form($data)
+	function get_form($data = array())
 	{
 		global $wpdb, $wp_query;
+
+		if(!isset($data['do_redirect'])){	$data['do_redirect'] = true;}
 
 		$out = "";
 
@@ -1554,11 +1558,16 @@ class mf_form
 
 						if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 						{
-							echo "<i class='fa fa-lg fa-spin fa-spinner fa-3x'></i>";
+							$out .= "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
-							$strFormAnswerURL = get_permalink($intFormAnswerURL);
+							$this->redirect_url = get_permalink($intFormAnswerURL);
 
-							mf_redirect($strFormAnswerURL);
+							if($data['do_redirect'] == true)
+							{
+								echo $out;
+
+								mf_redirect($this->redirect_url);
+							}
 						}
 
 						//Switch back to orig site
@@ -1663,7 +1672,6 @@ class mf_form
 
 		$this->edit_mode = isset($data['edit']) ? $data['edit'] : false;
 		$this->send_to = isset($data['send_to']) ? $data['send_to'] : "";
-		$this->is_sent = false;
 		$this->answer_id = isset($data['answer_id']) ? $data['answer_id'] : "";
 
 		if(isset($_GET['accept']) || isset($_GET['callback']) || isset($_GET['cancel']))
@@ -2088,7 +2096,7 @@ if(!class_exists('mf_form_payment'))
 			//Respond according to message we receive from Paypal
 			if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
 			{
-				echo "<i class='fa fa-lg fa-spin fa-spinner fa-3x'></i>";
+				echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
 				$this->token = $httpParsedResponseAr["TOKEN"];
 
@@ -2158,7 +2166,7 @@ if(!class_exists('mf_form_payment'))
 		{
 			global $wpdb;
 
-			echo "<i class='fa fa-lg fa-spin fa-spinner fa-3x'></i>";
+			echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
 			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."103: ".__("User canceled", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
@@ -2195,7 +2203,7 @@ if(!class_exists('mf_form_payment'))
 
 					if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 					{
-						echo "<i class='fa fa-lg fa-spin fa-spinner fa-3x'></i>";
+						echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
 						$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
