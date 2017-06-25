@@ -13,7 +13,7 @@ class mf_form
 
 		$this->answer_ip = $_SERVER['REMOTE_ADDR'];
 
-		$this->edit_mode = false;
+		$this->edit_mode = $this->is_spam = $this->is_sent = false;
 
 		if($this->id > 0)
 		{
@@ -1258,7 +1258,6 @@ class mf_form
 		$this->arr_email_content = array(
 			'fields' => array(),
 		);
-		$this->is_spam = $this->is_sent = false;
 
 		$strFormName = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
