@@ -478,25 +478,31 @@ class mf_form
 		return $this->post_status;
 	}
 
-	function get_form_array($check_from_form = true)
+	function get_form_array($data = array()) //$check_from_form = true
 	{
 		global $wpdb;
+
+		if(!isset($data['local_only'])){		$data['local_only'] = false;}
+		if(!isset($data['check_from_form'])){	$data['check_from_form'] = true;}
 
 		$arr_data = array();
 		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
 
-		$result = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
+		$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN && $data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
 
 		foreach($result as $r)
 		{
-			$result2 = get_page_from_form($r->queryID);
+			$intQueryID = $r->queryID;
+			$strQueryName = $r->queryName;
+
+			$result2 = get_page_from_form($intQueryID);
 
 			if(count($result2) > 0 || $check_from_form == false)
 			{
-				$obj_form = new mf_form($r->queryID);
-				$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+				//$obj_form = new mf_form($intQueryID);
+				//$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 
-				$arr_data[$r->queryID] = $strFormName;
+				$arr_data[$intQueryID] = $strQueryName;
 			}
 		}
 
@@ -3810,7 +3816,7 @@ class widget_form extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $defaults);
 
 		$obj_form = new mf_form();
-		$arr_data = $obj_form->get_form_array(false);
+		$arr_data = $obj_form->get_form_array(array('check_from_form' => false));
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading']))

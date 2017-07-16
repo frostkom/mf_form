@@ -317,7 +317,7 @@ function setting_replacement_form_callback()
 	$option = get_option($setting_key);
 
 	$obj_form = new mf_form();
-	$arr_data = $obj_form->get_form_array(false);
+	$arr_data = $obj_form->get_form_array(array('check_from_form' => false));
 
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 }
