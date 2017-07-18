@@ -497,7 +497,7 @@ class mf_form
 
 			$result2 = get_page_from_form($intQueryID);
 
-			if(count($result2) > 0 || $check_from_form == false)
+			if(count($result2) > 0 || $data['check_from_form'] == false)
 			{
 				//$obj_form = new mf_form($intQueryID);
 				//$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
