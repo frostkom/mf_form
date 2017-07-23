@@ -1,62 +1,60 @@
 @media all
 {
-	.form_inline
+	.mf_form .left_col
 	{
-		background: #fff;
-		border: 1px solid #e1e1e1;
-		padding: .8em .8em 0;
-		position: absolute;
-		min-width: 400px;
-		max-width: 100%;
-		z-index: 1;
+		clear: left;
+		float: left;
+		margin-right: 2%;
+		width: 48%;
 	}
 
-		#aside.left .form_inline
-		{
-			left: 0;
-		}
-
-		#aside.right .form_inline
-		{
-			right: 0;
-		}
-
-		.form_inline h2
-		{
-			margin-bottom: .4em;
-		}
-
-	#overlay_form
+	.mf_form .right_col
 	{
-		background: #000;
-		background: rgba(0, 0, 0, .5);
-		bottom: 0;
+		clear: right;
+		float: right;
+		margin-left: 2%;
+		width: 48%;
+	}
+
+	.mf_form .form_textfield.reverse
+	{
+		overflow: hidden;
+	}
+
+		.mf_form .form_textfield.reverse label
+		{
+			float: right;
+			line-height: 2.8;
+			width: 80%;
+		}
+
+		.mf_form .form_textfield.reverse input
+		{
+			float: left;
+			width: 18%;
+		}
+
+	.mf_form .form_zipcode
+	{
+		overflow: hidden;
+	}
+
+		.mf_form .form_zipcode input
+		{
+			float: left;
+			max-width: 70px;
+			text-align: center;
+		}
+
+		.mf_form .form_zipcode > span
+		{
+			float: left;
+			line-height: 2.7;
+			padding-left: 1em;
+		}
+
+	.form_textfield.form_check
+	{
 		display: none;
-		left: 0;
-		position: fixed;
-		right: 0;
-		top: 0;
-		z-index: 100000;
 	}
-
-		#overlay_form > div
-		{
-			background: #fff;
-			border-radius: .5em;
-			font-size: 1.5em;
-			left: 50%;
-			padding: 1em 1em .5em;
-			position: absolute;
-			top: 50vh;
-			-webkit-transform: translate(-50%, -50%);
-			transform: translate(-50%, -50%);
-			width: 40%;
-		}
-
-			#overlay_form > div .fa-close
-			{
-				position: absolute;
-				right: .2em;
-				top: .1em;
-			}
 }
