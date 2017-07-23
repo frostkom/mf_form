@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 10.1.1
+Version: 10.2.3
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -275,6 +275,8 @@ function activate_form()
 		1 => array('exclude' => "select_multiple",	'text' => "contains_html"),
 		2 => array('exclude' => "referer_url",		'text' => "/(http|https|ftp|ftps)\:/i"),
 		3 => array(									'text' => "/([qm]){5}/"),
+		4 => array(									'text' => "/(bit\.ly)/"),
+		5 => array(									'text' => "/(\[url\=)/"),
 	);
 
 	foreach($arr_query_check as $key => $value)

@@ -1468,6 +1468,11 @@ class mf_form
 
 		if($error_text == '' && $this->is_sent == false && count($this->arr_answer_queries) > 0)
 		{
+			if(check_var($this->prefix.'check') != '')
+			{
+				$this->is_spam = true;
+			}
+
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerSpam = '%d', answerCreated = NOW()", $this->id, $this->answer_ip, $this->is_spam));
 			$this->answer_id = $wpdb->insert_id;
 
@@ -1637,6 +1642,11 @@ class mf_form
 
 						else if($this->edit_mode == false)
 						{
+							if(1 == 1)
+							{
+								$out .= show_textfield(array('name' => $strFormPrefix.'check', 'text' => __("This field should not visible", 'lang_form'), 'xtra_class' => "form_check"));
+							}
+
 							$out .= apply_filters('filter_form_after_fields', '')
 							."<div class='form_button_container'>
 								<div class='form_button'>"
