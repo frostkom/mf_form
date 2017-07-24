@@ -1034,8 +1034,8 @@ class mf_form
 
 		else
 		{
-			$arr_exclude = array("[qm]");
-			$arr_include = array("\?");
+			$arr_exclude = array("[qm]", "[bs]");
+			$arr_include = array("\?", "\\");
 
 			$reg_exp = str_replace($arr_exclude, $arr_include, $data['rule']);
 
@@ -1642,10 +1642,7 @@ class mf_form
 
 						else if($this->edit_mode == false)
 						{
-							if(1 == 1)
-							{
-								$out .= show_textfield(array('name' => $strFormPrefix.'check', 'text' => __("This field should not visible", 'lang_form'), 'xtra_class' => "form_check"));
-							}
+							$out .= show_textfield(array('name' => $strFormPrefix.'check', 'text' => __("This field should not visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
 
 							$out .= apply_filters('filter_form_after_fields', '')
 							."<div class='form_button_container'>

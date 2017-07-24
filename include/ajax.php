@@ -12,9 +12,6 @@ else
 	require_once($wp_root.'/wp-config.php');
 }
 
-/*require_once("classes.php");
-require_once("functions.php");*/
-
 $json_output = array();
 
 $type = check_var('type', 'char');

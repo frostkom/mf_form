@@ -205,29 +205,38 @@ if($obj_form->id > 0)
 	}
 
 	$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
-	$r = $result[0];
-	$intFormEmailConfirm = $r->queryEmailConfirm;
-	$intFormEmailConfirmPage = $r->queryEmailConfirmPage;
-	$intFormShowAnswers = $r->queryShowAnswers;
-	$strFormAnswerURL = $r->queryAnswerURL;
-	$strFormEmail = $r->queryEmail;
-	$intFormEmailNotify = $r->queryEmailNotify;
-	$intFormEmailNotifyPage = $r->queryEmailNotifyPage;
-	$strFormEmailName = $r->queryEmailName;
-	$strFormMandatoryText = $r->queryMandatoryText;
-	$strFormButtonText = $r->queryButtonText;
-	$strFormButtonSymbol = $r->queryButtonSymbol;
-	$intFormPaymentProvider = $r->queryPaymentProvider;
-	$strFormPaymentHmac = $r->queryPaymentHmac;
-	$strFormPaymentMerchant = $r->queryPaymentMerchant;
-	$strFormPaymentPassword = $r->queryPaymentPassword;
-	$strFormPaymentCurrency = $r->queryPaymentCurrency;
-	$intFormPaymentAmount = $r->queryPaymentAmount;
-	$strFormCreated = $r->queryCreated;
 
-	$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
-	$strFormURL = $obj_form->get_post_info();
-	$dteFormDeadline = $obj_form->meta(array('action' => 'get', 'key' => 'deadline'));
+	if($wpdb->num_rows > 0)
+	{
+		$r = $result[0];
+		$intFormEmailConfirm = $r->queryEmailConfirm;
+		$intFormEmailConfirmPage = $r->queryEmailConfirmPage;
+		$intFormShowAnswers = $r->queryShowAnswers;
+		$strFormAnswerURL = $r->queryAnswerURL;
+		$strFormEmail = $r->queryEmail;
+		$intFormEmailNotify = $r->queryEmailNotify;
+		$intFormEmailNotifyPage = $r->queryEmailNotifyPage;
+		$strFormEmailName = $r->queryEmailName;
+		$strFormMandatoryText = $r->queryMandatoryText;
+		$strFormButtonText = $r->queryButtonText;
+		$strFormButtonSymbol = $r->queryButtonSymbol;
+		$intFormPaymentProvider = $r->queryPaymentProvider;
+		$strFormPaymentHmac = $r->queryPaymentHmac;
+		$strFormPaymentMerchant = $r->queryPaymentMerchant;
+		$strFormPaymentPassword = $r->queryPaymentPassword;
+		$strFormPaymentCurrency = $r->queryPaymentCurrency;
+		$intFormPaymentAmount = $r->queryPaymentAmount;
+		$strFormCreated = $r->queryCreated;
+
+		$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+		$strFormURL = $obj_form->get_post_info();
+		$dteFormDeadline = $obj_form->meta(array('action' => 'get', 'key' => 'deadline'));
+	}
+
+	else
+	{
+		$error_text = __("I could not find the form you were looking for. If the problem persists, please contact an admin", 'lang_form');
+	}
 }
 
 if($intForm2TypeID > 0)
