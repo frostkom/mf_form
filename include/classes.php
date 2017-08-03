@@ -1886,62 +1886,6 @@ if(!class_exists('mf_form_payment'))
 			}
 		}
 
-		function PPHttpPost($methodName_, $nvpStr_, $PayPalApiUsername, $PayPalApiPassword, $PayPalApiSignature) //, $PayPalMode
-		{
-			// Set up your API credentials, PayPal end point, and API version.
-			$API_UserName = urlencode($PayPalApiUsername);
-			$API_Password = urlencode($PayPalApiPassword);
-			$API_Signature = urlencode($PayPalApiSignature);
-
-			//$PayPalMode = $this->test == 1 ? 'sandbox' : 'live';
-			$paypalmode = isset($this->test) && $this->test == 1 ? '.sandbox' : '';
-
-			$API_Endpoint = "https://api-3t".$paypalmode.".paypal.com/nvp";
-			$version = urlencode('109.0');
-
-			// Set the curl parameters.
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $API_Endpoint);
-			curl_setopt($ch, CURLOPT_VERBOSE, 1);
-
-			// Turn off the server and peer verification (TrustManager Concept).
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_POST, 1);
-
-			// Set the API operation, version, and API signature in the request.
-			$nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
-
-			// Set the request as a POST FIELD for curl.
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
-
-			// Get response from the server.
-			$httpResponse = curl_exec($ch);
-
-			if(!$httpResponse) {
-				exit("$methodName_ failed: ".curl_error($ch).'('.curl_errno($ch).')');
-			}
-
-			// Extract the response details.
-			$httpResponseAr = explode("&", $httpResponse);
-
-			$httpParsedResponseAr = array();
-			foreach ($httpResponseAr as $i => $value) {
-				$tmpAr = explode("=", $value);
-				if(sizeof($tmpAr) > 1) {
-					$httpParsedResponseAr[$tmpAr[0]] = $tmpAr[1];
-				}
-			}
-
-			if((0 == sizeof($httpParsedResponseAr)) || !array_key_exists('ACK', $httpParsedResponseAr)) {
-				exit("Invalid HTTP Response for POST request($nvpreq) to $API_Endpoint.");
-			}
-
-			return $httpParsedResponseAr;
-		}
-
 		function process_passthru($data)
 		{
 			global $wpdb;
@@ -1952,19 +1896,23 @@ if(!class_exists('mf_form_payment'))
 			$this->orderid = $data['orderid'];
 			$this->test = $data['test'];
 
-			if($this->provider == 1)
+			switch($this->provider)
 			{
-				$out .= $this->process_passthru_dibs();
-			}
+				case 1:
+					$out .= $this->process_passthru_dibs();
+				break;
 
-			else if($this->provider == 3)
-			{
-				$out .= $this->process_passthru_paypal();
-			}
+				case 2:
+					$out .= $this->process_passthru_skrill();
+				break;
 
-			else
-			{
-				$out .= $this->process_passthru_skrill();
+				case 3:
+					$out .= $this->process_passthru_paypal();
+				break;
+
+				case 4:
+					$out .= $this->process_passthru_billmate();
+				break;
 			}
 
 			return $out;
@@ -2067,11 +2015,13 @@ if(!class_exists('mf_form_payment'))
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2answer SET answerToken = %s WHERE answerID = '%d'", urldecode($this->token), $this->orderid));
 		}
 
-		//https://developer.paypal.com/webapps/developer/docs/classic/express-checkout/integration-guide/ECCustomizing/
-		//https://developer.paypal.com/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/
+		// developer.paypal.com/webapps/developer/docs/classic/express-checkout/integration-guide/ECCustomizing/
+		// developer.paypal.com/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/
 		function process_passthru_paypal()
 		{
 			global $wpdb;
+
+			include_once("lib/PayPal.php");
 
 			$out = "";
 
@@ -2142,7 +2092,7 @@ if(!class_exists('mf_form_payment'))
 			$instance = array();
 
 			$this->action = "https://pay.skrill.com";
-			$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "first")); //"EN"; //get_bloginfo('language') [sv_SE, en_US etc]
+			$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "first"));
 
 			$this->sid = get_url_content($this->action."/?pay_to_email=".$this->merchant."&amount=".$this->amount."&currency=".$this->currency."&language=".$this->language."&prepare_only=1");
 
@@ -2172,6 +2122,125 @@ if(!class_exists('mf_form_payment'))
 			}
 
 			return $out;
+		}
+
+		// developer.billmate.se/api-integration
+		function process_passthru_billmate()
+		{
+			global $wpdb;
+
+			include_once("lib/Billmate.php");
+
+			$out = "";
+
+			if($this->currency == ''){	$this->currency = "USD";}
+			
+			$transaction_id = $this->prefix.$this->orderid;
+
+			$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "first"));
+			$this->country = get_site_language(array('language' => get_bloginfo('language'), 'type' => "last"));
+
+			$test = $this->test;
+			$ssl = true;
+			$debug = false;
+
+			$id = $this->merchant;
+			$key = $this->hmac;
+			define("BILLMATE_SERVER", "2.1.6");	/* API version */
+			define("BILLMATE_CLIENT", "Pluginname:BillMate:1.0");
+			define("BILLMATE_LANGUAGE", $this->language);
+			$bm = new BillMate($id, $key, $ssl, $test, $debug);
+			$values = array();
+
+			$values["PaymentData"] = array(
+				"method" => "8", //1=Invoice Factoring, 2=Invoice Service, 4=Invoice Part Payment, 8=Card, 16=Bank and 32=Cash (Receipt)
+				//"paymentplanid" => "",
+				"currency" => $this->currency,
+				"language" => $this->language,
+				"country" => $this->country,
+				"autoactivate" => "0",
+				"orderid" => $transaction_id,
+				//"logo" => "Logo2.jpg",
+			);
+
+			/*$values["PaymentInfo"] = array(
+				"paymentdate" => "2014-07-31",
+				"paymentterms" => "14",
+				"yourreference" => "Purchaser X",
+				"ourreference" => "Seller Y",
+				"projectname" => "Project Z",
+				"delivery" => "Post",
+				"deliveryterms" => "FOB",
+				"autocredit" => "false",
+			);*/
+
+			$values["Card"] = array(
+				//"promptname" => "",
+				//"3dsecure" => "",
+				//"recurring" => "",
+				//"recurringnr" => "",
+				"accepturl" => $this->base_callback_url."?accept",
+				"cancelurl" => $this->base_callback_url."?cancel&transaction_id=".$transaction_id,
+				//"returnmethod" => "", //POST/GET
+				"callbackurl" => $this->base_callback_url."?callback",
+			);
+
+			/*$values["Customer"] = array(
+				"nr" => "12",
+				"pno" => "550101-1018",
+				"Billing" => array(
+					"firstname" => "Testperson",
+					"lastname" => "Approved",
+					"company" => "Company",
+					"street" => "Teststreet",
+					"street2" => "Street2",
+					"zip" => "12345",
+					"city" => "Testcity",
+					"country" => "Sverige",
+					"phone" => "0712-345678",
+					"email" => "test@developer.billmate.se",
+				),
+				"Shipping" => array(
+					"firstname" => "Testperson",
+					"lastname" => "Approved",
+					"company" => "Company",
+					"street" => "Teststreet",
+					"street2" => "Shipping Street2",
+					"zip" => "12345",
+					"city" => "Testcity",
+					"country" => "Sverige",
+					"phone" => "0711-345678",
+				)
+			);*/
+
+			/*$values["Articles"][0] = array(
+					"artnr" => "A123",
+					"title" => "Article 1",
+					"quantity" => "2",
+					"aprice" => "1234",
+					"taxrate" => "25",
+					"discount" => "0",
+					"withouttax" => "2468",
+			);*/
+
+			/*$values["Cart"] = array(
+				"Handling" => array(
+						"withouttax" => "1000",
+						"taxrate" => "25"
+					),
+				"Shipping" => array(
+						"withouttax" => "3000",
+						"taxrate" => "25"
+					),
+				"Total" => array(
+						"withouttax" => "185325",
+						"tax" => "46331",
+						"rounding" => "44",
+						"withtax" => "231700"
+					)
+			);*/
+
+			$bm->addPayment($values);
 		}
 
 		function confirm_cancel()
@@ -2300,19 +2369,23 @@ if(!class_exists('mf_form_payment'))
 
 			$out .= __("Processing...", 'lang_base');
 
-			if($this->provider == 1)
+			switch($this->provider)
 			{
-				$out .= $this->process_callback_dibs();
-			}
+				case 1:
+					$out .= $this->process_callback_dibs();
+				break;
 
-			else if($this->provider == 3)
-			{
-				$out .= $this->process_callback_paypal();
-			}
+				case 2:
+					$out .= $this->process_callback_skrill();
+				break;
 
-			else
-			{
-				$out .= $this->process_callback_skrill();
+				case 3:
+					$out .= $this->process_callback_paypal();
+				break;
+
+				case 4:
+					$out .= $this->process_callback_billmate();
+				break;
 			}
 
 			return $out;
@@ -2400,6 +2473,8 @@ if(!class_exists('mf_form_payment'))
 		function process_callback_paypal()
 		{
 			global $wpdb;
+
+			include_once("lib/PayPal.php");
 
 			$out = "";
 
@@ -2537,6 +2612,65 @@ if(!class_exists('mf_form_payment'))
 			{
 				$this->confirm_cancel();
 			}
+
+			return $out;
+		}
+
+		function process_callback_billmate()
+		{
+			global $wpdb;
+
+			$out = "";
+
+			$transaction_id = check_var('transaction_id', 'char');
+			$this->answer_id = str_replace($this->prefix, "", $transaction_id);
+
+			/*if($this->is_accept)
+			{
+				$this->confirm_accept();
+			}
+
+			else if($this->is_callback)
+			{
+				//pay_to_email, pay_from_email, amount
+
+				$md5sig = check_var('md5sig', 'char');
+				$currency = check_var('currency', 'char');
+
+				$merchant_id = check_var('merchant_id', 'char');
+				$mb_amount = check_var('mb_amount', 'char');
+				$mb_currency = check_var('mb_currency', 'char');
+				$status = check_var('status', 'char');
+
+				$md5calc = strtoupper(md5($merchant_id.$transaction_id.strtoupper(md5($this->hmac)).$mb_amount.$mb_currency.$status));
+
+				$is_valid_mac = $md5sig == $md5calc;
+
+				$payment_status_text = "";
+
+				switch($status)
+				{
+					case -2:		$payment_status_text = __("Failed", 'lang_base');			break;
+					case 2:			$payment_status_text = __("Processed", 'lang_base');		break;
+					case 0:			$payment_status_text = __("Pending", 'lang_base');			break;
+					case -1:		$payment_status_text = __("Cancelled", 'lang_base');		break;
+				}
+
+				if($is_valid_mac)
+				{
+					$this->confirm_paid($status.": ".$payment_status_text." (".$this->amount." ".$currency.")");
+				}
+
+				else
+				{
+					$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_base').", ".$md5sig." != ".$md5calc.") (".$this->amount." ".$currency.")");
+				}
+			}
+
+			else if($this->is_cancel)
+			{
+				$this->confirm_cancel();
+			}*/
 
 			return $out;
 		}

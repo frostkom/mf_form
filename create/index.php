@@ -539,29 +539,35 @@ echo "<div class='wrap'>
 								$arr_data = array();
 
 								$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+								$arr_data[4] = __("Billmate", 'lang_form');
 								$arr_data[1] = __("DIBS", 'lang_form');
 								$arr_data[3] = __("Paypal", 'lang_form');
 								$arr_data[2] = __("Skrill", 'lang_form');
 
 								echo show_select(array('data' => $arr_data, 'name' => 'intFormPaymentProvider', 'value' => $intFormPaymentProvider, 'text' => __("Provider", 'lang_form')));
 
-								if($intFormPaymentProvider == 1)
+								switch($intFormPaymentProvider)
 								{
-									echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
-									.show_textfield(array('name' => 'strFormPaymentHmac', 'text' => __("HMAC key", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
-								}
+									case 1:
+										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
+										.show_textfield(array('name' => 'strFormPaymentHmac', 'text' => __("HMAC key", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
+									break;
 
-								else if($intFormPaymentProvider == 3)
-								{
-									echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Username", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
-									.show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password", 'lang_form'), 'value' => $strFormPaymentPassword, 'maxlength' => 100))
-									.show_textfield(array('name' => 'strFormPaymentHmac', 'text' => __("Signature", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
-								}
+									case 2:
+										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant E-mail", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
+										.show_textfield(array('name' => 'strFormPaymentHmac', 'text' => __("Secret word", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
+									break;
 
-								else if($intFormPaymentProvider == 2)
-								{
-									echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant E-mail", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
-									.show_textfield(array('name' => 'strFormPaymentHmac', 'text' => __("Secret word", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
+									case 3:
+										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Username", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
+										.show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password", 'lang_form'), 'value' => $strFormPaymentPassword, 'maxlength' => 100))
+										.show_textfield(array('name' => 'strFormPaymentHmac', 'text' => __("Signature", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
+									break;
+
+									case 4:
+										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Store ID", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
+										.show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 100));
+									break;
 								}
 
 								if($intFormPaymentProvider > 0 && $strFormPaymentMerchant != '' && $strFormPaymentHmac != '')
@@ -588,8 +594,7 @@ echo "<div class='wrap'>
 											$arr_data[949] = __("Turkish Lira", 'lang_form')." (TRY)";
 										break;
 
-										case 2:
-										case 3:
+										default:
 											$arr_data["DKK"] = __("Danish Krone", 'lang_form')." (DKK)";
 											$arr_data["EUR"] = __("Euro", 'lang_form')." (EUR)";
 											$arr_data["USD"] = __("US Dollar", 'lang_form')." (USD)";
