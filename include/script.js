@@ -177,13 +177,13 @@ jQuery(function($)
 		collect_on_load('on_load_form');
 	}
 
-	$.fn.nextElementInDom = function(selector, options)
+	/*$.fn.nextElementInDom = function(selector, options)
 	{
-		var defaults = { stopAt : 'body' };
+		var defaults = {stopAt: 'body'};
 		options = $.extend(defaults, options);
 
 		var parent = $(this).parent(),
-			found = parent.next(selector); /*find -> next*/
+			found = parent.find(selector);
 
 		switch(true)
 		{
@@ -196,29 +196,40 @@ jQuery(function($)
 			default:
 			return parent.nextElementInDom(selector);
 		}
-    };
+    };*/
 
 	$(document).on('click', '.form_link', function(event)
 	{
+		console.log("Clicked");
+
 		var dom_obj_link = $(this),
-			dom_obj_inline = dom_obj_link.nextElementInDom('.form_inline'),
+			dom_obj_inline = $("#inline_form_" + dom_obj_link.attr('rel')),
+			/*dom_obj_inline = dom_obj_link.nextElementInDom('.form_inline'),*/
 			dom_overlay = $('#overlay_form > div');
 
-		if(dom_overlay.length == 0)
+		if($('#wrapper').length > 0)
 		{
-			$('#wrapper').append("<div id='overlay_form'><div></div></div>");
+			if(dom_overlay.length == 0)
+			{
+				$('#wrapper').append("<div id='overlay_form'><div></div></div>");
 
-			dom_overlay = $('#overlay_form > div');
-		}
+				dom_overlay = $('#overlay_form > div');
+			}
 
-		if(dom_overlay.children().length > 0)
-		{
-			dom_overlay.html('').parent('#overlay_form').fadeOut();
+			if(dom_overlay.children().length > 0)
+			{
+				dom_overlay.html('').parent('#overlay_form').fadeOut();
+			}
+
+			else
+			{
+				dom_overlay.html("<i class='fa fa-2x fa-close'></i>" + dom_obj_inline.html()).parent('#overlay_form').fadeIn();
+			}
 		}
 
 		else
 		{
-			dom_overlay.html("<i class='fa fa-2x fa-close'></i>" + dom_obj_inline.html()).parent('#overlay_form').fadeIn();
+			dom_obj_inline.toggleClass('hide');
 		}
 
 		return false;

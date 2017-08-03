@@ -228,8 +228,10 @@ function preg_email_concat($matches)
 
 	$obj_form = new mf_form($setting_replacement_form);
 
-	$out = "<a href='#' class='form_link'>".$setting_replacement_form_text."</a>
-	<div class='form_inline hide'>"
+	$form_md5 = md5("form_link_".$email."_".mt_rand(1, 1000));
+
+	$out = "<a href='#' class='form_link' rel='".$form_md5."'>".$setting_replacement_form_text."</a>
+	<div id='inline_form_".$form_md5."' class='form_inline hide'>"
 		.$obj_form->process_form(array('send_to' => $email))
 	."</div>";
 
