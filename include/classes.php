@@ -478,12 +478,12 @@ class mf_form
 		return $this->post_status;
 	}
 
-	function get_form_array($data = array()) //$check_from_form = true
+	function get_form_array($data = array())
 	{
 		global $wpdb;
 
 		if(!isset($data['local_only'])){		$data['local_only'] = false;}
-		if(!isset($data['check_from_form'])){	$data['check_from_form'] = true;}
+		if(!isset($data['force_has_page'])){	$data['force_has_page'] = true;}
 
 		$arr_data = array();
 		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
@@ -497,11 +497,8 @@ class mf_form
 
 			$result2 = get_page_from_form($intQueryID);
 
-			if(count($result2) > 0 || $data['check_from_form'] == false)
+			if(count($result2) > 0 || $data['force_has_page'] == false)
 			{
-				//$obj_form = new mf_form($intQueryID);
-				//$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
-
 				$arr_data[$intQueryID] = $strQueryName;
 			}
 		}
@@ -3957,7 +3954,7 @@ class widget_form extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $defaults);
 
 		$obj_form = new mf_form();
-		$arr_data = $obj_form->get_form_array(array('check_from_form' => false));
+		$arr_data = $obj_form->get_form_array(array('force_has_page' => false));
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading']))
