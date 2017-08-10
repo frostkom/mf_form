@@ -1262,6 +1262,8 @@ class mf_form
 			'fields' => array(),
 		);
 
+		$setting_form_spam = get_option('setting_form_spam', array('email', 'filter', 'honeypot'));
+
 		$strFormName = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
 
@@ -1311,15 +1313,21 @@ class mf_form
 					switch($strCheckCode)
 					{
 						case 'char':
-							$this->check_spam_rules(array('code' => $strQueryTypeCode, 'text' => $strAnswerText));
+							if(in_array('filter', $setting_form_spam))
+							{
+								$this->check_spam_rules(array('code' => $strQueryTypeCode, 'text' => $strAnswerText));
+							}
 						break;
 
 						case 'email':
-							$this->check_spam_email(array('text' => $strAnswerText)); //'id' => $intForm2TypeID2, 
-
-							if($intFormTypeID2 == 3)
+							if(in_array('email', $setting_form_spam))
 							{
-								$this->email_visitor = $strAnswerText;
+								$this->check_spam_email(array('text' => $strAnswerText)); //'id' => $intForm2TypeID2, 
+
+								if($intFormTypeID2 == 3)
+								{
+									$this->email_visitor = $strAnswerText;
+								}
 							}
 						break;
 					}
@@ -1465,7 +1473,7 @@ class mf_form
 
 		if($error_text == '' && $this->is_sent == false && count($this->arr_answer_queries) > 0)
 		{
-			if(check_var($this->prefix.'check') != '')
+			if(check_var($this->prefix.'check') != '' && in_array('honeypot', $setting_form_spam))
 			{
 				$this->is_spam = true;
 			}
@@ -2906,7 +2914,7 @@ class mf_form_table extends mf_list_table
 						{
 							foreach($result as $r)
 							{
-								$post_id_temp = $r['post_id'];
+								$post_id_temp = $r->ID;
 
 								$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
 								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";

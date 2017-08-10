@@ -186,7 +186,7 @@ function get_page_from_form($id)
 
 	$result = $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type != 'revision' AND post_status = 'publish' AND (post_content LIKE '%".addslashes("[mf_form id=".esc_sql($id)."]")."%' OR post_content LIKE '%".addslashes("[form_shortcode id='".esc_sql($id)."']")."%')");
 
-	if($wpdb->num_rows > 0)
+	/*if($wpdb->num_rows > 0)
 	{
 		foreach($result as $r)
 		{
@@ -195,7 +195,7 @@ function get_page_from_form($id)
 				//'post_url' => get_permalink($r->ID)
 			);
 		}
-	}
+	}*/
 
 	return $arr_out;
 }
@@ -210,7 +210,7 @@ function get_form_url($form_id)
 
 		foreach($result as $r)
 		{
-			$post_id = $r['post_id'];
+			$post_id = $r->post_id;
 
 			$out = get_permalink($post_id);
 		}
@@ -260,6 +260,7 @@ function settings_form()
 	$arr_settings['setting_redirect_emails'] = __("Redirect all e-mails", 'lang_form');
 	$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
 	$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
+	$arr_settings['setting_form_spam'] = __("Spam Filter", 'lang_form');
 	$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
 
 	if(get_option('setting_replacement_form') > 0)
@@ -312,6 +313,20 @@ function setting_form_permission_see_all_callback()
 	$arr_data = get_roles_for_select(array('add_choose_here' => true));
 
 	echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
+}
+
+function setting_form_spam_callback()
+{
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option($setting_key, array('email', 'filter', 'honeypot'));
+
+	$arr_data = array(
+		'email' => __("Recurring E-mail", 'lang_form'),
+		'filter' => __("HTML & Links", 'lang_form'),
+		'honeypot' => __("Honeypot", 'lang_form'),
+	);
+
+	echo show_select(array('data' => $arr_data, 'name' => $setting_key."[]", 'value' => $option));
 }
 
 function setting_replacement_form_callback()
