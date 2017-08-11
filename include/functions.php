@@ -1,5 +1,25 @@
 <?php
 
+function cron_form()
+{
+	global $wpdb;
+
+	$setting_form_clear_spam = get_option_or_default('setting_form_clear_spam', 6);
+
+	$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE answerSpam = '1' AND answerCreated < DATE_SUB(NOW(), INTERVAL %d MONTH)", $setting_form_clear_spam));
+
+	if($wpdb->num_rows > 0)
+	{
+		foreach($result as $r)
+		{
+			$intAnswerID = $r->answerID;
+
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = %d", $intAnswerID));
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE answerID = %d", $intAnswerID));
+		}
+	}
+}
+
 function count_shortcode_button_form($count)
 {
 	if($count == 0)
@@ -252,6 +272,8 @@ function the_content_form($html)
 
 function settings_form()
 {
+	global $wpdb;
+
 	$options_area = __FUNCTION__;
 
 	add_settings_section($options_area, "", $options_area."_callback", BASE_OPTIONS_PAGE);
@@ -261,14 +283,22 @@ function settings_form()
 	$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
 	$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
 	$arr_settings['setting_form_spam'] = __("Spam Filter", 'lang_form');
+
+	$arr_settings['setting_form_reload'] = __("Reload page on form submission", 'lang_form');
+
+	$wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE answerSpam = '1' LIMIT 0, 1");
+
+	if($wpdb->num_rows > 0)
+	{
+		$arr_settings['setting_form_clear_spam'] = __("Clear Spam", 'lang_form');
+	}
+
 	$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
 
 	if(get_option('setting_replacement_form') > 0)
 	{
 		$arr_settings['setting_replacement_form_text'] = __("Text to replace all e-mail links", 'lang_form');
 	}
-
-	$arr_settings['setting_form_reload'] = __("Reload page on form submission", 'lang_form');
 
 	$obj_form = new mf_form();
 
@@ -354,6 +384,14 @@ function setting_form_reload_callback()
 	$option = get_option($setting_key, 'yes');
 
 	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
+}
+
+function setting_form_clear_spam_callback()
+{
+	$setting_key = get_setting_key(__FUNCTION__);
+	$option = get_option_or_default($setting_key, 6);
+
+	echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'suffix' => __("months", 'lang_form')));
 }
 
 function setting_link_yes_text_callback()

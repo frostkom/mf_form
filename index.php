@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 10.4.0
+Version: 10.4.3
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -16,6 +16,7 @@ include_once("include/classes.php");
 include_once("include/functions.php");
 
 add_action('cron_base', 'activate_form', mt_rand(1, 10));
+add_action('cron_base', 'cron_form', mt_rand(1, 10));
 
 add_action('init', 'init_form', 1);
 add_action('widgets_init', 'widgets_form');
