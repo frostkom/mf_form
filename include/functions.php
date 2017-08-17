@@ -202,22 +202,9 @@ function get_page_from_form($id)
 {
 	global $wpdb;
 
-	$arr_out = array();
-
 	$result = $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type != 'revision' AND post_status = 'publish' AND (post_content LIKE '%".addslashes("[mf_form id=".esc_sql($id)."]")."%' OR post_content LIKE '%".addslashes("[form_shortcode id='".esc_sql($id)."']")."%')");
 
-	/*if($wpdb->num_rows > 0)
-	{
-		foreach($result as $r)
-		{
-			$arr_out[] = array(
-				'post_id' => $r->ID,
-				//'post_url' => get_permalink($r->ID)
-			);
-		}
-	}*/
-
-	return $arr_out;
+	return $result;
 }
 
 function get_form_url($form_id)
@@ -230,7 +217,7 @@ function get_form_url($form_id)
 
 		foreach($result as $r)
 		{
-			$post_id = $r->post_id;
+			$post_id = $r->ID;
 
 			$out = get_permalink($post_id);
 		}
