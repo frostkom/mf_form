@@ -97,7 +97,7 @@ function init_form()
 	$setting_form_reload = get_option_or_default('setting_form_reload', 'yes');
 
 	mf_enqueue_style('style_form', plugin_dir_url(__FILE__)."style.css", get_plugin_version(__FILE__));
-	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__), 'reload' => $setting_form_reload), get_plugin_version(__FILE__));
+	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__), 'reload' => $setting_form_reload, 'please_wait' => __("Please wait", 'lang_form')), get_plugin_version(__FILE__));
 
 	$labels = array(
 		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),

@@ -441,7 +441,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id)); //queryShowAnswers, 
+		$result = $wpdb->get_results($wpdb->prepare("SELECT queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id)); //queryShowAnswers,
 
 		foreach($result as $r)
 		{
@@ -851,7 +851,7 @@ class mf_form
 				$data['subject'] = $r->post_title;
 				$mail_template = apply_filters('the_content', $r->post_content);
 
-				$mail_content = $this->render_mail_content(array('mail_to' => $data['mail_to'], 'array' => $data['content'], 'template' => $mail_template)); //'answer_id' => $this->answer_id, 
+				$mail_content = $this->render_mail_content(array('mail_to' => $data['mail_to'], 'array' => $data['content'], 'template' => $mail_template)); //'answer_id' => $this->answer_id,
 			}
 		}
 
@@ -1322,7 +1322,7 @@ class mf_form
 						case 'email':
 							if(in_array('email', $setting_form_spam))
 							{
-								$this->check_spam_email(array('text' => $strAnswerText)); //'id' => $intForm2TypeID2, 
+								$this->check_spam_email(array('text' => $strAnswerText)); //'id' => $intForm2TypeID2,
 
 								if($intFormTypeID2 == 3)
 								{
@@ -2139,7 +2139,7 @@ if(!class_exists('mf_form_payment'))
 			$out = "";
 
 			if($this->currency == ''){	$this->currency = "USD";}
-			
+
 			$transaction_id = $this->prefix.$this->orderid;
 
 			$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "first"));
@@ -2365,7 +2365,7 @@ if(!class_exists('mf_form_payment'))
 				."POST: ".var_export($_POST, true)."\n\n"
 				."THIS: ".var_export($this, true)."\n\n";
 
-			list($upload_path, $upload_url) = get_uploads_folder("mf_form");
+			list($upload_path, $upload_url) = get_uploads_folder('mf_form');
 
 			$success = set_file_content(array('file' => $upload_path.$file, 'mode' => 'a', 'content' => trim($debug)));*/
 			##################

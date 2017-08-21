@@ -27,7 +27,7 @@
  * 2.1.6 20150129 Yuksel Findik: Language is added as an optional paramater in credentials, version_compare is added for Curl setup
  * 2.1.7 20150922 Yuksel Findik: PHP Notice for CURLOPT_SSL_VERIFYHOST is fixed
  * 2.1.8 20151103 Yuksel Findik: CURLOPT_CONNECTTIMEOUT is added
- 
+
  */
 class BillMate{
 	var $ID = "";

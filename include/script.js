@@ -326,4 +326,17 @@ jQuery(function($)
 	{
 		do_form_type_action($(this));
 	});
+
+	$(document).on('click', '.mf_form button', function()
+	{
+		var dom_obj = $(this),
+			dom_obj_label = $(this).html();
+
+		dom_obj.attr("disabled", "disabled").html("<i class='fa fa-spinner fa-spin'></i> " + script_forms.please_wait + "&hellip;");
+
+		setTimeout(function()
+		{
+			dom_obj.removeAttr("disabled").html(dom_obj_label);
+		}, 5000);
+	});
 });
