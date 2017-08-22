@@ -327,7 +327,7 @@ jQuery(function($)
 		do_form_type_action($(this));
 	});
 
-	$(document).on('click', '.mf_form button', function()
+	$(document).on('click', '.mf_form button.button-primary', function()
 	{
 		var dom_obj = $(this),
 			dom_obj_label = $(this).html();
