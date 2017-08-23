@@ -1,6 +1,6 @@
 <?php
 
-mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_base')), get_plugin_version(__FILE__));
+mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), get_plugin_version(__FILE__));
 
 $obj_form = new mf_form();
 $obj_form->fetch_request();

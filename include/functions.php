@@ -1,5 +1,100 @@
 <?php
 
+function get_site_language($data) //sv_SE, en_US etc.
+{
+	if(!isset($data['type'])){	$data['type'] = "";}
+	if(!isset($data['uc'])){	$data['uc'] = true;}
+
+	if(preg_match("/\_/", $data['language']))
+	{
+		$arr_language = explode("_", $data['language']);
+	}
+
+	else
+	{
+		$arr_language = explode("-", $data['language']);
+	}
+
+	$out = "";
+
+	if($data['type'] == "first")
+	{
+		if(isset($arr_language[0]))
+		{
+			$out = $arr_language[0];
+
+			if($data['uc'] == true)
+			{
+				$out = strtoupper($out);
+			}
+		}
+
+		else
+		{
+			do_log("Wrong lang[0]: ".var_export($data, true));
+		}
+	}
+
+	else if($data['type'] == "last")
+	{
+		if(isset($arr_language[1]))
+		{
+			$out = $arr_language[1];
+
+			if($data['uc'] == true)
+			{
+				$out = strtoupper($out);
+			}
+		}
+
+		else
+		{
+			do_log("Wrong lang[1]: ".var_export($data, true));
+		}
+	}
+
+	else
+	{
+		$out = $data['language'];
+	}
+
+	return $out;
+}
+
+function hextostr($hex)
+{
+	$string = "";
+
+	foreach(explode("\n", trim(chunk_split($hex, 2))) as $h)
+	{
+		$string .= chr(hexdec($h));
+	}
+
+	return $string;
+}
+
+function get_hmac_prepared_string($array)
+{
+	$string = "";
+
+	ksort($array);
+
+	foreach($array as $key => $value)
+	{
+		if($key != "MAC")
+		{
+			if(strlen($string) > 1)
+			{
+				$string .= "&";
+			}
+
+			$string .= $key."=".$value;
+		}
+	}
+
+	return $string;
+}
+
 function cron_form()
 {
 	global $wpdb;

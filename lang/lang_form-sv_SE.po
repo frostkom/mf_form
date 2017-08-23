@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-21 15:25+0100\n"
+"POT-Creation-Date: 2017-08-23 09:21+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -146,7 +146,7 @@ msgstr "Är du säker?"
 #: ../answer/index.php:16
 #: ../answer/index.php:37
 #: ../include/classes.php:2865
-#: ../include/functions.php:493
+#: ../include/functions.php:588
 msgid "Answers"
 msgstr "Svar"
 
@@ -164,7 +164,7 @@ msgstr "Jag kunde inte hitta formuläret med ID '%d'"
 #: ../include/classes.php:489
 #: ../include/classes.php:876
 #: ../include/classes.php:897
-#: ../include/functions.php:55
+#: ../include/functions.php:150
 msgid "Choose here"
 msgstr "Välj här"
 
@@ -205,7 +205,7 @@ msgid "Update"
 msgstr "Uppdatera"
 
 #: ../create/index.php:276
-#: ../include/functions.php:490
+#: ../include/functions.php:585
 #: ../list/index.php:12
 msgid "Add New"
 msgstr "Skapa ny"
@@ -830,7 +830,7 @@ msgid "Display a form that you've previously created"
 msgstr "Visa ett formulär som du har skapat"
 
 #: ../include/classes.php:3917
-#: ../include/functions.php:104
+#: ../include/functions.php:199
 msgid "Form"
 msgstr "Formulär"
 
@@ -838,116 +838,116 @@ msgstr "Formulär"
 msgid "Heading"
 msgstr "Rubrik"
 
-#: ../include/functions.php:52
+#: ../include/functions.php:147
 msgid "Choose a Form"
 msgstr "Välj ett formulär"
 
-#: ../include/functions.php:100
+#: ../include/functions.php:195
 msgid "Please wait"
 msgstr "Var vänlig vänta"
 
-#: ../include/functions.php:103
-#: ../include/functions.php:105
-#: ../include/functions.php:306
-#: ../include/functions.php:485
+#: ../include/functions.php:198
+#: ../include/functions.php:200
+#: ../include/functions.php:401
+#: ../include/functions.php:580
 #: ../list/index.php:11
 msgid "Forms"
 msgstr "Formulär"
 
-#: ../include/functions.php:173
+#: ../include/functions.php:268
 msgid "I could not validate the form submission correctly. If the problem persists, contact an admin"
 msgstr "Jag kunde inte validera formulärets data korrekt. Om problemet kvarstår, kontakt en administratör"
 
-#: ../include/functions.php:232
-#: ../include/functions.php:365
+#: ../include/functions.php:327
+#: ../include/functions.php:460
 msgid "Click here to send e-mail"
 msgstr "Klicka här för att skicka e-post"
 
-#: ../include/functions.php:269
+#: ../include/functions.php:364
 msgid "Redirect all e-mails"
 msgstr "Omdirigera alla meddelanden"
 
-#: ../include/functions.php:270
+#: ../include/functions.php:365
 msgid "Redirect test e-mails"
 msgstr "Omdirigera testmeddelanden"
 
-#: ../include/functions.php:271
+#: ../include/functions.php:366
 msgid "Role to see all"
 msgstr "Roll för att se alla"
 
-#: ../include/functions.php:272
+#: ../include/functions.php:367
 msgid "Spam Filter"
 msgstr "Spamfilter"
 
-#: ../include/functions.php:274
+#: ../include/functions.php:369
 msgid "Reload page on form submission"
 msgstr "Ladda om sidan efter att formuläret skickats"
 
-#: ../include/functions.php:280
+#: ../include/functions.php:375
 msgid "Clear Spam"
 msgstr "Rensa spam"
 
-#: ../include/functions.php:283
+#: ../include/functions.php:378
 msgid "Form to replace all e-mail links"
 msgstr "Formulär för att ersätta alla e-postlänkar"
 
-#: ../include/functions.php:287
+#: ../include/functions.php:382
 msgid "Text to replace all e-mail links"
 msgstr "Text för att ersätta alla e-postlänkar"
 
-#: ../include/functions.php:294
+#: ../include/functions.php:389
 msgid "Text to send as positive response"
 msgstr "Meddelande att skicka som positivt svar"
 
-#: ../include/functions.php:295
+#: ../include/functions.php:390
 msgid "Text to send as negative response"
 msgstr "Meddelande att skicka som negativt svar"
 
-#: ../include/functions.php:296
+#: ../include/functions.php:391
 msgid "Thank you message after sending response"
 msgstr "Tack-meddelande efter skickat svar"
 
-#: ../include/functions.php:314
+#: ../include/functions.php:409
 msgid "When a visitor sends an e-mail through the site it is redirected to the admins address"
 msgstr "När en besökare skickar e-post via webbsidan skickas det till administratörens adress istället"
 
-#: ../include/functions.php:322
+#: ../include/functions.php:417
 msgid "When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address"
 msgstr "När en administratör är inloggad och testar att skicka e-post går alla utgående meddelanden till administratörens adress"
 
-#: ../include/functions.php:341
+#: ../include/functions.php:436
 msgid "Recurring E-mail"
 msgstr "Återkommande e-post"
 
-#: ../include/functions.php:342
+#: ../include/functions.php:437
 msgid "HTML & Links"
 msgstr "HTML & länkar"
 
-#: ../include/functions.php:343
+#: ../include/functions.php:438
 msgid "Honeypot"
 msgstr ""
 
-#: ../include/functions.php:357
+#: ../include/functions.php:452
 msgid "If you would like all e-mail links in text to be replaced by a form, choose one here"
 msgstr "Om du vill att alla e-postlänkar i text ska ersättas med ett formulär, välj det här"
 
-#: ../include/functions.php:381
+#: ../include/functions.php:476
 msgid "months"
 msgstr "månader"
 
-#: ../include/functions.php:465
+#: ../include/functions.php:560
 msgid "Unread answers"
 msgstr "Olästa svar"
 
-#: ../include/functions.php:496
+#: ../include/functions.php:591
 msgid "Edit Answer"
 msgstr "Redigera svar"
 
-#: ../include/functions.php:556
+#: ../include/functions.php:651
 msgid "Redirect Test"
 msgstr "Omdirigera test"
 
-#: ../include/functions.php:570
+#: ../include/functions.php:665
 msgid "Redirect All"
 msgstr "Omdirigera alla"
 

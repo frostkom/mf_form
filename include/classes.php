@@ -1999,8 +1999,8 @@ if(!class_exists('mf_form_payment'))
 
 			if(isset($instance['test']) && $instance['test'] == 1)
 			{
-				$out .= "<a href='http://tech.dibspayment.com/toolbox/test_information_cards'>".__("See DIBS test info", 'lang_base')."</a><br>
-				<button type='button' onclick='document.form_payment.submit();'>".__("Send in test mode (No money will be charged)", 'lang_base')."</button>";
+				$out .= "<a href='http://tech.dibspayment.com/toolbox/test_information_cards'>".__("See DIBS test info", 'lang_form')."</a><br>
+				<button type='button' onclick='document.form_payment.submit();'>".__("Send in test mode (No money will be charged)", 'lang_form')."</button>";
 			}
 
 			else
@@ -2008,7 +2008,7 @@ if(!class_exists('mf_form_payment'))
 				$out .= "<script>document.form_payment.submit();</script>";
 			}
 
-			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."102: ".__("Sent to payment", 'lang_base')."' WHERE answerID = '".$this->orderid."' AND query2TypeID = '0' AND answerText LIKE '10%'");
+			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."102: ".__("Sent to payment", 'lang_form')."' WHERE answerID = '".$this->orderid."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 			return $out;
 		}
@@ -2118,7 +2118,7 @@ if(!class_exists('mf_form_payment'))
 
 			if(isset($this->test) && $this->test == 1)
 			{
-				$out .= "<button type='button' onclick='document.form_payment.submit();'>".__("Send in test mode (No money will be charged)", 'lang_base')."</button>";
+				$out .= "<button type='button' onclick='document.form_payment.submit();'>".__("Send in test mode (No money will be charged)", 'lang_form')."</button>";
 			}
 
 			else
@@ -2254,7 +2254,7 @@ if(!class_exists('mf_form_payment'))
 
 			echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
-			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."103: ".__("User canceled", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
+			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."103: ".__("User canceled", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 			mf_redirect(get_site_url());
 		}
@@ -2265,7 +2265,7 @@ if(!class_exists('mf_form_payment'))
 
 			if($this->answer_id > 0)
 			{
-				$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."104: ".__("User has paid. Waiting for confirmation...", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
+				$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."104: ".__("User has paid. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 				if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
 				{
@@ -2291,7 +2291,7 @@ if(!class_exists('mf_form_payment'))
 					{
 						echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
-						$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_base')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
+						$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
 
 						$strFormAnswerURL = get_permalink($intFormAnswerURL);
 
@@ -2372,7 +2372,7 @@ if(!class_exists('mf_form_payment'))
 
 			$this->amount = check_var('amount', 'int');
 
-			$out .= __("Processing...", 'lang_base');
+			$out .= __("Processing...", 'lang_form');
 
 			switch($this->provider)
 			{
@@ -2445,12 +2445,12 @@ if(!class_exists('mf_form_payment'))
 
 				if($is_valid_mac)
 				{
-					$this->confirm_paid(__("Payment done", 'lang_base')." (".($this->amount / 100).")");
+					$this->confirm_paid(__("Payment done", 'lang_form')." (".($this->amount / 100).")");
 				}
 
 				else
 				{
-					$this->confirm_error(__("Payment done", 'lang_base')." (".__("But could not verify", 'lang_base').", ".$mac." != ".$_POST['MAC'].")");
+					$this->confirm_error(__("Payment done", 'lang_form')." (".__("But could not verify", 'lang_form').", ".$mac." != ".$_POST['MAC'].")");
 				}
 			}
 
@@ -2532,12 +2532,12 @@ if(!class_exists('mf_form_payment'))
 
 					if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
 					{
-						$this->confirm_paid(__("Payment done", 'lang_base')." (".$this->amount.")");
+						$this->confirm_paid(__("Payment done", 'lang_form')." (".$this->amount.")");
 					}
 
 					else
 					{
-						$this->confirm_error(__("Payment done", 'lang_base')." (".__("But could not verify", 'lang_base').", Success - ".$this->token.")");
+						$this->confirm_error(__("Payment done", 'lang_form')." (".__("But could not verify", 'lang_form').", Success - ".$this->token.")");
 
 						/*$out .= "<div class='error'>
 							<p>GetTransactionDetails failed: ".urldecode($httpParsedResponseAr["L_LONGMESSAGE0"])."</p>
@@ -2549,7 +2549,7 @@ if(!class_exists('mf_form_payment'))
 
 				else
 				{
-					$this->confirm_error(__("Payment done", 'lang_base')." (".__("But could not verify", 'lang_base').", ".$this->token.")");
+					$this->confirm_error(__("Payment done", 'lang_form')." (".__("But could not verify", 'lang_form').", ".$this->token.")");
 
 					/*$out .= "<div class='error'>
 						<p>Callback: ".urldecode($httpParsedResponseAr["L_LONGMESSAGE0"])."</p>
@@ -2596,10 +2596,10 @@ if(!class_exists('mf_form_payment'))
 
 				switch($status)
 				{
-					case -2:		$payment_status_text = __("Failed", 'lang_base');			break;
-					case 2:			$payment_status_text = __("Processed", 'lang_base');		break;
-					case 0:			$payment_status_text = __("Pending", 'lang_base');			break;
-					case -1:		$payment_status_text = __("Cancelled", 'lang_base');		break;
+					case -2:		$payment_status_text = __("Failed", 'lang_form');			break;
+					case 2:			$payment_status_text = __("Processed", 'lang_form');		break;
+					case 0:			$payment_status_text = __("Pending", 'lang_form');			break;
+					case -1:		$payment_status_text = __("Cancelled", 'lang_form');		break;
 				}
 
 				if($is_valid_mac)
@@ -2609,7 +2609,7 @@ if(!class_exists('mf_form_payment'))
 
 				else
 				{
-					$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_base').", ".$md5sig." != ".$md5calc.") (".$this->amount." ".$currency.")");
+					$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$this->amount." ".$currency.")");
 				}
 			}
 
@@ -2655,10 +2655,10 @@ if(!class_exists('mf_form_payment'))
 
 				switch($status)
 				{
-					case -2:		$payment_status_text = __("Failed", 'lang_base');			break;
-					case 2:			$payment_status_text = __("Processed", 'lang_base');		break;
-					case 0:			$payment_status_text = __("Pending", 'lang_base');			break;
-					case -1:		$payment_status_text = __("Cancelled", 'lang_base');		break;
+					case -2:		$payment_status_text = __("Failed", 'lang_form');			break;
+					case 2:			$payment_status_text = __("Processed", 'lang_form');		break;
+					case 0:			$payment_status_text = __("Pending", 'lang_form');			break;
+					case -1:		$payment_status_text = __("Cancelled", 'lang_form');		break;
 				}
 
 				if($is_valid_mac)
@@ -2668,7 +2668,7 @@ if(!class_exists('mf_form_payment'))
 
 				else
 				{
-					$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_base').", ".$md5sig." != ".$md5calc.") (".$this->amount." ".$currency.")");
+					$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$this->amount." ".$currency.")");
 				}
 			}
 
