@@ -1,9 +1,11 @@
 <?php
 
-mf_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css", get_plugin_version(__FILE__));
+$plugin_version = get_plugin_version(__FILE__);
+
+mf_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css", $plugin_version);
 wp_enqueue_script('jquery-ui-sortable');
 mf_enqueue_script('script_touch', plugins_url()."/mf_base/include/jquery.ui.touch-punch.min.js", '0.2.2');
-mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), get_plugin_version(__FILE__));
+mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
 
 $obj_form = new mf_form();
 

@@ -52,7 +52,7 @@ function do_form_type_action(selector)
 
 function check_remember_fields()
 {
-	jQuery.getScript(script_forms.plugins_url + "/mf_base/include/jquery.Storage.js").done(function()
+	jQuery.getScript(script_form.plugins_url + "/mf_base/include/jquery.Storage.js").done(function()
 	{
 		if(jQuery.Storage)
 		{
@@ -149,7 +149,7 @@ function check_zip_code(selector)
 	{
 		jQuery.ajax(
 		{
-			url: script_forms.plugin_url + 'ajax.php?type=zipcode/search/' + search,
+			url: script_form.plugin_url + 'ajax.php?type=zipcode/search/' + search,
 			type: 'get',
 			dataType: 'json',
 			success: function(data)
@@ -253,7 +253,7 @@ jQuery(function($)
 		hide_form_overlay();
 	});
 
-	if(script_forms.reload == 'no')
+	if(script_form.reload == 'no')
 	{
 		$(document).on('submit', '.mf_form_submit', function(e)
 		{
@@ -266,7 +266,7 @@ jQuery(function($)
 			{
 				type: "post",
 				dataType: "json",
-				url: script_forms.ajax_url,
+				url: script_form.ajax_url,
 				data: form_data,
 				success: function(data)
 				{
@@ -330,13 +330,25 @@ jQuery(function($)
 	$(document).on('click', '.mf_form button.button-primary', function()
 	{
 		var dom_obj = $(this),
-			dom_obj_label = $(this).html();
+			dom_obj_label = dom_obj.html(),
+			dom_empty_required = dom_obj.parents('form').find('[required]:visible').filter(function()
+			{
+				return !this.value;
+			});
 
-		dom_obj.attr("disabled", "disabled").html("<i class='fa fa-spinner fa-spin'></i> " + script_forms.please_wait + "&hellip;");
-
-		setTimeout(function()
+		if(dom_empty_required.length > 0)
 		{
-			dom_obj.removeAttr("disabled").html(dom_obj_label);
-		}, 5000);
+			console.log("There are required fields left to fill out");
+		}
+
+		else
+		{
+			dom_obj.attr("disabled", "disabled").html("<i class='fa fa-spinner fa-spin'></i> " + script_form.please_wait + "&hellip;");
+
+			setTimeout(function()
+			{
+				dom_obj.removeAttr("disabled").html(dom_obj_label);
+			}, 5000);
+		}
 	});
 });

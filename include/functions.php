@@ -191,8 +191,10 @@ function init_form()
 {
 	$setting_form_reload = get_option_or_default('setting_form_reload', 'yes');
 
-	mf_enqueue_style('style_form', plugin_dir_url(__FILE__)."style.css", get_plugin_version(__FILE__));
-	mf_enqueue_script('script_forms', plugin_dir_url(__FILE__)."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__), 'reload' => $setting_form_reload, 'please_wait' => __("Please wait", 'lang_form')), get_plugin_version(__FILE__));
+	$plugin_version = get_plugin_version(__FILE__);
+
+	mf_enqueue_style('style_form', plugin_dir_url(__FILE__)."style.css", $plugin_version);
+	mf_enqueue_script('script_form', plugin_dir_url(__FILE__)."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => plugin_dir_url(__FILE__), 'reload' => $setting_form_reload, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version);
 
 	$labels = array(
 		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
@@ -214,7 +216,7 @@ function init_form()
 
 	if(get_option('setting_replacement_form') > 0)
 	{
-		mf_enqueue_style('style_form_replacement', plugin_dir_url(__FILE__)."style_replacement.css", get_plugin_version(__FILE__));
+		mf_enqueue_style('style_form_replacement', plugin_dir_url(__FILE__)."style_replacement.css", $plugin_version);
 
 		add_filter('the_content', 'the_content_form');
 	}
