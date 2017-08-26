@@ -327,7 +327,7 @@ jQuery(function($)
 		do_form_type_action($(this));
 	});
 
-	$(document).on('click', '.mf_form button.button-primary', function()
+	$(document).on('click', '.mf_form.mf_form_submit button.button-primary', function()
 	{
 		var dom_obj = $(this),
 			dom_obj_label = dom_obj.html(),
@@ -336,10 +336,7 @@ jQuery(function($)
 				return !this.value;
 			});
 
-		if(dom_empty_required.length > 0)
-		{
-			console.log("There are required fields left to fill out");
-		}
+		if(dom_empty_required.length > 0){}
 
 		else
 		{
