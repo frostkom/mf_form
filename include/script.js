@@ -327,7 +327,7 @@ jQuery(function($)
 		do_form_type_action($(this));
 	});
 
-	$(document).on('click', '.mf_form.mf_form_submit button.button-primary', function()
+	$(document).on('click', '.mf_form.mf_form_submit button.button-primary:not(.disabled)', function()
 	{
 		var dom_obj = $(this),
 			dom_obj_label = dom_obj.html(),
@@ -340,11 +340,11 @@ jQuery(function($)
 
 		else
 		{
-			dom_obj.attr("disabled", "disabled").html("<i class='fa fa-spinner fa-spin'></i> " + script_form.please_wait + "&hellip;");
+			dom_obj.addClass("disabled").html("<i class='fa fa-spinner fa-spin'></i> " + script_form.please_wait + "&hellip;");
 
 			setTimeout(function()
 			{
-				dom_obj.removeAttr("disabled").html(dom_obj_label);
+				dom_obj.removeClass("disabled").html(dom_obj_label);
 			}, 5000);
 		}
 	});
