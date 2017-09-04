@@ -327,25 +327,34 @@ jQuery(function($)
 		do_form_type_action($(this));
 	});
 
-	$(document).on('click', '.mf_form.mf_form_submit button.button-primary:not(.disabled)', function()
+	$(document).on('click', '.mf_form button.button-primary', function()
 	{
-		var dom_obj = $(this),
-			dom_obj_label = dom_obj.html(),
-			dom_empty_required = dom_obj.parents('form').find('[required]:visible').filter(function()
-			{
-				return !this.value;
-			});
+		var dom_obj = $(this);
 
-		if(dom_empty_required.length > 0){}
+		if(dom_obj.hasClass("disabled"))
+		{
+			return false;
+		}
 
 		else
 		{
-			dom_obj.addClass("disabled").html("<i class='fa fa-spinner fa-spin'></i> " + script_form.please_wait + "&hellip;");
+			var dom_obj_label = dom_obj.html(),
+				dom_empty_required = dom_obj.parents('form').find('[required]:visible').filter(function()
+				{
+					return !this.value;
+				});
 
-			setTimeout(function()
+			if(dom_empty_required.length > 0){}
+
+			else
 			{
-				dom_obj.removeClass("disabled").html(dom_obj_label);
-			}, 5000);
+				dom_obj.addClass("disabled").html("<i class='fa fa-spinner fa-spin'></i> " + script_form.please_wait + "&hellip;");
+
+				setTimeout(function()
+				{
+					dom_obj.removeClass("disabled").html(dom_obj_label);
+				}, 5000);
+			}
 		}
 	});
 });
