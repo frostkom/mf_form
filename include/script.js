@@ -255,7 +255,7 @@ jQuery(function($)
 
 	if(script_form.reload == 'no')
 	{
-		$(document).on('submit', '.mf_form_submit', function(e)
+		$(document).on('submit', '.mf_form_submit', function()
 		{
 			var self = $(this),
 				form_data = self.serialize();
@@ -327,7 +327,7 @@ jQuery(function($)
 		do_form_type_action($(this));
 	});
 
-	$(document).on('click', '.mf_form button.button-primary', function()
+	$(document).on('click', '.mf_form_submit button.button-primary', function()
 	{
 		var dom_obj = $(this);
 
