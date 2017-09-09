@@ -2086,8 +2086,6 @@ class mf_form_payment
 
 	function process_passthru_skrill()
 	{
-		global $wpdb;
-
 		$out = "";
 
 		if($this->currency == ''){	$this->currency = "USD";}
@@ -2130,7 +2128,7 @@ class mf_form_payment
 	// developer.billmate.se/api-integration
 	function process_passthru_billmate()
 	{
-		global $wpdb;
+		global $error_text;
 
 		include_once("lib/Billmate.php");
 
@@ -2149,9 +2147,10 @@ class mf_form_payment
 
 		$id = $this->merchant;
 		$key = $this->hmac;
-		define("BILLMATE_SERVER", "2.1.6");	/* API version */
+		define("BILLMATE_SERVER", "2.1.6");
 		define("BILLMATE_CLIENT", "Pluginname:BillMate:1.0");
 		define("BILLMATE_LANGUAGE", $this->language);
+
 		$bm = new BillMate($id, $key, $ssl, $test, $debug);
 		$values = array();
 
@@ -2216,34 +2215,61 @@ class mf_form_payment
 			)
 		);*/
 
-		/*$values["Articles"][0] = array(
-				"artnr" => "A123",
-				"title" => "Article 1",
-				"quantity" => "2",
-				"aprice" => "1234",
-				"taxrate" => "25",
-				"discount" => "0",
-				"withouttax" => "2468",
-		);*/
+		$amount_incl_tax = $this->amount * 100;
+		$amount_excl_tax = $amount_incl_tax * .8;
+		$amount_tax = $amount_incl_tax * .2;
 
-		/*$values["Cart"] = array(
-			"Handling" => array(
-					"withouttax" => "1000",
-					"taxrate" => "25"
-				),
-			"Shipping" => array(
-					"withouttax" => "3000",
-					"taxrate" => "25"
-				),
+		$values["Articles"][0] = array(
+				"artnr" => $transaction_id,
+				"title" => $this->name,
+				"quantity" => 1,
+				"aprice" => $amount_excl_tax,
+				"taxrate" => 25,
+				"discount" => 0,
+				"withouttax" => $amount_excl_tax,
+		);
+
+		$values["Cart"] = array(
+			/*"Handling" => array(
+				"withouttax" => "1000",
+				"taxrate" => "25"
+			),*/
+			/*"Shipping" => array(
+				"withouttax" => "3000",
+				"taxrate" => "25"
+			),*/
 			"Total" => array(
-					"withouttax" => "185325",
-					"tax" => "46331",
-					"rounding" => "44",
-					"withtax" => "231700"
-				)
-		);*/
+				"withouttax" => $amount_excl_tax,
+				"tax" => $amount_tax,
+				"rounding" => 0,
+				"withtax" => $amount_incl_tax,
+			)
+		);
 
-		$bm->addPayment($values);
+		$result = $bm->addPayment($values);
+
+		if(isset($result['message']) && $result['message'] != '')
+		{
+			$error_text = $result['message'];
+
+			$out .= get_notification();
+		}
+
+		else if(isset($result['url']) && $result['url'] != '')
+		{
+			echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
+
+			$this->action = $result['url'];
+
+			mf_redirect($this->action);
+		}
+
+		else
+		{
+			$out .= "<br><br>Billmate->addPayment() returned: ".var_export($bm, true)."<br><br>".var_export($result, true)."<br><br>---------------";
+		}
+
+		return $out;
 	}
 
 	function confirm_cancel()
