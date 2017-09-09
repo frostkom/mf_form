@@ -578,6 +578,43 @@ function get_count_answer_message($id = 0)
 		</span>";
 	}
 
+	else if(!($id > 0))
+	{
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) WHERE (blogID = '%d' OR blogID IS null) ORDER BY answerCreated DESC LIMIT 0, 2", $wpdb->blogid));
+
+		if($wpdb->num_rows == 2)
+		{
+			$dteAnswerNew = $dteAnswerOld = "";
+
+			$i = 0;
+
+			foreach($result as $r)
+			{
+				if($i == 0)
+				{
+					$dteAnswerNew = $r->answerCreated;
+				}
+
+				else
+				{
+					$dteAnswerOld = $r->answerCreated;
+				}
+
+				$i++;
+			}
+
+			$date_diff_old = time_between_dates(array('start' => $dteAnswerOld, 'end' => $dteAnswerNew, 'type' => 'round', 'return' => 'minutes'));
+			$date_diff_new = time_between_dates(array('start' => $dteAnswerNew, 'end' => date("Y-m-d H:i:s"), 'type' => 'round', 'return' => 'minutes'));
+
+			if($date_diff_new > ($date_diff_old * 2))
+			{
+				$count_message = "&nbsp;<span title='".sprintf(__("There are no answers since %s", 'lang_form'), format_date($dteAnswerNew))."'>
+					<i class='fa fa-warning yellow'></i>
+				</span>";
+			}
+		}
+	}
+
 	return $count_message;
 }
 
@@ -594,7 +631,10 @@ function menu_form()
 	$count_message = get_count_answer_message();
 
 	$menu_title = __("Forms", 'lang_form');
-	add_menu_page($menu_title, $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms');
+	add_menu_page("", $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms');
+
+	$menu_title = __("List", 'lang_form');
+	add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_start);
 
 	if($count_forms > 0)
 	{
