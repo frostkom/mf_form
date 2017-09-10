@@ -2868,7 +2868,7 @@ class mf_form_table extends mf_list_table
 
 		if($this->search != '')
 		{
-			$this->query_where .= get_form_xtra("", $this->search, "", "post_title");
+			$this->query_where .= ($this->query_where != '' ? " AND " : "").get_form_xtra("", $this->search, "", "post_title");
 		}
 
 		$this->set_views(array(
