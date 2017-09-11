@@ -3935,9 +3935,12 @@ class widget_form extends WP_Widget
 			'description' => __("Display a form that you've previously created", 'lang_form')
 		);
 
-		$control_ops = array('id_base' => 'form-widget');
+		$this->arr_default = array(
+			'form_heading' => "",
+			'form_id' => "",
+		);
 
-		parent::__construct('form-widget', __("Form", 'lang_form'), $widget_ops, $control_ops);
+		parent::__construct('form-widget', __("Form", 'lang_form'), $widget_ops);
 	}
 
 	function widget($args, $instance)
@@ -3945,6 +3948,8 @@ class widget_form extends WP_Widget
 		global $wpdb;
 
 		extract($args);
+
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		if($instance['form_id'] > 0)
 		{
@@ -3968,6 +3973,8 @@ class widget_form extends WP_Widget
 	{
 		$instance = $old_instance;
 
+		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
+
 		$instance['form_heading'] = strip_tags($new_instance['form_heading']);
 		$instance['form_id'] = strip_tags($new_instance['form_id']);
 
@@ -3976,13 +3983,7 @@ class widget_form extends WP_Widget
 
 	function form($instance)
 	{
-		global $wpdb;
-
-		$defaults = array(
-			'form_heading' => "",
-			'form_id' => "",
-		);
-		$instance = wp_parse_args((array)$instance, $defaults);
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		$obj_form = new mf_form();
 		$arr_data = $obj_form->get_form_array(array('force_has_page' => false));
