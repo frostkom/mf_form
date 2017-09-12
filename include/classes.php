@@ -2787,40 +2787,10 @@ class mf_form_export extends mf_export
 
 						case 10:
 							$strAnswerText = $obj_form->parse_select_info($strAnswerText);
-
-							/*$arr_content1 = explode(":", $obj_form->label);
-							$arr_content2 = explode(",", $arr_content1[1]);
-
-							foreach($arr_content2 as $str_content)
-							{
-								$arr_content3 = explode("|", $str_content);
-
-								if($strAnswerText == $arr_content3[0])
-								{
-									$strAnswerText = $arr_content3[1];
-								}
-							}*/
 						break;
 
 						case 11:
 							$strAnswerText = $obj_form->parse_multiple_info($strAnswerText);
-
-							/*$arr_content1 = explode(":", $obj_form->label);
-							$arr_content2 = explode(",", $arr_content1[1]);
-
-							$arr_answer_text = explode(",", $strAnswerText);
-
-							$strAnswerText = "";
-
-							foreach($arr_content2 as $str_content)
-							{
-								$arr_content3 = explode("|", $str_content);
-
-								if(in_array($arr_content3[0], $arr_answer_text))
-								{
-									$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
-								}
-							}*/
 						break;
 
 						case 15:
