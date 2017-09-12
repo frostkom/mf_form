@@ -1516,6 +1516,11 @@ class mf_form
 		return $out;
 	}
 
+	function process_submit_fallback()
+	{
+		do_log("Submit Fallback: ".var_export($this, true).", ".var_export($_REQUEST, true));
+	}
+
 	function get_form($data = array())
 	{
 		global $wpdb, $wp_query;
@@ -1681,7 +1686,7 @@ class mf_form
 
 	function process_form($data = array())
 	{
-		global $wpdb;
+		global $wpdb, $error_text;
 
 		$out = "";
 
@@ -1710,6 +1715,13 @@ class mf_form
 			if(isset($_POST['btnFormSubmit']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id) && $this->is_correct_form($data))
 			{
 				$out .= $this->process_submit();
+			}
+
+			else if(isset($_POST['btnFormSubmit']) || wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id))
+			{
+				$this->process_submit_fallback();
+
+				$error_text = __("I could not validate the form submission correctly. If the problem persists, contact an admin", 'lang_form');
 			}
 
 			$out .= $this->get_form($data);

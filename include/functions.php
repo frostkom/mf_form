@@ -281,7 +281,9 @@ function submit_form()
 
 	else
 	{
-		$result['error'] = __("I could not validate the form submission correctly. If the problem persists, contact an admin", 'lang_auth');
+		$obj_form->process_submit_fallback();
+
+		$result['error'] = __("I could not validate the form submission correctly. If the problem persists, contact an admin", 'lang_form');
 	}
 
 	echo json_encode($result);

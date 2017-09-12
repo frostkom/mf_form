@@ -290,21 +290,21 @@ jQuery(function($)
 							}
 						}
 
-						if(!data.output && !data.redirect)
+						/*if(!data.output && !data.redirect)
 						{
 							console.log("Some other success...");
-						}
+						}*/
 					}
 
 					else if(data.error)
 					{
-						console.log(data.error);
+						$('h1').after("<div class='error'><p>" + data.error + "</p></div>");
 					}
 
-					else
+					/*else
 					{
 						console.log("Something else...");
-					}
+					}*/
 				}
 			});
 
