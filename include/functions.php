@@ -580,7 +580,7 @@ function get_count_answer_message($id = 0)
 
 	else if(!($id > 0))
 	{
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) WHERE (blogID = '%d' OR blogID IS null) ORDER BY answerCreated DESC LIMIT 0, 2", $wpdb->blogid));
+		$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) ORDER BY answerCreated DESC LIMIT 0, 2"); //$wpdb->prepare( WHERE (blogID = '%d' OR blogID IS null), $wpdb->blogid)
 
 		if($wpdb->num_rows == 2)
 		{
