@@ -580,7 +580,7 @@ function get_count_answer_message($id = 0)
 		</span>";
 	}
 
-	else if(!($id > 0))
+	else if(!($id > 0) && IS_SUPER_ADMIN)
 	{
 		$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) ORDER BY answerCreated DESC LIMIT 0, 2"); //$wpdb->prepare( WHERE (blogID = '%d' OR blogID IS null), $wpdb->blogid)
 
@@ -630,7 +630,7 @@ function menu_form()
 
 	$menu_capability = 'edit_pages';
 
-	$count_message = get_count_answer_message();
+	$count_message = $count_forms > 0 ? get_count_answer_message() : "";
 
 	$menu_title = __("Forms", 'lang_form');
 	add_menu_page("", $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms');

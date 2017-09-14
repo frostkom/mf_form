@@ -367,13 +367,22 @@ class mf_form
 
 	function count_forms($data = array())
 	{
-		global $wpdb;
+		/*global $wpdb;
 
 		if(!isset($data['post_status'])){	$data['post_status'] = "";}
 
 		$wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form'".($data['post_status'] != '' ? " AND post_status = '".esc_sql($data['post_status'])."'" : ""));
 
-		return $wpdb->num_rows;
+		return $wpdb->num_rows;*/
+
+		$tbl_group = new mf_form_table();
+
+		$tbl_group->select_data(array(
+			//'select' => "*",
+			//'debug' => true,
+		));
+
+		return count($tbl_group->data);
 	}
 
 	function is_poll()
