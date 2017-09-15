@@ -1726,7 +1726,7 @@ class mf_form
 				$out .= $this->process_submit();
 			}
 
-			else if(isset($_POST['btnFormSubmit']) || wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id))
+			else if(isset($_POST['btnFormSubmit']) || isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id))
 			{
 				$this->process_submit_fallback();
 
@@ -2683,38 +2683,53 @@ class mf_form_payment
 		{
 			do_log("Billmate: ".var_export($_REQUEST, true));
 
-			//pay_to_email, pay_from_email, amount
+			/*number : fakturanummer i online.billmate.se
+			status : orderns status, i detta fall när det är kortbetalning så kommer status vara 'Paid'
+			orderid: butikens ordernummer, så butik vet vilken order det är som är betald */
 
-			/*$md5sig = check_var('md5sig', 'char');
-			$currency = check_var('currency', 'char');
+			/*"credentials": {
+				"hash": "26042c7bc65e106d1d0276a72edc4b1d00e8237155f0de52b4a3b2391c7f6a6bad828ecbb0533b04782e816341ff376943719d6de7519e3384379292ed2d9d22"
+			},
+			"data": {
+				"number": "1043",
+				"status": "Paid",
+				"url": "https:\/\/invoice.billmate.se\/20170914150722041959bac84c65edf",
+				"orderid": "176",
+				"carddata": {
+					"maskedcardno": "xxxxxxxxxxxx5187",
+					"cardholdername": "",
+					"expirymonth": "04",
+					"expiryyear": "20"
+				}
+			}*/
 
-			$merchant_id = check_var('merchant_id', 'char');
-			$mb_amount = check_var('mb_amount', 'char');
-			$mb_currency = check_var('mb_currency', 'char');
-			$status = check_var('status', 'char');
+			/*$result = json_decode($);
 
-			$md5calc = strtoupper(md5($merchant_id.$transaction_id.strtoupper(md5($this->hmac)).$mb_amount.$mb_currency.$status));
-
-			$is_valid_mac = $md5sig == $md5calc;
+			$md5sig = $result->credentials->hash;
+			$status = $result->data->status;
+			$orderid = $result->data->orderid;
 
 			$payment_status_text = "";
 
 			switch($status)
 			{
-				case -2:		$payment_status_text = __("Failed", 'lang_form');			break;
-				case 2:			$payment_status_text = __("Processed", 'lang_form');		break;
-				case 0:			$payment_status_text = __("Pending", 'lang_form');			break;
-				case -1:		$payment_status_text = __("Cancelled", 'lang_form');		break;
+				case 'Paid':	$payment_status_text = __("Paid", 'lang_form');		break;
+				
+				//case '':		$payment_status_text = __("Failed", 'lang_form');			break;
+				//case '':		$payment_status_text = __("Pending", 'lang_form');			break;
+				//case '':		$payment_status_text = __("Cancelled", 'lang_form');		break;
 			}
 
-			if($is_valid_mac)
+			$md5calc = strtoupper(md5($merchant_id.$transaction_id.strtoupper(md5($this->hmac)).$mb_amount.$mb_currency.$status));
+
+			if($md5sig == $md5calc)
 			{
-				$this->confirm_paid($status.": ".$payment_status_text." (".$this->amount." ".$currency.")");
+				$this->confirm_paid($status.": ".$payment_status_text." (".$orderid.")");
 			}
 
 			else
 			{
-				$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$this->amount." ".$currency.")");
+				$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$orderid.")");
 			}*/
 		}
 
