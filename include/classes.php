@@ -2282,7 +2282,7 @@ class mf_form_payment
 
 			$this->action = $result['url'];
 
-			mf_redirect($this->action);
+			mf_redirect($this->action, array(), 'get');
 		}
 
 		else
@@ -2501,7 +2501,6 @@ class mf_form_payment
 
 		else if($this->is_cancel)
 		{
-			//Is the ID really sent with the cancel request?
 			$this->confirm_cancel();
 		}
 
@@ -2675,16 +2674,18 @@ class mf_form_payment
 		$transaction_id = check_var('transaction_id', 'char');
 		$this->answer_id = str_replace($this->prefix, "", $transaction_id);
 
-		/*if($this->is_accept)
+		if($this->is_accept)
 		{
 			$this->confirm_accept();
 		}
 
 		else if($this->is_callback)
 		{
+			do_log("Billmate: ".var_export($_REQUEST, true));
+
 			//pay_to_email, pay_from_email, amount
 
-			$md5sig = check_var('md5sig', 'char');
+			/*$md5sig = check_var('md5sig', 'char');
 			$currency = check_var('currency', 'char');
 
 			$merchant_id = check_var('merchant_id', 'char');
@@ -2714,13 +2715,13 @@ class mf_form_payment
 			else
 			{
 				$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$this->amount." ".$currency.")");
-			}
+			}*/
 		}
 
 		else if($this->is_cancel)
 		{
 			$this->confirm_cancel();
-		}*/
+		}
 
 		return $out;
 	}

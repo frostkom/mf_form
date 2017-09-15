@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 10.5.10
+Version: 10.5.12
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -352,8 +352,6 @@ function activate_form()
 		//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryConverted = '1' WHERE queryID = '%d'", $intFormID));
 	}*/
 	#################################
-
-	replace_option(array('old' => 'mf_form_setting_replacement_form', 'new' => 'setting_replacement_form'));
 }
 
 function deactivate_form()
