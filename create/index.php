@@ -528,7 +528,7 @@ echo "<div class='wrap'>
 
 								if($form_status == "publish")
 								{
-									echo show_textfield(array('name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'type' => 'date'));
+									echo show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline));
 								}
 
 							echo "</div>

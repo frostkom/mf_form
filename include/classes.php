@@ -2157,7 +2157,7 @@ class mf_form_payment
 
 		if($this->currency == ''){	$this->currency = "USD";}
 
-		$transaction_id = $this->prefix.$this->orderid;
+		$transaction_id = str_replace("_", "", $this->prefix).$this->orderid; //Billmate cannot handle anything but letters and numbers
 
 		$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "first"));
 		$this->country = get_site_language(array('language' => get_bloginfo('language'), 'type' => "last"));
@@ -2308,6 +2308,8 @@ class mf_form_payment
 	{
 		global $wpdb, $wp_query;
 
+		$out = "";
+
 		if($this->answer_id > 0)
 		{
 			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."104: ".__("User has paid. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
@@ -2343,10 +2345,12 @@ class mf_form_payment
 					mf_redirect($strFormAnswerURL);
 				}
 
-				/*else
+				else
 				{
-					header("Status: 400 Bad Request");
-				}*/
+					do_log("Redirect not verified");
+
+					//header("Status: 400 Bad Request");
+				}
 
 				//Switch back to orig site
 				###################
@@ -2354,16 +2358,18 @@ class mf_form_payment
 				###################
 			}
 
-			/*else
+			else
 			{
-				header("Status: 400 Bad Request");
-			}*/
+				$out .= "<p>".__("Thank you!", 'lang_form')."</p>";
+			}
 		}
 
 		else
 		{
 			header("Status: 400 Bad Request");
 		}
+
+		return $out;
 	}
 
 	function confirm_paid($message)
@@ -2417,7 +2423,7 @@ class mf_form_payment
 
 		$this->amount = check_var('amount', 'int');
 
-		$out .= __("Processing...", 'lang_form');
+		$out .= "<p>".__("Processing", 'lang_form')."&hellip;</p>";
 
 		switch($this->provider)
 		{
@@ -2454,7 +2460,7 @@ class mf_form_payment
 
 		if($this->is_accept)
 		{
-			$this->confirm_accept();
+			$out .= $this->confirm_accept();
 		}
 
 		else if($this->is_callback)
@@ -2554,7 +2560,7 @@ class mf_form_payment
 			//Check if everything went ok..
 			if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
 			{
-				$this->confirm_accept();
+				$out .= $this->confirm_accept();
 
 				/*if('Completed' == $httpParsedResponseAr["PAYMENTINFO_0_PAYMENTSTATUS"])
 				{
@@ -2617,7 +2623,7 @@ class mf_form_payment
 
 		if($this->is_accept)
 		{
-			$this->confirm_accept();
+			$out .= $this->confirm_accept();
 		}
 
 		else if($this->is_callback)
@@ -2671,66 +2677,84 @@ class mf_form_payment
 
 		$out = "";
 
-		$transaction_id = check_var('transaction_id', 'char');
-		$this->answer_id = str_replace($this->prefix, "", $transaction_id);
+		/*"credentials": {
+			"hash": "26042c7bc65e106d1d0276a72edc4b1d00e8237155f0de52b4a3b2391c7f6a6bad828ecbb0533b04782e816341ff376943719d6de7519e3384379292ed2d9d22"
+		},
+		"data": {
+			"number": "1043",
+			"status": "Paid",
+			"url": "https:\/\/invoice.billmate.se\/20170914150722041959bac84c65edf",
+			"orderid": "176",
+			"carddata": {
+				"maskedcardno": "xxxxxxxxxxxx5187",
+				"cardholdername": "",
+				"expirymonth": "04",
+				"expiryyear": "20"
+			}
+		}*/
+
+		$result_credentials = isset($_POST['credentials']) ? json_decode(stripslashes($_POST['credentials']), true) : array();
+		$result_data = isset($_POST['data']) ? json_decode(stripslashes($_POST['data']), true) : array();
+
+		/*echo "POST: ".var_export($_POST, true)."<br>"
+		."Data: ".var_export($result_data, true)."<br>"
+		."Echo: ".$result_data."<br>"
+		."Decode: ".var_export(json_decode($result_data, true), true)."<br>"
+		."Order ID: ".$result_data['orderid'];*/
+
+		$hash = $result_credentials['hash'];
+		$status = $result_data['status'];
+		$orderid = $result_data['orderid'];
+
+		$this->answer_id = str_replace(str_replace("_", "", $this->prefix), "", $orderid);
+
+		$is_verified = hash_hmac('sha512', json_encode($result_data), $this->hmac) == $hash;
+
+		//do_log("Verified: ".$is_verified." (".hash_hmac('sha512', json_encode($result_data), $this->hmac)." == ".$hash.")");
 
 		if($this->is_accept)
 		{
-			$this->confirm_accept();
+			$out .= $this->confirm_accept();
 		}
 
 		else if($this->is_callback)
 		{
-			do_log("Billmate: ".var_export($_REQUEST, true));
-
-			/*number : fakturanummer i online.billmate.se
-			status : orderns status, i detta fall när det är kortbetalning så kommer status vara 'Paid'
-			orderid: butikens ordernummer, så butik vet vilken order det är som är betald */
-
-			/*"credentials": {
-				"hash": "26042c7bc65e106d1d0276a72edc4b1d00e8237155f0de52b4a3b2391c7f6a6bad828ecbb0533b04782e816341ff376943719d6de7519e3384379292ed2d9d22"
-			},
-			"data": {
-				"number": "1043",
-				"status": "Paid",
-				"url": "https:\/\/invoice.billmate.se\/20170914150722041959bac84c65edf",
-				"orderid": "176",
-				"carddata": {
-					"maskedcardno": "xxxxxxxxxxxx5187",
-					"cardholdername": "",
-					"expirymonth": "04",
-					"expiryyear": "20"
-				}
-			}*/
-
-			/*$result = json_decode($);
-
-			$md5sig = $result->credentials->hash;
-			$status = $result->data->status;
-			$orderid = $result->data->orderid;
+			do_log("Billmate callback: ".var_export($_REQUEST, true));
 
 			$payment_status_text = "";
 
 			switch($status)
 			{
-				case 'Paid':	$payment_status_text = __("Paid", 'lang_form');		break;
-				
-				//case '':		$payment_status_text = __("Failed", 'lang_form');			break;
-				//case '':		$payment_status_text = __("Pending", 'lang_form');			break;
-				//case '':		$payment_status_text = __("Cancelled", 'lang_form');		break;
+				case 'Paid':		$payment_status_text = __("Paid", 'lang_form');			break;
+				case 'Created':		$payment_status_text = __("Created", 'lang_form');		break;
+				case 'Pending':		$payment_status_text = __("Pending", 'lang_form');		break;
+				case 'Failed':		$payment_status_text = __("Failed", 'lang_form');		break;
+				case 'Cancelled':	$payment_status_text = __("Cancelled", 'lang_form');	break;
 			}
 
-			$md5calc = strtoupper(md5($merchant_id.$transaction_id.strtoupper(md5($this->hmac)).$mb_amount.$mb_currency.$status));
-
-			if($md5sig == $md5calc)
+			if($is_verified)
 			{
-				$this->confirm_paid($status.": ".$payment_status_text." (".$orderid.")");
+				switch($status)
+				{
+					case 'Paid':
+					case 'Created':
+						//Do nothing here
+					break;
+
+					case 'Pending':
+					case 'Failed':
+					case 'Cancelled':
+						do_log("What should I do? I was given the callback but it sent me (".var_export($result, true).")");
+					break;
+				}
+
+				$this->confirm_paid($status." (".$orderid.")");
 			}
 
 			else
 			{
-				$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$orderid.")");
-			}*/
+				$this->confirm_error($status." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$orderid.")");
+			}
 		}
 
 		else if($this->is_cancel)
