@@ -2162,17 +2162,11 @@ class mf_form_payment
 		$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "first"));
 		$this->country = get_site_language(array('language' => get_bloginfo('language'), 'type' => "last"));
 
-		$test = $this->test;
-		$ssl = true;
-		$debug = $this->test;
-
-		$id = $this->merchant;
-		$key = $this->hmac;
 		define("BILLMATE_SERVER", "2.1.6");
 		define("BILLMATE_CLIENT", "Pluginname:BillMate:1.0");
 		define("BILLMATE_LANGUAGE", $this->language);
 
-		$bm = new BillMate($id, $key, $ssl, $test, $debug);
+		$bm = new BillMate($this->merchant, $this->hmac, true, $this->test, false);
 		$values = array();
 
 		$values["PaymentData"] = array(
@@ -2186,17 +2180,6 @@ class mf_form_payment
 			//"logo" => "Logo2.jpg",
 		);
 
-		/*$values["PaymentInfo"] = array(
-			"paymentdate" => "2014-07-31",
-			"paymentterms" => "14",
-			"yourreference" => "Purchaser X",
-			"ourreference" => "Seller Y",
-			"projectname" => "Project Z",
-			"delivery" => "Post",
-			"deliveryterms" => "FOB",
-			"autocredit" => "false",
-		);*/
-
 		$values["Card"] = array(
 			//"promptname" => "",
 			//"3dsecure" => "",
@@ -2207,34 +2190,6 @@ class mf_form_payment
 			//"returnmethod" => "", //POST/GET
 			"callbackurl" => $this->base_callback_url."?callback",
 		);
-
-		/*$values["Customer"] = array(
-			"nr" => "12",
-			"pno" => "550101-1018",
-			"Billing" => array(
-				"firstname" => "Testperson",
-				"lastname" => "Approved",
-				"company" => "Company",
-				"street" => "Teststreet",
-				"street2" => "Street2",
-				"zip" => "12345",
-				"city" => "Testcity",
-				"country" => "Sverige",
-				"phone" => "0712-345678",
-				"email" => "test@developer.billmate.se",
-			),
-			"Shipping" => array(
-				"firstname" => "Testperson",
-				"lastname" => "Approved",
-				"company" => "Company",
-				"street" => "Teststreet",
-				"street2" => "Shipping Street2",
-				"zip" => "12345",
-				"city" => "Testcity",
-				"country" => "Sverige",
-				"phone" => "0711-345678",
-			)
-		);*/
 
 		$amount_incl_tax = $this->amount * 100;
 		$amount_excl_tax = $amount_incl_tax * .8;
@@ -2712,54 +2667,62 @@ class mf_form_payment
 
 		//do_log("Verified: ".$is_verified." (".hash_hmac('sha512', json_encode($result_data), $this->hmac)." == ".$hash.")");
 
-		if($this->is_accept)
+		if($is_verified)
 		{
-			$out .= $this->confirm_accept();
-		}
-
-		else if($this->is_callback)
-		{
-			do_log("Billmate callback: ".var_export($_REQUEST, true));
-
-			$payment_status_text = "";
-
-			switch($status)
+			if($this->is_accept)
 			{
-				case 'Paid':		$payment_status_text = __("Paid", 'lang_form');			break;
-				case 'Created':		$payment_status_text = __("Created", 'lang_form');		break;
-				case 'Pending':		$payment_status_text = __("Pending", 'lang_form');		break;
-				case 'Failed':		$payment_status_text = __("Failed", 'lang_form');		break;
-				case 'Cancelled':	$payment_status_text = __("Cancelled", 'lang_form');	break;
+				$out .= $this->confirm_accept();
 			}
 
-			if($is_verified)
+			else if($this->is_callback)
 			{
+				do_log("Billmate callback: ".var_export($_REQUEST, true));
+
+				$payment_status_text = "";
+
 				switch($status)
 				{
-					case 'Paid':
-					case 'Created':
-						//Do nothing here
-					break;
-
-					case 'Pending':
-					case 'Failed':
-					case 'Cancelled':
-						do_log("What should I do? I was given the callback but it sent me (".var_export($result, true).")");
-					break;
+					case 'Paid':		$payment_status_text = __("Paid", 'lang_form');			break;
+					case 'Created':		$payment_status_text = __("Created", 'lang_form');		break;
+					case 'Pending':		$payment_status_text = __("Pending", 'lang_form');		break;
+					case 'Failed':		$payment_status_text = __("Failed", 'lang_form');		break;
+					case 'Cancelled':	$payment_status_text = __("Cancelled", 'lang_form');	break;
 				}
 
-				$this->confirm_paid($status." (".$orderid.")");
+				if($is_verified)
+				{
+					switch($status)
+					{
+						case 'Paid':
+						case 'Created':
+							//Do nothing here
+						break;
+
+						case 'Pending':
+						case 'Failed':
+						case 'Cancelled':
+							do_log("What should I do? I was given the callback but it sent me (".var_export($result, true).")");
+						break;
+					}
+
+					$this->confirm_paid($status." (".$orderid.")");
+				}
+
+				else
+				{
+					$this->confirm_error($status." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$orderid.")");
+				}
 			}
 
-			else
+			else if($this->is_cancel)
 			{
-				$this->confirm_error($status." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$orderid.")");
+				$this->confirm_cancel();
 			}
 		}
 
-		else if($this->is_cancel)
+		else
 		{
-			$this->confirm_cancel();
+			do_log(__("Not verified correctly", 'lang_form')." (".var_export($_REQUEST, true).")");
 		}
 
 		return $out;
