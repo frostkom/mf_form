@@ -311,14 +311,14 @@ function delete_form($post_id)
 	}
 }
 
-function get_page_from_form($id)
+/*function get_page_from_form($id)
 {
 	global $wpdb;
 
 	$result = $wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type != 'revision' AND post_status = 'publish' AND (post_content LIKE '%".addslashes("[mf_form id=".esc_sql($id)."]")."%' OR post_content LIKE '%".addslashes("[form_shortcode id='".esc_sql($id)."']")."%')");
 
 	return $result;
-}
+}*/
 
 function get_form_url($form_id)
 {
@@ -326,12 +326,17 @@ function get_form_url($form_id)
 
 	if($form_id > 0)
 	{
-		$result = get_page_from_form($form_id);
+		/*$result = get_page_from_form($form_id);
 
 		foreach($result as $r)
 		{
 			$post_id = $r->ID;
 
+			$out = get_permalink($post_id);
+		}*/
+
+		foreach(get_pages_from_shortcode("[mf_form id=".$form_id."]") as $post_id)
+		{
 			$out = get_permalink($post_id);
 		}
 	}

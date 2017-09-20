@@ -21,6 +21,19 @@ class mf_form
 		}
 	}
 
+	function post_updated($post_id, $post_after, $post_before)
+	{
+		$arr_include = array('mf_form');
+
+		if(isset($post_after) && in_array($post_after->post_type, $arr_include) && ($post_after->post_status == 'publish' || $post_before->post_status == 'publish') && class_exists('mf_cache')) // && $post_after != $post_before //post_modified is different so point in checking for changes this way
+		{
+			$shortcode = "[mf_form id=".$post_id."]";
+
+			$obj_cache = new mf_cache();
+			$obj_cache->shortcode_updated($shortcode);
+		}
+	}
+
 	function meta($data)
 	{
 		if($data['action'] == "get")
@@ -504,7 +517,8 @@ class mf_form
 			$intQueryID = $r->queryID;
 			$strQueryName = $r->queryName;
 
-			$result2 = get_page_from_form($intQueryID);
+			//$result2 = get_page_from_form($intQueryID);
+			$result2 = get_pages_from_shortcode("[mf_form id=".$intQueryID."]");
 
 			if(count($result2) > 0 || $data['force_has_page'] == false)
 			{
@@ -2925,14 +2939,21 @@ class mf_form_table extends mf_list_table
 					{
 						$shortcode = "[mf_form id=".$obj_form->id."]";
 
-						$result = get_page_from_form($obj_form->id);
+						//$result = get_page_from_form($obj_form->id);
+						$result = get_pages_from_shortcode($shortcode);
 
 						if(count($result) > 0)
 						{
-							foreach($result as $r)
+							/*foreach($result as $r)
 							{
 								$post_id_temp = $r->ID;
 
+								$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
+								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
+							}*/
+							
+							foreach($result as $post_id_temp)
+							{
 								$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
 								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
 							}
