@@ -177,34 +177,12 @@ jQuery(function($)
 		collect_on_load('on_load_form');
 	}
 
-	/*$.fn.nextElementInDom = function(selector, options)
-	{
-		var defaults = {stopAt: 'body'};
-		options = $.extend(defaults, options);
-
-		var parent = $(this).parent(),
-			found = parent.find(selector);
-
-		switch(true)
-		{
-			case (found.length > 0):
-			return found;
-
-			case (parent.length === 0 || parent.is(options.stopAt)):
-			return $([]);
-
-			default:
-			return parent.nextElementInDom(selector);
-		}
-    };*/
-
 	$(document).on('click', '.form_link', function(event)
 	{
 		console.log("Clicked");
 
 		var dom_obj_link = $(this),
 			dom_obj_inline = $("#inline_form_" + dom_obj_link.attr('rel')),
-			/*dom_obj_inline = dom_obj_link.nextElementInDom('.form_inline'),*/
 			dom_overlay = $('#overlay_form > div');
 
 		if($('#wrapper').length > 0)
