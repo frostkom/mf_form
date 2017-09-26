@@ -1541,7 +1541,7 @@ class mf_form
 
 	function process_submit_fallback()
 	{
-		do_log("Submit Fallback: ".var_export($this, true).", ".var_export($_REQUEST, true));
+		do_log("Submit Fallback: ".isset($_POST['btnFormSubmit'])." || ".isset($_POST['_wpnonce'])." && ".wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id)." (".var_export($this, true).", ".var_export($_REQUEST, true).")");
 	}
 
 	function get_form($data = array())

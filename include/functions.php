@@ -254,7 +254,6 @@ function submit_form()
 	$result = array();
 
 	$obj_form = new mf_form();
-
 	$obj_form->dup_ip = $obj_form->check_if_duplicate();
 
 	if(wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$obj_form->id))
