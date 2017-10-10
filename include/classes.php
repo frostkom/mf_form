@@ -734,6 +734,11 @@ class mf_form
 		return array($result, $wpdb->num_rows);
 	}
 
+	function render_mail_subject($data)
+	{
+		return str_replace("[answer_id]", $this->answer_id, $data['subject']);
+	}
+
 	function render_mail_content($data)
 	{
 		if(!isset($data['template'])){	$data['template'] = false;}
@@ -858,11 +863,6 @@ class mf_form
 	{
 		global $wpdb;
 
-		/*if(isset($data['answer_id']))
-		{
-			$this->answer_id = $data['answer_id'];
-		}*/
-
 		$mail_content = "";
 
 		if(isset($data['page_id']) && $data['page_id'] > 0)
@@ -874,8 +874,13 @@ class mf_form
 				$data['subject'] = $r->post_title;
 				$mail_template = apply_filters('the_content', $r->post_content);
 
-				$mail_content = $this->render_mail_content(array('mail_to' => $data['mail_to'], 'array' => $data['content'], 'template' => $mail_template)); //'answer_id' => $this->answer_id,
+				$mail_content = $this->render_mail_content(array('mail_to' => $data['mail_to'], 'array' => $data['content'], 'template' => $mail_template));
 			}
+		}
+
+		if($data['subject'] != '')
+		{
+			$data['subject'] = $this->render_mail_subject(array('subject' => $data['subject']));
 		}
 
 		if($mail_content == '')

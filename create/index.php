@@ -495,7 +495,7 @@ echo "<div class='wrap'>
 
 								$arr_data_pages = $arr_data;
 
-								echo show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation page", 'lang_form')));
+								echo show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>"));
 
 								if($obj_form->is_poll())
 								{
@@ -511,13 +511,13 @@ echo "<div class='wrap'>
 								}
 
 								echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Notification on new answer", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailNotify))
-								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Notification template", 'lang_form'), 'class' => "query_email_notify_page".($intFormEmailNotify == 1 ? "" : " hide")));
+								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Notification template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>", 'class' => "query_email_notify_page".($intFormEmailNotify == 1 ? "" : " hide")));
 
 								if($obj_form->has_email_field() > 0)
 								{
 									echo "<h4>".__("E-mail to visitor", 'lang_form')."</h4>"
 									.show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailConfirm))
-									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form'), 'class' => "query_email_confirm_page".($intFormEmailConfirm == 1 ? " " : " hide")));
+									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>", 'class' => "query_email_confirm_page".($intFormEmailConfirm == 1 ? " " : " hide")));
 								}
 
 								echo "<h4>".__("Button", 'lang_form')."</h4>
