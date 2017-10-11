@@ -11,12 +11,12 @@
 		z-index: 1;
 	}
 
-		#aside.left .form_inline
+		.aside.left .form_inline
 		{
 			left: 0;
 		}
 
-		#aside.right .form_inline
+		.aside.right .form_inline
 		{
 			right: 0;
 		}
