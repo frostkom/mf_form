@@ -231,7 +231,7 @@ jQuery(function($)
 		hide_form_overlay();
 	});
 
-	if(script_form.reload == 'no')
+	/*if(script_form.reload == 'no')
 	{
 		$(document).on('submit', '.mf_form_submit', function()
 		{
@@ -267,28 +267,18 @@ jQuery(function($)
 								location.href = data.redirect;
 							}
 						}
-
-						/*if(!data.output && !data.redirect)
-						{
-							console.log("Some other success...");
-						}*/
 					}
 
 					else if(data.error)
 					{
 						$('h1').after("<div class='error'><p>" + data.error + "</p></div>");
 					}
-
-					/*else
-					{
-						console.log("Something else...");
-					}*/
 				}
 			});
 
 			return false;
 		});
-	}
+	}*/
 
 	$(document).on('change', '.mf_form input[type=range]', function()
 	{

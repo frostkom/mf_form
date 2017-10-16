@@ -285,6 +285,11 @@ echo "<div class='wrap'>
 
 		if($obj_form->id > 0)
 		{
+			if($intFormTypeID == '')
+			{
+				$intFormTypeID = $wpdb->get_var($wpdb->prepare("SELECT queryTypeID FROM ".$wpdb->base_prefix."query2type WHERE userID = '%d' ORDER BY query2TypeCreated DESC", get_current_user_id()));
+			}
+
 			echo "<div id='post-body' class='columns-2'>
 				<div id='post-body-content'>
 					<div class='postbox".($intForm2TypeID > 0 ? " active" : "")."'>
@@ -293,64 +298,23 @@ echo "<div class='wrap'>
 							<div class='flex_flow'>
 								<div>";
 
-									if($intFormTypeID == '')
-									{
-										$intFormTypeID = $wpdb->get_var($wpdb->prepare("SELECT queryTypeID FROM ".$wpdb->base_prefix."query2type WHERE userID = '%d' ORDER BY query2TypeCreated DESC", get_current_user_id()));
-									}
-
 									if($intFormTypeID == 13)
 									{
-										$strFormTypeName = $obj_form->get_type_name($intFormTypeID);
-
-										echo show_textfield(array('name' => 'intFormTypeID_name', 'text' => __("Type", 'lang_form'), 'value' => $strFormTypeName, 'xtra' => "readonly"))
+										echo show_textfield(array('name' => 'intFormTypeID_name', 'text' => __("Type", 'lang_form'), 'value' => $obj_form->get_type_name($intFormTypeID), 'xtra' => "readonly"))
 										.input_hidden(array('name' => 'intFormTypeID', 'value' => $intFormTypeID, 'xtra' => "id='intFormTypeID'"));
 									}
 
 									else
 									{
-										$arr_data = array();
-										$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
-
-										$result = $wpdb->get_results("SELECT queryTypeID, queryTypeName, COUNT(queryTypeID) AS queryType_amount FROM ".$wpdb->base_prefix."query_type LEFT JOIN ".$wpdb->base_prefix."query2type USING (queryTypeID) WHERE queryTypePublic = 'yes' GROUP BY queryTypeID ORDER BY queryType_amount DESC, queryTypeName ASC");
-
-										foreach($result as $r)
-										{
-											if($intFormTypeID > 0 || $r->queryTypeID != 13)
-											{
-												$arr_data[$r->queryTypeID] = $r->queryTypeName;
-											}
-										}
-
-										echo show_select(array('data' => $arr_data, 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'text' => __("Type", 'lang_form')));
+										echo show_select(array('data' => $obj_form->get_form_types_for_select(), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'text' => __("Type", 'lang_form')));
 									}
 
 									echo show_textarea(array('name' => 'strFormTypeText', 'text' => __("Text", 'lang_form'), 'value' => $strFormTypeText, 'class' => "show_textarea hide"))
 								."</div>
-								<div>";
-
-									$result = $wpdb->get_results("SELECT checkID, checkName FROM ".$wpdb->base_prefix."query_check WHERE checkPublic = '1' ORDER BY checkName ASC");
-
-									if($wpdb->num_rows > 0)
-									{
-										$arr_data = array();
-										$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
-
-										foreach($result as $r)
-										{
-											$arr_data[$r->checkID] = __($r->checkName, 'lang_form');
-										}
-
-										echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'value' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"));
-									}
-
-									echo show_textfield(array('name' => 'strFormTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strFormTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"));
-
-									$arr_data = array(
-										'div' => "div",
-										'fieldset' => "fieldset",
-									);
-
-									echo show_select(array('data' => $arr_data, 'name' => 'strFormTypeText2', 'value' => $strFormTypeText, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
+								<div>"
+									.show_select(array('data' => $obj_form->get_form_checks_for_select(), 'name' => "intCheckID", 'value' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"))
+									.show_textfield(array('name' => 'strFormTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strFormTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"))
+									.show_select(array('data' => array('div' => "div", 'fieldset' => "fieldset"), 'name' => 'strFormTypeText2', 'value' => $strFormTypeText, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
 									."<div class='show_range flex_flow hide'>"
 										.show_textfield(array('name' => 'strFormTypeMin', 'text' => __("Min value", 'lang_form'), 'value' => $strFormTypeMin, 'maxlength' => 3, 'size' => 5))
 										.show_textfield(array('name' => 'strFormTypeMax', 'text' => __("Max value", 'lang_form'), 'value' => $strFormTypeMax, 'maxlength' => 3, 'size' => 5))

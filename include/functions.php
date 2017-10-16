@@ -205,10 +205,10 @@ function init_form()
 	$plugin_include_url = plugin_dir_url(__FILE__);
 	$plugin_version = get_plugin_version(__FILE__);
 
-	$setting_form_reload = get_option_or_default('setting_form_reload', 'yes');
+	//$setting_form_reload = get_option_or_default('setting_form_reload', 'yes');
 
 	mf_enqueue_style('style_form', $plugin_include_url."style.css", $plugin_version);
-	mf_enqueue_script('script_form', $plugin_include_url."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'reload' => $setting_form_reload, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version);
+	mf_enqueue_script('script_form', $plugin_include_url."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version); //, 'reload' => $setting_form_reload
 
 	$labels = array(
 		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
@@ -256,7 +256,9 @@ function submit_form()
 	$obj_form = new mf_form();
 	$obj_form->dup_ip = $obj_form->check_if_duplicate();
 
-	if(wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$obj_form->id))
+	do_log("This should not be used because btnFormSubmit is not in POST");
+
+	if(isset($_POST['btnFormSubmit'])) // && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$obj_form->id)
 	{
 		$result['output'] = $obj_form->process_submit();
 
@@ -278,12 +280,12 @@ function submit_form()
 		}
 	}
 
-	else
+	/*else
 	{
 		$obj_form->process_submit_fallback();
 
 		$result['error'] = __("I could not validate the form submission correctly. If the problem persists, contact an admin", 'lang_form');
-	}
+	}*/
 
 	echo json_encode($result);
 	die();
@@ -388,7 +390,7 @@ function settings_form()
 	$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
 	$arr_settings['setting_form_spam'] = __("Spam Filter", 'lang_form');
 
-	$arr_settings['setting_form_reload'] = __("Reload page on form submission", 'lang_form');
+	//$arr_settings['setting_form_reload'] = __("Reload page on form submission", 'lang_form');
 
 	$wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE answerSpam = '1' LIMIT 0, 1");
 
@@ -482,13 +484,13 @@ function setting_replacement_form_text_callback()
 	echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Click here to send e-mail", 'lang_form')));
 }
 
-function setting_form_reload_callback()
+/*function setting_form_reload_callback()
 {
 	$setting_key = get_setting_key(__FUNCTION__);
 	$option = get_option($setting_key, 'yes');
 
 	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
-}
+}*/
 
 function setting_form_clear_spam_callback()
 {

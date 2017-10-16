@@ -106,6 +106,51 @@ class mf_form
 		return $strAnswerText;
 	}
 
+	function get_form_types_for_select()
+	{
+		global $wpdb, $intFormTypeID;
+
+		$arr_data = array();
+
+		$result = $wpdb->get_results("SELECT queryTypeID, queryTypeName, COUNT(queryTypeID) AS queryType_amount FROM ".$wpdb->base_prefix."query_type LEFT JOIN ".$wpdb->base_prefix."query2type USING (queryTypeID) WHERE queryTypePublic = 'yes' GROUP BY queryTypeID ORDER BY queryType_amount DESC, queryTypeName ASC");
+
+		if($wpdb->num_rows > 0)
+		{
+			$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+
+			foreach($result as $r)
+			{
+				if($intFormTypeID > 0 || $r->queryTypeID != 13)
+				{
+					$arr_data[$r->queryTypeID] = $r->queryTypeName;
+				}
+			}
+		}
+
+		return $arr_data;
+	}
+
+	function get_form_checks_for_select()
+	{
+		global $wpdb;
+
+		$arr_data = array();
+
+		$result = $wpdb->get_results("SELECT checkID, checkName FROM ".$wpdb->base_prefix."query_check WHERE checkPublic = '1' ORDER BY checkName ASC");
+
+		if($wpdb->num_rows > 0)
+		{
+			$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+
+			foreach($result as $r)
+			{
+				$arr_data[$r->checkID] = __($r->checkName, 'lang_form');
+			}
+		}
+
+		return $arr_data;
+	}
+
 	function save_data()
 	{
 		global $wpdb, $error_text, $done_text;
@@ -1544,10 +1589,10 @@ class mf_form
 		return $out;
 	}
 
-	function process_submit_fallback()
+	/*function process_submit_fallback()
 	{
-		//do_log("Submit Fallback: ".isset($_POST['btnFormSubmit'])." || ".isset($_POST['_wpnonce'])." && ".wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id)." (".var_export($this, true).", ".var_export($_REQUEST, true).")");
-	}
+		do_log("Submit Fallback: ".isset($_POST['btnFormSubmit'])." || ".isset($_POST['_wpnonce'])." && ".wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id)." (".var_export($this, true).", ".var_export($_REQUEST, true).")");
+	}*/
 
 	function get_form($data = array())
 	{
@@ -1700,7 +1745,7 @@ class mf_form
 
 								$out .= "</div>"
 								.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
-								.wp_nonce_field('form_submit_'.$this->id, '_wpnonce', true, false)
+								//.wp_nonce_field('form_submit_'.$this->id, '_wpnonce', true, false)
 							."</div>";
 						}
 
@@ -1740,17 +1785,17 @@ class mf_form
 		{
 			$this->dup_ip = $this->check_if_duplicate();
 
-			if(isset($_POST['btnFormSubmit']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id) && $this->is_correct_form($data))
+			if(isset($_POST['btnFormSubmit']) && $this->is_correct_form($data)) // && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id)
 			{
 				$out .= $this->process_submit();
 			}
 
-			else if(isset($_POST['btnFormSubmit']) || isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id))
+			/*else if(isset($_POST['btnFormSubmit']) || isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id))
 			{
 				$this->process_submit_fallback();
 
 				$error_text = __("I could not validate the form submission correctly. If the problem persists, contact an admin", 'lang_form');
-			}
+			}*/
 
 			$out .= $this->get_form($data);
 		}
