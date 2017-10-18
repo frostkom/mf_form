@@ -285,10 +285,27 @@ echo "<div class='wrap'>
 
 		if($obj_form->id > 0)
 		{
+			$form_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s", 'lang_forms'), "[answer_id]")
+				."&content=".sprintf(__("Ticket: %s, Answers: %s", 'lang_forms'), "[answer_id]", "[form_fields]");
+
+			if(is_plugin_active("mf_webshop/index.php"))
+			{
+				$form_page_shortcodes .= ($form_page_shortcodes != '' ? ", " : "").sprintf(__("Document Types: %s, Products: %s, Product Name: %s, Yes Link: %s, No Link: %s", 'lang_forms'), "[doc_types]", "[products]", "[product]", "[link_yes]", "[link_no]");
+			}
+
 			if($intFormTypeID == '')
 			{
 				$intFormTypeID = $wpdb->get_var($wpdb->prepare("SELECT queryTypeID FROM ".$wpdb->base_prefix."query2type WHERE userID = '%d' ORDER BY query2TypeCreated DESC", get_current_user_id()));
 			}
+
+			if($strFormTypeSelect == '')
+			{
+				$strFormTypeSelect = "|";
+			}
+
+			$arr_select_rows = explode(",", $strFormTypeSelect);
+
+			$arr_data_pages = $obj_form->get_pages_for_select();
 
 			echo "<div id='post-body' class='columns-2'>
 				<div id='post-body-content'>
@@ -324,13 +341,6 @@ echo "<div class='wrap'>
 										<label>".__("Value", 'lang_form')."</label>
 										<div class='select_rows'>";
 
-											if($strFormTypeSelect == '')
-											{
-												$strFormTypeSelect = "|";
-											}
-
-											$arr_select_rows = explode(",", $strFormTypeSelect);
-
 											foreach($arr_select_rows as $select_row)
 											{
 												$arr_select_row_content = explode("|", $select_row);
@@ -349,20 +359,8 @@ echo "<div class='wrap'>
 
 									//Advanced
 									#################
-									echo get_toggler_container(array('type' => 'start', 'text' => __("Advanced", 'lang_form'), 'rel' => $obj_form->id));
-
-										$arr_data = array(
-											'' => "-- ".__("Choose here", 'lang_form')." --",
-											'h1' => "h1",
-											'h2' => "h2",
-											'h3' => "h3",
-											'h4' => "h4",
-											'h5' => "h5",
-											'p' => "p",
-											'blockquote' => "blockquote",
-										);
-
-										echo show_select(array('data' => $arr_data, 'name' => 'strFormTypeTag', 'value' => $strFormTypeTag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
+									echo get_toggler_container(array('type' => 'start', 'text' => __("Advanced", 'lang_form'), 'rel' => $obj_form->id))
+										.show_select(array('data' => $obj_form->get_tags_for_select(), 'name' => 'strFormTypeTag', 'value' => $strFormTypeTag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
 										.show_textfield(array('name' => 'strFormTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strFormTypeClass, 'placeholder' => "bold italic aligncenter alignleft alignright", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"))
 										.show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Fetch From ID", 'lang_form'), 'value' => $strFormTypeFetchFrom, 'maxlength' => 50, 'xtra_class' => "show_fetch_from hide"));
 
@@ -456,14 +454,8 @@ echo "<div class='wrap'>
 						</div>
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
-							<div class='inside'>";
-
-								$arr_data = array();
-								get_post_children(array('add_choose_here' => true), $arr_data);
-
-								$arr_data_pages = $arr_data;
-
-								echo show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>"));
+							<div class='inside'>"
+								.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>"));
 
 								if($obj_form->is_poll())
 								{
@@ -479,13 +471,13 @@ echo "<div class='wrap'>
 								}
 
 								echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Notification on new answer", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailNotify))
-								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Notification template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>", 'class' => "query_email_notify_page".($intFormEmailNotify == 1 ? "" : " hide")));
+								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Notification template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-lg fa-plus'></i></a>", 'class' => "query_email_notify_page".($intFormEmailNotify == 1 ? "" : " hide")));
 
 								if($obj_form->has_email_field() > 0)
 								{
 									echo "<h4>".__("E-mail to visitor", 'lang_form')."</h4>"
 									.show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailConfirm))
-									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>", 'class' => "query_email_confirm_page".($intFormEmailConfirm == 1 ? " " : " hide")));
+									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-lg fa-plus'></i></a>", 'class' => "query_email_confirm_page".($intFormEmailConfirm == 1 ? " " : " hide")));
 								}
 
 								echo "<h4>".__("Button", 'lang_form')."</h4>
@@ -503,17 +495,8 @@ echo "<div class='wrap'>
 						</div>
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Payment", 'lang_form')."</span></h3>
-							<div class='inside'>";
-
-								$arr_data = array();
-
-								$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
-								$arr_data[4] = __("Billmate", 'lang_form');
-								$arr_data[1] = __("DIBS", 'lang_form');
-								$arr_data[3] = __("Paypal", 'lang_form');
-								$arr_data[2] = __("Skrill", 'lang_form');
-
-								echo show_select(array('data' => $arr_data, 'name' => 'intFormPaymentProvider', 'value' => $intFormPaymentProvider, 'text' => __("Provider", 'lang_form')));
+							<div class='inside'>"
+								.show_select(array('data' => $obj_form->get_payment_providers_for_select(), 'name' => 'intFormPaymentProvider', 'value' => $intFormPaymentProvider, 'text' => __("Provider", 'lang_form')));
 
 								switch($intFormPaymentProvider)
 								{
@@ -541,53 +524,8 @@ echo "<div class='wrap'>
 
 								if($intFormPaymentProvider > 0 && $strFormPaymentMerchant != '' && $strFormPaymentHmac != '')
 								{
-									$arr_data = array();
-
-									$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
-
-									switch($intFormPaymentProvider)
-									{
-										case 1:
-											$arr_data[208] = __("Danish Krone", 'lang_form')." (DKK)";
-											$arr_data[978] = __("Euro", 'lang_form')." (EUR)";
-											$arr_data[840] = __("US Dollar", 'lang_form')." (USD)";
-											$arr_data[826] = __("English Pound", 'lang_form')." (GBP)";
-											$arr_data[752] = __("Swedish Krona", 'lang_form')." (SEK)";
-											$arr_data[036] = __("Australian Dollar", 'lang_form')." (AUD)";
-											$arr_data[124] = __("Canadian Dollar", 'lang_form')." (CAD)";
-											$arr_data[352] = __("Icelandic Krona", 'lang_form')." (ISK)";
-											$arr_data[392] = __("Japanese Yen", 'lang_form')." (JPY)";
-											$arr_data[554] = __("New Zealand Dollar", 'lang_form')." (NZD)";
-											$arr_data[578] = __("Norwegian Krone", 'lang_form')." (NOK)";
-											$arr_data[756] = __("Swiss Franc", 'lang_form')." (CHF)";
-											$arr_data[949] = __("Turkish Lira", 'lang_form')." (TRY)";
-										break;
-
-										default:
-											$arr_data["DKK"] = __("Danish Krone", 'lang_form')." (DKK)";
-											$arr_data["EUR"] = __("Euro", 'lang_form')." (EUR)";
-											$arr_data["USD"] = __("US Dollar", 'lang_form')." (USD)";
-											$arr_data["GBP"] = __("English Pound", 'lang_form')." (GBP)";
-											$arr_data["SEK"] = __("Swedish Krona", 'lang_form')." (SEK)";
-											$arr_data["AUD"] = __("Australian Dollar", 'lang_form')." (AUD)";
-											$arr_data["CAD"] = __("Canadian Dollar", 'lang_form')." (CAD)";
-											$arr_data["ISK"] = __("Icelandic Krona", 'lang_form')." (ISK)";
-											$arr_data["JPY"] = __("Japanese Yen", 'lang_form')." (JPY)";
-											$arr_data["NZD"] = __("New Zealand Dollar", 'lang_form')." (NZD)";
-											$arr_data["NOK"] = __("Norwegian Krone", 'lang_form')." (NOK)";
-											$arr_data["CHF"] = __("Swiss Franc", 'lang_form')." (CHF)";
-											$arr_data["TRY"] = __("Turkish Lira", 'lang_form')." (TRY)";
-										break;
-									}
-
-									$arr_data = array_sort(array('array' => $arr_data, 'on' => 1, 'keep_index' => true));
-
-									echo show_select(array('data' => $arr_data, 'name' => 'strFormPaymentCurrency', 'value' => $strFormPaymentCurrency, 'text' => __("Currency", 'lang_form')));
-
-									list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(10, 12)));
-									$arr_data = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
-
-									echo show_select(array('data' => $arr_data, 'name' => 'intFormPaymentAmount', 'value' => $intFormPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')));
+									echo show_select(array('data' => $obj_form->get_payment_currency_for_select($intFormPaymentProvider), 'name' => 'strFormPaymentCurrency', 'value' => $strFormPaymentCurrency, 'text' => __("Currency", 'lang_form')))
+									.show_select(array('data' => $obj_form->get_payment_amount_for_select(), 'name' => 'intFormPaymentAmount', 'value' => $intFormPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')));
 								}
 
 							echo "</div>
@@ -600,9 +538,8 @@ echo "<div class='wrap'>
 		else
 		{
 			echo "<form method='post' action='' class='mf_form mf_settings'>
-				<div class='postbox'>";
-					//<h3 class='hndle'><span>".__("Add New", 'lang_form')."</span></h3>
-					echo "<div class='inside'>"
+				<div class='postbox'>
+					<div class='inside'>"
 						.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
 						.show_button(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))
 						.input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))

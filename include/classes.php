@@ -151,6 +151,90 @@ class mf_form
 		return $arr_data;
 	}
 
+	function get_tags_for_select()
+	{
+		return array(
+			'' => "-- ".__("Choose here", 'lang_form')." --",
+			'h1' => "h1",
+			'h2' => "h2",
+			'h3' => "h3",
+			'h4' => "h4",
+			'h5' => "h5",
+			'p' => "p",
+			'blockquote' => "blockquote",
+		);
+	}
+
+	function get_pages_for_select()
+	{
+		$arr_data = array();
+		get_post_children(array('add_choose_here' => true), $arr_data);
+
+		return $arr_data;
+	}
+
+	function get_payment_providers_for_select()
+	{
+		return array(
+			'' => "-- ".__("Choose here", 'lang_form')." --",
+			4 => __("Billmate", 'lang_form'),
+			1 => __("DIBS", 'lang_form'),
+			3 => __("Paypal", 'lang_form'),
+			2 => __("Skrill", 'lang_form'),
+		);
+	}
+
+	function get_payment_currency_for_select($intFormPaymentProvider)
+	{
+		$arr_data = array();
+		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+
+		switch($intFormPaymentProvider)
+		{
+			case 1:
+				$arr_data[208] = __("Danish Krone", 'lang_form')." (DKK)";
+				$arr_data[978] = __("Euro", 'lang_form')." (EUR)";
+				$arr_data[840] = __("US Dollar", 'lang_form')." (USD)";
+				$arr_data[826] = __("English Pound", 'lang_form')." (GBP)";
+				$arr_data[752] = __("Swedish Krona", 'lang_form')." (SEK)";
+				$arr_data[036] = __("Australian Dollar", 'lang_form')." (AUD)";
+				$arr_data[124] = __("Canadian Dollar", 'lang_form')." (CAD)";
+				$arr_data[352] = __("Icelandic Krona", 'lang_form')." (ISK)";
+				$arr_data[392] = __("Japanese Yen", 'lang_form')." (JPY)";
+				$arr_data[554] = __("New Zealand Dollar", 'lang_form')." (NZD)";
+				$arr_data[578] = __("Norwegian Krone", 'lang_form')." (NOK)";
+				$arr_data[756] = __("Swiss Franc", 'lang_form')." (CHF)";
+				$arr_data[949] = __("Turkish Lira", 'lang_form')." (TRY)";
+			break;
+
+			default:
+				$arr_data["DKK"] = __("Danish Krone", 'lang_form')." (DKK)";
+				$arr_data["EUR"] = __("Euro", 'lang_form')." (EUR)";
+				$arr_data["USD"] = __("US Dollar", 'lang_form')." (USD)";
+				$arr_data["GBP"] = __("English Pound", 'lang_form')." (GBP)";
+				$arr_data["SEK"] = __("Swedish Krona", 'lang_form')." (SEK)";
+				$arr_data["AUD"] = __("Australian Dollar", 'lang_form')." (AUD)";
+				$arr_data["CAD"] = __("Canadian Dollar", 'lang_form')." (CAD)";
+				$arr_data["ISK"] = __("Icelandic Krona", 'lang_form')." (ISK)";
+				$arr_data["JPY"] = __("Japanese Yen", 'lang_form')." (JPY)";
+				$arr_data["NZD"] = __("New Zealand Dollar", 'lang_form')." (NZD)";
+				$arr_data["NOK"] = __("Norwegian Krone", 'lang_form')." (NOK)";
+				$arr_data["CHF"] = __("Swiss Franc", 'lang_form')." (CHF)";
+				$arr_data["TRY"] = __("Turkish Lira", 'lang_form')." (TRY)";
+			break;
+		}
+
+		$arr_data = array_sort(array('array' => $arr_data, 'on' => 1, 'keep_index' => true));
+
+		return $arr_data;
+	}
+
+	function get_payment_amount_for_select()
+	{
+		list($result, $rows) = $this->get_form_type_info(array('query_type_id' => array(10, 12)));
+		return $this->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
+	}
+
 	function save_data()
 	{
 		global $wpdb, $error_text, $done_text;
@@ -881,6 +965,7 @@ class mf_form
 				."&hash=".md5(NONCE_SALT."_".$this->answer_id."_".$intProductID);
 
 			$arr_exclude = array(
+				"[answer_id]",
 				"[form_fields]",
 				"[doc_types]",
 				"[products]",
@@ -890,6 +975,7 @@ class mf_form
 			);
 
 			$arr_include = array(
+				$this->answer_id,
 				$out_fields,
 				$out_doc_types,
 				$out_products,
