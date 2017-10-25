@@ -34,6 +34,23 @@ class mf_form
 		}
 	}
 
+	/*function get_user_reminders($array)
+	{
+		$user_id = $array['user_id'];
+		$reminder_cutoff = $array['cutoff'];
+
+		do_log("obj_form->get_user_reminder was run for ".$user_id." (".$reminder_cutoff.")");
+		
+		$update_form = get_count_answer_message(array('form_id' => $obj_form->id));
+
+		if($update_form != '')
+		{
+			$array['reminder'][] = $update_form;
+		}
+
+		return $array;
+	}*/
+
 	function meta($data)
 	{
 		if($data['action'] == "get")
@@ -1770,7 +1787,7 @@ class mf_form
 
 			else if($out == '')
 			{
-				$cols = $this->edit_mode == true ? 5 : 2;
+				//$cols = $this->edit_mode == true ? 5 : 2;
 
 				$result = $this->get_form_type_result();
 				$intTotalRows = $wpdb->num_rows;
@@ -3242,7 +3259,7 @@ class mf_form_table extends mf_list_table
 
 					if($query_answers > 0 || $query_spam > 0)
 					{
-						$count_message = get_count_answer_message($obj_form->id);
+						$count_message = get_count_answer_message(array('form_id' => $obj_form->id));
 
 						$actions = array();
 
@@ -3639,7 +3656,7 @@ class mf_form_output
 
 	function calculate_value($intAnswerID)
 	{
-		global $wpdb, $has_required_email;
+		global $wpdb;
 
 		if($intAnswerID > 0)
 		{
@@ -3676,7 +3693,7 @@ class mf_form_output
 
 	function get_form_fields($data = array())
 	{
-		global $intFormTypeID2_temp, $intForm2TypeID2_temp, $has_required_email;
+		global $intFormTypeID2_temp, $intForm2TypeID2_temp;
 
 		if(!isset($data['show_label'])){		$data['show_label'] = true;}
 		if(!isset($data['ignore_required'])){	$data['ignore_required'] = false;}

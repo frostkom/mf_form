@@ -564,15 +564,19 @@ function get_form_xtra($query_xtra = "", $search = "", $prefix = " WHERE", $fiel
 	return $query_xtra;
 }
 
-function get_count_answer_message($id = 0)
+function get_count_answer_message($data = array()) //$id = 0
 {
 	global $wpdb;
 
-	$count_message = "";
+	if(!isset($data['form_id'])){		$data['form_id'] = 0;}
+	if(!isset($data['user_id'])){		$data['user_id'] = get_current_user_id();}
+	if(!isset($data['return_type'])){	$data['return_type'] = 'html';}
 
-	$last_viewed = get_user_meta(get_current_user_id(), 'mf_forms_viewed', true);
+	$out = "";
 
-	$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($id > 0 ? " AND queryID = '".$id."'" : ""))
+	$last_viewed = get_user_meta($data['user_id'], 'mf_forms_viewed', true);
+
+	$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($data['form_id'] > 0 ? " AND queryID = '".$data['form_id']."'" : ""))
 		." AND (blogID = '".$wpdb->blogid."' OR blogID IS null)"
 		." AND answerSpam = '0'";
 
@@ -581,12 +585,26 @@ function get_count_answer_message($id = 0)
 
 	if($rows > 0)
 	{
-		$count_message = "&nbsp;<span class='update-plugins' title='".__("Unread answers", 'lang_form')."'>
-			<span>".$rows."</span>
-		</span>";
+		switch($data['return_type'])
+		{
+			default:
+			case 'html':
+				$out = "&nbsp;<span class='update-plugins' title='".__("Unread answers", 'lang_form')."'>
+					<span>".$rows."</span>
+				</span>";
+			break;
+
+			case 'array':
+				$out = array(
+					'title' => $rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form'),
+					'tag' => 'form',
+					'link' => admin_url("admin.php?page=mf_form/list/index.php"),
+				);
+			break;
+		}
 	}
 
-	else if(!($id > 0) && IS_SUPER_ADMIN)
+	else if(!($data['form_id'] > 0) && IS_SUPER_ADMIN)
 	{
 		$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) ORDER BY answerCreated DESC LIMIT 0, 2"); //$wpdb->prepare( WHERE (blogID = '%d' OR blogID IS null), $wpdb->blogid)
 
@@ -616,14 +634,30 @@ function get_count_answer_message($id = 0)
 
 			if($date_diff_new > ($date_diff_old * 2) && $date_diff_new > (60 * 24 * 2))
 			{
-				$count_message = "&nbsp;<span title='".sprintf(__("There are no answers since %s", 'lang_form'), format_date($dteAnswerNew))."'>
-					<i class='fa fa-warning yellow'></i>
-				</span>";
+				$message_temp = sprintf(__("There are no answers since %s", 'lang_form'), format_date($dteAnswerNew));
+
+				switch($data['return_type'])
+				{
+					default:
+					case 'html':
+						$out = "&nbsp;<span title='".$message_temp."'>
+							<i class='fa fa-warning yellow'></i>
+						</span>";
+					break;
+
+					case 'array':
+						$out = array(
+							'title' => $message_temp,
+							'tag' => 'form',
+							'link' => admin_url("admin.php?page=mf_form/list/index.php"),
+						);
+					break;
+				}
 			}
 		}
 	}
 
-	return $count_message;
+	return $out;
 }
 
 function menu_form()
