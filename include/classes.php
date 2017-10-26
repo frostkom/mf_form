@@ -21,7 +21,7 @@ class mf_form
 		}
 	}
 
-	function post_updated($post_id, $post_after, $post_before)
+	/*function post_updated($post_id, $post_after, $post_before)
 	{
 		$arr_include = array('mf_form');
 
@@ -32,7 +32,7 @@ class mf_form
 			$obj_cache = new mf_cache();
 			$obj_cache->shortcode_updated($shortcode);
 		}
-	}
+	}*/
 
 	/*function get_user_reminders($array)
 	{
@@ -3958,7 +3958,7 @@ class mf_form_output
 				if($this->in_edit_mode == true)
 				{
 					$this->output .= "<p".$class_output.">"
-						.($this->in_edit_mode == true ? __("Only in e-mail", 'lang_form').": " : "")
+						.__("Only in e-mail", 'lang_form').": "
 						.$this->row->queryTypeText
 					."</p>";
 				}
