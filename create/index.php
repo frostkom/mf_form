@@ -74,7 +74,7 @@ if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_veri
 
 			$obj_form->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $dteFormDeadline));
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET blogID = '%d', queryEmailConfirm = '%d', queryEmailConfirmPage = %s, queryShowAnswers = '%d', queryName = %s, queryAnswerURL = %s, queryEmail = %s, queryEmailNotify = '%d', queryEmailNotifyPage = %s, queryEmailName = %s, queryMandatoryText = %s, queryButtonText = %s, queryButtonSymbol = %s, queryPaymentProvider = '%d', queryPaymentHmac = %s, queryPaymentMerchant = %s, queryPaymentPassword = %s, queryPaymentCurrency = %s, queryPaymentAmount = '%d' WHERE queryID = '%d' AND queryDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormAnswerURL, $strFormEmail, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentAmount, $obj_form->id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAnswerURL = %s, formEmail = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentAmount = '%d' WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormAnswerURL, $strFormEmail, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentAmount, $obj_form->id));
 
 			$done_text = __("I have updated the form for you", 'lang_form');
 		}
@@ -98,7 +98,7 @@ if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_veri
 
 				$obj_form->post_id = wp_insert_post($post_data);
 
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query SET blogID = '%d', postID = '%d', queryName = %s, queryCreated = NOW(), userID = '%d'", $wpdb->blogid, $obj_form->post_id, $strFormName, get_current_user_id()));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formName = %s, formCreated = NOW(), userID = '%d'", $wpdb->blogid, $obj_form->post_id, $strFormName, get_current_user_id()));
 				$obj_form->id = $wpdb->insert_id;
 
 				$done_text = __("I have created the form for you", 'lang_form');
@@ -150,11 +150,11 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 		{
 			if($intFormTypeID > 0 && ($intFormTypeID == 6 || $intFormTypeID == 9 || $strFormTypeText != ''))
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, queryTypeActionEquals = %s, queryTypeActionShow = %s, userID = '%d' WHERE query2TypeID = '%d'", $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $strFormTypeActionEquals, $intFormTypeActionShow, get_current_user_id(), $intForm2TypeID));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeActionEquals = %s, formTypeActionShow = %s, userID = '%d' WHERE form2TypeID = '%d'", $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $strFormTypeActionEquals, $intFormTypeActionShow, get_current_user_id(), $intForm2TypeID));
 
 				if($intFormTypeID == 13)
 				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeText = %s, userID = '%d' WHERE query2TypeID2 = '%d'", $strFormTypeText, get_current_user_id(), $intForm2TypeID)); //, queryTypeClass = %s, queryTypeFetchFrom = %s, $strFormTypeClass, $strFormTypeFetchFrom
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s, userID = '%d' WHERE form2TypeID2 = '%d'", $strFormTypeText, get_current_user_id(), $intForm2TypeID)); //, formTypeClass = %s, formTypeFetchFrom = %s, $strFormTypeClass, $strFormTypeFetchFrom
 				}
 
 				$intForm2TypeID = $intFormTypeID = $strFormTypeText = $strFormTypePlaceholder = $intCheckID = $strFormTypeTag = $strFormTypeClass = $strFormTypeFetchFrom = $strFormTypeActionEquals = $intFormTypeActionShow = "";
@@ -170,9 +170,9 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 		{
 			if($obj_form->id > 0 && $intFormTypeID > 0 && ($intFormTypeID == 6 || $intFormTypeID == 9 || $strFormTypeText != ''))
 			{
-				$intForm2TypeOrder = $wpdb->get_var($wpdb->prepare("SELECT query2TypeOrder + 1 FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' ORDER BY query2TypeOrder DESC", $obj_form->id));
+				$intForm2TypeOrder = $wpdb->get_var($wpdb->prepare("SELECT form2TypeOrder + 1 FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder DESC", $obj_form->id));
 
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET queryID = '%d', queryTypeID = '%d', queryTypeText = %s, queryTypePlaceholder = %s, checkID = '%d', queryTypeTag = %s, queryTypeClass = %s, queryTypeFetchFrom = %s, queryTypeActionEquals = %s, queryTypeActionShow = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $strFormTypeActionEquals, $intFormTypeActionShow, $intForm2TypeOrder, get_current_user_id()));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeActionEquals = %s, formTypeActionShow = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $strFormTypeActionEquals, $intFormTypeActionShow, $intForm2TypeOrder, get_current_user_id()));
 
 				if($intFormTypeID == 13)
 				{
@@ -180,7 +180,7 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 					$intFormTypeID = 14;
 					$intForm2TypeOrder++;
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET query2TypeID2 = '%d', queryID = '%d', queryTypeID = '%d', queryTypeText = %s, query2TypeOrder = '%d', query2TypeCreated = NOW(), userID = '%d'", $intForm2TypeID, $obj_form->id, $intFormTypeID, $strFormTypeText, $intForm2TypeOrder, get_current_user_id()));
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET form2TypeID2 = '%d', formID = '%d', formTypeID = '%d', formTypeText = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $intForm2TypeID, $obj_form->id, $intFormTypeID, $strFormTypeText, $intForm2TypeOrder, get_current_user_id()));
 				}
 
 				if($wpdb->rows_affected > 0)
@@ -206,32 +206,32 @@ if($obj_form->id > 0)
 {
 	if(isset($_GET['recover']))
 	{
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET queryDeleted = '0' WHERE queryID = '%d'", $obj_form->id));
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $obj_form->id));
 	}
 
-	$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentAmount, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $obj_form->id));
+	$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentAmount, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
 
 	if($wpdb->num_rows > 0)
 	{
 		$r = $result[0];
-		$intFormEmailConfirm = $r->queryEmailConfirm;
-		$intFormEmailConfirmPage = $r->queryEmailConfirmPage;
-		$intFormShowAnswers = $r->queryShowAnswers;
-		$strFormAnswerURL = $r->queryAnswerURL;
-		$strFormEmail = $r->queryEmail;
-		$intFormEmailNotify = $r->queryEmailNotify;
-		$intFormEmailNotifyPage = $r->queryEmailNotifyPage;
-		$strFormEmailName = $r->queryEmailName;
-		$strFormMandatoryText = $r->queryMandatoryText;
-		$strFormButtonText = $r->queryButtonText;
-		$strFormButtonSymbol = $r->queryButtonSymbol;
-		$intFormPaymentProvider = $r->queryPaymentProvider;
-		$strFormPaymentHmac = $r->queryPaymentHmac;
-		$strFormPaymentMerchant = $r->queryPaymentMerchant;
-		$strFormPaymentPassword = $r->queryPaymentPassword;
-		$strFormPaymentCurrency = $r->queryPaymentCurrency;
-		$intFormPaymentAmount = $r->queryPaymentAmount;
-		$strFormCreated = $r->queryCreated;
+		$intFormEmailConfirm = $r->formEmailConfirm;
+		$intFormEmailConfirmPage = $r->formEmailConfirmPage;
+		$intFormShowAnswers = $r->formShowAnswers;
+		$strFormAnswerURL = $r->formAnswerURL;
+		$strFormEmail = $r->formEmail;
+		$intFormEmailNotify = $r->formEmailNotify;
+		$intFormEmailNotifyPage = $r->formEmailNotifyPage;
+		$strFormEmailName = $r->formEmailName;
+		$strFormMandatoryText = $r->formMandatoryText;
+		$strFormButtonText = $r->formButtonText;
+		$strFormButtonSymbol = $r->formButtonSymbol;
+		$intFormPaymentProvider = $r->formPaymentProvider;
+		$strFormPaymentHmac = $r->formPaymentHmac;
+		$strFormPaymentMerchant = $r->formPaymentMerchant;
+		$strFormPaymentPassword = $r->formPaymentPassword;
+		$strFormPaymentCurrency = $r->formPaymentCurrency;
+		$intFormPaymentAmount = $r->formPaymentAmount;
+		$strFormCreated = $r->formCreated;
 
 		$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 		$strFormURL = $obj_form->get_post_info();
@@ -246,17 +246,17 @@ if($obj_form->id > 0)
 
 if($intForm2TypeID > 0)
 {
-	$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $intForm2TypeID));
+	$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $intForm2TypeID));
 	$r = $result[0];
-	$intFormTypeID = $r->queryTypeID;
-	$strFormTypeText = $r->queryTypeText;
-	$strFormTypePlaceholder = $r->queryTypePlaceholder;
+	$intFormTypeID = $r->formTypeID;
+	$strFormTypeText = $r->formTypeText;
+	$strFormTypePlaceholder = $r->formTypePlaceholder;
 	$intCheckID = $r->checkID;
-	$strFormTypeTag = $r->queryTypeTag;
-	$strFormTypeClass = $r->queryTypeClass;
-	$strFormTypeFetchFrom = $r->queryTypeFetchFrom;
-	$strFormTypeActionEquals = $r->queryTypeActionEquals;
-	$intFormTypeActionShow = $r->queryTypeActionShow;
+	$strFormTypeTag = $r->formTypeTag;
+	$strFormTypeClass = $r->formTypeClass;
+	$strFormTypeFetchFrom = $r->formTypeFetchFrom;
+	$strFormTypeActionEquals = $r->formTypeActionEquals;
+	$intFormTypeActionShow = $r->formTypeActionShow;
 
 	switch($intFormTypeID)
 	{
@@ -295,7 +295,7 @@ echo "<div class='wrap'>
 
 			if($intFormTypeID == '')
 			{
-				$intFormTypeID = $wpdb->get_var($wpdb->prepare("SELECT queryTypeID FROM ".$wpdb->base_prefix."query2type WHERE userID = '%d' ORDER BY query2TypeCreated DESC", get_current_user_id()));
+				$intFormTypeID = $wpdb->get_var($wpdb->prepare("SELECT formTypeID FROM ".$wpdb->base_prefix."form2type WHERE userID = '%d' ORDER BY form2TypeCreated DESC", get_current_user_id()));
 			}
 
 			if($strFormTypeSelect == '')

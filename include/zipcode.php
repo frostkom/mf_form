@@ -1,6 +1,6 @@
 <?php
 
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (10005, 'Stockholm', 'Lidingö', 'Stockholm'),
 (10007, 'Stockholm', '', ''),
 (10012, 'Stockholm', '', ''),
@@ -1520,7 +1520,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (14148, 'Huddinge', '', 'Stockholm'),
 (14149, 'Huddinge', '', 'Stockholm'),
 (14150, 'Huddinge', '', 'Stockholm')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (14151, 'Huddinge', '', 'Stockholm'),
 (14152, 'Huddinge', '', 'Stockholm'),
 (14153, 'Huddinge', '', 'Stockholm'),
@@ -2837,7 +2837,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (18728, 'Täby', '', 'Stockholm'),
 (18730, 'Täby', '', 'Stockholm'),
 (18731, 'Täby', '', 'Stockholm')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (18732, 'Täby', '', 'Stockholm'),
 (18733, 'Täby', '', 'Stockholm'),
 (18734, 'Täby', '', 'Stockholm'),
@@ -4143,7 +4143,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (24564, 'Hjärup', 'Staffanstorp', 'Skåne län'),
 (24565, 'Hjärup', 'Staffanstorp', 'Skåne län'),
 (24580, 'Staffanstorp', '', 'Skåne län')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (24591, 'Staffanstorp', '', 'Skåne län'),
 (24592, 'Staffanstorp', '', 'Skåne län'),
 (24593, 'Staffanstorp', '', 'Skåne län'),
@@ -5358,7 +5358,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (31250, 'Vallberga', 'Laholm', 'Halland'),
 (31260, 'Mellbystrand', 'Laholm', 'Halland'),
 (31261, 'Mellbystrand', 'Laholm', 'Halland')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (31271, 'Laholm', '', 'Halland'),
 (31272, 'Laholm', '', 'Halland'),
 (31275, 'Våxtorp', 'Laholm', 'Halland'),
@@ -6548,7 +6548,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (41743, 'Göteborg', '', 'Västra götalands län'),
 (41744, 'Göteborg', '', 'Västra götalands län'),
 (41745, 'Göteborg', '', 'Västra götalands län')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (41746, 'Göteborg', '', 'Västra götalands län'),
 (41747, 'Göteborg', '', 'Västra götalands län'),
 (41748, 'Göteborg', '', 'Västra götalands län'),
@@ -7482,7 +7482,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (45047, 'Bovallstrand', 'Sotenäs', 'Västra götalands län'),
 (45052, 'Dingle', 'Sotenäs', 'Västra götalands län'),
 (45053, 'Hällevadsholm', 'Munkedal', 'Västra götalands län')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (45054, 'Hedekas', 'Munkedal', 'Västra götalands län'),
 (45063, 'Högsäter', 'Färgelanda', 'Västra götalands län'),
 (45070, 'Hamburgsund', 'Tanum', 'Västra götalands län'),
@@ -8428,7 +8428,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (51535, 'Viskafors', 'Borås', 'Västra götalands län'),
 (51560, 'Svaneholm', 'Borås', 'Västra götalands län'),
 (51561, 'Svaneholm', 'Mark', 'Västra götalands län')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (51570, 'Rydboholm', 'Borås', 'Västra götalands län'),
 (51591, 'Viskafors', 'Borås', 'Västra götalands län'),
 (51592, 'Kinnarumma', 'Borås', 'Västra götalands län'),
@@ -9540,7 +9540,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (58116, 'Linköping', '', 'Östergötland'),
 (58117, 'Linköping', '', 'Östergötland'),
 (58118, 'Linköping', '', 'Östergötland')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (58119, 'Linköping', '', 'Östergötland'),
 (58128, 'Linköping', '', 'Östergötland'),
 (58180, 'Linköping', '', 'Östergötland'),
@@ -10727,7 +10727,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (65222, 'Karlstad', '', 'Värmland'),
 (65223, 'Karlstad', '', 'Värmland'),
 (65224, 'Karlstad', '', 'Värmland')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (65225, 'Karlstad', '', 'Värmland'),
 (65226, 'Karlstad', '', 'Värmland'),
 (65227, 'Karlstad', '', 'Värmland'),
@@ -12061,7 +12061,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (73625, 'Kungsör', '', 'Västmanland'),
 (73630, 'Kungsör', '', 'Västmanland'),
 (73631, 'Kungsör', '', 'Västmanland')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (73632, 'Kungsör', '', 'Västmanland'),
 (73633, 'Kungsör', '', 'Västmanland'),
 (73634, 'Kungsör', '', 'Västmanland'),
@@ -13402,7 +13402,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (81620, 'Ockelbo', '', 'Gävleborg'),
 (81621, 'Ockelbo', '', 'Gävleborg'),
 (81622, 'Ockelbo', '', 'Gävleborg')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (81623, 'Ockelbo', '', 'Gävleborg'),
 (81625, 'Ockelbo', '', 'Gävleborg'),
 (81626, 'Ockelbo', '', 'Gävleborg'),
@@ -14552,7 +14552,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (90624, 'Umeå', '', 'Västerbotten'),
 (90625, 'Umeå', '', 'Västerbotten'),
 (90626, 'Umeå', '', 'Västerbotten')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (90627, 'Umeå', '', 'Västerbotten'),
 (90628, 'Umeå', '', 'Västerbotten'),
 (90629, 'Umeå', '', 'Västerbotten'),
@@ -15848,7 +15848,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (12251, 'Enskede', '', ''),
 (12252, 'Enskede', '', ''),
 (12253, 'Enskede', '', '')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (12254, 'Enskede', '', ''),
 (12255, 'Enskede', '', ''),
 (12256, 'Enskede', '', ''),
@@ -17431,7 +17431,7 @@ $arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUE
 (58250, 'Linköping', '', ''),
 (58251, 'Linköping', '', ''),
 (58255, 'Linköping', '', '')";
-$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_zipcode VALUES
+$arr_run_query[] = "INSERT IGNORE INTO ".$wpdb->base_prefix."form_zipcode VALUES
 (58256, 'Linköping', '', ''),
 (58257, 'Linköping', '', ''),
 (58258, 'Linköping', '', ''),

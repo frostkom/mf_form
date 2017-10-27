@@ -13,7 +13,7 @@ class mf_form
 
 		$this->answer_ip = $_SERVER['REMOTE_ADDR'];
 
-		$this->edit_mode = $this->is_spam = $this->is_sent = false;
+		$this->edit_mode = $this->is_spam = $this->is_spam_id = $this->is_sent = false;
 
 		if($this->id > 0)
 		{
@@ -129,7 +129,7 @@ class mf_form
 
 		$arr_data = array();
 
-		$result = $wpdb->get_results("SELECT queryTypeID, queryTypeName, COUNT(queryTypeID) AS queryType_amount FROM ".$wpdb->base_prefix."query_type LEFT JOIN ".$wpdb->base_prefix."query2type USING (queryTypeID) WHERE queryTypePublic = 'yes' GROUP BY queryTypeID ORDER BY queryType_amount DESC, queryTypeName ASC");
+		$result = $wpdb->get_results("SELECT formTypeID, formTypeName, COUNT(formTypeID) AS formType_amount FROM ".$wpdb->base_prefix."form_type LEFT JOIN ".$wpdb->base_prefix."form2type USING (formTypeID) WHERE formTypePublic = 'yes' GROUP BY formTypeID ORDER BY formType_amount DESC, formTypeName ASC");
 
 		if($wpdb->num_rows > 0)
 		{
@@ -137,9 +137,9 @@ class mf_form
 
 			foreach($result as $r)
 			{
-				if($intFormTypeID > 0 || $r->queryTypeID != 13)
+				if($intFormTypeID > 0 || $r->formTypeID != 13)
 				{
-					$arr_data[$r->queryTypeID] = $r->queryTypeName;
+					$arr_data[$r->formTypeID] = $r->formTypeName;
 				}
 			}
 		}
@@ -153,7 +153,7 @@ class mf_form
 
 		$arr_data = array();
 
-		$result = $wpdb->get_results("SELECT checkID, checkName FROM ".$wpdb->base_prefix."query_check WHERE checkPublic = '1' ORDER BY checkName ASC");
+		$result = $wpdb->get_results("SELECT checkID, checkName FROM ".$wpdb->base_prefix."form_check WHERE checkPublic = '1' ORDER BY checkName ASC");
 
 		if($wpdb->num_rows > 0)
 		{
@@ -262,12 +262,12 @@ class mf_form
 		{
 			$inserted = true;
 
-			$result_temp = $wpdb->get_results($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+			$result_temp = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 			$rows = $wpdb->num_rows;
 
 			if($rows > 0)
 			{
-				$copy_fields = ", blogID, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount";
+				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentAmount";
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -279,20 +279,20 @@ class mf_form
 
 				$intPostID = wp_insert_post($post_data);
 
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query (queryName, postID".$copy_fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0')", $intPostID, $this->id));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formName, postID".$copy_fields.", formCreated, userID) (SELECT CONCAT(formName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", $intPostID, $this->id));
 				$intFormID_new = $wpdb->insert_id;
 
 				if($intFormID_new > 0)
 				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' ORDER BY query2TypeID DESC", $this->id));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeID DESC", $this->id));
 
 					foreach($result as $r)
 					{
-						$intForm2TypeID = $r->query2TypeID;
+						$intForm2TypeID = $r->form2TypeID;
 
-						$copy_fields = "queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow, queryTypeRequired, queryTypeAutofocus, queryTypeRemember, query2TypeOrder";
+						$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
 
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type (queryID, ".$copy_fields.", query2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, ".$copy_fields.", form2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
 
 						if(!($wpdb->insert_id > 0))
 						{
@@ -322,34 +322,34 @@ class mf_form
 		{
 			$strFormPrefix = $this->get_post_info()."_";
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeID != '13' ORDER BY query2TypeOrder ASC", $this->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeID != '13' ORDER BY form2TypeOrder ASC", $this->id));
 
 			foreach($result as $r)
 			{
-				$intForm2TypeID2 = $r->query2TypeID;
+				$intForm2TypeID2 = $r->form2TypeID;
 				$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
 
 				$var = check_var($strFormPrefix.$intForm2TypeID2, $strCheckCode, true, '', true, 'post');
 
 				if($var != '')
 				{
-					$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '%d' LIMIT 0, 1", $this->answer_id, $intForm2TypeID2));
+					$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $this->answer_id, $intForm2TypeID2));
 					$rowsCheck = $wpdb->num_rows;
 
 					if($rowsCheck > 0)
 					{
-						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '%d' AND answerText = %s LIMIT 0, 1", $this->answer_id, $intForm2TypeID2, $var));
+						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' AND answerText = %s LIMIT 0, 1", $this->answer_id, $intForm2TypeID2, $var));
 						$rowsCheck = $wpdb->num_rows;
 
 						if($rowsCheck == 0)
 						{
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '%d'", $var, $this->answer_id, $intForm2TypeID2));
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '%d'", $var, $this->answer_id, $intForm2TypeID2));
 						}
 					}
 
 					else
 					{
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '%d', answerText = %s", $this->answer_id, $intForm2TypeID2, $var));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s", $this->answer_id, $intForm2TypeID2, $var));
 					}
 				}
 			}
@@ -362,21 +362,21 @@ class mf_form
 
 		else if(isset($_GET['btnAnswerSpam']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_spam_'.$this->answer_id))
 		{
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2answer SET answerSpam = '1' WHERE answerID = '%d'", $this->answer_id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d'", $this->answer_id));
 
 			$done_text = __("I have marked the email as spam for you", 'lang_form');
 		}
 
 		else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_approve_'.$this->answer_id))
 		{
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
 
 			$done_text = __("I have approved the answer for you", 'lang_form');
 		}
 
 		else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'message_resend_'.$this->answer_id))
 		{
-			$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
+			$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -385,26 +385,26 @@ class mf_form
 				$strFormName = $this->get_post_info(array('select' => "post_title"));
 				$this->prefix = $this->get_post_info()."_";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 				$r = $result[0];
-				$this->email_confirm = $r->queryEmailConfirm;
-				$this->email_confirm_page = $r->queryEmailConfirmPage;
-				$this->email_admin = $r->queryEmail;
-				$this->email_notify = $r->queryEmailNotify;
-				$this->email_notify_page = $r->queryEmailNotifyPage;
-				$this->email_subject = ($r->queryEmailName != "" ? $r->queryEmailName : $strFormName);
+				$this->email_confirm = $r->formEmailConfirm;
+				$this->email_confirm_page = $r->formEmailConfirmPage;
+				$this->email_admin = $r->formEmail;
+				$this->email_notify = $r->formEmailNotify;
+				$this->email_notify_page = $r->formEmailNotifyPage;
+				$this->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $strFormName);
 
 				$this->arr_email_content = array(
 					'fields' => array(),
 				);
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE answerID = '%d' = '1' ORDER BY query2TypeOrder ASC", $this->answer_id)); // AND queryTypeResult
+				$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE answerID = '%d' = '1' ORDER BY form2TypeOrder ASC", $this->answer_id)); // AND formTypeResult
 
 				foreach($result as $r)
 				{
-					$intForm2TypeID2 = $r->query2TypeID;
-					$intFormTypeID2 = $r->queryTypeID;
-					$this->label = $r->queryTypeText;
+					$intForm2TypeID2 = $r->form2TypeID;
+					$intFormTypeID2 = $r->formTypeID;
+					$this->label = $r->formTypeText;
 					$strCheckCode = $r->checkCode;
 					$strAnswerText = $r->answerText;
 
@@ -526,29 +526,26 @@ class mf_form
 
 	function count_forms($data = array())
 	{
-		/*global $wpdb;
+		global $wpdb;
 
-		if(!isset($data['post_status'])){	$data['post_status'] = "";}
+		return $wpdb->get_var("SELECT COUNT(ID) FROM ".$wpdb->posts." WHERE post_type = 'mf_form'");
 
-		$wpdb->get_results("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form'".($data['post_status'] != '' ? " AND post_status = '".esc_sql($data['post_status'])."'" : ""));
-
-		return $wpdb->num_rows;*/
-
-		$tbl_group = new mf_form_table();
+		/*$tbl_group = new mf_form_table();
 
 		$tbl_group->select_data(array(
 			//'select' => "*",
-			//'debug' => true,
+			//'where' => 
+			'debug' => true,
 		));
 
-		return count($tbl_group->data);
+		return count($tbl_group->data);*/
 	}
 
 	function is_poll()
 	{
 		global $wpdb;
 
-		$not_poll_content_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(query2TypeID) FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND queryTypeID != '5' AND queryTypeID != '8' LIMIT 0, 1", $this->id));
+		$not_poll_content_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(form2TypeID) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID != '5' AND formTypeID != '8' LIMIT 0, 1", $this->id));
 
 		return ($not_poll_content_amount == 0 ? true : false);
 	}
@@ -561,7 +558,7 @@ class mf_form
 
 		if($this->is_poll())
 		{
-			$rowsIP = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d' AND answerIP = %s LIMIT 0, 1", $this->id, $this->answer_ip));
+			$rowsIP = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerIP = %s LIMIT 0, 1", $this->id, $this->answer_ip));
 
 			if($rowsIP > 0)
 			{
@@ -597,10 +594,10 @@ class mf_form
 
 		if($this->id > 0)
 		{
-			$query_where .= " AND queryID = '".$this->id."'";
+			$query_where .= " AND formID = '".$this->id."'";
 		}
 
-		$intFormID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE (queryEmailNotifyPage > 0 OR queryEmailConfirmPage > 0)".$query_where);
+		$intFormID = $wpdb->get_var("SELECT formID FROM ".$wpdb->base_prefix."form WHERE (formEmailNotifyPage > 0 OR formEmailConfirmPage > 0)".$query_where);
 
 		return ($intFormID > 0 ? true : false);
 	}
@@ -609,13 +606,13 @@ class mf_form
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id)); //queryShowAnswers,
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //formShowAnswers,
 
 		foreach($result as $r)
 		{
-			//$intFormShowAnswers = $r->queryShowAnswers;
-			$intFormPaymentProvider = $r->queryPaymentProvider;
-			$intFormPaymentAmount = $r->queryPaymentAmount;
+			//$intFormShowAnswers = $r->formShowAnswers;
+			$intFormPaymentProvider = $r->formPaymentProvider;
+			$intFormPaymentAmount = $r->formPaymentAmount;
 
 			$this->has_payment = $intFormPaymentProvider > 0 && $intFormPaymentAmount > 0;
 		}
@@ -632,7 +629,7 @@ class mf_form
 
 			if($this->id > 0)
 			{
-				$post_status = $wpdb->get_var($wpdb->prepare("SELECT post_status FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->posts." ON ".$wpdb->base_prefix."query.postID = ".$wpdb->posts.".ID WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+				$post_status = $wpdb->get_var($wpdb->prepare("SELECT post_status FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->posts." ON ".$wpdb->base_prefix."form.postID = ".$wpdb->posts.".ID WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 			}
 
 			else
@@ -656,12 +653,12 @@ class mf_form
 		$arr_data = array();
 		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
 
-		$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query WHERE queryDeleted = '0'".(IS_ADMIN && $data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY queryCreated DESC");
+		$result = $wpdb->get_results("SELECT formID, formName FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".(IS_ADMIN && $data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY formCreated DESC");
 
 		foreach($result as $r)
 		{
-			$intQueryID = $r->queryID;
-			$strQueryName = $r->queryName;
+			$intQueryID = $r->formID;
+			$strQueryName = $r->formName;
 
 			//$result2 = get_page_from_form($intQueryID);
 			$result2 = get_pages_from_shortcode("[mf_form id=".$intQueryID."]");
@@ -691,7 +688,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		$this->id = $wpdb->get_var($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE postID = '%d'", $id));
+		$this->id = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE postID = '%d'", $id));
 
 		return $this->id;
 	}
@@ -702,7 +699,7 @@ class mf_form
 
 		$this->query2type_id = $id;
 
-		$this->id = $wpdb->get_var($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $id));
+		$this->id = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $id));
 
 		return $this->id;
 	}
@@ -715,7 +712,7 @@ class mf_form
 
 		if(!($this->post_id > 0))
 		{
-			$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->id));
+			$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
 		}
 
 		return $this->post_id;
@@ -734,7 +731,7 @@ class mf_form
 
 		if($this->id > 0)
 		{
-			$post_name = $wpdb->get_var($wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->posts." ON ".$wpdb->base_prefix."query.postID = ".$wpdb->posts.".ID WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+			$post_name = $wpdb->get_var($wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->posts." ON ".$wpdb->base_prefix."form.postID = ".$wpdb->posts.".ID WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 		}
 
 		else
@@ -768,7 +765,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		return $wpdb->get_var($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' AND checkID = '5'", $this->id));
+		return $wpdb->get_var($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND checkID = '5'", $this->id));
 	}
 
 	function get_answer_email($intAnswerID)
@@ -777,7 +774,7 @@ class mf_form
 
 		$intForm2TypeID = $this->get_form_email_field();
 
-		return $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '%d'", $intAnswerID, $intForm2TypeID));
+		return $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $intAnswerID, $intForm2TypeID));
 	}
 
 	function get_city_from_zip($zip)
@@ -786,7 +783,7 @@ class mf_form
 
 		if(get_bloginfo('language') == "sv-SE")
 		{
-			return $wpdb->get_var($wpdb->prepare("SELECT cityName FROM ".$wpdb->base_prefix."query_zipcode WHERE addressZipCode = '%d' LIMIT 0, 1", $zip));
+			return $wpdb->get_var($wpdb->prepare("SELECT cityName FROM ".$wpdb->base_prefix."form_zipcode WHERE addressZipCode = '%d' LIMIT 0, 1", $zip));
 		}
 	}
 
@@ -798,36 +795,36 @@ class mf_form
 
 		if(isset($data['query_type_id']) && $data['query_type_id'] > 0)
 		{
-			$query_where .= " AND queryTypeID = '".$data['query_type_id']."'";
+			$query_where .= " AND formTypeID = '".$data['query_type_id']."'";
 		}
 
 		if(isset($data['required']) && $data['required'] != '')
 		{
-			$query_where .= " AND queryTypeRequired = '".$data['required']."'";
+			$query_where .= " AND formTypeRequired = '".$data['required']."'";
 		}
 
 		if(isset($data['autofocus']) && $data['autofocus'] != '')
 		{
-			$query_where .= " AND queryTypeAutofocus = '".$data['autofocus']."'";
+			$query_where .= " AND formTypeAutofocus = '".$data['autofocus']."'";
 		}
 
 		if(isset($data['remember']) && $data['remember'] != '')
 		{
-			$query_where .= " AND queryTypeRemember = '".$data['remember']."'";
+			$query_where .= " AND formTypeRemember = '".$data['remember']."'";
 		}
 
 		if(isset($data['']) && $data[''] != '')
 		{
-			$query_where .= " AND queryTypeAutofocus = '".$data['']."'";
+			$query_where .= " AND formTypeAutofocus = '".$data['']."'";
 		}
 
 		if(isset($data['check_code']) && $data['check_code'] != '')
 		{
-			$query_join .= " INNER JOIN ".$wpdb->base_prefix."query_check USING (checkID)";
+			$query_join .= " INNER JOIN ".$wpdb->base_prefix."form_check USING (checkID)";
 			$query_where .= " AND checkCode = '".$data['check_code']."'";
 		}
 
-		$intForm2TypeID = $wpdb->get_var($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type".$query_join." WHERE queryID = '%d'".$query_where, $this->id));
+		$intForm2TypeID = $wpdb->get_var($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type".$query_join." WHERE formID = '%d'".$query_where, $this->id));
 
 		return $intForm2TypeID > 0 ? true : false;
 	}
@@ -836,7 +833,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		return $wpdb->get_var($wpdb->prepare("SELECT queryTypeName FROM ".$wpdb->base_prefix."query_type WHERE queryTypeID = '%d'", $id));
+		return $wpdb->get_var($wpdb->prepare("SELECT formTypeName FROM ".$wpdb->base_prefix."form_type WHERE formTypeID = '%d'", $id));
 	}
 
 	function get_form_type_info($data = array())
@@ -862,7 +859,7 @@ class mf_form
 
 				foreach($data['query_type_id'] as $query_type_id)
 				{
-					$query_where .= ($i > 0 ? " OR " : "")."queryTypeID = '".$query_type_id."'";
+					$query_where .= ($i > 0 ? " OR " : "")."formTypeID = '".$query_type_id."'";
 
 					$i++;
 				}
@@ -872,10 +869,10 @@ class mf_form
 
 		if($data['query_exclude_id'] > 0)
 		{
-			$query_where .= " AND query2TypeID != '".$data['query_exclude_id']."'";
+			$query_where .= " AND form2TypeID != '".$data['query_exclude_id']."'";
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, query2TypeOrder FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'".$query_where." ORDER BY query2TypeOrder ASC", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, form2TypeOrder FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'".$query_where." ORDER BY form2TypeOrder ASC", $this->id));
 
 		return array($result, $wpdb->num_rows);
 	}
@@ -1043,7 +1040,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		return $wpdb->get_var($wpdb->prepare("SELECT COUNT(queryTypeID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_check USING (checkID) WHERE queryID = '%d' AND queryTypeID = '3' AND checkCode = 'email'", $this->id));
+		return $wpdb->get_var($wpdb->prepare("SELECT COUNT(formTypeID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_check USING (checkID) WHERE formID = '%d' AND formTypeID = '3' AND checkCode = 'email'", $this->id));
 	}
 
 	function get_icons_for_select()
@@ -1075,17 +1072,17 @@ class mf_form
 
 		foreach($data['result'] as $r)
 		{
-			if(in_array($r->queryTypeID, array(10, 11)))
+			if(in_array($r->formTypeID, array(10, 11)))
 			{
-				list($strFormTypeText, $rest) = explode(":", $r->queryTypeText);
+				list($strFormTypeText, $rest) = explode(":", $r->formTypeText);
 			}
 
 			else
 			{
-				$strFormTypeText = $r->queryTypeText;
+				$strFormTypeText = $r->formTypeText;
 			}
 
-			$arr_data[$r->query2TypeID] = $strFormTypeText;
+			$arr_data[$r->form2TypeID] = $strFormTypeText;
 		}
 
 		return $arr_data;
@@ -1103,11 +1100,11 @@ class mf_form
 
 		else
 		{
-			$query_where = "queryID = '%d'";
+			$query_where = "formID = '%d'";
 			$query_where_id = $this->id;
 		}
 
-		return $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, checkCode, checkPattern, queryTypeText, queryTypePlaceholder, queryTypeRequired, queryTypeAutofocus, queryTypeRemember, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC", $query_where_id));
+		return $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, checkCode, checkPattern, formTypeText, formTypePlaceholder, formTypeRequired, formTypeAutofocus, formTypeRemember, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."form2type.form2TypeID ORDER BY form2TypeOrder ASC", $query_where_id));
 	}
 
 	function process_link_yes_no()
@@ -1193,30 +1190,35 @@ class mf_form
 	{
 		global $wpdb;
 
-		if(function_exists($data['rule']))
+		if($data['text'] != '')
 		{
-			$string_decoded = htmlspecialchars_decode($data['text']);
-
-			if($data['text'] != strip_tags($data['text']) || $string_decoded != strip_tags($string_decoded))
+			if(function_exists($data['rule']))
 			{
-				//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
+				$string_decoded = htmlspecialchars_decode($data['text']);
 
-				$this->is_spam = true;
+				if($data['text'] != strip_tags($data['text']) || $string_decoded != strip_tags($string_decoded))
+				{
+					//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
+
+					$this->is_spam = true;
+					$this->is_spam_id = $data['id'];
+				}
 			}
-		}
 
-		else
-		{
-			$arr_exclude = array("[qm]", "[bs]");
-			$arr_include = array("\?", "\\");
-
-			$reg_exp = str_replace($arr_exclude, $arr_include, $data['rule']);
-
-			if(preg_match($reg_exp, $data['text']) || preg_match($reg_exp, esc_sql($data['text'])))
+			else
 			{
-				//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
+				$arr_exclude = array("[qm]", "[bs]");
+				$arr_include = array("\?", "\\");
 
-				$this->is_spam = true;
+				$reg_exp = str_replace($arr_exclude, $arr_include, $data['rule']);
+
+				if(preg_match($reg_exp, $data['text']) || preg_match($reg_exp, esc_sql($data['text'])))
+				{
+					//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
+
+					$this->is_spam = true;
+					$this->is_spam_id = $data['id'];
+				}
 			}
 		}
 	}
@@ -1225,23 +1227,24 @@ class mf_form
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT spamText FROM ".$wpdb->base_prefix."form_spam WHERE (spamInclude = '' OR spamInclude = %s) AND (spamExclude = '' OR spamExclude != '%s')", $data['code'], $data['code']));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT spamID, spamText FROM ".$wpdb->base_prefix."form_spam WHERE (spamInclude = '' OR spamInclude = %s) AND (spamExclude = '' OR spamExclude != '%s')", $data['code'], $data['code']));
 
 		foreach($result as $r)
 		{
+			$intSpamID = $r->spamID;
 			$strSpamText = $r->spamText;
 
 			if(is_array($data['text']))
 			{
 				foreach($data['text'] as $text)
 				{
-					$this->check_if_spam(array('rule' => $strSpamText, 'text' => $text));
+					$this->check_if_spam(array('id' => $intSpamID, 'rule' => $strSpamText, 'text' => $text));
 				}
 			}
 
 			else
 			{
-				$this->check_if_spam(array('rule' => $strSpamText, 'text' => $data['text']));
+				$this->check_if_spam(array('id' => $intSpamID, 'rule' => $strSpamText, 'text' => $data['text']));
 			}
 
 			if($this->is_spam == true)
@@ -1257,13 +1260,14 @@ class mf_form
 
 		if($this->is_spam == false)
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE answerSpam = '1' AND answerText = %s LIMIT 0, 1", $data['text'])); // AND query2TypeID = '%d', $data['id']
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE answerSpam = '1' AND answerText = %s LIMIT 0, 1", $data['text'])); // AND form2TypeID = '%d', $data['id']
 
 			if($wpdb->num_rows > 0)
 			{
 				//do_log(sprintf(__("The email %s has previously been marked as spam at least once (%s)", 'lang_form'), $data['text'], $wpdb->last_query));
 
 				$this->is_spam = true;
+				$this->is_spam_id = 6;
 			}
 		}
 	}
@@ -1410,16 +1414,16 @@ class mf_form
 
 		if(isset($this->answer_id) && $this->answer_id > 0)
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s", $this->answer_id, $data['to'], $data['type']));
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s", $this->answer_id, $data['to'], $data['type']));
 
 			if($wpdb->num_rows > 0)
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer_email SET answerSent = '%d' WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s", $sent, $this->answer_id, $data['to'], $data['type']));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer_email SET answerSent = '%d' WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s", $sent, $this->answer_id, $data['to'], $data['type']));
 			}
 
 			else
 			{
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer_email SET answerID = '%d', answerEmail = %s, answerType = %s, answerSent = '%d'", $this->answer_id, $data['to'], $data['type'], $sent));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_email SET answerID = '%d', answerEmail = %s, answerType = %s, answerSent = '%d'", $this->answer_id, $data['to'], $data['type'], $sent));
 			}
 		}
 
@@ -1443,17 +1447,17 @@ class mf_form
 		$strFormName = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmailConfirm, queryEmailConfirmPage, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryMandatoryText, queryPaymentProvider, queryPaymentAmount FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 		$r = $result[0];
-		$this->email_confirm = $r->queryEmailConfirm;
-		$this->email_confirm_page = $r->queryEmailConfirmPage;
-		$this->email_admin = $r->queryEmail;
-		$this->email_notify = $r->queryEmailNotify;
-		$this->email_notify_page = $r->queryEmailNotifyPage;
-		$this->email_subject = ($r->queryEmailName != "" ? $r->queryEmailName : $strFormName);
-		$strFormMandatoryText = $r->queryMandatoryText;
-		$intFormPaymentProvider = $r->queryPaymentProvider;
-		$intFormPaymentAmount = $r->queryPaymentAmount;
+		$this->email_confirm = $r->formEmailConfirm;
+		$this->email_confirm_page = $r->formEmailConfirmPage;
+		$this->email_admin = $r->formEmail;
+		$this->email_notify = $r->formEmailNotify;
+		$this->email_notify_page = $r->formEmailNotifyPage;
+		$this->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $strFormName);
+		$strFormMandatoryText = $r->formMandatoryText;
+		$intFormPaymentProvider = $r->formPaymentProvider;
+		$intFormPaymentAmount = $r->formPaymentAmount;
 
 		$dblQueryPaymentAmount_value = 0;
 
@@ -1464,16 +1468,16 @@ class mf_form
 
 		else
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeCode, queryTypeText, checkCode, queryTypeRequired FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $this->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->id));
 
 			foreach($result as $r)
 			{
-				$intForm2TypeID2 = $r->query2TypeID;
-				$intFormTypeID2 = $r->queryTypeID;
-				$strQueryTypeCode = $r->queryTypeCode;
-				$this->label = $r->queryTypeText;
+				$intForm2TypeID2 = $r->form2TypeID;
+				$intFormTypeID2 = $r->formTypeID;
+				$strQueryTypeCode = $r->formTypeCode;
+				$this->label = $r->formTypeText;
 				$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
-				$intFormTypeRequired = $r->queryTypeRequired;
+				$intFormTypeRequired = $r->formTypeRequired;
 
 				if(!isset($this->arr_email_content['fields'][$intForm2TypeID2]))
 				{
@@ -1613,7 +1617,7 @@ class mf_form
 						$dblQueryPaymentAmount_value = $strAnswerText;
 					}
 
-					$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '[answer_id]', query2TypeID = '%d', answerText = %s", $intForm2TypeID2, $strAnswerText);
+					$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '[answer_id]', form2TypeID = '%d', answerText = %s", $intForm2TypeID2, $strAnswerText);
 
 					if($strAnswerText_send != '')
 					{
@@ -1627,9 +1631,9 @@ class mf_form
 
 					if($strAnswerText_radio != '')
 					{
-						$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '[answer_id]', query2TypeID = %s, answerText = ''", $strAnswerText_radio);
+						$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '[answer_id]', form2TypeID = %s, answerText = ''", $strAnswerText_radio);
 
-						$strFormTypeText_temp = $wpdb->get_var($wpdb->prepare("SELECT queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '%d'", $strAnswerText_radio));
+						$strFormTypeText_temp = $wpdb->get_var($wpdb->prepare("SELECT formTypeText FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $strAnswerText_radio));
 
 						if(!isset($this->arr_email_content['fields'][$strAnswerText_radio]))
 						{
@@ -1651,10 +1655,13 @@ class mf_form
 		{
 			if(check_var($this->prefix.'check') != '' && in_array('honeypot', $setting_form_spam))
 			{
+				//do_log("Is Honeypot");
+
 				$this->is_spam = true;
+				$this->is_spam_id = 7;
 			}
 
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2answer SET queryID = '%d', answerIP = %s, answerSpam = '%d', answerCreated = NOW()", $this->id, $this->answer_ip, $this->is_spam));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, $this->answer_ip, $this->is_spam, $this->is_spam_id));
 			$this->answer_id = $wpdb->insert_id;
 
 			$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content));
@@ -1672,7 +1679,7 @@ class mf_form
 
 					if($intFormPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
 					{
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query_answer SET answerID = '%d', query2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing")));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing")));
 
 						$intFormPaymentTest = isset($_POST['intFormPaymentTest']) && is_user_logged_in() && IS_ADMIN ? 1 : 0;
 
@@ -1707,15 +1714,15 @@ class mf_form
 
 		$obj_font_icons = new mf_font_icons();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryShowAnswers, queryAnswerURL, queryButtonText, queryButtonSymbol, queryPaymentProvider FROM ".$wpdb->base_prefix."query WHERE queryID = '%d' AND queryDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formShowAnswers, formAnswerURL, formButtonText, formButtonSymbol, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
-			$intFormShowAnswers = $r->queryShowAnswers;
-			$strFormAnswerURL = $r->queryAnswerURL;
-			$strFormButtonText = $r->queryButtonText != '' ? $r->queryButtonText : __("Submit", 'lang_form');
-			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag($r->queryButtonSymbol);
-			$intFormPaymentProvider = $r->queryPaymentProvider;
+			$intFormShowAnswers = $r->formShowAnswers;
+			$strFormAnswerURL = $r->formAnswerURL;
+			$strFormButtonText = $r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form');
+			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag($r->formButtonSymbol);
+			$intFormPaymentProvider = $r->formPaymentProvider;
 
 			$strFormPrefix = $this->get_post_info()."_";
 
@@ -1736,7 +1743,7 @@ class mf_form
 			{
 				$out .= "<div class='mf_form mf_form_results'>";
 
-					$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8'", $this->id));
+					$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID = '8'", $this->id));
 
 					if($intFormShowAnswers == 1 && $data['total_answers'] > 0)
 					{
@@ -1807,7 +1814,7 @@ class mf_form
 
 						foreach($result as $r)
 						{
-							$r->queryTypeText = stripslashes($r->queryTypeText);
+							$r->formTypeText = stripslashes($r->formTypeText);
 
 							$obj_form_output = new mf_form_output(array('id' => $this->id, 'result' => $r, 'in_edit_mode' => $this->edit_mode, 'query_prefix' => $strFormPrefix));
 
@@ -1916,7 +1923,7 @@ class mf_form
 
 		if(!isset($_GET['answerSpam']) || $_GET['answerSpam'] == 0)
 		{
-			$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) INNER JOIN ".$wpdb->base_prefix."query2answer USING (answerID) WHERE ".$wpdb->base_prefix."query2type.queryID = '%d' AND answerSpam = '0' AND (queryTypeID = '1' OR queryTypeID = '8' OR queryTypeID = '10')", $this->id));
+			$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND (formTypeID = '1' OR formTypeID = '8' OR formTypeID = '10')", $this->id));
 
 			if($query_answers > 1)
 			{
@@ -1934,10 +1941,10 @@ class mf_form
 
 					foreach($resultPie as $r)
 					{
-						$intForm2TypeID2 = $r->query2TypeID;
-						$intFormTypeID = $r->queryTypeID;
-						$strFormTypeText2 = $r->queryTypeText;
-						$strForm2TypeOrder2 = $r->query2TypeOrder;
+						$intForm2TypeID2 = $r->form2TypeID;
+						$intFormTypeID = $r->formTypeID;
+						$strFormTypeText2 = $r->formTypeText;
+						$strForm2TypeOrder2 = $r->form2TypeOrder;
 
 						switch($intFormTypeID)
 						{
@@ -1967,13 +1974,13 @@ class mf_form
 						switch($intFormTypeID)
 						{
 							case 1:
-								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) INNER JOIN ".$wpdb->base_prefix."query2answer USING (answerID) WHERE ".$wpdb->base_prefix."query2type.queryID = '%d' AND answerSpam = '0' AND queryTypeID = '%d' AND query2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
+								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
 
 								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText2, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
 
 							case 8:
-								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) INNER JOIN ".$wpdb->base_prefix."query2answer USING (answerID) WHERE ".$wpdb->base_prefix."query2type.queryID = '%d' AND answerSpam = '0' AND queryTypeID = '%d' AND query2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
+								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
 
 								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText2, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
@@ -1988,7 +1995,7 @@ class mf_form
 
 									if($arr_select_row_content[0] > 0 && $arr_select_row_content[1] != '')
 									{
-										$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) INNER JOIN ".$wpdb->base_prefix."query2answer USING (answerID) WHERE ".$wpdb->base_prefix."query2type.queryID = '%d 'AND queryTypeID = '%d' AND query2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID2, $arr_select_row_content[0]));
+										$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID2, $arr_select_row_content[0]));
 
 										if($intAnswerCount > 0)
 										{
@@ -2059,17 +2066,17 @@ class mf_form_payment
 		$this->form_id = $id;
 		$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'];
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryName, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryAnswerURL FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $this->form_id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
 		foreach($result as $r)
 		{
-			$this->name = $r->queryName;
-			$this->provider = $r->queryPaymentProvider;
-			$this->hmac = $r->queryPaymentHmac;
-			$this->merchant = $r->queryPaymentMerchant;
-			$this->password = $r->queryPaymentPassword;
-			$this->currency = $r->queryPaymentCurrency;
-			$this->answer_url = $r->queryAnswerURL;
+			$this->name = $r->formName;
+			$this->provider = $r->formPaymentProvider;
+			$this->hmac = $r->formPaymentHmac;
+			$this->merchant = $r->formPaymentMerchant;
+			$this->password = $r->formPaymentPassword;
+			$this->currency = $r->formPaymentCurrency;
+			$this->answer_url = $r->formAnswerURL;
 
 			$obj_form = new mf_form($this->form_id);
 
@@ -2194,7 +2201,7 @@ class mf_form_payment
 			$out .= "<script>document.form_payment.submit();</script>";
 		}
 
-		$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."102: ".__("Sent to payment", 'lang_form')."' WHERE answerID = '".$this->orderid."' AND query2TypeID = '0' AND answerText LIKE '10%'");
+		$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."102: ".__("Sent to payment", 'lang_form')."' WHERE answerID = '".$this->orderid."' AND form2TypeID = '0' AND answerText LIKE '10%'");
 
 		return $out;
 	}
@@ -2203,7 +2210,7 @@ class mf_form_payment
 	{
 		global $wpdb;
 
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2answer SET answerToken = %s WHERE answerID = '%d'", urldecode($this->token), $this->orderid));
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerToken = %s WHERE answerID = '%d'", urldecode($this->token), $this->orderid));
 	}
 
 	// developer.paypal.com/webapps/developer/docs/classic/express-checkout/integration-guide/ECCustomizing/
@@ -2421,7 +2428,7 @@ class mf_form_payment
 
 		echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
-		$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."103: ".__("User canceled", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
+		$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."103: ".__("User canceled", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
 
 		mf_redirect(get_site_url());
 	}
@@ -2434,7 +2441,7 @@ class mf_form_payment
 
 		if($this->answer_id > 0)
 		{
-			$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."104: ".__("User has paid. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
+			$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."104: ".__("User has paid. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
 
 			if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
 			{
@@ -2460,7 +2467,7 @@ class mf_form_payment
 				{
 					echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
-					$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND query2TypeID = '0' AND answerText LIKE '10%'");
+					$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
 
 					$strFormAnswerURL = get_permalink($intFormAnswerURL);
 
@@ -2498,7 +2505,7 @@ class mf_form_payment
 	{
 		global $wpdb;
 
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0'", "116: ".$message, $this->answer_id));
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0'", "116: ".$message, $this->answer_id));
 
 		header("Status: 200 OK");
 	}
@@ -2507,7 +2514,7 @@ class mf_form_payment
 	{
 		global $wpdb;
 
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = %s WHERE answerID = '%d' AND query2TypeID = '0'", "115: ".$message, $this->answer_id));
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0'", "115: ".$message, $this->answer_id));
 
 		header("Status: 400 Bad Request");
 	}
@@ -2639,12 +2646,12 @@ class mf_form_payment
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, queryPaymentAmount FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) WHERE answerToken = %s", $this->token));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formPaymentAmount FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) WHERE answerToken = %s", $this->token));
 		$r = $result[0];
 		$this->answer_id = $r->answerID;
-		$intFormPaymentAmount = $r->queryPaymentAmount;
+		$intFormPaymentAmount = $r->formPaymentAmount;
 
-		$this->amount = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '%d'", $this->answer_id, $intFormPaymentAmount));
+		$this->amount = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intFormPaymentAmount));
 	}
 
 	function process_callback_paypal()
@@ -2910,15 +2917,15 @@ class mf_form_export extends mf_export
 		$obj_form = new mf_form($this->type);
 		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $this->type));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->type));
 
 		$this_row = array();
 
 		foreach($result as $r)
 		{
-			$intForm2TypeID = $r->query2TypeID;
-			$intFormTypeID = $r->queryTypeID;
-			$obj_form->label = $r->queryTypeText;
+			$intForm2TypeID = $r->form2TypeID;
+			$intFormTypeID = $r->formTypeID;
+			$obj_form->label = $r->formTypeText;
 
 			switch($intFormTypeID)
 			{
@@ -2939,26 +2946,26 @@ class mf_form_export extends mf_export
 
 		$this->data[] = $this_row;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formID, answerCreated, answerIP FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
 
 		foreach($result as $r)
 		{
 			$intAnswerID = $r->answerID;
-			$intFormID = $r->queryID;
+			$intFormID = $r->formID;
 			$strAnswerCreated = $r->answerCreated;
 			$strAnswerIP = $r->answerIP;
 
 			$this_row = array();
 
-			$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intFormID));
+			$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $intFormID));
 
 			foreach($resultText as $r)
 			{
-				$intForm2TypeID = $r->query2TypeID;
-				$intFormTypeID = $r->queryTypeID;
-				$obj_form->label = $r->queryTypeText;
+				$intForm2TypeID = $r->form2TypeID;
+				$intFormTypeID = $r->formTypeID;
+				$obj_form->label = $r->formTypeText;
 
-				$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
+				$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
 				$rowsAnswer = $wpdb->num_rows;
 
 				if($rowsAnswer > 0)
@@ -3024,7 +3031,7 @@ class mf_form_table extends mf_list_table
 		/*$this->arr_settings['has_autocomplete'] = true;
 		$this->arr_settings['plugin_name'] = 'mf_form';*/
 
-		$this->query_join .= " INNER JOIN ".$wpdb->base_prefix."query ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."query.postID";
+		$this->query_join .= " INNER JOIN ".$wpdb->base_prefix."form ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."form.postID";
 		$this->query_where .= ($this->query_where != '' ? " AND " : "")."blogID = '".$wpdb->blogid."'";
 
 		if($this->search != '')
@@ -3083,7 +3090,7 @@ class mf_form_table extends mf_list_table
 					if(IS_ADMIN)
 					{
 						$actions['edit'] = "<a href='".$post_edit_url."'>".__("Edit", 'lang_form')."</a>";
-						$actions['delete'] = "<a href='#delete/query/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+						$actions['delete'] = "<a href='#delete/form/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 					}
 
 					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id, 'form_copy_'.$obj_form->id)."'>".__("Copy", 'lang_form')."</a>";
@@ -3147,15 +3154,15 @@ class mf_form_table extends mf_list_table
 					$out .= "<i class='fa fa-lg fa-link grey' title='".__("Public", 'lang_form')."'></i> ";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT queryEmail, queryEmailNotifyPage, queryEmailConfirm, queryEmailConfirmPage, queryPaymentProvider FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $obj_form->id));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
 
 				foreach($result as $r)
 				{
-					$strFormEmail = $r->queryEmail;
-					$intFormEmailNotifyPage = $r->queryEmailNotifyPage;
-					$intFormEmailConfirm = $r->queryEmailConfirm;
-					$intFormEmailConfirmPage = $r->queryEmailConfirmPage;
-					$intFormPaymentProvider = $r->queryPaymentProvider;
+					$strFormEmail = $r->formEmail;
+					$intFormEmailNotifyPage = $r->formEmailNotifyPage;
+					$intFormEmailConfirm = $r->formEmailConfirm;
+					$intFormEmailConfirmPage = $r->formEmailConfirmPage;
+					$intFormPaymentProvider = $r->formPaymentProvider;
 
 					if($strFormEmail != '')
 					{
@@ -3251,10 +3258,10 @@ class mf_form_table extends mf_list_table
 			case 'answers':
 				if($post_status != 'trash')
 				{
-					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' AND answerSpam = '0' GROUP BY answerID", $obj_form->id));
+					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID", $obj_form->id));
 					$query_answers = $wpdb->num_rows;
 
-					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' AND answerSpam = '1' GROUP BY answerID", $obj_form->id));
+					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '1' GROUP BY answerID", $obj_form->id));
 					$query_spam = $wpdb->num_rows;
 
 					if($query_answers > 0 || $query_spam > 0)
@@ -3280,7 +3287,7 @@ class mf_form_table extends mf_list_table
 			break;
 
 			case 'latest_answer':
-				$latest_answer = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d' ORDER BY answerCreated DESC", $obj_form->id));
+				$latest_answer = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' ORDER BY answerCreated DESC", $obj_form->id));
 
 				$out .= format_date($latest_answer);
 			break;
@@ -3307,7 +3314,7 @@ class mf_answer_table extends mf_list_table
 	{
 		global $wpdb, $obj_form;
 
-		$this->arr_settings['query_from'] = $wpdb->base_prefix."query2answer";
+		$this->arr_settings['query_from'] = $wpdb->base_prefix."form2answer";
 		$this->post_type = "";
 
 		$this->arr_settings['query_select_id'] = "answerID";
@@ -3318,11 +3325,11 @@ class mf_answer_table extends mf_list_table
 
 		$this->arr_settings['page_vars'] = array('intFormID' => $obj_form->id);
 
-		$this->query_where .= ($this->query_where != '' ? " AND " : "")."queryID = '".$obj_form->id."'";
+		$this->query_where .= ($this->query_where != '' ? " AND " : "")."formID = '".$obj_form->id."'";
 
 		if($this->search != '')
 		{
-			$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."query_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."query_answer_email USING (answerID)";
+			$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
 			$this->query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%')";
 		}
 
@@ -3345,13 +3352,13 @@ class mf_answer_table extends mf_list_table
 
 		$obj_form->answer_column = 0;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $obj_form->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id));
 
 		foreach($result as $r)
 		{
-			$intFormTypeID = $r->queryTypeID;
-			$obj_form->label = $r->queryTypeText;
-			$intForm2TypeID2 = $r->query2TypeID;
+			$intFormTypeID = $r->formTypeID;
+			$obj_form->label = $r->formTypeText;
+			$intForm2TypeID2 = $r->form2TypeID;
 
 			switch($intFormTypeID)
 			{
@@ -3417,6 +3424,16 @@ class mf_answer_table extends mf_list_table
 				{
 					$out .= "<i class='fa fa-lg fa-close red'></i>";
 
+					if($item['spamID'] > 0)
+					{
+						$strSpamExplain = $wpdb->get_var($wpdb->prepare("SELECT spamExplain FROM ".$wpdb->base_prefix."form_spam WHERE spamID = '%d'", $item['spamID']));
+
+						if($strSpamExplain != '')
+						{
+							$out .= "&nbsp;".$strSpamExplain;
+						}
+					}
+
 					$actions['unspam'] = "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'answer_approve_'.$intAnswerID)."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
 				}
 
@@ -3429,7 +3446,7 @@ class mf_answer_table extends mf_list_table
 			break;
 
 			case 'payment':
-				$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
+				$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
 
 				$out .= $strAnswerText_temp;
 			break;
@@ -3449,7 +3466,7 @@ class mf_answer_table extends mf_list_table
 
 				if($obj_form->has_payment == false)
 				{
-					$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d' AND query2TypeID = '0'", $intAnswerID));
+					$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
 
 					$strSentTo = trim(trim($strSentTo), ', ');
 					$strSentTo = str_replace(", ", "<br>", $strSentTo);
@@ -3465,7 +3482,7 @@ class mf_answer_table extends mf_list_table
 			break;
 
 			case 'sent':
-				$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent, answerType FROM ".$wpdb->base_prefix."query_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
+				$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
 				$count_temp = $wpdb->num_rows;
 
 				if($count_temp > 0)
@@ -3529,19 +3546,19 @@ class mf_answer_table extends mf_list_table
 
 				else
 				{
-					$resultText = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' AND query2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
+					$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
 
 					foreach($resultText as $r)
 					{
-						$intForm2TypeID = $r->query2TypeID;
-						$intFormTypeID = $r->queryTypeID;
-						$obj_form->label = $r->queryTypeText;
+						$intForm2TypeID = $r->form2TypeID;
+						$intFormTypeID = $r->formTypeID;
+						$obj_form->label = $r->formTypeText;
 						$strCheckCode = $r->checkCode;
 
 						$strAnswerText = "";
 						$actions = array();
 
-						$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
+						$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
 						$rowsAnswer = $wpdb->num_rows;
 
 						if($rowsAnswer > 0)
@@ -3660,18 +3677,18 @@ class mf_form_output
 
 		if($intAnswerID > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '%d' AND answerID = '%d' LIMIT 0, 1", $this->row->query2TypeID, $intAnswerID));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d' LIMIT 0, 1", $this->row->form2TypeID, $intAnswerID));
 
 			foreach($result as $r)
 			{
-				switch($this->row->queryTypeID)
+				switch($this->row->formTypeID)
 				{
 					default:
 						$this->answer_text = stripslashes(stripslashes($r->answerText));
 					break;
 
 					case 8:
-						$this->answer_text = $this->row->query2TypeID;
+						$this->answer_text = $this->row->form2TypeID;
 					break;
 				}
 			}
@@ -3679,15 +3696,15 @@ class mf_form_output
 
 		if($this->answer_text == '')
 		{
-			$this->answer_text = check_var($this->query_prefix.$this->row->query2TypeID, 'char');
+			$this->answer_text = check_var($this->query_prefix.$this->row->form2TypeID, 'char');
 		}
 	}
 
 	function filter_form_fields(&$field_data)
 	{
-		if($this->row->queryTypeFetchFrom != '' && isset($field_data['value']) && $field_data['value'] == '')
+		if($this->row->formTypeFetchFrom != '' && isset($field_data['value']) && $field_data['value'] == '')
 		{
-			$field_data['value'] = check_var($this->row->queryTypeFetchFrom);
+			$field_data['value'] = check_var($this->row->formTypeFetchFrom);
 		}
 	}
 
@@ -3700,38 +3717,38 @@ class mf_form_output
 
 		if($data['ignore_required'] == true)
 		{
-			$this->row->queryTypeRequired = false;
+			$this->row->formTypeRequired = false;
 		}
 
 		$field_data = array(
-			'name' => $this->query_prefix.$this->row->query2TypeID,
+			'name' => $this->query_prefix.$this->row->form2TypeID,
 		);
 
-		$class_output = $this->row->queryTypeClass != '' ? " class='".$this->row->queryTypeClass."'" : "";
-		$class_output_small = ($this->row->queryTypeClass != '' ? " ".$this->row->queryTypeClass : "");
+		$class_output = $this->row->formTypeClass != '' ? " class='".$this->row->formTypeClass."'" : "";
+		$class_output_small = ($this->row->formTypeClass != '' ? " ".$this->row->formTypeClass : "");
 
-		switch($this->row->queryTypeCode)
+		switch($this->row->formTypeCode)
 		{
 			//case 1:
 			case 'checkbox':
 				$is_first_checkbox = false;
 
-				if($this->row->queryTypeID != $intFormTypeID2_temp)
+				if($this->row->formTypeID != $intFormTypeID2_temp)
 				{
-					$intForm2TypeID2_temp = $this->row->query2TypeID;
+					$intForm2TypeID2_temp = $this->row->form2TypeID;
 
 					$is_first_checkbox = true;
 				}
 
 				if($data['show_label'] == true)
 				{
-					$field_data['text'] = $this->row->queryTypeText;
+					$field_data['text'] = $this->row->formTypeText;
 				}
 
-				$field_data['required'] = $this->row->queryTypeRequired;
+				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['value'] = 1;
 				$field_data['compare'] = $this->answer_text;
-				$field_data['xtra_class'] = $this->row->queryTypeClass.($is_first_checkbox ? " clear" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass.($is_first_checkbox ? " clear" : "");
 
 				$this->output .= show_checkbox($field_data);
 
@@ -3740,7 +3757,7 @@ class mf_form_output
 
 			//case 2:
 			case 'range':
-				$arr_content = explode("|", $this->row->queryTypeText);
+				$arr_content = explode("|", $this->row->formTypeText);
 
 				if($this->answer_text == '' && isset($arr_content[3]))
 				{
@@ -3753,9 +3770,9 @@ class mf_form_output
 				}
 
 				$field_data['value'] = $this->answer_text;
-				$field_data['required'] = $this->row->queryTypeRequired;
-				$field_data['xtra'] = "min='".$arr_content[1]."' max='".$arr_content[2]."'".($this->row->queryTypeAutofocus ? " autofocus" : "");
-				$field_data['xtra_class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
+				$field_data['required'] = $this->row->formTypeRequired;
+				$field_data['xtra'] = "min='".$arr_content[1]."' max='".$arr_content[2]."'".($this->row->formTypeAutofocus ? " autofocus" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
 				$field_data['type'] = "range";
 
 				$this->filter_form_fields($field_data);
@@ -3768,15 +3785,15 @@ class mf_form_output
 			case 'datepicker':
 				if($data['show_label'] == true)
 				{
-					$field_data['text'] = $this->row->queryTypeText;
+					$field_data['text'] = $this->row->formTypeText;
 				}
 
 				$field_data['value'] = $this->answer_text;
-				$field_data['required'] = $this->row->queryTypeRequired;
-				$field_data['xtra'] = ($this->row->queryTypeAutofocus ? "autofocus" : "");
-				$field_data['xtra_class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
+				$field_data['required'] = $this->row->formTypeRequired;
+				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
 				$field_data['type'] = "date";
-				$field_data['placeholder'] = $this->row->queryTypePlaceholder;
+				$field_data['placeholder'] = $this->row->formTypePlaceholder;
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
@@ -3788,9 +3805,9 @@ class mf_form_output
 			case 'radio_button':
 				$is_first_radio = false;
 
-				if($this->row->queryTypeID != $intFormTypeID2_temp)
+				if($this->row->formTypeID != $intFormTypeID2_temp)
 				{
-					$intForm2TypeID2_temp = $this->row->query2TypeID;
+					$intForm2TypeID2_temp = $this->row->form2TypeID;
 
 					$is_first_radio = true;
 				}
@@ -3800,21 +3817,21 @@ class mf_form_output
 					$this->answer_text = check_var($_POST["radio_".$intForm2TypeID2_temp], 'int', false);
 				}
 
-				else if($this->answer_text == '' && $this->row->queryTypeRequired == 1)
+				else if($this->answer_text == '' && $this->row->formTypeRequired == 1)
 				{
-					$this->answer_text = $this->row->query2TypeID;
+					$this->answer_text = $this->row->form2TypeID;
 				}
 
 				$field_data['name'] = "radio_".$intForm2TypeID2_temp;
 
 				if($data['show_label'] == true)
 				{
-					$field_data['text'] = $this->row->queryTypeText;
+					$field_data['text'] = $this->row->formTypeText;
 				}
 
-				$field_data['value'] = $this->row->query2TypeID;
+				$field_data['value'] = $this->row->form2TypeID;
 				$field_data['compare'] = $this->answer_text;
-				$field_data['xtra_class'] = $this->row->queryTypeClass.($is_first_radio ? " clear" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass.($is_first_radio ? " clear" : "");
 
 				$this->output .= show_radio_input($field_data);
 
@@ -3823,13 +3840,13 @@ class mf_form_output
 
 			//case 10:
 			case 'select':
-				if($this->row->queryTypeActionShow > 0)
+				if($this->row->formTypeActionShow > 0)
 				{
-					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."form_action";
-					$field_data['xtra'] = "data-equals='".$this->row->queryTypeActionEquals."' data-show='".$this->query_prefix.$this->row->queryTypeActionShow."'";
+					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
+					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-show='".$this->query_prefix.$this->row->formTypeActionShow."'";
 				}
 
-				$arr_content1 = explode(":", $this->row->queryTypeText);
+				$arr_content1 = explode(":", $this->row->formTypeText);
 				$arr_content2 = explode(",", $arr_content1[1]);
 
 				$arr_data = array();
@@ -3849,8 +3866,8 @@ class mf_form_output
 				}
 
 				$field_data['compare'] = $this->answer_text;
-				$field_data['required'] = $this->row->queryTypeRequired;
-				$field_data['class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
+				$field_data['required'] = $this->row->formTypeRequired;
+				$field_data['class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
@@ -3860,7 +3877,7 @@ class mf_form_output
 
 			//case 11:
 			case 'select_multiple':
-				$arr_content1 = explode(":", $this->row->queryTypeText);
+				$arr_content1 = explode(":", $this->row->formTypeText);
 				$arr_content2 = explode(",", $arr_content1[1]);
 
 				$arr_data = array();
@@ -3881,8 +3898,8 @@ class mf_form_output
 				}
 
 				$field_data['compare'] = $this->answer_text;
-				$field_data['required'] = $this->row->queryTypeRequired;
-				$field_data['class'] = $this->row->queryTypeClass;
+				$field_data['required'] = $this->row->formTypeRequired;
+				$field_data['class'] = $this->row->formTypeClass;
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
@@ -3894,21 +3911,21 @@ class mf_form_output
 			case 'input_field':
 				if($this->row->checkCode == "zip")
 				{
-					$this->row->queryTypeClass .= ($this->row->queryTypeClass != '' ? " " : "")."form_zipcode";
+					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_zipcode";
 				}
 
 				if($data['show_label'] == true)
 				{
-					$field_data['text'] = $this->row->queryTypeText;
+					$field_data['text'] = $this->row->formTypeText;
 				}
 
 				$field_data['value'] = $this->answer_text;
 				$field_data['maxlength'] = 200;
-				$field_data['required'] = $this->row->queryTypeRequired;
-				$field_data['xtra'] = ($this->row->queryTypeAutofocus ? "autofocus" : "");
-				$field_data['xtra_class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
+				$field_data['required'] = $this->row->formTypeRequired;
+				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
 				$field_data['type'] = $this->row->checkCode;
-				$field_data['placeholder'] = $this->row->queryTypePlaceholder;
+				$field_data['placeholder'] = $this->row->formTypePlaceholder;
 				$field_data['pattern'] = $this->row->checkPattern;
 
 				$this->filter_form_fields($field_data);
@@ -3921,14 +3938,14 @@ class mf_form_output
 			case 'textarea':
 				if($data['show_label'] == true)
 				{
-					$field_data['text'] = $this->row->queryTypeText;
+					$field_data['text'] = $this->row->formTypeText;
 				}
 
 				$field_data['value'] = $this->answer_text;
-				$field_data['required'] = $this->row->queryTypeRequired;
-				$field_data['xtra'] = ($this->row->queryTypeAutofocus ? "autofocus" : "");
-				$field_data['class'] = $this->row->queryTypeClass.($this->row->queryTypeRemember ? " remember" : "");
-				$field_data['placeholder'] = $this->row->queryTypePlaceholder;
+				$field_data['required'] = $this->row->formTypeRequired;
+				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
+				$field_data['class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
+				$field_data['placeholder'] = $this->row->formTypePlaceholder;
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textarea($field_data);
@@ -3938,17 +3955,17 @@ class mf_form_output
 
 			//case 5:
 			case 'text':
-				if($this->row->queryTypeTag != '')
+				if($this->row->formTypeTag != '')
 				{
-					$this->output .= "<".$this->row->queryTypeTag.$class_output." id='".$field_data['name']."'>"
-						.$this->row->queryTypeText
-					."</".$this->row->queryTypeTag.">";
+					$this->output .= "<".$this->row->formTypeTag.$class_output." id='".$field_data['name']."'>"
+						.$this->row->formTypeText
+					."</".$this->row->formTypeTag.">";
 				}
 
 				else
 				{
 					$this->output .= "<div".$class_output." id='".$field_data['name']."'>
-						<p>".$this->row->queryTypeText."</p>
+						<p>".$this->row->formTypeText."</p>
 					</div>";
 				}
 			break;
@@ -3959,7 +3976,7 @@ class mf_form_output
 				{
 					$this->output .= "<p".$class_output.">"
 						.__("Only in e-mail", 'lang_form').": "
-						.$this->row->queryTypeText
+						.$this->row->formTypeText
 					."</p>";
 				}
 			break;
@@ -3975,7 +3992,7 @@ class mf_form_output
 
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->row->queryTypeText.": '".$referer_url."')</p>";
+					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->row->formTypeText.": '".$referer_url."')</p>";
 				}
 
 				else
@@ -3990,12 +4007,12 @@ class mf_form_output
 			case 'hidden_field':
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->query_prefix.$this->row->query2TypeID.": ".$this->row->queryTypeText.")</p>";
+					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->query_prefix.$this->row->form2TypeID.": ".$this->row->formTypeText.")</p>";
 				}
 
 				else
 				{
-					$field_data['value'] = ($this->answer_text != '' ? $this->answer_text : $this->row->queryTypeText);
+					$field_data['value'] = ($this->answer_text != '' ? $this->answer_text : $this->row->formTypeText);
 
 					$this->filter_form_fields($field_data);
 					$this->output .= input_hidden($field_data);
@@ -4006,12 +4023,12 @@ class mf_form_output
 			case 'custom_tag':
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey'>&lt;".$this->row->queryTypeText.$class_output."&gt;</p>";
+					$this->output .= "<p class='grey'>&lt;".$this->row->formTypeText.$class_output."&gt;</p>";
 				}
 
 				else
 				{
-					$this->output .= "<".$this->row->queryTypeText.$class_output." id='".$field_data['name']."'>";
+					$this->output .= "<".$this->row->formTypeText.$class_output." id='".$field_data['name']."'>";
 				}
 			break;
 
@@ -4019,12 +4036,12 @@ class mf_form_output
 			case 'custom_tag_end':
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey'>&lt;/".$this->row->queryTypeText."&gt;</p>";
+					$this->output .= "<p class='grey'>&lt;/".$this->row->formTypeText."&gt;</p>";
 				}
 
 				else
 				{
-					$this->output .= "</".$this->row->queryTypeText.">";
+					$this->output .= "</".$this->row->formTypeText.">";
 				}
 			break;
 
@@ -4032,11 +4049,11 @@ class mf_form_output
 			case 'file':
 				if($data['show_label'] == true)
 				{
-					$field_data['text'] = $this->row->queryTypeText;
+					$field_data['text'] = $this->row->formTypeText;
 				}
 
-				$field_data['required'] = $this->row->queryTypeRequired;
-				$field_data['class'] = $this->row->queryTypeClass;
+				$field_data['required'] = $this->row->formTypeRequired;
+				$field_data['class'] = $this->row->formTypeClass;
 
 				$this->output .= show_file_field($field_data);
 
@@ -4044,11 +4061,11 @@ class mf_form_output
 			break;
 
 			default:
-				do_log(__("There was no code for this type", 'lang_form')." (".$this->row->queryTypeCode.")");
+				do_log(__("There was no code for this type", 'lang_form')." (".$this->row->formTypeCode.")");
 			break;
 		}
 
-		$intFormTypeID2_temp = $this->row->queryTypeID;
+		$intFormTypeID2_temp = $this->row->formTypeID;
 	}
 
 	function get_output($data = array())
@@ -4059,27 +4076,27 @@ class mf_form_output
 
 		if($this->in_edit_mode == true)
 		{
-			$out .= "<mf-form-row id='type_".$this->row->query2TypeID."' class='flex_flow".($data['query2type_id'] == $this->row->query2TypeID ? " active" : "")."'>"
+			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['query2type_id'] == $this->row->form2TypeID ? " active" : "")."'>"
 				.$this->output
 				."<div class='row_settings'>";
 
 					if($this->show_required == true)
 					{
-						$out .= show_checkbox(array('name' => "require_".$this->row->query2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->query2TypeID."'"));
+						$out .= show_checkbox(array('name' => "require_".$this->row->form2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->form2TypeID."'"));
 					}
 
 					if($this->show_autofocus == true)
 					{
-						$out .= show_checkbox(array('name' => "autofocus_".$this->row->query2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->query2TypeID."'"));
+						$out .= show_checkbox(array('name' => "autofocus_".$this->row->form2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->form2TypeID."'"));
 					}
 
 					if($this->show_remember == true)
 					{
-						$out .= show_checkbox(array('name' => "remember_".$this->row->query2TypeID, 'text' => __("Remember answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->queryTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->query2TypeID."'"));
+						$out .= show_checkbox(array('name' => "remember_".$this->row->form2TypeID, 'text' => __("Remember answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
 					}
 
-					$out .= "<a href='?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->query2TypeID."'>".__("Edit", 'lang_form')."</a> | 
-					<a href='#delete/type/".$this->row->query2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a> | <a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->query2TypeID."'>".__("Copy", 'lang_form')."</a>
+					$out .= "<a href='?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Edit", 'lang_form')."</a> | 
+					<a href='#delete/type/".$this->row->form2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a> | <a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Copy", 'lang_form')."</a>
 				</div>";
 
 			$out .= "</mf-form-row>";

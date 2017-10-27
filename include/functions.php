@@ -101,7 +101,7 @@ function cron_form()
 
 	$setting_form_clear_spam = get_option_or_default('setting_form_clear_spam', 6);
 
-	$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE answerSpam = '1' AND answerCreated < DATE_SUB(NOW(), INTERVAL %d MONTH)", $setting_form_clear_spam));
+	$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' AND answerCreated < DATE_SUB(NOW(), INTERVAL %d MONTH)", $setting_form_clear_spam));
 
 	if($wpdb->num_rows > 0)
 	{
@@ -109,8 +109,8 @@ function cron_form()
 		{
 			$intAnswerID = $r->answerID;
 
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = %d", $intAnswerID));
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE answerID = %d", $intAnswerID));
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = %d", $intAnswerID));
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = %d", $intAnswerID));
 		}
 	}
 }
@@ -196,8 +196,8 @@ function deleted_user_form($user_id)
 {
 	global $wpdb;
 
-	$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
-	$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
+	$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
+	$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
 }
 
 function init_form()
@@ -233,6 +233,16 @@ function init_form()
 		mf_enqueue_style('style_form_replacement', $plugin_include_url."style_replacement.css", $plugin_version);
 
 		add_filter('the_content', 'the_content_form');
+	}
+
+	//Can be removed later
+	global $wpdb;
+
+	$wpdb->get_results("SHOW TABLES LIKE '".$wpdb->base_prefix."form'");
+
+	if($wpdb->num_rows == 0)
+	{
+		activate_form();
 	}
 }
 
@@ -297,18 +307,18 @@ function delete_form($post_id)
 
 	if($post_type == 'mf_form')
 	{
-		do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."query");
+		do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form");
 
 		/*$obj_form = new mf_form();
 		$obj_form->get_form_id($post_id);
 
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d'", $obj_form->id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $obj_form->id));
 
-		$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $obj_form->id));
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '%d'", $intAnswerID));
+		$intAnswerID = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d'", $obj_form->id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $intAnswerID));
 
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '%d'", $obj_form->id));
-		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $obj_form->id));*/
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d'", $obj_form->id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));*/
 	}
 }
 
@@ -392,7 +402,7 @@ function settings_form()
 
 	//$arr_settings['setting_form_reload'] = __("Reload page on form submission", 'lang_form');
 
-	$wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE answerSpam = '1' LIMIT 0, 1");
+	$wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' LIMIT 0, 1");
 
 	if($wpdb->num_rows > 0)
 	{
@@ -544,7 +554,7 @@ function widgets_form()
 	register_widget('widget_form');
 }
 
-function get_form_xtra($query_xtra = "", $search = "", $prefix = " WHERE", $field_name = "queryName")
+function get_form_xtra($query_xtra = "", $search = "", $prefix = " WHERE", $field_name = "formName")
 {
 	global $wpdb;
 
@@ -553,7 +563,7 @@ function get_form_xtra($query_xtra = "", $search = "", $prefix = " WHERE", $fiel
 
 	if(!$is_allowed_to_see_all_forms)
 	{
-		$query_xtra .= ($query_xtra != '' ? " AND" : $prefix)." ".$wpdb->base_prefix."query.userID = '".get_current_user_id()."'";
+		$query_xtra .= ($query_xtra != '' ? " AND" : $prefix)." ".$wpdb->base_prefix."form.userID = '".get_current_user_id()."'";
 	}
 
 	if($search != '')
@@ -576,11 +586,11 @@ function get_count_answer_message($data = array()) //$id = 0
 
 	$last_viewed = get_user_meta($data['user_id'], 'mf_forms_viewed', true);
 
-	$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($data['form_id'] > 0 ? " AND queryID = '".$data['form_id']."'" : ""))
+	$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""))
 		." AND (blogID = '".$wpdb->blogid."' OR blogID IS null)"
 		." AND answerSpam = '0'";
 
-	$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID)".$query_xtra, $last_viewed));
+	$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID)".$query_xtra, $last_viewed));
 	$rows = $wpdb->num_rows;
 
 	if($rows > 0)
@@ -606,7 +616,7 @@ function get_count_answer_message($data = array()) //$id = 0
 
 	else if(!($data['form_id'] > 0) && IS_SUPER_ADMIN)
 	{
-		$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) ORDER BY answerCreated DESC LIMIT 0, 2"); //$wpdb->prepare( WHERE (blogID = '%d' OR blogID IS null), $wpdb->blogid)
+		$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) ORDER BY answerCreated DESC LIMIT 0, 2"); //$wpdb->prepare( WHERE (blogID = '%d' OR blogID IS null), $wpdb->blogid)
 
 		if($wpdb->num_rows == 2)
 		{
@@ -702,15 +712,15 @@ function get_poll_results($data)
 
 	foreach($result as $r)
 	{
-		$intForm2TypeID2 = $r->query2TypeID;
-		$intFormTypeID2 = $r->queryTypeID;
-		$strFormTypeText2 = $r->queryTypeText;
+		$intForm2TypeID2 = $r->form2TypeID;
+		$intFormTypeID2 = $r->formTypeID;
+		$strFormTypeText2 = $r->formTypeText;
 
 		$out .= "<div".($intFormTypeID2 == 8 ? " class='form_radio'" : "").">";
 
 			if($intFormTypeID2 == 8)
 			{
-				$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '%d' AND queryTypeID = '8' AND query2TypeID = '".$intForm2TypeID2."'", $obj_form->id));
+				$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID = '8' AND form2TypeID = '".$intForm2TypeID2."'", $obj_form->id));
 
 				$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
 
