@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.0.3
+Version: 11.0.4
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -332,7 +332,9 @@ function activate_form()
 
 	foreach($result as $r)
 	{
-		wp_trash_post($r->ID);
+		do_log(__("Remove from wp_posts because the corresponding form in wp_form does not exist", 'lang_form'));
+
+		//wp_trash_post($r->ID);
 	}*/
 	#################################
 
@@ -393,6 +395,8 @@ function activate_form()
 		'fields_to' => "answerID, answerEmail, answerType, answerSent",
 	);
 
+	$option_form_list_viewed = get_option('option_form_list_viewed');
+
 	foreach($arr_copy as $copy)
 	{
 		$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_to']." LIMIT 0, 1");
@@ -404,19 +408,36 @@ function activate_form()
 
 		else
 		{
+			$log_message = sprintf(__("I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this.", 'lang_form'), $wpdb->base_prefix.$copy['table_from'], "<a href='".admin_url("admin.php?page=mf_form/list/index.php")."'>", "</a>");
+
 			$wpdb->get_results("SHOW TABLES LIKE '".$wpdb->base_prefix.$copy['table_from']."'");
 
 			if($wpdb->num_rows > 0)
 			{
-				//$wpdb->query("TRUNCATE ".$wpdb->base_prefix.$copy['table_from']);
-				//$wpdb->query("DROP TABLE IF EXISTS ".$wpdb->base_prefix.$copy['table_from']);
+				$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_to']);
+				$rows_table_to = $wpdb->num_rows;
 
-				do_log("Drop ".$wpdb->base_prefix.$copy['table_from']);
+				$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_from']);
+				$rows_table_from = $wpdb->num_rows;
+
+				if($rows_table_to >= $rows_table_from && $option_form_list_viewed > DEFAULT_DATE)
+				{
+					if($option_form_list_viewed < date("Y-m-d H:i:s", strtotime("-1 week")))
+					{
+						$wpdb->query("TRUNCATE ".$wpdb->base_prefix.$copy['table_from']);
+						$wpdb->query("DROP TABLE IF EXISTS ".$wpdb->base_prefix.$copy['table_from']);
+					}
+				}
+
+				else
+				{
+					do_log($log_message);
+				}
 			}
 
 			else
 			{
-				do_log("Drop ".$wpdb->base_prefix.$copy['table_from'], 'trash');
+				do_log($log_message, 'trash');
 			}
 		}
 	}
@@ -435,7 +456,7 @@ function uninstall_form()
 {
 	mf_uninstall_plugin(array(
 		'uploads' => 'mf_form',
-		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_form_reload', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'mf_forms_viewed', 'answer_viewed'),
+		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_form_reload', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'), //, 'mf_forms_viewed', 'answer_viewed'
 		'post_types' => array('mf_form'),
 		'tables' => array('query', 'query2answer', 'query2type', 'query_answer', 'query_answer_email', 'query_check', 'query_type', 'form_spam', 'query_zipcode'),
 	));

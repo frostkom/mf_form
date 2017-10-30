@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-27 16:04+0100\n"
+"POT-Creation-Date: 2017-10-28 08:54+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -166,6 +166,11 @@ msgstr "Ä"
 #: ../index.php:319
 msgid "Ouml"
 msgstr "Ö"
+
+#: ../index.php:411
+#, php-format
+msgid "I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this."
+msgstr "Jag är på väg att radera tabellen %s. Gå till %sFormulär%s och se till så att formulären fungerar som de ska innan jag gör detta."
 
 #: ../answer/index.php:6
 #: ../create/index.php:8
