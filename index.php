@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.0.5
+Version: 11.0.6
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -414,13 +414,13 @@ function activate_form()
 
 			if($wpdb->num_rows > 0)
 			{
-				$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_to']);
+				/*$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_to']);
 				$rows_table_to = $wpdb->num_rows;
 
 				$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_from']);
-				$rows_table_from = $wpdb->num_rows;
+				$rows_table_from = $wpdb->num_rows;*/
 
-				if($rows_table_to >= $rows_table_from && $option_form_list_viewed > DEFAULT_DATE)
+				if($option_form_list_viewed > DEFAULT_DATE) //$rows_table_to >= $rows_table_from && 
 				{
 					if($option_form_list_viewed < date("Y-m-d H:i:s", strtotime("-1 week")))
 					{
