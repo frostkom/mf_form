@@ -62,12 +62,9 @@
 		mf-form-row .row_settings
 		{
 			background: rgba(200, 200, 200, .3);
-			border-radius: /*0 0 0 */.5em;
+			border-radius: .5em;
 			display: none;
 			padding: 1em;
-			/*position: absolute;
-			right: 0;
-			top: 0;*/
 		}
 
 			mf-form-row:hover .row_settings, mf-form-row.active .row_settings
