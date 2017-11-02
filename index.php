@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.0.7
+Version: 11.0.9
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -399,20 +399,22 @@ function activate_form()
 
 	foreach($arr_copy as $copy)
 	{
-		$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_to']." LIMIT 0, 1");
+		$log_message = sprintf(__("I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this.", 'lang_form'), $wpdb->base_prefix.$copy['table_from'], "<a href='".admin_url("admin.php?page=mf_form/list/index.php")."'>", "</a>");
 
-		if($wpdb->num_rows == 0)
+		$wpdb->get_results("SHOW TABLES LIKE '".$wpdb->base_prefix.$copy['table_from']."'");
+		$table_from_exists = $wpdb->num_rows;
+
+		if($table_from_exists > 0)
 		{
-			$wpdb->query("INSERT INTO ".$wpdb->base_prefix.$copy['table_to']." (".$copy['fields_to'].") (SELECT ".$copy['fields_from']." FROM ".$wpdb->base_prefix.$copy['table_from'].")");
-		}
+			$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_to']." LIMIT 0, 1");
+			$table_to_rows = $wpdb->num_rows;
 
-		else
-		{
-			$log_message = sprintf(__("I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this.", 'lang_form'), $wpdb->base_prefix.$copy['table_from'], "<a href='".admin_url("admin.php?page=mf_form/list/index.php")."'>", "</a>");
+			if($table_to_rows == 0)
+			{
+				$wpdb->query("INSERT INTO ".$wpdb->base_prefix.$copy['table_to']." (".$copy['fields_to'].") (SELECT ".$copy['fields_from']." FROM ".$wpdb->base_prefix.$copy['table_from'].")");
+			}
 
-			$wpdb->get_results("SHOW TABLES LIKE '".$wpdb->base_prefix.$copy['table_from']."'");
-
-			if($wpdb->num_rows > 0)
+			else
 			{
 				/*$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_to']);
 				$rows_table_to = $wpdb->num_rows;
@@ -434,11 +436,11 @@ function activate_form()
 					do_log($log_message);
 				}
 			}
+		}
 
-			else
-			{
-				do_log($log_message, 'trash');
-			}
+		else
+		{
+			do_log($log_message, 'trash');
 		}
 	}
 	#################################

@@ -1212,7 +1212,7 @@ class mf_form
 
 				$reg_exp = str_replace($arr_exclude, $arr_include, $data['rule']);
 
-				if(preg_match($reg_exp, $data['text']) || preg_match($reg_exp, esc_sql($data['text'])))
+				if($data['text'] != '' && preg_match($reg_exp, $data['text']) || esc_sql($data['text']) != '' && preg_match($reg_exp, esc_sql($data['text'])))
 				{
 					//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
 
