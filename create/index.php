@@ -343,13 +343,12 @@ echo "<div class='wrap'>
 
 											foreach($arr_select_rows as $select_row)
 											{
-												$arr_select_row_content = explode("|", $select_row);
+												@list($option_id, $option_value, $option_limit) = explode("|", $select_row, 3);
 
-												echo "<div>"
-													//input text is needed when using select as payment price
-													.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $arr_select_row_content[0]))
-													//.input_hidden(array('name' => 'strFormTypeSelect_id', 'value' => $arr_select_row_content[0]))
-													.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $arr_select_row_content[1], 'placeholder' => __("Enter option here", 'lang_form')))
+												echo "<div class='option'>"
+													.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $option_id)) //input text is needed when using payment price as ID
+													.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $option_value, 'placeholder' => __("Enter option here", 'lang_form')))
+													.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $option_limit))
 												."</div>";
 											}
 

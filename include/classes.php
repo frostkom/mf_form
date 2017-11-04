@@ -3708,6 +3708,29 @@ class mf_form_output
 		}
 	}
 
+	function check_limit($arr_content3)
+	{
+		global $wpdb;
+
+		if(isset($arr_content3[2]) && $arr_content3[2] > 0)
+		{
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND form2TypeID = '%d' AND answerText = %s AND answerSpam = '0' GROUP BY answerID", $this->id, $this->row->form2TypeID, $arr_content3[0]));
+			$answer_rows = $wpdb->num_rows;
+
+			if($answer_rows >= $arr_content3[2])
+			{
+				$arr_content3[0] = "disabled_".$arr_content3[0];
+			}
+
+			else
+			{
+				$arr_content3[1] .= " (".($arr_content3[2] - $answer_rows)." / ".$arr_content3[2]." ".__("kvar").")";
+			}
+		}
+		
+		return $arr_content3;
+	}
+
 	function get_form_fields($data = array())
 	{
 		global $intFormTypeID2_temp, $intForm2TypeID2_temp;
@@ -3855,6 +3878,8 @@ class mf_form_output
 				{
 					$arr_content3 = explode("|", $str_content);
 
+					$arr_content3 = $this->check_limit($arr_content3);
+
 					$arr_data[$arr_content3[0]] = $arr_content3[1];
 				}
 
@@ -3885,6 +3910,8 @@ class mf_form_output
 				foreach($arr_content2 as $str_content)
 				{
 					$arr_content3 = explode("|", $str_content);
+
+					$arr_content3 = $this->check_limit($arr_content3);
 
 					$arr_data[$arr_content3[0]] = $arr_content3[1];
 				}

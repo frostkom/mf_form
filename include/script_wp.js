@@ -66,11 +66,11 @@ jQuery(function($)
 
 	function add_option()
 	{
-		var dom_content = $('.select_rows > div:last-child').html();
+		var dom_content = $('.select_rows .option:last-child').html();
 
-		$('.select_rows').append("<div>" + dom_content + "</div>");
+		$('.select_rows').append("<div class='option'>" + dom_content + "</div>");
 
-		var dom_obj = $('.select_rows > div:last-child input[name=strFormTypeSelect_id]'),
+		var dom_obj = $('.select_rows .option:last-child input[name=strFormTypeSelect_id]'),
 			dom_value = dom_obj.attr('value');
 
 		if(parseInt(dom_value) == dom_value)
@@ -81,7 +81,7 @@ jQuery(function($)
 			});
 		}
 
-		$('.select_rows > div:last-child input[name=strFormTypeSelect_value]').attr(
+		$('.select_rows .option:last-child input[name=strFormTypeSelect_value]').attr(
 		{
 			'value': ''
 		});
@@ -89,17 +89,20 @@ jQuery(function($)
 
 	function update_select()
 	{
-		var select_value = "",
-			i = 1;
+		var select_value = "";
 
-		$('.select_rows > div').each(function()
+		$('.select_rows .option').each(function()
 		{
-			var temp_id = $(this).find('input[name=strFormTypeSelect_id]').val() + "",
-				temp_value = $(this).find('input[name=strFormTypeSelect_value]').val() + "";
+			var dom_obj = $(this),
+				temp_id = dom_obj.find("input[name=strFormTypeSelect_id]").val() + "",
+				temp_value = dom_obj.find("input[name=strFormTypeSelect_value]").val() + "",
+				temp_limit = dom_obj.find("input[name=intFormTypeSelect_limit]").val() + "";
+
+			console.log(dom_obj.find("input[name=intFormTypeSelect_limit]"));
 
 			if(temp_value != "")
 			{
-				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value;
+				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value + "|" + temp_limit;
 			}
 		});
 
@@ -200,14 +203,14 @@ jQuery(function($)
 		}
 	});
 
-	$('#add_option').on('click', function()
+	/*$('#add_option').on('click', function()
 	{
 		add_option();
 
 		//update_select();
 
 		return false;
-	});
+	});*/
 
 	if($('.mf_form.mf_sortable').length > 0)
 	{
