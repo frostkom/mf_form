@@ -4097,6 +4097,8 @@ class mf_form_output
 
 	function get_output($data = array())
 	{
+		global $wpdb;
+
 		$out = "";
 
 		if(!isset($this->in_edit_mode)){	$this->in_edit_mode = false;}
@@ -4122,8 +4124,16 @@ class mf_form_output
 						$out .= show_checkbox(array('name' => "remember_".$this->row->form2TypeID, 'text' => __("Remember answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
 					}
 
-					$out .= "<a href='?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Edit", 'lang_form')."</a> | 
-					<a href='#delete/type/".$this->row->form2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a> | <a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Copy", 'lang_form')."</a>
+					$out .= "<a href='?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Edit", 'lang_form')."</a>";
+
+					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d'", $this->row->form2TypeID));
+
+					if($wpdb->num_rows == 0)
+					{
+						$out .= " | <a href='#delete/type/".$this->row->form2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+					}
+
+					$out .= " | <a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Copy", 'lang_form')."</a>
 				</div>";
 
 			$out .= "</mf-form-row>";

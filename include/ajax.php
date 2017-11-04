@@ -69,7 +69,7 @@ if(get_current_user_id() > 0)
 
 			if($wpdb->rows_affected > 0)
 			{
-				$wpdb->query(wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d'", $type_id));
+				//$wpdb->query(wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d'", $type_id));
 
 				$json_output['success'] = true;
 				$json_output['dom_id'] = $type_table."_".$type_id;
