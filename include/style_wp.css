@@ -90,6 +90,43 @@
 
 			.select_rows .option
 			{
+				display: -webkit-box;
+				display: -ms-flexbox;
+				display: -webkit-flex;
+				display: flex;
+				overflow: hidden;
+			}
+
+				.select_rows .option > *
+				{
+					display: block;
+					-webkit-box-flex: 0 1 0;
+					-webkit-flex: 0 1 0;
+					-ms-flex: 0 1 0;
+					flex: 0 1 0;
+				}
+
+					.select_rows .option .form_textfield:nth-child(1)
+					{
+						min-width: 25px;
+					}
+
+					.select_rows .option .form_textfield:nth-child(2)
+					{
+						-webkit-box-flex: 2 1 0;
+						-webkit-flex: 2 1 0;
+						-ms-flex: 2 1 0;
+						flex: 2 1 0;
+						margin: 0 .5em;
+					}
+
+					.select_rows .option .form_textfield:nth-child(3)
+					{
+						min-width: 45px;
+					}
+
+			/*.select_rows .option
+			{
 				overflow: hidden;
 			}
 
@@ -108,7 +145,7 @@
 					.select_rows .option .form_textfield:nth-child(3)
 					{
 						width: 20%;
-					}
+					}*/
 
 	.flot_wrapper
 	{

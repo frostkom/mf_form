@@ -367,23 +367,24 @@ echo "<div class='wrap'>
 										{
 											$arr_data_equals = array();
 
-											foreach($arr_select_rows as $select_row)
+											foreach($arr_select_rows as $str_option)
 											{
-												$arr_select_row_content = explode("|", $select_row);
+												list($option_id, $option_value) = explode("|", $str_option);
 
-												$arr_data_equals[$arr_select_row_content[0]] = $arr_select_row_content[1];
+												$arr_data_equals[$option_id] = $option_value;
 											}
 
-											if(count($arr_data_equals) > 0)
+											if(count($arr_data_equals) > 1)
 											{
-												list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(1, 4, 5, 10, 11, 13), 'query_exclude_id' => $intForm2TypeID));
-												$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
+												list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(1, 2, 3, 4, 5, 7, 8, 10, 11), 'query_exclude_id' => $intForm2TypeID)); //'checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple'
 
-												if(count($arr_data_show) > 0)
+												if($rows > 0)
 												{
+													$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
+
 													echo "<div class='show_actions'>"
 														.show_select(array('data' => $arr_data_equals, 'name' => 'strFormTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'value' => $strFormTypeActionEquals))
-														.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeActionShow', 'value' => $intFormTypeActionShow, 'text' => __("...show this...", 'lang_form')))
+														.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeActionShow', 'text' => __("...show this...", 'lang_form'), 'value' => $intFormTypeActionShow))
 													."</div>";
 												}
 											}

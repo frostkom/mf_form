@@ -708,7 +708,7 @@ function get_poll_results($data)
 	$out = "";
 
 	$obj_form = new mf_form($data['form_id']);
-	list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(5, 8)));
+	list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(5, 8))); //'text', 'radio_button'
 
 	foreach($result as $r)
 	{

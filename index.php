@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.1.1
+Version: 11.2.1
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form

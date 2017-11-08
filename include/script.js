@@ -36,18 +36,27 @@ function update_range_text(selector)
 	selector.siblings('label').children('span').text(selector.val());
 }
 
-function do_form_type_action(selector)
+function do_form_type_action(dom_obj)
 {
-	var equals = selector.attr('data-equals'),
-		show = selector.attr('data-show'),
-		show_obj = jQuery('#' + show);
+	var equals = dom_obj.attr('data-equals'),
+		show_obj = jQuery('#' + dom_obj.attr('data-show')),
+		show_obj_parent = false;
 
-	if(show_obj.is('checkbox')){		show_obj = show_obj.parents('.form_checkbox');}
-	else if(show_obj.is('textarea')){	show_obj = show_obj.parents('.form_textarea');}
-	else if(show_obj.is('select')){		show_obj = show_obj.parents('.form_select');}
+	if(show_obj.is('input[type=checkbox]')){	show_obj_parent = show_obj.parents('.form_checkbox');}
+	else if(show_obj.is('input')){				show_obj_parent = show_obj.parents('.form_textfield');}
+	else if(show_obj.is('input[type=radio]')){	show_obj_parent = show_obj.parents('.form_radio');}
+	else if(show_obj.is('select')){				show_obj_parent = show_obj.parents('.form_select');}
+	else if(show_obj.is('textarea')){			show_obj_parent = show_obj.parents('.form_textarea');}
+	else
+	{
+		show_obj_parent = show_obj;
+	}
 
-	if(selector.val() == equals){	show_obj.removeClass('hide');}
-	else{							show_obj.addClass('hide');}
+	if(show_obj_parent !== false)
+	{
+		if(dom_obj.val() == equals){	show_obj_parent.removeClass('hide');}
+		else{							show_obj_parent.addClass('hide');}
+	}
 }
 
 function check_remember_fields()
