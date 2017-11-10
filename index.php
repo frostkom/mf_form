@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.2.4
+Version: 11.2.6
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -236,19 +236,20 @@ function activate_form()
 	$arr_query_types = array(
 		1 => array('code' => 'checkbox',			'name' => __("Checkbox", 'lang_form'),				'result' => 1),
 		2 => array('code' => 'range',				'name' => __("Range", 'lang_form'),					'result' => 1),
-		3 => array('code' => 'input_field',			'name' => __("Input field", 'lang_form'),			'result' => 1),
+		3 => array('code' => 'input_field',			'name' => __("Input Field", 'lang_form'),			'result' => 1),
 		4 => array('code' => 'textarea',			'name' => __("Textarea", 'lang_form'),				'result' => 1),
 		5 => array('code' => 'text',				'name' => __("Text", 'lang_form'),					'result' => 0),
 		6 => array('code' => 'space',				'name' => __("Space", 'lang_form'),					'result' => 0),
 		7 => array('code' => 'datepicker',			'name' => __("Datepicker", 'lang_form'),			'result' => 1),
-		8 => array('code' => 'radio_button',		'name' => __("Radio button", 'lang_form'),			'result' => 1),
+		8 => array('code' => 'radio_button',		'name' => __("Radio Button", 'lang_form'),			'result' => 1),
 		9 => array('code' => 'referer_url',			'name' => __("Referer URL", 'lang_form'),			'result' => 1),
 		10 => array('code' => 'select',				'name' => __("Dropdown", 'lang_form'),				'result' => 1),
-		11 => array('code' => 'select_multiple',	'name' => __("Multiple selection", 'lang_form'),	'result' => 1),
-		12 => array('code' => 'hidden_field',		'name' => __("Hidden field", 'lang_form'),			'result' => 1),
-		13 => array('code' => 'custom_tag',			'name' => __("Custom tag", 'lang_form'),			'result' => 0),
-		14 => array('code' => 'custom_tag_end',		'name' => __("Custom tag (end)", 'lang_form'),		'result' => 0,		'public' => 'no'),
+		11 => array('code' => 'select_multiple',	'name' => __("Multiple Selection", 'lang_form'),	'result' => 1),
+		12 => array('code' => 'hidden_field',		'name' => __("Hidden Field", 'lang_form'),			'result' => 1),
+		13 => array('code' => 'custom_tag',			'name' => __("Custom Tag", 'lang_form'),			'result' => 0),
+		14 => array('code' => 'custom_tag_end',		'name' => __("Custom Tag (end)", 'lang_form'),		'result' => 0,		'public' => 'no'),
 		15 => array('code' => 'file',				'name' => __("File", 'lang_form'),					'result' => 1),
+		16 => array('code' => 'checkbox_multiple',	'name' => __("Multiple Checkboxes", 'lang_form'),	'result' => 1),
 	);
 
 	foreach($arr_query_types as $key => $value)
@@ -279,24 +280,6 @@ function activate_form()
 
 		$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_check SET checkID = '%d', checkPublic = '%d', checkName = %s, checkCode = %s, checkPattern = %s", $key, $value['public'], $value['name'], $value['code'], $value['pattern']);
 	}
-
-	/*$arr_query_check = array(
-		1 => array('exclude' => "select_multiple",	'text' => "contains_html",					'explain' => __("Contains HTML", 'lang_form')),
-		2 => array('exclude' => "referer_url",		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => __("Link including http", 'lang_form')),
-		3 => array(									'text' => "/([qm]){5}/",					'explain' => __("Question marks", 'lang_form')),
-		4 => array(									'text' => "/(bit\.ly)/",					'explain' => __("bit.ly", 'lang_form')),
-		5 => array(									'text' => "/([bs][url[bs]=)/",				'explain' => __("[url]", 'lang_form')),
-		6 => array(									'text' => "",								'explain' => __("Recurring E-mail", 'lang_form')),
-		7 => array(									'text' => "",								'explain' => __("Honeypot", 'lang_form')),
-	);
-
-	foreach($arr_query_check as $key => $value)
-	{
-		if(!isset($value['include'])){	$value['include'] = "";}
-		if(!isset($value['exclude'])){	$value['exclude'] = "";}
-
-		$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_spam SET spamID = '%d', spamInclude = %s, spamExclude = %s, spamText = '".$value['text']."', spamExplain = %s", $key, $value['include'], $value['exclude'], $value['explain']);
-	}*/
 
 	run_queries($arr_run_query);
 

@@ -434,6 +434,8 @@ class mf_form
 
 						case 11:
 						//case 'select_multiple':
+						case 16:
+						//case 'checkbox_multiple':
 							$strAnswerText = $this->parse_multiple_info($strAnswerText);
 						break;
 
@@ -1070,7 +1072,7 @@ class mf_form
 
 		foreach($data['result'] as $r)
 		{
-			if(in_array($r->formTypeID, array(10, 11))) //'select', 'select_multiple'
+			if(in_array($r->formTypeID, array(10, 11, 16))) //'select', 'select_multiple', 'checkbox_multiple'
 			{
 				list($strFormTypeText, $str_select) = explode(":", $r->formTypeText);
 			}
@@ -1620,6 +1622,8 @@ class mf_form
 
 					//case 11:
 					case 'select_multiple':
+					//case 16:
+					case 'checkbox_multiple':
 						$strAnswerText = "";
 
 						if(is_array($_POST[$handle2fetch]))
@@ -1776,6 +1780,11 @@ class mf_form
 
 				if($this->insert_answer())
 				{
+					$this->arr_email_content['fields'][] = array(
+						'label' => __("Sent From"),
+						'value' => (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "")
+					);
+
 					$this->process_transactional_emails();
 
 					if($intFormPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
@@ -3043,6 +3052,8 @@ class mf_form_export extends mf_export
 				case 'select':
 				//case 11:
 				case 'select_multiple':
+				//case 16:
+				case 'checkbox_multiple':
 					list($obj_form->label, $str_select) = explode(":", $obj_form->label);
 				break;
 			}
@@ -3101,6 +3112,8 @@ class mf_form_export extends mf_export
 
 						//case 11:
 						case 'select_multiple':
+						//case 16:
+						case 'checkbox_multiple':
 							$strAnswerText = $obj_form->parse_multiple_info($strAnswerText);
 						break;
 
@@ -3499,6 +3512,8 @@ class mf_answer_table extends mf_list_table
 				case 'select':
 				//case 11:
 				case 'select_multiple':
+				//case 16:
+				case 'checkbox_multiple':
 					list($obj_form->label, $str_select) = explode(":", $obj_form->label);
 
 					$label_limit = 10;
@@ -3716,6 +3731,8 @@ class mf_answer_table extends mf_list_table
 
 								//case 11:
 								case 'select_multiple':
+								//case 16:
+								case 'checkbox_multiple':
 									$obj_form->prefix = $obj_form->get_post_info()."_";
 
 									$strAnswerText = $obj_form->parse_multiple_info($strAnswerText);
@@ -4030,7 +4047,7 @@ class mf_form_output
 					$field_data['text'] = $this->label;
 				}
 
-				$field_data['compare'] = $this->answer_text;
+				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
 
@@ -4050,12 +4067,32 @@ class mf_form_output
 					$field_data['text'] = $this->label;
 				}
 
-				$field_data['compare'] = $this->answer_text;
+				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
+
+				$this->show_required = true;
+			break;
+
+			//case 16:
+			case 'checkbox_multiple':
+				$field_data['name'] .= "[]";
+				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
+
+				if($data['show_label'] == true)
+				{
+					$field_data['text'] = $this->label;
+				}
+
+				$field_data['value'] = $this->answer_text;
+				$field_data['required'] = $this->row->formTypeRequired;
+				$field_data['class'] = $this->row->formTypeClass;
+
+				$this->filter_form_fields($field_data);
+				$this->output .= show_checkboxes($field_data);
 
 				$this->show_required = true;
 			break;
