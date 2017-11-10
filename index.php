@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.2.1
+Version: 11.2.4
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -133,7 +133,7 @@ function activate_form()
 	);
 
 	$arr_update_column[$wpdb->base_prefix."form2type"] = array(
-		//'query2TypeID' => "ALTER TABLE [table] CHANGE [column] form2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT",
+		//'form2TypeID' => "ALTER TABLE [table] CHANGE [column] form2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT",
 	);
 
 	$arr_add_column[$wpdb->base_prefix."form2type"] = array(
@@ -214,7 +214,7 @@ function activate_form()
 		//'formTypeResult' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
 	);
 
-	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_spam (
+	/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_spam (
 		spamID INT unsigned NOT NULL AUTO_INCREMENT,
 		spamInclude VARCHAR(30) DEFAULT NULL,
 		spamExclude VARCHAR(30) DEFAULT NULL,
@@ -225,18 +225,7 @@ function activate_form()
 
 	$arr_add_column[$wpdb->base_prefix."form_spam"] = array(
 		'spamExplain' => "ALTER TABLE [table] ADD [column] VARCHAR(50) DEFAULT NULL AFTER spamText",
-	);
-
-	if(get_bloginfo('language') == "sv-SE")
-	{
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_zipcode (
-			addressZipCode INT NOT NULL DEFAULT '0',
-			cityName VARCHAR(20) DEFAULT NULL,
-			municipalityName VARCHAR(20) DEFAULT NULL,
-			countyName VARCHAR(20) DEFAULT NULL,
-			PRIMARY KEY (addressZipCode)
-		) DEFAULT CHARSET=".$default_charset);
-	}
+	);*/
 
 	update_columns($arr_update_column);
 	add_columns($arr_add_column);
@@ -291,7 +280,7 @@ function activate_form()
 		$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_check SET checkID = '%d', checkPublic = '%d', checkName = %s, checkCode = %s, checkPattern = %s", $key, $value['public'], $value['name'], $value['code'], $value['pattern']);
 	}
 
-	$arr_query_check = array(
+	/*$arr_query_check = array(
 		1 => array('exclude' => "select_multiple",	'text' => "contains_html",					'explain' => __("Contains HTML", 'lang_form')),
 		2 => array('exclude' => "referer_url",		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => __("Link including http", 'lang_form')),
 		3 => array(									'text' => "/([qm]){5}/",					'explain' => __("Question marks", 'lang_form')),
@@ -307,22 +296,7 @@ function activate_form()
 		if(!isset($value['exclude'])){	$value['exclude'] = "";}
 
 		$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_spam SET spamID = '%d', spamInclude = %s, spamExclude = %s, spamText = '".$value['text']."', spamExplain = %s", $key, $value['include'], $value['exclude'], $value['explain']);
-	}
-
-	if(get_bloginfo('language') == "sv-SE")
-	{
-		require_once("include/zipcode.php");
-
-		$count_temp = count($arr_run_query);
-
-		$arr_exclude = array("å", "ä", "ö", "Å", "Ä", "Ö");
-		$arr_include = array(__("aring", 'lang_form'), __("auml", 'lang_form'), __("ouml", 'lang_form'), __("Aring", 'lang_form'), __("Auml", 'lang_form'), __("Ouml", 'lang_form'));
-
-		for($i = 0; $i < $count_temp; $i++)
-		{
-			$arr_run_query[$i] = str_replace($arr_exclude, $arr_include, $arr_run_query[$i]);
-		}
-	}
+	}*/
 
 	run_queries($arr_run_query);
 
@@ -422,7 +396,7 @@ function activate_form()
 				$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_from']);
 				$rows_table_from = $wpdb->num_rows;*/
 
-				if($option_form_list_viewed > DEFAULT_DATE) //$rows_table_to >= $rows_table_from && 
+				if($option_form_list_viewed > DEFAULT_DATE) //$rows_table_to >= $rows_table_from &&
 				{
 					if($option_form_list_viewed < date("Y-m-d H:i:s", strtotime("-1 week")))
 					{

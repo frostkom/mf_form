@@ -7,7 +7,7 @@ class mf_form
 		$this->id = $id > 0 ? $id : check_var('intFormID');
 
 		$this->post_status = "";
-		$this->query2type_id = $this->post_id = 0;
+		$this->form2type_id = $this->post_id = 0;
 
 		$this->meta_prefix = "mf_form_";
 
@@ -40,7 +40,7 @@ class mf_form
 		$reminder_cutoff = $array['cutoff'];
 
 		do_log("obj_form->get_user_reminder was run for ".$user_id." (".$reminder_cutoff.")");
-		
+
 		$update_form = get_count_answer_message(array('form_id' => $obj_form->id));
 
 		if($update_form != '')
@@ -443,11 +443,17 @@ class mf_form
 								switch($strCheckCode)
 								{
 									case 'zip':
-										$city_name = $this->get_city_from_zip($strAnswerText);
-
-										if($city_name != '')
+										if(get_bloginfo('language') == "sv-SE")
 										{
-											$strAnswerText .= ", ".$city_name;
+											include_once("class_zipcode.php");
+											$obj_zipcode = new mf_zipcode();
+
+											$city_name = $obj_zipcode->get_city($strAnswerText);
+
+											if($city_name != '')
+											{
+												$strAnswerText .= ", ".$city_name;
+											}
 										}
 									break;
 								}
@@ -536,7 +542,7 @@ class mf_form
 
 		$tbl_group->select_data(array(
 			//'select' => "*",
-			//'where' => 
+			//'where' => ,
 			'debug' => true,
 		));
 
@@ -698,7 +704,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		$this->query2type_id = $id;
+		$this->form2type_id = $id;
 
 		$this->id = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $id));
 
@@ -776,16 +782,6 @@ class mf_form
 		$intForm2TypeID = $this->get_form_email_field();
 
 		return $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $intAnswerID, $intForm2TypeID));
-	}
-
-	function get_city_from_zip($zip)
-	{
-		global $wpdb;
-
-		if(get_bloginfo('language') == "sv-SE")
-		{
-			return $wpdb->get_var($wpdb->prepare("SELECT cityName FROM ".$wpdb->base_prefix."form_zipcode WHERE addressZipCode = '%d' LIMIT 0, 1", $zip));
-		}
 	}
 
 	function is_form_field_type_used($data)
@@ -1094,10 +1090,10 @@ class mf_form
 	{
 		global $wpdb;
 
-		if($this->query2type_id > 0)
+		if($this->form2type_id > 0)
 		{
-			$query_where = "query2typeID = '%d'";
-			$query_where_id = $this->query2type_id;
+			$query_where = "form2typeID = '%d'";
+			$query_where_id = $this->form2type_id;
 		}
 
 		else
@@ -1192,7 +1188,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		if($data['text'] != '')
+		if($data['text'] != '' && $data['rule'] != '')
 		{
 			if(function_exists($data['rule']))
 			{
@@ -1214,44 +1210,96 @@ class mf_form
 
 				$reg_exp = str_replace($arr_exclude, $arr_include, $data['rule']);
 
-				if($data['text'] != '' && preg_match($reg_exp, $data['text']) || esc_sql($data['text']) != '' && preg_match($reg_exp, esc_sql($data['text'])))
+				if($data['text'] != '')
 				{
-					//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
+					if(preg_match($reg_exp, $data['text']) || esc_sql($data['text']) != '' && preg_match($reg_exp, esc_sql($data['text'])))
+					{
+						//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
 
-					$this->is_spam = true;
-					$this->is_spam_id = $data['id'];
+						$this->is_spam = true;
+						$this->is_spam_id = $data['id'];
+					}
 				}
 			}
 		}
+	}
+
+	function get_spam_rules($data = array())
+	{
+		if(!isset($data['id'])){		$data['id'] = 0;}
+		if(!isset($data['exclude'])){	$data['exclude'] = '';}
+		if(!isset($data['type'])){		$data['type'] = '';}
+
+		$arr_data = array(
+			1 => array('exclude' => "select_multiple",	'text' => "contains_html",					'explain' => __("Contains HTML", 'lang_form')),
+			2 => array('exclude' => "referer_url",		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => __("Link including http", 'lang_form')),
+			3 => array('exclude' => '',					'text' => "/([qm]){5}/",					'explain' => __("Question marks", 'lang_form')),
+			4 => array('exclude' => '',					'text' => "/(bit\.ly)/",					'explain' => __("bit.ly", 'lang_form')),
+			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("[url]", 'lang_form')),
+			6 => array('exclude' => '',					'text' => "",								'explain' => __("Recurring E-mail", 'lang_form')),
+			7 => array('exclude' => '',					'text' => "",								'explain' => __("Honeypot", 'lang_form')),
+		);
+
+		if($data['exclude'] != '')
+		{
+			foreach($arr_data as $key => $value)
+			{
+				if($value['exclude'] == $data['exclude'])
+				{
+					$arr_data[$key] = array();
+					unset($arr_data[$key]);
+				}
+			}
+		}
+
+		if($data['type'] != '')
+		{
+			foreach($arr_data as $key => $value)
+			{
+				$arr_data[$key] = $value[$data['type']];
+			}
+		}
+
+		if($data['id'] > 0)
+		{
+			$arr_data = $arr_data[$data['id']];
+		}
+
+		return $arr_data;
 	}
 
 	function check_spam_rules($data)
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT spamID, spamText FROM ".$wpdb->base_prefix."form_spam WHERE (spamInclude = '' OR spamInclude = %s) AND (spamExclude = '' OR spamExclude != '%s')", $data['code'], $data['code']));
+		//$result = $wpdb->get_results($wpdb->prepare("SELECT spamID, spamText FROM ".$wpdb->base_prefix."form_spam WHERE (spamInclude = '' OR spamInclude = %s) AND (spamExclude = '' OR spamExclude != %s)", $data['code'], $data['code']));
 
-		foreach($result as $r)
+		$result = $this->get_spam_rules(array('type' => 'text', 'exclude' => $data['code']));
+
+		foreach($result as $key => $value)
 		{
-			$intSpamID = $r->spamID;
-			$strSpamText = $r->spamText;
+			$intSpamID = $key;
+			$strSpamText = $value;
 
-			if(is_array($data['text']))
+			if($strSpamText != '')
 			{
-				foreach($data['text'] as $text)
+				if(is_array($data['text']))
 				{
-					$this->check_if_spam(array('id' => $intSpamID, 'rule' => $strSpamText, 'text' => $text));
+					foreach($data['text'] as $text)
+					{
+						$this->check_if_spam(array('id' => $intSpamID, 'rule' => $strSpamText, 'text' => $text));
+					}
 				}
-			}
 
-			else
-			{
-				$this->check_if_spam(array('id' => $intSpamID, 'rule' => $strSpamText, 'text' => $data['text']));
-			}
+				else
+				{
+					$this->check_if_spam(array('id' => $intSpamID, 'rule' => $strSpamText, 'text' => $data['text']));
+				}
 
-			if($this->is_spam == true)
-			{
-				break;
+				if($this->is_spam == true)
+				{
+					break;
+				}
 			}
 		}
 	}
@@ -1435,7 +1483,7 @@ class mf_form
 	function check_limit($data)
 	{
 		global $wpdb, $error_text;
-		
+
 		$arr_data = array();
 
 		list($str_label, $str_select) = explode(":", $data['string']);
@@ -1638,11 +1686,17 @@ class mf_form
 							switch($strCheckCode)
 							{
 								case 'zip':
-									$city_name = $this->get_city_from_zip($strAnswerText);
-
-									if($city_name != '')
+									if(get_bloginfo('language') == "sv-SE")
 									{
-										$this->arr_email_content['fields'][$intForm2TypeID2]['xtra'] = ", ".$city_name;
+										include_once("class_zipcode.php");
+										$obj_zipcode = new mf_zipcode();
+
+										$city_name = $obj_zipcode->get_city($strAnswerText);
+
+										if($city_name != '')
+										{
+											$this->arr_email_content['fields'][$intForm2TypeID2]['xtra'] = ", ".$city_name;
+										}
 									}
 								break;
 							}
@@ -1918,7 +1972,7 @@ class mf_form
 
 		$out = "";
 
-		if(!isset($data['query2type_id'])){	$data['query2type_id'] = 0;}
+		if(!isset($data['form2type_id'])){	$data['form2type_id'] = 0;}
 
 		$this->edit_mode = isset($data['edit']) ? $data['edit'] : false;
 		$this->send_to = isset($data['send_to']) ? $data['send_to'] : "";
@@ -3170,7 +3224,7 @@ class mf_form_table extends mf_list_table
 								$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
 								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
 							}*/
-							
+
 							foreach($result as $post_id_temp)
 							{
 								$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
@@ -3492,7 +3546,9 @@ class mf_answer_table extends mf_list_table
 
 					if($item['spamID'] > 0)
 					{
-						$strSpamExplain = $wpdb->get_var($wpdb->prepare("SELECT spamExplain FROM ".$wpdb->base_prefix."form_spam WHERE spamID = '%d'", $item['spamID']));
+						//$strSpamExplain = $wpdb->get_var($wpdb->prepare("SELECT spamExplain FROM ".$wpdb->base_prefix."form_spam WHERE spamID = '%d'", $item['spamID']));
+
+						$strSpamExplain = $obj_form->get_spam_rules(array('id' => $item['spamID'], 'type' => 'explain'));
 
 						if($strSpamExplain != '')
 						{
@@ -3694,7 +3750,13 @@ class mf_answer_table extends mf_list_table
 											break;
 
 											case 'zip':
-												$actions['zip'] = $obj_form->get_city_from_zip($strAnswerText);
+												if(get_bloginfo('language') == "sv-SE")
+												{
+													include_once("class_zipcode.php");
+													$obj_zipcode = new mf_zipcode();
+
+													$actions['zip'] = $obj_zipcode->get_city($strAnswerText);
+												}
 											break;
 										}
 									}
@@ -3801,7 +3863,7 @@ class mf_form_output
 				$data['array'][1] .= " (".($data['array'][2] - $answer_rows)." / ".$data['array'][2]." ".__("left", 'lang_form').")";
 			}
 		}
-		
+
 		return $data['array'];
 	}
 
@@ -4158,7 +4220,7 @@ class mf_form_output
 
 		if($this->in_edit_mode == true)
 		{
-			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['query2type_id'] == $this->row->form2TypeID ? " active" : "")."'>"
+			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "")."'>"
 				.$this->output
 				."<div class='row_settings'>";
 

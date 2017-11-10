@@ -116,13 +116,13 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 {
 	//Clean up settings if not used for the specific type of field
 	################
-	if($intFormTypeID != 3)
+	if($intFormTypeID != 3) //'input_field'
 	{
 		$intCheckID = "";
 	}
 	################
 
-	if(($intFormTypeID == 10 || $intFormTypeID == 11) && $strFormTypeSelect == "")
+	if(($intFormTypeID == 10 || $intFormTypeID == 11) && $strFormTypeSelect == "") //'select', 'select_multiple'
 	{
 		$error_text = __("Please, enter all required fields", 'lang_form');
 	}
@@ -132,27 +132,32 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 		switch($intFormTypeID)
 		{
 			case 2:
+			//case 'range':
 				$strFormTypeText = str_replace("|", "", $strFormTypeText)."|".str_replace("|", "", $strFormTypeMin)."|".str_replace("|", "", $strFormTypeMax)."|".str_replace("|", "", $strFormTypeDefault);
 			break;
 
 			case 10:
+			//case 'select':
 			case 11:
+			//case 'select_multiple':
 				$strFormTypeText = str_replace(":", "", $strFormTypeText).":".str_replace(":", "", $strFormTypeSelect);
 			break;
 
 			case 13:
+			//case 'custom_tag':
 			case 14:
+			//case 'custom_tag_end':
 				$strFormTypeText = $strFormTypeText2;
 			break;
 		}
 
 		if($intForm2TypeID > 0)
 		{
-			if($intFormTypeID > 0 && ($intFormTypeID == 6 || $intFormTypeID == 9 || $strFormTypeText != ''))
+			if($intFormTypeID > 0 && ($intFormTypeID == 6 || $intFormTypeID == 9 || $strFormTypeText != '')) //'space', 'referer_url'
 			{
 				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeActionEquals = %s, formTypeActionShow = %s, userID = '%d' WHERE form2TypeID = '%d'", $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $strFormTypeActionEquals, $intFormTypeActionShow, get_current_user_id(), $intForm2TypeID));
 
-				if($intFormTypeID == 13)
+				if($intFormTypeID == 13) //'custom_tag'
 				{
 					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s, userID = '%d' WHERE form2TypeID2 = '%d'", $strFormTypeText, get_current_user_id(), $intForm2TypeID)); //, formTypeClass = %s, formTypeFetchFrom = %s, $strFormTypeClass, $strFormTypeFetchFrom
 				}
@@ -168,13 +173,13 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 
 		else
 		{
-			if($obj_form->id > 0 && $intFormTypeID > 0 && ($intFormTypeID == 6 || $intFormTypeID == 9 || $strFormTypeText != ''))
+			if($obj_form->id > 0 && $intFormTypeID > 0 && ($intFormTypeID == 6 || $intFormTypeID == 9 || $strFormTypeText != '')) //'space', 'referer_url'
 			{
 				$intForm2TypeOrder = $wpdb->get_var($wpdb->prepare("SELECT form2TypeOrder + 1 FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder DESC", $obj_form->id));
 
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeActionEquals = %s, formTypeActionShow = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $strFormTypeActionEquals, $intFormTypeActionShow, $intForm2TypeOrder, get_current_user_id()));
 
-				if($intFormTypeID == 13)
+				if($intFormTypeID == 13) //'custom_tag'
 				{
 					$intForm2TypeID = $wpdb->insert_id;
 					$intFormTypeID = 14;
@@ -261,11 +266,14 @@ if($intForm2TypeID > 0)
 	switch($intFormTypeID)
 	{
 		case 2:
+		//case 'range':
 			list($strFormTypeText, $strFormTypeMin, $strFormTypeMax, $strFormTypeDefault) = explode("|", $strFormTypeText);
 		break;
 
 		case 10:
+		//case 'select':
 		case 11:
+		//case 'select_multiple':
 			list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
 		break;
 	}
@@ -315,7 +323,7 @@ echo "<div class='wrap'>
 							<div class='flex_flow'>
 								<div>";
 
-									if($intFormTypeID == 13)
+									if($intFormTypeID == 13) //'custom_tag'
 									{
 										echo show_textfield(array('name' => 'intFormTypeID_name', 'text' => __("Type", 'lang_form'), 'value' => $obj_form->get_type_name($intFormTypeID), 'xtra' => "readonly"))
 										.input_hidden(array('name' => 'intFormTypeID', 'value' => $intFormTypeID, 'xtra' => "id='intFormTypeID'"));
@@ -338,7 +346,7 @@ echo "<div class='wrap'>
 										.show_textfield(array('name' => 'strFormTypeDefault', 'text' => __("Default value", 'lang_form'), 'value' => $strFormTypeDefault, 'maxlength' => 3, 'size' => 5))
 									."</div>"
 									."<div class='show_select'>
-										<label>".__("Value", 'lang_form')."</label>
+										<label>".__("Value", 'lang_form')." <i class='fa fa-info-circle' title='".__("Enter ID, Name and Limit (optional)", 'lang_form')."'></i></label>
 										<div class='select_rows'>";
 
 											foreach($arr_select_rows as $select_row)
@@ -410,7 +418,7 @@ echo "<div class='wrap'>
 						."</form>
 					</div>";
 
-					$form_output = $obj_form->process_form(array('edit' => true, 'query2type_id' => $intForm2TypeID));
+					$form_output = $obj_form->process_form(array('edit' => true, 'form2type_id' => $intForm2TypeID));
 
 					if($form_output != '')
 					{

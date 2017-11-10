@@ -169,9 +169,15 @@ if(get_current_user_id() > 0)
 if($type_action == "zipcode")
 {
 	$search = str_replace(" ", "", $type_id);
+	$city_name = "";
 
-	$obj_form = new mf_form();
-	$city_name = $obj_form->get_city_from_zip($search);
+	if(get_bloginfo('language') == "sv-SE")
+	{
+		include_once("class_zipcode.php");
+		$obj_zipcode = new mf_zipcode();
+
+		$city_name = $obj_zipcode->get_city($search);
+	}
 
 	if($city_name != '')
 	{
