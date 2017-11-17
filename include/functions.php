@@ -616,7 +616,7 @@ function get_count_answer_message($data = array()) //$id = 0
 
 	else if(!($data['form_id'] > 0) && IS_SUPER_ADMIN)
 	{
-		$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) ORDER BY answerCreated DESC LIMIT 0, 2"); //$wpdb->prepare( WHERE (blogID = '%d' OR blogID IS null), $wpdb->blogid)
+		$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) ORDER BY answerCreated DESC LIMIT 0, 2");
 
 		if($wpdb->num_rows == 2)
 		{

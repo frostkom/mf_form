@@ -3561,8 +3561,6 @@ class mf_answer_table extends mf_list_table
 
 					if($item['spamID'] > 0)
 					{
-						//$strSpamExplain = $wpdb->get_var($wpdb->prepare("SELECT spamExplain FROM ".$wpdb->base_prefix."form_spam WHERE spamID = '%d'", $item['spamID']));
-
 						$strSpamExplain = $obj_form->get_spam_rules(array('id' => $item['spamID'], 'type' => 'explain'));
 
 						if($strSpamExplain != '')
