@@ -642,7 +642,7 @@ function get_count_answer_message($data = array()) //$id = 0
 			$date_diff_old = time_between_dates(array('start' => $dteAnswerOld, 'end' => $dteAnswerNew, 'type' => 'round', 'return' => 'minutes'));
 			$date_diff_new = time_between_dates(array('start' => $dteAnswerNew, 'end' => date("Y-m-d H:i:s"), 'type' => 'round', 'return' => 'minutes'));
 
-			if($date_diff_new > ($date_diff_old * 2) && $date_diff_new > (60 * 24 * 2))
+			if($date_diff_new > ($date_diff_old * 2) && $date_diff_new > (60 * 24 * 2) && $last_viewed < date("Y-m-d H:i:s", strtotime("-".$date_diff_new." minute")))
 			{
 				$message_temp = sprintf(__("There are no answers since %s", 'lang_form'), format_date($dteAnswerNew));
 
