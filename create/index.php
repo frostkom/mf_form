@@ -81,7 +81,7 @@ if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_veri
 
 		else
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form' AND post_title = '%d'", $strFormName));
+			$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form' AND post_title = '%d' LIMIT 0, 1", $strFormName));
 
 			if($wpdb->num_rows > 0)
 			{

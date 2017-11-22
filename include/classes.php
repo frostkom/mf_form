@@ -1466,7 +1466,7 @@ class mf_form
 
 		if(isset($this->answer_id) && $this->answer_id > 0)
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s", $this->answer_id, $data['to'], $data['type']));
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s LIMIT 0, 1", $this->answer_id, $data['to'], $data['type']));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -4277,7 +4277,7 @@ class mf_form_output
 
 					$out .= "<a href='?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Edit", 'lang_form')."</a>";
 
-					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d'", $this->row->form2TypeID));
+					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' LIMIT 0, 1", $this->row->form2TypeID));
 
 					if($wpdb->num_rows == 0)
 					{

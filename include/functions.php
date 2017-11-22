@@ -219,8 +219,8 @@ function init_form()
 	$args = array(
 		'labels' => $labels,
 		'public' => true,
-		'exclude_from_search' => true,
 		'show_in_menu' => false,
+		'exclude_from_search' => true,
 		'rewrite' => array(
 			'slug' => "form",
 		),
