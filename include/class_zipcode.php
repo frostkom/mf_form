@@ -18612,6 +18612,6 @@ class mf_zipcode
 		$arr_exclude = array("å", "ä", "ö", "Å", "Ä", "Ö");
 		$arr_include = array(__("aring", 'lang_form'), __("auml", 'lang_form'), __("ouml", 'lang_form'), __("Aring", 'lang_form'), __("Auml", 'lang_form'), __("Ouml", 'lang_form'));
 
-		return str_replace($arr_exclude, $arr_include, $this->arr_data[$key][0]);
+		return (isset($this->arr_data[$key][0]) ? str_replace($arr_exclude, $arr_include, $this->arr_data[$key][0]) : '');
 	}
 }
