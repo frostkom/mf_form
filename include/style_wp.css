@@ -125,28 +125,6 @@
 						min-width: 45px;
 					}
 
-			/*.select_rows .option
-			{
-				overflow: hidden;
-			}
-
-				.select_rows .option .form_textfield
-				{
-					float: left;
-					width: 10%;
-				}
-
-					.select_rows .option .form_textfield:nth-child(2)
-					{
-						margin: 0 2%;
-						width: 66%;
-					}
-
-					.select_rows .option .form_textfield:nth-child(3)
-					{
-						width: 20%;
-					}*/
-
 	.flot_wrapper
 	{
 		overflow: hidden;

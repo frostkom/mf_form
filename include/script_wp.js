@@ -62,6 +62,16 @@ jQuery(function($)
 				$('.toggler').removeClass('hide').next().addClass('hide');
 			}
 		}
+
+		if($(".show_validate_as").parent("div").children("div:not(.hide)").length > 0)
+		{
+			$(".show_validate_as").parent("div").removeClass('hide');
+		}
+
+		else
+		{
+			$(".show_validate_as").parent("div").addClass('hide');
+		}
 	}
 
 	function add_option()

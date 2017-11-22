@@ -92,7 +92,7 @@ class mf_form
 		return $strAnswerText;
 	}
 
-	function parse_multiple_info($strAnswerText)
+	function parse_multiple_info($strAnswerText, $return_value = true)
 	{
 		$arr_answer_text = explode(",", str_replace($this->prefix, "", $strAnswerText));
 		$strAnswerText = "";
@@ -100,13 +100,16 @@ class mf_form
 		list($this->label, $str_select) = explode(":", $this->label);
 		$arr_options = explode(",", $str_select);
 
-		foreach($arr_options as $str_option)
+		if(true == $return_value)
 		{
-			$arr_option = explode("|", $str_option);
-
-			if(in_array($arr_option[0], $arr_answer_text))
+			foreach($arr_options as $str_option)
 			{
-				$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_option[1];
+				$arr_option = explode("|", $str_option);
+
+				if(in_array($arr_option[0], $arr_answer_text))
+				{
+					$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_option[1];
+				}
 			}
 		}
 
@@ -1638,6 +1641,7 @@ class mf_form
 							}
 						}
 
+						$strAnswerText = $this->parse_multiple_info($strAnswerText, false);
 						$strAnswerText_send = $this->parse_multiple_info($strAnswerText);
 					break;
 
