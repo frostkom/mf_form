@@ -132,14 +132,6 @@ function count_shortcode_button_form($count)
 
 function get_shortcode_output_form($out)
 {
-	/*$templates = get_posts(array(
-		'post_type' => 'mf_form',
-		'posts_per_page' => -1,
-		'post_status' => 'publish',
-		'order' => 'ASC',
-		'orderby' => 'title'
-	));*/
-
 	$tbl_group = new mf_form_table();
 
 	$tbl_group->select_data(array(
@@ -147,27 +139,21 @@ function get_shortcode_output_form($out)
 		//'debug' => true,
 	));
 
-	//if(count($templates) > 0)
 	if(count($tbl_group->data) > 0)
 	{
+		$arr_data = array(
+			'' => "-- ".__("Choose here", 'lang_form')." --",
+		);
+
 		$obj_form = new mf_form();
-
-		$out .= "<h3>".__("Choose a Form", 'lang_form')."</h3>";
-
-		$arr_data = array();
-		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
-
-		/*foreach($templates as $template)
-		{
-			$arr_data[$obj_form->get_form_id($template->ID)] = $template->post_title;
-		}*/
 
 		foreach($tbl_group->data as $r)
 		{
 			$arr_data[$obj_form->get_form_id($r['ID'])] = $r['post_title'];
 		}
 
-		$out .= show_select(array('data' => $arr_data, 'xtra' => "rel='mf_form'"));
+		$out .= "<h3>".__("Choose a Form", 'lang_form')."</h3>"
+		.show_select(array('data' => $arr_data, 'xtra' => "rel='mf_form'"));
 	}
 
 	return $out;

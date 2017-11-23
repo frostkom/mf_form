@@ -354,7 +354,7 @@ class mf_form
 
 			if(!isset($error_text) || $error_text == '')
 			{
-				mf_redirect("?page=mf_form/answer/index.php&intFormID=".$this->id);
+				mf_redirect(admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$this->id));
 			}
 		}
 
