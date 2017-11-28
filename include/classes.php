@@ -4352,8 +4352,8 @@ class widget_form extends WP_Widget
 
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
-		$instance['form_heading'] = strip_tags($new_instance['form_heading']);
-		$instance['form_id'] = strip_tags($new_instance['form_id']);
+		$instance['form_heading'] = sanitize_text_field($new_instance['form_heading']);
+		$instance['form_id'] = sanitize_text_field($new_instance['form_id']);
 
 		return $instance;
 	}
