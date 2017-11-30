@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.3.2
+Version: 11.3.4
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -128,18 +128,6 @@ function activate_form()
 		KEY formTypeID (formTypeID)
 	) DEFAULT CHARSET=".$default_charset);
 
-	$arr_add_column[$wpdb->base_prefix."form2type"] = array(
-		//'formTypeAutofocus' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '0' AFTER formTypeClass",
-	);
-
-	$arr_update_column[$wpdb->base_prefix."form2type"] = array(
-		//'form2TypeID' => "ALTER TABLE [table] CHANGE [column] form2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT",
-	);
-
-	$arr_add_column[$wpdb->base_prefix."form2type"] = array(
-		//'answerSpam' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER answerIP",
-	);
-
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2answer (
 		answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		formID INT UNSIGNED NOT NULL,
@@ -155,10 +143,6 @@ function activate_form()
 
 	$arr_add_column[$wpdb->base_prefix."form2answer"] = array(
 		'spamID' => "ALTER TABLE [table] ADD [column] SMALLINT NOT NULL DEFAULT '0' AFTER answerSpam",
-	);
-
-	$arr_add_index[$wpdb->base_prefix."form2answer"] = array(
-		//'answerCreated' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
 	);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer (
@@ -178,14 +162,6 @@ function activate_form()
 		KEY answerEmail (answerEmail)
 	) DEFAULT CHARSET=".$default_charset);
 
-	$arr_add_column[$wpdb->base_prefix."form_answer_email"] = array(
-		//'answerType' => "ALTER TABLE [table] ADD [column] VARCHAR(20) DEFAULT NULL AFTER answerEmail",
-	);
-
-	$arr_add_index[$wpdb->base_prefix."form_answer_email"] = array(
-		//'answerEmail' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
-	);
-
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (
 		checkID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		checkPublic ENUM('0','1'),
@@ -196,36 +172,19 @@ function activate_form()
 		KEY checkCode (checkCode)
 	) DEFAULT CHARSET=".$default_charset);
 
-	$arr_add_index[$wpdb->base_prefix."form_check"] = array(
-		//'checkCode' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
-	);
-
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_type (
 		formTypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		formTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 		formTypeCode VARCHAR(30),
-		formTypeName VARCHAR(30) DEFAULT NULL,
+		formTypeName VARCHAR(40) DEFAULT NULL,
 		formTypeResult ENUM('0','1') NOT NULL DEFAULT '1',
 		PRIMARY KEY (formTypeID),
 		KEY formTypeResult (formTypeResult)
 	) DEFAULT CHARSET=".$default_charset);
 
-	$arr_add_index[$wpdb->base_prefix."form_type"] = array(
-		//'formTypeResult' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
+	$arr_update_column[$wpdb->base_prefix."form2type"] = array(
+		'formTypeName' => "ALTER TABLE [table] CHANGE [column] formTypeName VARCHAR(40) DEFAULT NULL",
 	);
-
-	/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_spam (
-		spamID INT unsigned NOT NULL AUTO_INCREMENT,
-		spamInclude VARCHAR(30) DEFAULT NULL,
-		spamExclude VARCHAR(30) DEFAULT NULL,
-		spamText VARCHAR(100) DEFAULT NULL,
-		spamExplain VARCHAR(50) DEFAULT NULL,
-		PRIMARY KEY (spamID)
-	) DEFAULT CHARSET=".$default_charset);
-
-	$arr_add_column[$wpdb->base_prefix."form_spam"] = array(
-		'spamExplain' => "ALTER TABLE [table] ADD [column] VARCHAR(50) DEFAULT NULL AFTER spamText",
-	);*/
 
 	update_columns($arr_update_column);
 	add_columns($arr_add_column);
@@ -234,22 +193,22 @@ function activate_form()
 	$arr_run_query = array();
 
 	$arr_query_types = array(
-		1 => array('code' => 'checkbox',			'name' => __("Checkbox", 'lang_form'),				'result' => 1),
-		2 => array('code' => 'range',				'name' => __("Range", 'lang_form'),					'result' => 1),
-		3 => array('code' => 'input_field',			'name' => __("Input Field", 'lang_form'),			'result' => 1),
-		4 => array('code' => 'textarea',			'name' => __("Textarea", 'lang_form'),				'result' => 1),
-		5 => array('code' => 'text',				'name' => __("Text", 'lang_form'),					'result' => 0),
-		6 => array('code' => 'space',				'name' => __("Space", 'lang_form'),					'result' => 0),
-		7 => array('code' => 'datepicker',			'name' => __("Datepicker", 'lang_form'),			'result' => 1),
-		8 => array('code' => 'radio_button',		'name' => __("Radio Button", 'lang_form'),			'result' => 1),
-		9 => array('code' => 'referer_url',			'name' => __("Referer URL", 'lang_form'),			'result' => 1),
-		10 => array('code' => 'select',				'name' => __("Dropdown", 'lang_form'),				'result' => 1),
-		11 => array('code' => 'select_multiple',	'name' => __("Multiple Selection", 'lang_form'),	'result' => 1),
-		12 => array('code' => 'hidden_field',		'name' => __("Hidden Field", 'lang_form'),			'result' => 1),
-		13 => array('code' => 'custom_tag',			'name' => __("Custom Tag", 'lang_form'),			'result' => 0),
-		14 => array('code' => 'custom_tag_end',		'name' => __("Custom Tag (end)", 'lang_form'),		'result' => 0,		'public' => 'no'),
-		15 => array('code' => 'file',				'name' => __("File", 'lang_form'),					'result' => 1),
-		16 => array('code' => 'checkbox_multiple',	'name' => __("Multiple Checkboxes", 'lang_form'),	'result' => 1),
+		1 => array('code' => 'checkbox',			'name' => "&#xf046; ".__("Checkbox", 'lang_form'),				'result' => 1),
+		2 => array('code' => 'range',				'name' => "&#xf1de; ".__("Range", 'lang_form'),					'result' => 1),
+		3 => array('code' => 'input_field',			'name' => "&#xf120; ".__("Input Field", 'lang_form'),			'result' => 1),
+		4 => array('code' => 'textarea',			'name' => "&#xf044; ".__("Textarea", 'lang_form'),				'result' => 1),
+		5 => array('code' => 'text',				'name' => "&#xf1dd; ".__("Text", 'lang_form'),					'result' => 0),
+		6 => array('code' => 'space',				'name' => "&#xf141; ".__("Space", 'lang_form'),					'result' => 0), //f07d
+		7 => array('code' => 'datepicker',			'name' => "&#xf073; ".__("Datepicker", 'lang_form'),			'result' => 1),
+		8 => array('code' => 'radio_button',		'name' => "&#xf192; ".__("Radio Button", 'lang_form'),			'result' => 1),
+		9 => array('code' => 'referer_url',			'name' => "&#xf1e0; ".__("Referer URL", 'lang_form'),			'result' => 1),
+		10 => array('code' => 'select',				'name' => "&#xf00b; ".__("Dropdown", 'lang_form'),				'result' => 1),
+		11 => array('code' => 'select_multiple',	'name' => "&#xf022; ".__("Multiple Selection", 'lang_form'),	'result' => 1),
+		12 => array('code' => 'hidden_field',		'name' => "&#xf070; ".__("Hidden Field", 'lang_form'),			'result' => 1),
+		13 => array('code' => 'custom_tag',			'name' => "&#xf121; ".__("Custom Tag", 'lang_form'),			'result' => 0),
+		14 => array('code' => 'custom_tag_end',		'name' => "&#xf121; ".__("Custom Tag (end)", 'lang_form'),		'result' => 0,		'public' => 'no'),
+		15 => array('code' => 'file',				'name' => "&#xf115; ".__("File", 'lang_form'),					'result' => 1), //f03e
+		16 => array('code' => 'checkbox_multiple',	'name' => "&#xf046; ".__("Multiple Checkboxes", 'lang_form'),	'result' => 1),
 	);
 
 	foreach($arr_query_types as $key => $value)

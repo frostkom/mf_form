@@ -4262,7 +4262,9 @@ class mf_form_output
 		{
 			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "")."'>"
 				.$this->output
-				."<div class='row_settings'>";
+				."<i class='fa fa-pencil-square-o'></i>
+				<i class='fa fa-close'></i>
+				<div class='row_settings'>";
 
 					if($this->show_required == true)
 					{

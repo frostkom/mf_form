@@ -119,7 +119,7 @@ jQuery(function($)
 		$('.show_select input[name=strFormTypeSelect]').val(select_value);
 	}
 
-	$('.ajax_link').on('click', function()
+	$(document).on('click', '.ajax_link', function()
 	{
 		var self = $(this),
 			type = $(this).attr('href').substring(1);
@@ -162,7 +162,7 @@ jQuery(function($)
 		return false;
 	});
 
-	$('.ajax_checkbox').on('click', function()
+	$(document).on('click', '.ajax_checkbox', function()
 	{
 		var dom_obj = $(this),
 			type = dom_obj.attr('rel'),
@@ -198,12 +198,12 @@ jQuery(function($)
 
 	show_query_settings($('#intFormTypeID').val());
 
-	$('#intFormTypeID').on('change', function()
+	$(document).on('change', '#intFormTypeID', function()
 	{
 		show_query_settings($(this).val());
 	});
 
-	$('.select_rows').on('blur', 'input', function()
+	$(document).on('blur', '.select_rows', 'input', function()
 	{
 		update_select();
 
@@ -213,14 +213,10 @@ jQuery(function($)
 		}
 	});
 
-	/*$('#add_option').on('click', function()
+	$(document).on('click', "mf-form-row", function(e)
 	{
-		add_option();
-
-		//update_select();
-
-		return false;
-	});*/
+		$(e.currentTarget).toggleClass('active').siblings("mf-form-row").removeClass('active');
+	});
 
 	if($('.mf_form.mf_sortable').length > 0)
 	{
@@ -251,7 +247,7 @@ jQuery(function($)
 		});
 	}
 
-	$('#intFormEmailConfirm').on('click', function()
+	$(document).on('click', '#intFormEmailConfirm', function()
 	{
 		if(this.checked)
 		{
@@ -264,7 +260,7 @@ jQuery(function($)
 		}
 	});
 
-	$('#intFormEmailNotify').on('click', function()
+	$(document).on('click', '#intFormEmailNotify', function()
 	{
 		if(this.checked)
 		{

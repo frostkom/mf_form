@@ -335,7 +335,7 @@ echo "<div class='wrap'>
 
 									else
 									{
-										echo show_select(array('data' => $obj_form->get_form_types_for_select(), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'text' => __("Type", 'lang_form')));
+										echo show_select(array('data' => $obj_form->get_form_types_for_select(), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'text' => __("Type", 'lang_form'), 'class' => "fontawesome"));
 									}
 
 									echo show_textarea(array('name' => 'strFormTypeText', 'text' => __("Text", 'lang_form'), 'value' => $strFormTypeText, 'class' => "show_textarea hide"))

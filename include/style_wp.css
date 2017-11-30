@@ -15,21 +15,31 @@
 		width: 50%;
 	}
 
-	.mf_settings .alignleft
+	.mf_form
 	{
-		margin-right: 3%;
-		width: 47%;
+		overflow: initial;
 	}
 
-		.mf_settings .form_textfield input, .mf_settings select, .mf_settings textarea, .mf_settings .form_password input
+		.mf_settings .alignleft
 		{
-			width: 100%;
+			margin-right: 3%;
+			width: 47%;
 		}
 
-		.mf_form .alignleft, .mf_form .alignright
-		{
-			clear: none;
-		}
+			.mf_settings .form_textfield input, .mf_settings select, .mf_settings textarea, .mf_settings .form_password input
+			{
+				width: 100%;
+			}
+
+			.mf_form .alignleft, .mf_form .alignright
+			{
+				clear: none;
+			}
+
+			.mf_form .form_select.fontawesome select
+			{
+				font-family: 'FontAwesome', 'Helvetica';
+			}
 
 	mf-form-row
 	{
@@ -38,36 +48,70 @@
 		box-sizing: border-box;
 		cursor: move;
 		display: block;
+		min-height: 4em;
+		margin: .5em;
 		position: relative;
 		padding: .5em;
 	}
 
-		mf-form-row.active, mf-form-row:hover
+		mf-form-row:hover
 		{
-			margin: .5em;
+			background: #eee;
+			border-color: #ccc;
 		}
 
-			mf-form-row:hover
+		mf-form-row.active
+		{
+			background: #fff6bf;
+			border-color: #ffd324;
+		}
+
+		mf-form-row > .fa
+		{
+			background: #eee;
+			border: .1em solid #ccc;
+			border-left: 0;
+			border-radius: 0 .5em .5em 0;
+			display: none;
+			font-size: 1.5em;
+			padding: .3em;
+			position: absolute;
+			top: .5em;
+		}
+
+			mf-form-row:hover > .fa.fa-pencil-square-o
 			{
-				background: #eee;
-				border-color: #ccc;
+				display: block;
+				right: -2.6em;
 			}
 
-			mf-form-row.active
+			mf-form-row.active > .fa.fa-pencil-square-o
+			{
+				display: none;
+			}
+
+			mf-form-row.active > .fa.fa-close
 			{
 				background: #fff6bf;
 				border-color: #ffd324;
+				display: block;
+				right: -2.4em;
 			}
 
 		mf-form-row .row_settings
 		{
-			background: rgba(200, 200, 200, .3);
+			background: rgba(255, 255, 255, .8);
+			border: .1em solid #ccc;
 			border-radius: .5em;
 			display: none;
 			padding: 1em;
+			position: absolute;
+			right: .5em;
+			width: 50%;
+			z-index: 1;	
 		}
 
-			mf-form-row:hover .row_settings, mf-form-row.active .row_settings
+			mf-form-row.active .row_settings
 			{
 				display: block;
 			}
