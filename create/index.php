@@ -122,7 +122,7 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 	}
 	################
 
-	if(in_array($intFormTypeID, array(10, 11, 16)) && $strFormTypeSelect == "") //'select', 'select_multiple', 'checkbox_multiple'
+	if(in_array($intFormTypeID, array(10, 11, 16, 17)) && $strFormTypeSelect == "") //'select', 'select_multiple', 'checkbox_multiple', 'radio_multiple'
 	{
 		$error_text = __("Please, enter all required fields", 'lang_form');
 	}
@@ -142,6 +142,8 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 			//case 'select_multiple':
 			case 16:
 			//case 'checkbox_multiple':
+			case 17:
+			//case 'radio_multiple':
 				$strFormTypeText = str_replace(":", "", $strFormTypeText).":".str_replace(":", "", $strFormTypeSelect);
 			break;
 
@@ -278,6 +280,8 @@ if($intForm2TypeID > 0)
 		//case 'select_multiple':
 		case 16:
 		//case 'checkbox_multiple':
+		case 17:
+		//case 'radio_multiple':
 			list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
 		break;
 	}
@@ -388,7 +392,7 @@ echo "<div class='wrap'>
 
 											if(count($arr_data_equals) > 1)
 											{
-												list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(1, 2, 3, 4, 5, 7, 8, 10, 11, 16), 'query_exclude_id' => $intForm2TypeID)); //'checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'checkbox_multiple'
+												list($result, $rows) = $obj_form->get_form_type_info(array('query_type_id' => array(1, 2, 3, 4, 5, 7, 8, 10, 11, 16, 17), 'query_exclude_id' => $intForm2TypeID)); //'checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'checkbox_multiple', 'radio_multiple':
 
 												if($rows > 0)
 												{

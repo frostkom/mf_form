@@ -34,7 +34,7 @@ jQuery(function($)
 				$('.toggler').removeClass('hide').next().addClass('hide');
 			}
 
-			if(this_val == 10 || this_val == 11 || this_val == 16) //select, select_multiple, checkbox_multiple
+			if(this_val == 10 || this_val == 11 || this_val == 16 || this_val == 17) //select, select_multiple, checkbox_multiple, radio_multiple
 			{
 				$('.show_select').removeClass('hide');
 			}

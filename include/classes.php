@@ -97,7 +97,7 @@ class mf_form
 		$arr_answer_text = explode(",", str_replace($this->prefix, "", $strAnswerText));
 		$strAnswerText = "";
 
-		list($this->label, $str_select) = explode(":", $this->label);
+		@list($this->label, $str_select) = explode(":", $this->label);
 		$arr_options = explode(",", $str_select);
 
 		if(true == $return_value)
@@ -432,6 +432,8 @@ class mf_form
 
 						case 10:
 						//case 'select':
+						case 17:
+						//case 'radio_multiple':
 							$strAnswerText = $this->parse_select_info($strAnswerText);
 						break;
 
@@ -1075,7 +1077,7 @@ class mf_form
 
 		foreach($data['result'] as $r)
 		{
-			if(in_array($r->formTypeID, array(10, 11, 16))) //'select', 'select_multiple', 'checkbox_multiple'
+			if(in_array($r->formTypeID, array(10, 11, 16, 17))) //'select', 'select_multiple', 'checkbox_multiple', 'radio_multiple'
 			{
 				list($strFormTypeText, $str_select) = explode(":", $r->formTypeText);
 			}
@@ -1618,6 +1620,8 @@ class mf_form
 
 					//case 10:
 					case 'select':
+					//case 17:
+					case 'radio_multiple':
 						$this->check_limit(array('string' => $this->label, 'value' => $strAnswerText, 'form2TypeID' => $intForm2TypeID2));
 
 						$strAnswerText_send = $this->parse_select_info($strAnswerText);
@@ -1785,7 +1789,7 @@ class mf_form
 				if($this->insert_answer())
 				{
 					$this->arr_email_content['fields'][] = array(
-						'label' => __("Sent From"),
+						'label' => __("Sent From", 'lang_form'),
 						'value' => (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "")
 					);
 
@@ -3058,6 +3062,8 @@ class mf_form_export extends mf_export
 				case 'select_multiple':
 				//case 16:
 				case 'checkbox_multiple':
+				//case 17:
+				case 'radio_multiple':
 					list($obj_form->label, $str_select) = explode(":", $obj_form->label);
 				break;
 			}
@@ -3111,6 +3117,8 @@ class mf_form_export extends mf_export
 
 						//case 10:
 						case 'select':
+						//case 17:
+						case 'radio_multiple':
 							$strAnswerText = $obj_form->parse_select_info($strAnswerText);
 						break;
 
@@ -3518,6 +3526,8 @@ class mf_answer_table extends mf_list_table
 				case 'select_multiple':
 				//case 16:
 				case 'checkbox_multiple':
+				//case 17:
+				case 'radio_multiple':
 					list($obj_form->label, $str_select) = explode(":", $obj_form->label);
 
 					$label_limit = 10;
@@ -3728,6 +3738,8 @@ class mf_answer_table extends mf_list_table
 
 								//case 10:
 								case 'select':
+								//case 17:
+								case 'radio_multiple':
 									$strAnswerText = $obj_form->parse_select_info($strAnswerText);
 								break;
 
@@ -4033,6 +4045,25 @@ class mf_form_output
 
 				$this->show_required = true;
 			break;
+			
+			//case 17:
+			case 'radio_multiple':
+				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
+
+				if($data['show_label'] == true)
+				{
+					$field_data['text'] = $this->label;
+				}
+
+				$field_data['value'] = $this->answer_text;
+				$field_data['required'] = $this->row->formTypeRequired;
+				$field_data['class'] = $this->row->formTypeClass;
+
+				$this->filter_form_fields($field_data);
+				$this->output .= show_form_alternatives($field_data);
+
+				$this->show_required = true;
+			break;
 
 			//case 10:
 			case 'select':
@@ -4095,7 +4126,7 @@ class mf_form_output
 				$field_data['class'] = $this->row->formTypeClass;
 
 				$this->filter_form_fields($field_data);
-				$this->output .= show_checkboxes($field_data);
+				$this->output .= show_form_alternatives($field_data);
 
 				$this->show_required = true;
 			break;
