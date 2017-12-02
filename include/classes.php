@@ -1788,10 +1788,13 @@ class mf_form
 
 				if($this->insert_answer())
 				{
-					$this->arr_email_content['fields'][] = array(
-						'label' => __("Sent From", 'lang_form'),
-						'value' => (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "")
-					);
+					if(isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '')
+					{
+						$this->arr_email_content['fields'][] = array(
+							'label' => __("Sent From", 'lang_form'),
+							'value' => remove_protocol(array('url' => $_SERVER['HTTP_REFERER'], 'clean' => true, 'trim' => true))
+						);
+					}
 
 					$this->process_transactional_emails();
 
@@ -3135,7 +3138,7 @@ class mf_form_export extends mf_export
 
 							foreach($result as $r)
 							{
-								$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
+								$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
 							}
 						break;
 					}
@@ -3758,7 +3761,7 @@ class mf_answer_table extends mf_list_table
 
 									foreach($result as $r)
 									{
-										$strAnswerText = "<a href='".$r->guid."' rel='external'>".$r->post_title."</a>";
+										$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
 									}
 								break;
 
