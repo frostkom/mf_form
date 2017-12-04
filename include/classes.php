@@ -190,13 +190,17 @@ class mf_form
 
 	function get_payment_providers_for_select()
 	{
-		return array(
+		$arr_data = array(
 			'' => "-- ".__("Choose here", 'lang_form')." --",
 			4 => __("Billmate", 'lang_form'),
 			1 => __("DIBS", 'lang_form'),
 			3 => __("Paypal", 'lang_form'),
 			2 => __("Skrill", 'lang_form'),
 		);
+
+		//$arr_data = apply_filters('form_payment_alternatives', $arr_data);
+
+		return $arr_data;
 	}
 
 	function get_payment_currency_for_select($intFormPaymentProvider)
@@ -882,18 +886,38 @@ class mf_form
 		return array($result, $rows);
 	}
 
-	function render_mail_subject($data)
+	function preg_replace_label($matches)
 	{
-		return str_replace("[answer_id]", $this->answer_id, $data['subject']);
+		$intForm2TypeID = $matches[1];
+
+		return $this->page_content_data['content']['fields'][$intForm2TypeID]['label'];
 	}
 
-	function render_mail_content($data)
+	function preg_replace_answer($matches)
+	{
+		$intForm2TypeID = $matches[1];
+
+		return $this->page_content_data['content']['fields'][$intForm2TypeID]['value'];
+	}
+
+	function render_mail_subject()
+	{
+		$arr_shortcodes = $arr_values = array();
+
+		$arr_shortcodes[] = "[answer_id]";		$arr_values[] = $this->answer_id;
+
+		$this->mail_data['subject'] = str_replace($arr_shortcodes, $arr_values, $this->mail_data['subject']);
+		$this->mail_data['subject'] = preg_replace_callback("/\[label_(.*?)\]/", array($this, 'preg_replace_label'), $this->mail_data['subject']);
+		$this->mail_data['subject'] = preg_replace_callback("/\[answer_(.*?)\]/", array($this, 'preg_replace_answer'), $this->mail_data['subject']);
+	}
+
+	function render_mail_content($data = array())
 	{
 		if(!isset($data['template'])){	$data['template'] = false;}
 
 		$out_fields = $out_doc_types = $out_products = $intProductID = $strProductName = "";
 
-		foreach($data['array'] as $key => $arr_types)
+		foreach($this->page_content_data['content'] as $key => $arr_types)
 		{
 			switch($key)
 			{
@@ -1009,36 +1033,38 @@ class mf_form
 		return $out;
 	}
 
-	function get_page_content_for_email($data)
+	function get_page_content_for_email() //$data -> $this->page_content_data
 	{
 		global $wpdb;
 
+		if(!isset($this->page_content_data['page_id'])){	$this->page_content_data['page_id'] = 0;}
+
 		$mail_content = "";
 
-		if(isset($data['page_id']) && $data['page_id'] > 0)
+		if($this->page_content_data['page_id'] > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $data['page_id']));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $this->page_content_data['page_id']));
 
 			foreach($result as $r)
 			{
-				$data['subject'] = $r->post_title;
+				$this->mail_data['subject'] = $r->post_title;
 				$mail_template = apply_filters('the_content', $r->post_content);
 
-				$mail_content = $this->render_mail_content(array('mail_to' => $data['mail_to'], 'array' => $data['content'], 'template' => $mail_template));
+				$mail_content = $this->render_mail_content(array('mail_to' => $this->page_content_data['mail_to'], 'template' => $mail_template)); //, 'array' => $this->page_content_data['content']
 			}
 		}
 
-		if($data['subject'] != '')
+		if($this->mail_data['subject'] != '')
 		{
-			$data['subject'] = $this->render_mail_subject(array('subject' => $data['subject']));
+			$this->render_mail_subject();
 		}
 
 		if($mail_content == '')
 		{
-			$mail_content = $this->render_mail_content(array('array' => $data['content']));
+			$mail_content = $this->render_mail_content(); //array('array' => $this->page_content_data['content'])
 		}
 
-		return array($data['subject'], $mail_content);
+		return $mail_content;
 	}
 
 	function has_email_field()
@@ -1145,7 +1171,7 @@ class mf_form
 			{
 				$mail_content = nl2br(str_replace("[product]", $mail_from_name, $mail_content));
 
-				$mail_data = array(
+				$this->mail_data = array(
 					'headers' => "From: ".$mail_from_name." <".$mail_from.">\r\n",
 					'to' => $mail_to,
 					'subject' => $mail_subject,
@@ -1153,7 +1179,7 @@ class mf_form
 					'type' => (isset($_GET['btnFormLinkYes']) ? "link_yes" : "link_no"),
 				);
 
-				$sent = $this->send_transactional_email($mail_data);
+				$sent = $this->send_transactional_email();
 
 				if($sent)
 				{
@@ -1358,77 +1384,85 @@ class mf_form
 
 	function process_transactional_emails()
 	{
-		$page_content_data = array(
+		$this->page_content_data = array(
 			'subject' => $this->email_subject,
 			'content' => $this->arr_email_content,
 		);
 
 		if(isset($this->send_to) && $this->send_to != '')
 		{
-			$mail_data = array(
+			$this->mail_data = array(
 				'type' => 'replace_link',
 				'to' => $this->send_to,
+				'subject' => $this->page_content_data['subject'],
+				'content' => '',
 			);
 
 			if($this->email_visitor != '')
 			{
-				$mail_data['headers'] = "From: ".$this->email_visitor." <".$this->email_visitor.">\r\n";
+				$this->mail_data['headers'] = "From: ".$this->email_visitor." <".$this->email_visitor.">\r\n";
 			}
 
-			list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
+			$this->mail_data['content'] = $this->get_page_content_for_email();
+			//$this->mail_data['subject'] = $this->page_content_data['subject'];
 
-			$this->send_transactional_email($mail_data);
+			$this->send_transactional_email();
 		}
 
 		if($this->email_notify == 1)
 		{
-			$mail_data = array(
+			$this->mail_data = array(
 				'type' => 'notify',
+				'subject' => $this->page_content_data['subject'],
+				'content' => '',
 			);
 
 			if($this->email_admin != '')
 			{
 				if(strpos($this->email_admin, "<"))
 				{
-					$mail_data['to'] = get_match("/\<(.*)\>/", $this->email_admin);
+					$this->mail_data['to'] = get_match("/\<(.*)\>/", $this->email_admin);
 				}
 
 				else
 				{
-					$mail_data['to'] = $this->email_admin;
+					$this->mail_data['to'] = $this->email_admin;
 				}
 			}
 
 			else
 			{
-				$mail_data['to'] = get_bloginfo('admin_email');
+				$this->mail_data['to'] = get_bloginfo('admin_email');
 			}
 
 			if($this->email_visitor != '')
 			{
-				$mail_data['headers'] = "From: ".$this->email_visitor." <".$this->email_visitor.">\r\n";
+				$this->mail_data['headers'] = "From: ".$this->email_visitor." <".$this->email_visitor.">\r\n";
 			}
 
-			$page_content_data['mail_to'] = $mail_data['to'];
-			$page_content_data['page_id'] = $this->email_notify_page;
+			$this->page_content_data['mail_to'] = $this->mail_data['to'];
+			$this->page_content_data['page_id'] = $this->email_notify_page;
 
-			list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
+			$this->mail_data['content'] = $this->get_page_content_for_email();
+			//$this->mail_data['subject'] = $this->page_content_data['subject'];
 
-			$this->send_transactional_email($mail_data);
+			$this->send_transactional_email();
 		}
 
 		if($this->email_confirm == 1 && isset($this->email_visitor) && $this->email_visitor != '')
 		{
-			$mail_data = array(
+			$this->mail_data = array(
 				'type' => 'confirm',
 				'to' => $this->email_visitor,
+				'subject' => $this->page_content_data['subject'],
+				'content' => '',
 			);
 
 			if($this->email_admin != '')
 			{
 				if(strpos($this->email_admin, "<"))
 				{
-					$mail_data['headers'] = "From: ".$this->email_admin."\r\n";
+					$this->mail_data['headers'] = "From: ".$this->email_admin."\r\n";
 				}
 
 				else if(strpos($this->email_admin, ","))
@@ -1437,31 +1471,32 @@ class mf_form
 
 					$email_admin = trim($arr_email_admin[0]);
 
-					$mail_data['headers'] = "From: ".$email_admin." <".$email_admin.">\r\n";
+					$this->mail_data['headers'] = "From: ".$email_admin." <".$email_admin.">\r\n";
 				}
 
 				else
 				{
-					$mail_data['headers'] = "From: ".$this->email_admin." <".$this->email_admin.">\r\n";
+					$this->mail_data['headers'] = "From: ".$this->email_admin." <".$this->email_admin.">\r\n";
 				}
 			}
 
-			$page_content_data['mail_to'] = $mail_data['to'];
-			$page_content_data['page_id'] = $this->email_confirm_page;
+			$this->page_content_data['mail_to'] = $this->mail_data['to'];
+			$this->page_content_data['page_id'] = $this->email_confirm_page;
 
-			list($mail_data['subject'], $mail_data['content']) = $this->get_page_content_for_email($page_content_data);
+			$this->mail_data['content'] = $this->get_page_content_for_email();
+			//$this->mail_data['subject'] = $this->page_content_data['subject'];
 
-			$this->send_transactional_email($mail_data);
+			$this->send_transactional_email();
 		}
 	}
 
-	function send_transactional_email($data)
+	function send_transactional_email() //$data -> $this->mail_data
 	{
 		global $wpdb;
 
 		if(!isset($this->is_spam) || $this->is_spam == false)
 		{
-			$sent = send_email($data);
+			$sent = send_email($this->mail_data);
 		}
 
 		else
@@ -1471,16 +1506,16 @@ class mf_form
 
 		if(isset($this->answer_id) && $this->answer_id > 0)
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s LIMIT 0, 1", $this->answer_id, $data['to'], $data['type']));
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s LIMIT 0, 1", $this->answer_id, $this->mail_data['to'], $this->mail_data['type']));
 
 			if($wpdb->num_rows > 0)
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer_email SET answerSent = '%d' WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s", $sent, $this->answer_id, $data['to'], $data['type']));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer_email SET answerSent = '%d' WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s", $sent, $this->answer_id, $this->mail_data['to'], $this->mail_data['type']));
 			}
 
 			else
 			{
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_email SET answerID = '%d', answerEmail = %s, answerType = %s, answerSent = '%d'", $this->answer_id, $data['to'], $data['type'], $sent));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_email SET answerID = '%d', answerEmail = %s, answerType = %s, answerSent = '%d'", $this->answer_id, $this->mail_data['to'], $this->mail_data['type'], $sent));
 			}
 		}
 
@@ -2238,6 +2273,8 @@ class mf_form_payment
 			break;
 		}
 
+		//$out = apply_filters('form_process_passthru', $out, &$this);
+
 		return $out;
 
 		exit;
@@ -2696,6 +2733,8 @@ class mf_form_payment
 				$out .= $this->process_callback_billmate();
 			break;
 		}
+
+		//$out = apply_filters('form_process_callback', $out, &$this);
 
 		return $out;
 	}
@@ -4296,8 +4335,11 @@ class mf_form_output
 		{
 			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "")."'>"
 				.$this->output
-				."<i class='fa fa-pencil-square-o'></i>
-				<i class='fa fa-close'></i>
+				."<div class='row_icons'>
+					<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='fa fa-pencil-square-o'></i></a>
+					<i class='fa fa-info-circle' title='".__("More", 'lang_form')."'></i>
+					<i class='fa fa-close' title='".__("Less", 'lang_form')."'></i>
+				</div>
 				<div class='row_settings'>";
 
 					if($this->show_required == true)
@@ -4312,10 +4354,12 @@ class mf_form_output
 
 					if($this->show_remember == true)
 					{
-						$out .= show_checkbox(array('name' => "remember_".$this->row->form2TypeID, 'text' => __("Remember answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
+						$out .= show_checkbox(array('name' => "remember_".$this->row->form2TypeID, 'text' => __("Remember Answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
 					}
 
-					$out .= "<a href='?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Edit", 'lang_form')."</a>";
+					//$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."'>".__("Edit", 'lang_form')."</a>";
+
+					$out .= "<a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Copy", 'lang_form')."</a>";
 
 					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' LIMIT 0, 1", $this->row->form2TypeID));
 
@@ -4324,8 +4368,9 @@ class mf_form_output
 						$out .= " | <a href='#delete/type/".$this->row->form2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 					}
 
-					$out .= " | <a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Copy", 'lang_form')."</a>
-				</div>";
+					$out .= "<p>".sprintf(__("For use in templates this field has got %s and %s", 'lang_form'), "[label_".$this->row->form2TypeID."]", "[answer_".$this->row->form2TypeID."]")."</p>";
+
+				$out .= "</div>";
 
 			$out .= "</mf-form-row>";
 		}

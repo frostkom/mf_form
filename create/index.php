@@ -301,7 +301,9 @@ echo "<div class='wrap'>
 
 		if($obj_form->id > 0)
 		{
-			$form_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s", 'lang_forms'), "[answer_id]")
+			$intForm2TypeID_example = $intForm2TypeID > 0 ? $intForm2TypeID : 123;
+
+			$form_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_forms'), "[answer_id]", "[label_".$intForm2TypeID_example."]", "[answer_".$intForm2TypeID_example."]")
 				."&content=".sprintf(__("Ticket: %s, Answers: %s", 'lang_forms'), "[answer_id]", "[form_fields]");
 
 			if(is_plugin_active("mf_webshop/index.php"))

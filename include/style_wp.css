@@ -66,37 +66,52 @@
 			border-color: #ffd324;
 		}
 
-		mf-form-row > .fa
+		mf-form-row > .row_icons
 		{
-			background: #eee;
-			border: .1em solid #ccc;
+			border: .1em solid transparent;
 			border-left: 0;
 			border-radius: 0 .5em .5em 0;
 			display: none;
 			font-size: 1.5em;
 			padding: .3em;
 			position: absolute;
+			right: -2.4em;
 			top: .5em;
 		}
 
-			mf-form-row:hover > .fa.fa-pencil-square-o
+			mf-form-row:hover .row_icons
 			{
+				background: #eee;
+				border-color: #ccc;
 				display: block;
-				right: -2.6em;
 			}
 
-			mf-form-row.active > .fa.fa-pencil-square-o
-			{
-				display: none;
-			}
+				mf-form-row:hover .row_icons .fa.fa-info-circle
+				{
+					display: block;
+				}
 
-			mf-form-row.active > .fa.fa-close
+				mf-form-row:hover .row_icons .fa.fa-close
+				{
+					display: none;
+				}
+		
+			mf-form-row.active .row_icons
 			{
 				background: #fff6bf;
 				border-color: #ffd324;
 				display: block;
-				right: -2.4em;
 			}
+
+				mf-form-row.active .row_icons .fa.fa-info-circle
+				{
+					display: none;
+				}
+
+				mf-form-row.active .row_icons .fa.fa-close
+				{
+					display: block;
+				}
 
 		mf-form-row .row_settings
 		{
