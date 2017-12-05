@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.4.2
+Version: 11.4.5
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -177,10 +177,15 @@ function activate_form()
 		formTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 		formTypeCode VARCHAR(30),
 		formTypeName VARCHAR(40) DEFAULT NULL,
+		formTypeDesc TEXT DEFAULT NULL,
 		formTypeResult ENUM('0','1') NOT NULL DEFAULT '1',
 		PRIMARY KEY (formTypeID),
 		KEY formTypeResult (formTypeResult)
 	) DEFAULT CHARSET=".$default_charset);
+
+	$arr_add_column[$wpdb->base_prefix."form_type"] = array(
+		'formTypeDesc' => "ALTER TABLE [table] ADD [column] VARCHAR(40) DEFAULT NULL AFTER formTypeName",
+	);
 
 	$arr_update_column[$wpdb->base_prefix."form2type"] = array(
 		'formTypeName' => "ALTER TABLE [table] CHANGE [column] formTypeName VARCHAR(40) DEFAULT NULL",
@@ -192,31 +197,13 @@ function activate_form()
 
 	$arr_run_query = array();
 
-	$arr_query_types = array(
-		1 => array('code' => 'checkbox',			'name' => "&#xf046; ".__("Checkbox", 'lang_form'),					'result' => 1),
-		2 => array('code' => 'range',				'name' => "&#xf1de; ".__("Range", 'lang_form'),						'result' => 1),
-		3 => array('code' => 'input_field',			'name' => "&#xf120; ".__("Input Field", 'lang_form'),				'result' => 1),
-		4 => array('code' => 'textarea',			'name' => "&#xf044; ".__("Textarea", 'lang_form'),					'result' => 1),
-		5 => array('code' => 'text',				'name' => "&#xf1dd; ".__("Text", 'lang_form'),						'result' => 0),
-		6 => array('code' => 'space',				'name' => "&#xf141; ".__("Space", 'lang_form'),						'result' => 0), //f07d
-		7 => array('code' => 'datepicker',			'name' => "&#xf073; ".__("Datepicker", 'lang_form'),				'result' => 1),
-		8 => array('code' => 'radio_button',		'name' => "&#xf192; ".__("Radio Button", 'lang_form'),				'result' => 1),
-		9 => array('code' => 'referer_url',			'name' => "&#xf1e0; ".__("Referer URL", 'lang_form'),				'result' => 1),
-		10 => array('code' => 'select',				'name' => "&#xf00b; ".__("Dropdown", 'lang_form'),					'result' => 1),
-		11 => array('code' => 'select_multiple',	'name' => "&#xf022; ".__("Multiple Selection", 'lang_form'),		'result' => 1),
-		12 => array('code' => 'hidden_field',		'name' => "&#xf070; ".__("Hidden Field", 'lang_form'),				'result' => 1),
-		13 => array('code' => 'custom_tag',			'name' => "&#xf121; ".__("Custom Tag", 'lang_form'),				'result' => 0),
-		14 => array('code' => 'custom_tag_end',		'name' => "&#xf121; ".__("Custom Tag (end)", 'lang_form'),			'result' => 0,		'public' => 'no'),
-		15 => array('code' => 'file',				'name' => "&#xf115; ".__("File", 'lang_form'),						'result' => 1), //f03e
-		16 => array('code' => 'checkbox_multiple',	'name' => "&#xf046; ".__("Multiple Checkboxes", 'lang_form'),		'result' => 1),
-		17 => array('code' => 'radio_multiple',		'name' => "&#xf192; ".__("Multiple Radio Buttons", 'lang_form'),	'result' => 1),
-	);
+	$obj_form = new mf_form();
 
-	foreach($arr_query_types as $key => $value)
+	foreach($obj_form->get_form_types() as $key => $value)
 	{
 		if(!isset($value['public'])){	$value['public'] = 'yes';}
 
-		$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_type SET formTypeID = '%d', formTypeCode = %s, formTypeName = %s, formTypeResult = '%d', formTypePublic = %s", $key, $value['code'], $value['name'], $value['result'], $value['public']);
+		$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_type SET formTypeID = '%d', formTypeCode = %s, formTypeName = %s, formTypeDesc = %s, formTypeResult = '%d', formTypePublic = %s", $key, $value['code'], $value['name'], $value['desc'], $value['result'], $value['public']);
 	}
 
 	$arr_query_check = array(

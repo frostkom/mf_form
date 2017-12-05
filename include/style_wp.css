@@ -36,10 +36,75 @@
 				clear: none;
 			}
 
-			.mf_form .form_select.fontawesome select
+		.mf_form .form_select.fontawesome select, .mf_form .fontawesome label
+		{
+			font-family: 'FontAwesome', 'Helvetica';
+		}
+
+			.mf_form .fontawesome ul
 			{
-				font-family: 'FontAwesome', 'Helvetica';
+				display: -webkit-box;
+				display: -ms-flexbox;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-flex-wrap: wrap;
+				-webkit-flex-wrap: wrap;
+				-ms-flex-wrap: wrap;
+				flex-wrap: wrap;
+				list-style: none;
+				padding: .2em;
 			}
+
+				.mf_form .fontawesome li
+				{
+					-webkit-box-flex: 1 1 50%;
+					-webkit-flex: 1 1 50%;
+					-ms-flex: 1 1 50%;
+					flex: 1 1 50%;
+					margin: 0;
+					overflow: initial;
+					position: relative;
+					max-width: 50%;
+				}
+
+					.mf_form .fontawesome input
+					{
+						display: none;
+					}
+
+					.mf_form .fontawesome label
+					{
+						border: .1em solid transparent;
+						overflow: hidden;
+						padding: .5em;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+						width: 100%;
+					}
+
+						.mf_form .fontawesome input[type='radio']:checked + label
+						{
+							background: #fff7cf;
+							border-color: #ffd324;
+						}
+
+					.mf_form .fontawesome li .description
+					{
+						background: #fff;
+						border: .1em solid #ccc;
+						border-radius: .5em;
+						display: none;
+						left: 3em;
+						position: absolute;
+						top: 3em;
+						padding: .5em;
+						z-index: 1;
+					}
+
+						.mf_form .fontawesome li:hover .description
+						{
+							display: block;
+						}
 
 	mf-form-row
 	{
@@ -48,10 +113,10 @@
 		box-sizing: border-box;
 		cursor: move;
 		display: block;
-		min-height: 4em;
-		margin: .5em;
+		min-height: 6em;
+		margin: .5em 1.5em .5em .5em;
 		position: relative;
-		padding: .5em;
+		padding: .5em 0 .5em .5em;
 	}
 
 		mf-form-row:hover
@@ -71,46 +136,45 @@
 			border: .1em solid transparent;
 			border-left: 0;
 			border-radius: 0 .5em .5em 0;
-			display: none;
 			font-size: 1.5em;
+			opacity: .2;
 			padding: .3em;
 			position: absolute;
 			right: -2.4em;
-			top: .5em;
+			top: .4em;
 		}
 
-			mf-form-row:hover .row_icons
+			mf-form-row:hover .row_icons, mf-form-row.active .row_icons
 			{
-				background: #eee;
-				border-color: #ccc;
-				display: block;
+				opacity: 1;
 			}
 
-				mf-form-row:hover .row_icons .fa.fa-info-circle
+				mf-form-row:hover .row_icons
 				{
-					display: block;
+					background: #eee;
+					border-color: #ccc;
+				}
+			
+				mf-form-row.active .row_icons
+				{
+					background: #fff6bf;
+					border-color: #ffd324;
 				}
 
-				mf-form-row:hover .row_icons .fa.fa-close
-				{
-					display: none;
-				}
-		
-			mf-form-row.active .row_icons
+			mf-form-row > .row_icons > a
 			{
-				background: #fff6bf;
-				border-color: #ffd324;
-				display: block;
+				text-decoration: none;
 			}
 
-				mf-form-row.active .row_icons .fa.fa-info-circle
-				{
-					display: none;
-				}
+			mf-form-row .row_icons .fa:not(.fa-info-circle)
+			{
+				display: none;
+			}
 
-				mf-form-row.active .row_icons .fa.fa-close
+				mf-form-row:hover .row_icons .fa, mf-form-row.active .row_icons .fa
 				{
 					display: block;
+					margin-bottom: .2em;
 				}
 
 		mf-form-row .row_settings

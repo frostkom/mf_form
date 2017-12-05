@@ -163,7 +163,7 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 
 				if($intFormTypeID == 13) //'custom_tag'
 				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s, userID = '%d' WHERE form2TypeID2 = '%d'", $strFormTypeText, get_current_user_id(), $intForm2TypeID)); //, formTypeClass = %s, formTypeFetchFrom = %s, $strFormTypeClass, $strFormTypeFetchFrom
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s, userID = '%d' WHERE form2TypeID2 = '%d'", $strFormTypeText, get_current_user_id(), $intForm2TypeID));
 				}
 
 				$intForm2TypeID = $intFormTypeID = $strFormTypeText = $strFormTypePlaceholder = $intCheckID = $strFormTypeTag = $strFormTypeClass = $strFormTypeFetchFrom = $strFormTypeActionEquals = $intFormTypeActionShow = "";
@@ -341,12 +341,12 @@ echo "<div class='wrap'>
 
 									else
 									{
-										echo show_select(array('data' => $obj_form->get_form_types_for_select(), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'text' => __("Type", 'lang_form'), 'class' => "fontawesome"));
+										echo show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'class' => "fontawesome")); //, 'text' => __("Type", 'lang_form')
 									}
 
-									echo show_textarea(array('name' => 'strFormTypeText', 'text' => __("Text", 'lang_form'), 'value' => $strFormTypeText, 'class' => "show_textarea hide"))
-								."</div>
+								echo "</div>
 								<div>"
+									.show_textarea(array('name' => 'strFormTypeText', 'value' => $strFormTypeText, 'class' => "show_textarea hide", 'placeholder' => __("Text", 'lang_form')))
 									.show_select(array('data' => $obj_form->get_form_checks_for_select(), 'name' => "intCheckID", 'value' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"))
 									.show_textfield(array('name' => 'strFormTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strFormTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"))
 									.show_select(array('data' => array('div' => "div", 'fieldset' => "fieldset"), 'name' => 'strFormTypeText2', 'value' => $strFormTypeText, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
@@ -378,11 +378,17 @@ echo "<div class='wrap'>
 									#################
 									echo get_toggler_container(array('type' => 'start', 'text' => __("Advanced", 'lang_form'), 'rel' => $obj_form->id))
 										.show_select(array('data' => $obj_form->get_tags_for_select(), 'name' => 'strFormTypeTag', 'value' => $strFormTypeTag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
-										.show_textfield(array('name' => 'strFormTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strFormTypeClass, 'placeholder' => "bold italic aligncenter alignleft alignright", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"))
-										.show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Fetch From ID", 'lang_form'), 'value' => $strFormTypeFetchFrom, 'maxlength' => 50, 'xtra_class' => "show_fetch_from hide"));
+										.show_textfield(array('name' => 'strFormTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strFormTypeClass, 'placeholder' => "bold italic aligncenter alignleft alignright", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"));
 
 										if($intForm2TypeID > 0)
 										{
+											$handle_temp = $obj_form->get_post_info()."_".$intForm2TypeID;
+
+											$placeholder_temp = sprintf(__("Default is %s but you can assign a custom handle", 'lang_form'), $handle_temp);
+											$description_temp = sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."?".($strFormTypeFetchFrom != '' ? $strFormTypeFetchFrom : $handle_temp)."=2'>", "</a>");
+
+											echo show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Change Default Value", 'lang_form'), 'value' => $strFormTypeFetchFrom, 'maxlength' => 50, 'placeholder' => $placeholder_temp, 'xtra_class' => "show_fetch_from hide", 'description' => $description_temp));
+
 											$arr_data_equals = array();
 
 											foreach($arr_select_rows as $str_option)

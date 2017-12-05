@@ -121,13 +121,36 @@ class mf_form
 		return $strAnswerText;
 	}
 
+	function get_form_types()
+	{
+		return array(
+			1 => array('code' => 'checkbox',			'name' => "&#xf046; ".__("Checkbox", 'lang_form'),					'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
+			2 => array('code' => 'range',				'name' => "&#xf1de; ".__("Range", 'lang_form'),						'desc' => __("To choose a min and max value and create a slider for that", 'lang_form'),	'result' => 1),
+			3 => array('code' => 'input_field',			'name' => "&#xf120; ".__("Input Field", 'lang_form'),				'desc' => __("To enter a short text", 'lang_form'),											'result' => 1),
+			4 => array('code' => 'textarea',			'name' => "&#xf044; ".__("Textarea", 'lang_form'),					'desc' => __("To enter a longer text on multiple rows", 'lang_form'),						'result' => 1),
+			5 => array('code' => 'text',				'name' => "&#xf1dd; ".__("Text", 'lang_form'),						'desc' => __("To present information to the visitor", 'lang_form'),							'result' => 0),
+			6 => array('code' => 'space',				'name' => "&#xf141; ".__("Space", 'lang_form'),						'desc' => __("To separate fields in the form with empty space", 'lang_form'),				'result' => 0), //f07d
+			7 => array('code' => 'datepicker',			'name' => "&#xf073; ".__("Datepicker", 'lang_form'),				'desc' => __("To choose a date", 'lang_form'),												'result' => 1),
+			8 => array('code' => 'radio_button',		'name' => "&#xf192; ".__("Radio Button", 'lang_form'),				'desc' => __("To choose one alternative", 'lang_form'),										'result' => 1),
+			9 => array('code' => 'referer_url',			'name' => "&#xf1e0; ".__("Referer URL", 'lang_form'),				'desc' => __("To get which URL the visitor came from", 'lang_form'),						'result' => 1),
+			10 => array('code' => 'select',				'name' => "&#xf00b; ".__("Dropdown", 'lang_form'),					'desc' => __("To choose one alternative", 'lang_form'),										'result' => 1),
+			11 => array('code' => 'select_multiple',	'name' => "&#xf022; ".__("Multiple Selection", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
+			12 => array('code' => 'hidden_field',		'name' => "&#xf070; ".__("Hidden Field", 'lang_form'),				'desc' => __("To add hidden data to the form", 'lang_form'),								'result' => 1),
+			13 => array('code' => 'custom_tag',			'name' => "&#xf121; ".__("Custom Tag", 'lang_form'),				'desc' => __("To add a custom tag", 'lang_form'),											'result' => 0),
+			14 => array('code' => 'custom_tag_end',		'name' => "&#xf121; ".__("Custom Tag (end)", 'lang_form'),			'desc' => __("To add a custom end tag", 'lang_form'),										'result' => 0,		'public' => 'no'),
+			15 => array('code' => 'file',				'name' => "&#xf115; ".__("File", 'lang_form'),						'desc' => __("To add a file upload to the form", 'lang_form'),								'result' => 1), //f03e
+			16 => array('code' => 'checkbox_multiple',	'name' => "&#xf046; ".__("Multiple Checkboxes", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
+			17 => array('code' => 'radio_multiple',		'name' => "&#xf192; ".__("Multiple Radio Buttons", 'lang_form'),	'desc' => __("To choose one alternative", 'lang_form'),										'result' => 1),
+		);
+	}
+
 	function get_form_types_for_select()
 	{
 		global $wpdb, $intFormTypeID;
 
 		$arr_data = array();
 
-		$result = $wpdb->get_results("SELECT formTypeID, formTypeCode, formTypeName, COUNT(formTypeID) AS formType_amount FROM ".$wpdb->base_prefix."form_type LEFT JOIN ".$wpdb->base_prefix."form2type USING (formTypeID) WHERE formTypePublic = 'yes' GROUP BY formTypeID ORDER BY formType_amount DESC, formTypeName ASC");
+		$result = $wpdb->get_results("SELECT formTypeID, formTypeCode, formTypeName, formTypeDesc, COUNT(formTypeID) AS formType_amount FROM ".$wpdb->base_prefix."form_type LEFT JOIN ".$wpdb->base_prefix."form2type USING (formTypeID) WHERE formTypePublic = 'yes' GROUP BY formTypeID ORDER BY formType_amount DESC, formTypeName ASC");
 
 		if($wpdb->num_rows > 0)
 		{
@@ -137,7 +160,7 @@ class mf_form
 			{
 				if($intFormTypeID > 0 || $r->formTypeCode != 'custom_tag') // || $r->formTypeID != 13
 				{
-					$arr_data[$r->formTypeID] = $r->formTypeName;
+					$arr_data[$r->formTypeID] = array($r->formTypeName, $r->formTypeDesc);
 				}
 			}
 		}
@@ -4336,9 +4359,8 @@ class mf_form_output
 			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "")."'>"
 				.$this->output
 				."<div class='row_icons'>
+					<i class='fa fa-info-circle blue'></i>
 					<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='fa fa-pencil-square-o'></i></a>
-					<i class='fa fa-info-circle' title='".__("More", 'lang_form')."'></i>
-					<i class='fa fa-close' title='".__("Less", 'lang_form')."'></i>
 				</div>
 				<div class='row_settings'>";
 
@@ -4356,8 +4378,6 @@ class mf_form_output
 					{
 						$out .= show_checkbox(array('name' => "remember_".$this->row->form2TypeID, 'text' => __("Remember Answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
 					}
-
-					//$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."'>".__("Edit", 'lang_form')."</a>";
 
 					$out .= "<a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Copy", 'lang_form')."</a>";
 

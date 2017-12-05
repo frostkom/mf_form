@@ -28,10 +28,9 @@ jQuery(function($)
 				$('.show_textarea').removeClass('hide');
 			}
 
-			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 12) //range, input_field, textarea, datepicker, select, hidden_field,
+			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 11 || this_val == 12 || this_val == 16 || this_val == 17) //range, input_field, textarea, datepicker, select, select_multiple, hidden_field, checkbox_multiple, radio_multiple
 			{
 				$('.show_fetch_from').removeClass('hide');
-				$('.toggler').removeClass('hide').next().addClass('hide');
 			}
 
 			if(this_val == 10 || this_val == 11 || this_val == 16 || this_val == 17) //select, select_multiple, checkbox_multiple, radio_multiple
@@ -42,7 +41,6 @@ jQuery(function($)
 			if(this_val == 5) //text
 			{
 				$('.show_custom_text_tag').removeClass('hide');
-				$('.toggler').removeClass('hide').next().addClass('hide');
 			}
 
 			if(this_val == 13 || this_val == 14) //custom_tag, custom_tag_end
@@ -53,17 +51,28 @@ jQuery(function($)
 			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 13 || this_val == 15) //input_field, textarea, text, custom_tag, file
 			{
 				$('.show_custom_class').removeClass('hide');
-				$('.toggler').removeClass('hide').next().addClass('hide');
 			}
 
 			if(this_val == 10) //select
 			{
 				$('.show_actions').removeClass('hide');
-				$('.toggler').removeClass('hide').next().addClass('hide');
+			}
+
+			if(this_val != 6 && this_val != 9) //space, referer_url
+			{
+				if($(".toggle_container").children("div:not(.hide)").length == 0)
+				{
+					$(".toggler").addClass('hide');
+				}
+
+				else
+				{
+					$('.toggler').removeClass('hide');
+				}
 			}
 		}
 
-		if($(".show_validate_as").parent("div").children("div:not(.hide)").length > 0)
+		/*if($(".show_validate_as").parent("div").children("div:not(.hide)").length > 0)
 		{
 			$(".show_validate_as").parent("div").removeClass('hide');
 		}
@@ -71,7 +80,7 @@ jQuery(function($)
 		else
 		{
 			$(".show_validate_as").parent("div").addClass('hide');
-		}
+		}*/
 	}
 
 	function add_option()
@@ -196,9 +205,16 @@ jQuery(function($)
 		});
 	});
 
-	show_query_settings($('#intFormTypeID').val());
+	/*show_query_settings($('#intFormTypeID').val());
 
 	$(document).on('change', '#intFormTypeID', function()
+	{
+		show_query_settings($(this).val());
+	});*/
+
+	show_query_settings($('input[name=intFormTypeID]:checked').val());
+
+	$(document).on('change', 'input[name=intFormTypeID]', function()
 	{
 		show_query_settings($(this).val());
 	});
