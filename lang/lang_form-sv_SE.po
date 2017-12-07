@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-05 12:43+0100\n"
+"POT-Creation-Date: 2017-12-07 11:01+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -406,7 +406,7 @@ msgstr "För att kunna välja min-/maxvärde"
 
 #: ../include/classes.php:129
 msgid "Input Field"
-msgstr "Inmatningsfält (en rad)"
+msgstr "Textfält"
 
 #: ../include/classes.php:129
 msgid "To enter a short text"
@@ -414,7 +414,7 @@ msgstr "För att kunna skriva i en kort text"
 
 #: ../include/classes.php:130
 msgid "Textarea"
-msgstr "Inmatningsfält (flera rader)"
+msgstr "Textarea"
 
 #: ../include/classes.php:130
 msgid "To enter a longer text on multiple rows"

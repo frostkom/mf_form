@@ -92,7 +92,7 @@
 					{
 						background: #fff;
 						border: .1em solid #ccc;
-						border-radius: .5em;
+						border-radius: .3em;
 						display: none;
 						left: 3em;
 						position: absolute;
@@ -154,7 +154,7 @@
 					background: #eee;
 					border-color: #ccc;
 				}
-			
+
 				mf-form-row.active .row_icons
 				{
 					background: #fff6bf;
@@ -181,13 +181,13 @@
 		{
 			background: rgba(255, 255, 255, .8);
 			border: .1em solid #ccc;
-			border-radius: .5em;
+			border-radius: .4em;
 			display: none;
 			padding: 1em;
 			position: absolute;
 			right: .5em;
 			width: 50%;
-			z-index: 1;	
+			z-index: 1;
 		}
 
 			mf-form-row.active .row_settings
@@ -265,7 +265,7 @@
 			{
 				background: #333;
 				background: rgba(0, 0, 0, .5);
-				border-radius: .5em;
+				border-radius: .3em;
 				color: #fff;
 				padding: .5em;
 			}

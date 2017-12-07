@@ -4110,7 +4110,7 @@ class mf_form_output
 
 				$this->show_required = true;
 			break;
-			
+
 			//case 17:
 			case 'radio_multiple':
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
