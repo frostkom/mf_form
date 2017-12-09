@@ -31,7 +31,7 @@ function get_site_language($data) //sv_SE, en_US etc.
 
 		else
 		{
-			do_log("Wrong lang[0]: ".var_export($data, true));
+			error_log("Wrong lang[0]: ".var_export($data, true));
 		}
 	}
 
@@ -49,7 +49,7 @@ function get_site_language($data) //sv_SE, en_US etc.
 
 		else
 		{
-			do_log("Wrong lang[1]: ".var_export($data, true));
+			error_log("Wrong lang[1]: ".var_export($data, true));
 		}
 	}
 
@@ -252,7 +252,7 @@ function submit_form()
 	$obj_form = new mf_form();
 	$obj_form->dup_ip = $obj_form->check_if_duplicate();
 
-	do_log("This should not be used because btnFormSubmit is not in POST");
+	error_log("This should not be used because btnFormSubmit is not in POST");
 
 	if(isset($_POST['btnFormSubmit'])) // && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$obj_form->id)
 	{
@@ -283,6 +283,7 @@ function submit_form()
 		$result['error'] = __("I could not validate the form submission correctly. If the problem persists, contact an admin", 'lang_form');
 	}*/
 
+	header('Content-Type: application/json');
 	echo json_encode($result);
 	die();
 }
@@ -293,7 +294,7 @@ function delete_form($post_id)
 
 	if($post_type == 'mf_form')
 	{
-		do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form");
+		error_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form");
 
 		/*$obj_form = new mf_form();
 		$obj_form->get_form_id($post_id);

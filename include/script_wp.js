@@ -229,9 +229,9 @@ jQuery(function($)
 		}
 	});
 
-	$(document).on('click', "mf-form-row", function(e)
+	$(document).on('click', "mf-form-row .row_icons", function(e)
 	{
-		$(e.currentTarget).toggleClass('active').siblings("mf-form-row").removeClass('active');
+		$(e.currentTarget).parents("mf-form-row").toggleClass('active').siblings("mf-form-row").removeClass('active');
 	});
 
 	if($('.mf_form.mf_sortable').length > 0)

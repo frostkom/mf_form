@@ -144,7 +144,10 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 			//case 'checkbox_multiple':
 			case 17:
 			//case 'radio_multiple':
-				$strFormTypeText = str_replace(":", "", $strFormTypeText).":".str_replace(":", "", $strFormTypeSelect);
+				$obj_form->formTypeSelect = $strFormTypeSelect;
+				$obj_form->validate_select_array();
+
+				$strFormTypeText = str_replace(":", "", $strFormTypeText).":".str_replace(":", "", $obj_form->formTypeSelect);
 			break;
 
 			case 13:
@@ -364,7 +367,7 @@ echo "<div class='wrap'>
 												@list($option_id, $option_value, $option_limit) = explode("|", $select_row, 3);
 
 												echo "<div class='option'>"
-													.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $option_id, 'xtra_class' => 'hide')) //input text is needed when using payment price as ID
+													.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $option_id)) //input text is needed when using payment price as ID
 													.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $option_value, 'placeholder' => __("Enter option here", 'lang_form')))
 													.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $option_limit))
 												."</div>";

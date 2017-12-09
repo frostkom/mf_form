@@ -229,6 +229,12 @@
 					flex: 0 1 0;
 				}
 
+					.select_rows .option .form_textfield:first-child
+					{
+						/*display: none;*/
+						margin-right: 0.5em;
+					}
+
 					.select_rows .option .form_textfield:nth-child(1)
 					{
 						min-width: 25px;
@@ -240,11 +246,11 @@
 						-webkit-flex: 2 1 0;
 						-ms-flex: 2 1 0;
 						flex: 2 1 0;
-						margin: 0 .5em;
 					}
 
 					.select_rows .option .form_textfield:nth-child(3)
 					{
+						margin-left: .5em;
 						min-width: 45px;
 					}
 

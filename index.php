@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.4.6
+Version: 11.4.8
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -230,18 +230,6 @@ function activate_form()
 
 	run_queries($arr_run_query);
 
-	//Check for loose ends
-	#################################
-	/*$result = $wpdb->get_results("SELECT ID, post_title FROM ".$wpdb->posts." LEFT JOIN ".$wpdb->base_prefix."form ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."form.postID WHERE post_type = 'mf_form' AND postID IS NULL");
-
-	foreach($result as $r)
-	{
-		do_log(__("Remove from wp_posts because the corresponding form in wp_form does not exist", 'lang_form'));
-
-		//wp_trash_post($r->ID);
-	}*/
-	#################################
-
 	//Convert wp_query to wp_posts
 	#################################
 	/*$result = $wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix."form WHERE post_type = 'mf_form' AND queryConverted = '0'");
@@ -337,7 +325,7 @@ function activate_form()
 
 				else
 				{
-					do_log($log_message);
+					error_log($log_message);
 				}
 			}
 		}

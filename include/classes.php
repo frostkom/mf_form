@@ -69,6 +69,44 @@ class mf_form
 		$this->answer_id = check_var('intAnswerID');
 	}
 
+	function validate_select_array()
+	{
+		$i = 0;
+		$is_updated = false;
+		$formTypeSelect_new = "";
+
+		$arr_options = explode(",", $this->formTypeSelect);
+
+		foreach($arr_options as $key => $str_option)
+		{
+			$arr_option = explode("|", $str_option);
+
+			if(is_numeric($arr_option[0]) && $arr_option[0] > $i)
+			{
+				$i = $arr_option[0];
+			}
+		}
+
+		foreach($arr_options as $key => $str_option)
+		{
+			$arr_option = explode("|", $str_option);
+
+			if($arr_option[0] == '')
+			{
+				$arr_option[0] = ++$i;
+
+				$is_updated = true;
+			}
+
+			$formTypeSelect_new .= ($formTypeSelect_new != '' ? "," : "").implode("|", $arr_option);
+		}
+
+		if($is_updated)
+		{
+			$this->formTypeSelect = $formTypeSelect_new;
+		}
+	}
+
 	function parse_range_label()
 	{
 		list($this->label, $rest) = explode("|", $this->label);
@@ -1252,7 +1290,7 @@ class mf_form
 
 				if($data['text'] != strip_tags($data['text']) || $string_decoded != strip_tags($string_decoded))
 				{
-					//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
+					//error_log("Is spam (".$data['rule']."): ".var_export($data, true));
 
 					$this->is_spam = true;
 					$this->is_spam_id = $data['id'];
@@ -1270,7 +1308,7 @@ class mf_form
 				{
 					if(preg_match($reg_exp, $data['text']) || esc_sql($data['text']) != '' && preg_match($reg_exp, esc_sql($data['text'])))
 					{
-						//do_log("Is spam (".$data['rule']."): ".var_export($data, true));
+						//error_log("Is spam (".$data['rule']."): ".var_export($data, true));
 
 						$this->is_spam = true;
 						$this->is_spam_id = $data['id'];
@@ -1370,7 +1408,7 @@ class mf_form
 
 			if($wpdb->num_rows > 0)
 			{
-				//do_log(sprintf(__("The email %s has previously been marked as spam at least once (%s)", 'lang_form'), $data['text'], $wpdb->last_query));
+				//error_log(sprintf(__("The email %s has previously been marked as spam at least once (%s)", 'lang_form'), $data['text'], $wpdb->last_query));
 
 				$this->is_spam = true;
 				$this->is_spam_id = 6;
@@ -1826,7 +1864,7 @@ class mf_form
 		{
 			if(check_var($this->prefix.'check') != '' && in_array('honeypot', $setting_form_spam))
 			{
-				//do_log("Is Honeypot");
+				//error_log("Is Honeypot");
 
 				$this->is_spam = true;
 				$this->is_spam_id = 7;
@@ -1880,7 +1918,7 @@ class mf_form
 
 	/*function process_submit_fallback()
 	{
-		do_log("Submit Fallback: ".isset($_POST['btnFormSubmit'])." || ".isset($_POST['_wpnonce'])." && ".wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id)." (".var_export($this, true).", ".var_export($_REQUEST, true).")");
+		error_log("Submit Fallback: ".isset($_POST['btnFormSubmit'])." || ".isset($_POST['_wpnonce'])." && ".wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id)." (".var_export($this, true).", ".var_export($_REQUEST, true).")");
 	}*/
 
 	function get_form($data = array())
@@ -2661,7 +2699,7 @@ class mf_form_payment
 
 				else
 				{
-					do_log("Redirect not verified");
+					error_log("Redirect not verified");
 					//header("Status: 400 Bad Request");
 				}
 
@@ -3061,7 +3099,7 @@ class mf_form_payment
 						case 'Pending':
 						case 'Failed':
 						case 'Cancelled':
-							do_log("What should I do? I was given the callback but it sent me (".var_export($result, true).")");
+							error_log("What should I do? I was given the callback but it sent me (".var_export($result, true).")");
 						break;
 					}
 
@@ -3082,7 +3120,7 @@ class mf_form_payment
 
 		else
 		{
-			do_log(__("Not verified correctly", 'lang_form')." (".var_export($_REQUEST, true).")");
+			error_log(__("Not verified correctly", 'lang_form')." (".var_export($_REQUEST, true).")");
 		}
 
 		return $out;
@@ -4339,7 +4377,7 @@ class mf_form_output
 			break;
 
 			default:
-				do_log(__("There was no code for this type", 'lang_form')." (".$this->row->formTypeCode.")");
+				error_log(__("There was no code for this type", 'lang_form')." (".$this->row->formTypeCode.")");
 			break;
 		}
 
