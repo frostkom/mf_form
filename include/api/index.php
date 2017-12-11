@@ -4,7 +4,7 @@ if(!defined('ABSPATH'))
 {
 	header('Content-Type: application/json');
 
-	$folder = str_replace("/wp-content/plugins/mf_form/include", "/", dirname(__FILE__));
+	$folder = str_replace("/wp-content/plugins/mf_form/include/api", "/", dirname(__FILE__));
 
 	require_once($folder."wp-load.php");
 }
@@ -165,6 +165,13 @@ if(get_current_user_id() > 0)
 
 if($type_action == "zipcode")
 {
+	if(is_plugin_active('mf_cache/index.php'))
+	{
+		$obj_cache = new mf_cache();
+		$obj_cache->fetch_request();
+		$obj_cache->get_or_set_file_content('json');
+	}
+
 	$search = str_replace(" ", "", $type_id);
 	$city_name = "";
 

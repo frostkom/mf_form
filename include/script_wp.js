@@ -140,7 +140,7 @@ jQuery(function($)
 
 		$.ajax(
 		{
-			url: script_forms_wp.plugins_url + '/mf_form/include/ajax.php?type=' + type,
+			url: script_forms_wp.plugins_url + '/mf_form/include/api/?type=' + type,
 			type: 'get',
 			dataType: 'json',
 			success: function(data)
@@ -179,7 +179,7 @@ jQuery(function($)
 
 		$.ajax(
 		{
-			url: script_forms_wp.plugins_url + '/mf_form/include/ajax.php?type=' + type + '/' + is_checked,
+			url: script_forms_wp.plugins_url + '/mf_form/include/api/?type=' + type + '/' + is_checked,
 			type: 'get',
 			dataType: 'json',
 			success: function(data)
@@ -245,7 +245,7 @@ jQuery(function($)
 
 				$.ajax(
 				{
-					url: script_forms_wp.plugins_url + '/mf_form/include/ajax.php?type=sortOrder',
+					url: script_forms_wp.plugins_url + '/mf_form/include/api/?type=sortOrder',
 					type: 'post',
 					data: 'strOrder=' + post_data,
 					dataType: 'json',

@@ -158,7 +158,7 @@ function check_zip_code(selector)
 	{
 		jQuery.ajax(
 		{
-			url: script_form.plugin_url + 'ajax.php?type=zipcode/search/' + search,
+			url: script_form.plugin_url + 'api/?type=zipcode/search/' + search,
 			type: 'get',
 			dataType: 'json',
 			success: function(data)
