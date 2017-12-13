@@ -723,15 +723,22 @@ class mf_form
 		return $this->post_status;
 	}
 
+	/* Deprecated */
 	function get_form_array($data = array())
+	{
+		return $this->get_for_select($data);
+	}
+
+	function get_for_select($data = array())
 	{
 		global $wpdb;
 
 		if(!isset($data['local_only'])){		$data['local_only'] = false;}
 		if(!isset($data['force_has_page'])){	$data['force_has_page'] = true;}
 
-		$arr_data = array();
-		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+		$arr_data = array(
+			'' => "-- ".__("Choose here", 'lang_form')." --"
+		);
 
 		$result = $wpdb->get_results("SELECT formID, formName FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".(IS_ADMIN && $data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY formCreated DESC");
 
@@ -3345,18 +3352,10 @@ class mf_form_table extends mf_list_table
 
 						if(count($result) > 0)
 						{
-							/*foreach($result as $r)
-							{
-								$post_id_temp = $r->ID;
-
-								$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
-								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
-							}*/
-
 							foreach($result as $post_id_temp)
 							{
 								$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
-								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View page", 'lang_form')."</a>";
+								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View", 'lang_form')."</a>";
 							}
 						}
 
@@ -3368,12 +3367,12 @@ class mf_form_table extends mf_list_table
 
 								if($post_url != '')
 								{
-									$actions['view'] = "<a href='".$post_url."'>".__("View form", 'lang_form')."</a>";
+									$actions['view'] = "<a href='".$post_url."'>".__("View", 'lang_form')."</a>";
 								}
 							}
 
-							$actions['add_post'] = "<a href='".admin_url("post-new.php?content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
-							$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
+							//$actions['add_post'] = "<a href='".admin_url("post-new.php?post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
+							$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 						}
 					}
 				}
@@ -3932,7 +3931,7 @@ class mf_form_output
 
 		$this->output = "";
 
-		$this->show_required = $this->show_autofocus = $this->show_remember = false;
+		$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = false;
 
 		$this->answer_text = "";
 
@@ -4063,7 +4062,7 @@ class mf_form_output
 
 				$this->output .= show_checkbox($field_data);
 
-				$this->show_required = true;
+				$this->show_required = $this->show_copy = true;
 			break;
 
 			//case 2:
@@ -4089,7 +4088,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
-				$this->show_required = $this->show_autofocus = $this->show_remember = true;
+				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = true;
 			break;
 
 			//case 7:
@@ -4109,7 +4108,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
-				$this->show_required = $this->show_autofocus = $this->show_remember = true;
+				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
 			//case 8:
@@ -4146,7 +4145,7 @@ class mf_form_output
 
 				$this->output .= show_radio_input($field_data);
 
-				$this->show_required = true;
+				$this->show_required = $this->show_copy = true;
 			break;
 
 			//case 17:
@@ -4165,7 +4164,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_form_alternatives($field_data);
 
-				$this->show_required = true;
+				$this->show_required = $this->show_copy = true;
 			break;
 
 			//case 10:
@@ -4190,7 +4189,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
 
-				$this->show_required = $this->show_remember = true;
+				$this->show_required = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
 			//case 11:
@@ -4211,7 +4210,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
 
-				$this->show_required = true;
+				$this->show_required = $this->show_copy = true;
 			break;
 
 			//case 16:
@@ -4258,7 +4257,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
-				$this->show_required = $this->show_autofocus = $this->show_remember = true;
+				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
 			//case 4:
@@ -4277,7 +4276,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textarea($field_data);
 
-				$this->show_required = $this->show_autofocus = $this->show_remember = true;
+				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
 			//case 5:
@@ -4332,6 +4331,8 @@ class mf_form_output
 
 					$this->filter_form_fields($field_data);
 					$this->output .= input_hidden($field_data);
+					
+					$this->show_copy = $this->show_template_info = true;
 				}
 			break;
 
@@ -4373,7 +4374,7 @@ class mf_form_output
 
 				$this->output .= show_file_field($field_data);
 
-				$this->show_required = true;
+				$this->show_required = $this->show_copy = true;
 			break;
 
 			default:
@@ -4394,41 +4395,60 @@ class mf_form_output
 
 		if($this->in_edit_mode == true)
 		{
+			$row_settings = "";
+
+			if($this->show_required == true)
+			{
+				$row_settings .= show_checkbox(array('name' => "require_".$this->row->form2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->form2TypeID."'"));
+			}
+
+			if($this->show_autofocus == true)
+			{
+				$row_settings .= show_checkbox(array('name' => "autofocus_".$this->row->form2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->form2TypeID."'"));
+			}
+
+			if($this->show_remember == true)
+			{
+				$row_settings .= show_checkbox(array('name' => "remember_".$this->row->form2TypeID, 'text' => __("Remember Answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
+			}
+
+			if($this->show_copy == true)
+			{
+				$row_settings .= "<a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Copy", 'lang_form')."</a>";
+			}
+
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' LIMIT 0, 1", $this->row->form2TypeID));
+
+			if($wpdb->num_rows == 0)
+			{
+				$row_settings .= ($this->show_copy == true ? " | " : "")."<a href='#delete/type/".$this->row->form2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+			}
+
+			if($this->show_template_info == true)
+			{
+				$row_settings .= "<p>".sprintf(__("For use in templates this field has got %s and %s", 'lang_form'), "[label_".$this->row->form2TypeID."]", "[answer_".$this->row->form2TypeID."]")."</p>";
+			}
+
 			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "")."'>"
-				.$this->output
-				."<div class='row_icons'>
-					<i class='fa fa-info-circle blue'></i>
-					<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='fa fa-pencil-square-o'></i></a>
-				</div>
-				<div class='row_settings'>";
+				.$this->output;
 
-					if($this->show_required == true)
+				if($this->row->formTypeID != 14) //custom_tag_end
+				{
+					$out .= "<div class='row_icons'>";
+
+						if($row_settings != '')
+						{
+							$out .= "<i class='fa fa-info-circle blue'></i>";
+						}
+
+						$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='fa fa-pencil-square-o'></i></a>
+					</div>";
+
+					if($row_settings != '')
 					{
-						$out .= show_checkbox(array('name' => "require_".$this->row->form2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->form2TypeID."'"));
+						$out .= "<div class='row_settings'>".$row_settings."</div>";
 					}
-
-					if($this->show_autofocus == true)
-					{
-						$out .= show_checkbox(array('name' => "autofocus_".$this->row->form2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->form2TypeID."'"));
-					}
-
-					if($this->show_remember == true)
-					{
-						$out .= show_checkbox(array('name' => "remember_".$this->row->form2TypeID, 'text' => __("Remember Answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
-					}
-
-					$out .= "<a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Copy", 'lang_form')."</a>";
-
-					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' LIMIT 0, 1", $this->row->form2TypeID));
-
-					if($wpdb->num_rows == 0)
-					{
-						$out .= " | <a href='#delete/type/".$this->row->form2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
-					}
-
-					$out .= "<p>".sprintf(__("For use in templates this field has got %s and %s", 'lang_form'), "[label_".$this->row->form2TypeID."]", "[answer_".$this->row->form2TypeID."]")."</p>";
-
-				$out .= "</div>";
+				}
 
 			$out .= "</mf-form-row>";
 		}
@@ -4502,11 +4522,10 @@ class widget_form extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		$obj_form = new mf_form();
-		$arr_data = $obj_form->get_form_array(array('force_has_page' => false));
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading']))
-			.show_select(array('data' => $arr_data, 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
+			.show_select(array('data' => $obj_form->get_for_select(array('force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
 		."</div>";
 	}
 }

@@ -336,16 +336,16 @@ echo "<div class='wrap'>
 							<div class='flex_flow'>
 								<div>";
 
-									if($intFormTypeID == 13) //'custom_tag'
+									/*if($intFormTypeID == 13) //'custom_tag'
 									{
 										echo show_textfield(array('name' => 'intFormTypeID_name', 'text' => __("Type", 'lang_form'), 'value' => $obj_form->get_type_name($intFormTypeID), 'xtra' => "readonly"))
 										.input_hidden(array('name' => 'intFormTypeID', 'value' => $intFormTypeID, 'xtra' => "id='intFormTypeID'"));
 									}
 
 									else
-									{
+									{*/
 										echo show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'class' => "fontawesome")); //, 'text' => __("Type", 'lang_form')
-									}
+									//}
 
 								echo "</div>
 								<div>"

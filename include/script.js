@@ -33,6 +33,11 @@ function on_load_form()
 
 function update_range_text(selector)
 {
+	if(selector.siblings('label').children('span').length == 0)
+	{
+		selector.siblings('label').append(" <span></span>");
+	}
+
 	selector.siblings('label').children('span').text(selector.val());
 }
 
