@@ -233,12 +233,15 @@
 					{
 						/*display: none;*/
 						margin-right: 0.5em;
+						min-width: 35px;
 					}
 
-					.select_rows .option .form_textfield:nth-child(1)
-					{
-						min-width: 25px;
-					}
+						.select_rows .option .form_textfield:first-child input
+						{
+							padding-left: 0;
+							padding-right: 0;
+							text-align: center;
+						}
 
 					.select_rows .option .form_textfield:nth-child(2)
 					{

@@ -609,16 +609,6 @@ class mf_form
 		global $wpdb;
 
 		return $wpdb->get_var("SELECT COUNT(ID) FROM ".$wpdb->posts." WHERE post_type = 'mf_form'");
-
-		/*$tbl_group = new mf_form_table();
-
-		$tbl_group->select_data(array(
-			//'select' => "*",
-			//'where' => ,
-			'debug' => true,
-		));
-
-		return count($tbl_group->data);*/
 	}
 
 	function is_poll()
@@ -903,6 +893,17 @@ class mf_form
 		$intForm2TypeID = $wpdb->get_var($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type".$query_join." WHERE formID = '%d'".$query_where, $this->id));
 
 		return $intForm2TypeID > 0 ? true : false;
+	}
+
+	function get_answer_amount($data)
+	{
+		global $wpdb;
+
+		if(!isset($data['is_spam'])){		$data['is_spam'] = 0;}
+
+		$wpdb->get_results($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '%d' GROUP BY answerID", $data['form_id'], $data['is_spam']));
+
+		return $wpdb->num_rows;
 	}
 
 	function get_type_name($id)
@@ -3339,7 +3340,13 @@ class mf_form_table extends mf_list_table
 					if(IS_ADMIN)
 					{
 						$actions['edit'] = "<a href='".$post_edit_url."'>".__("Edit", 'lang_form')."</a>";
-						$actions['delete'] = "<a href='#delete/form/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+
+						$query_answers = $obj_form->get_answer_amount(array('form_id' => $obj_form->id));
+
+						if($query_answers == 0)
+						{
+							$actions['delete'] = "<a href='#delete/form/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+						}
 					}
 
 					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id, 'form_copy_'.$obj_form->id)."'>".__("Copy", 'lang_form')."</a>";
@@ -3498,11 +3505,8 @@ class mf_form_table extends mf_list_table
 			case 'answers':
 				if($post_status != 'trash')
 				{
-					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID", $obj_form->id));
-					$query_answers = $wpdb->num_rows;
-
-					$wpdb->query($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '1' GROUP BY answerID", $obj_form->id));
-					$query_spam = $wpdb->num_rows;
+					$query_answers = $obj_form->get_answer_amount(array('form_id' => $obj_form->id));
+					$query_spam = $obj_form->get_answer_amount(array('form_id' => $obj_form->id, 'is_spam' => 1));
 
 					if($query_answers > 0 || $query_spam > 0)
 					{

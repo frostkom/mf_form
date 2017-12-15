@@ -22,33 +22,46 @@ $state_id = isset($arr_input[3]) ? $arr_input[3] : "";
 
 if(get_current_user_id() > 0)
 {
-	if($type_action == "delete")
+	if($type_action == 'delete')
 	{
-		if($type_table == "form")
+		if($type_table == 'form')
 		{
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW(), formDeletedID = '".get_current_user_id()."' WHERE formID = '%d' AND formDeleted = '0'", $type_id));
+			$obj_form = new mf_form($type_id);
 
-			if($wpdb->rows_affected > 0)
+			if($obj_form->get_answer_amount(array('form_id' => $obj_form->id)) == 0)
 			{
-				$obj_form = new mf_form($type_id);
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW(), formDeletedID = '".get_current_user_id()."' WHERE formID = '%d' AND formDeleted = '0'", $type_id));
 
-				if(wp_trash_post($obj_form->post_id))
+				if($wpdb->rows_affected > 0)
 				{
-					$json_output['success'] = true;
-					$json_output['dom_id'] = $type_table."_".$type_id;
+					if(wp_trash_post($obj_form->post_id))
+					{
+						$json_output['success'] = true;
+						$json_output['dom_id'] = $type_table."_".$type_id;
+					}
+
+					else
+					{
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0', formDeletedDate = '', formDeletedID = '' WHERE formID = '%d' AND formDeleted = '1'", $type_id));
+
+						$json_output['formID'] = $type_id;
+						$json_output['postID'] = $obj_form->post_id;
+					}
 				}
 
 				else
 				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0', formDeletedDate = '', formDeletedID = '' WHERE formID = '%d' AND formDeleted = '1'", $type_id));
-
-					$json_output['formID'] = $type_id;
-					$json_output['postID'] = $obj_form->post_id;
+					$json_output['error'] = __("It looks like the form already has been deleted", 'lang_form');
 				}
+			}
+
+			else
+			{
+				$json_output['error'] = __("You don't have permission to delete this form", 'lang_form');
 			}
 		}
 
-		else if($type_table == "answer")
+		else if($type_table == 'answer')
 		{
 			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $type_id));
 			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $type_id));
@@ -60,7 +73,7 @@ if(get_current_user_id() > 0)
 			}
 		}
 
-		else if($type_table == "type")
+		else if($type_table == 'type')
 		{
 			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $type_id));
 
@@ -76,7 +89,7 @@ if(get_current_user_id() > 0)
 
 	else if(in_array($type_action, array('require', 'remember')))
 	{
-		if($type_table == "type")
+		if($type_table == 'type')
 		{
 			switch($type_action)
 			{
@@ -103,9 +116,9 @@ if(get_current_user_id() > 0)
 		}
 	}
 
-	else if($type_action == "autofocus")
+	else if($type_action == 'autofocus')
 	{
-		if($type_table == "type")
+		if($type_table == 'type')
 		{
 			$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $type_id));
 
@@ -125,7 +138,7 @@ if(get_current_user_id() > 0)
 		}
 	}
 
-	else if($type_action == "sortOrder")
+	else if($type_action == 'sortOrder')
 	{
 		$updated = false;
 
@@ -163,7 +176,7 @@ if(get_current_user_id() > 0)
 	}
 }
 
-if($type_action == "zipcode")
+if($type_action == 'zipcode')
 {
 	if(is_plugin_active('mf_cache/index.php'))
 	{

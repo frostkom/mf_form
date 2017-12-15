@@ -113,14 +113,13 @@ jQuery(function($)
 		$('.select_rows .option').each(function()
 		{
 			var dom_obj = $(this),
-				temp_id = dom_obj.find("input[name=strFormTypeSelect_id]").val() + "",
-				temp_value = dom_obj.find("input[name=strFormTypeSelect_value]").val() + "",
-				temp_limit = dom_obj.find("input[name=intFormTypeSelect_limit]").val() + "";
-
-			console.log(dom_obj.find("input[name=intFormTypeSelect_limit]"));
+				temp_value = dom_obj.find("input[name=strFormTypeSelect_value]").val() + "";
 
 			if(temp_value != "")
 			{
+				var temp_id = dom_obj.find("input[name=strFormTypeSelect_id]").val() + "",
+					temp_limit = dom_obj.find("input[name=intFormTypeSelect_limit]").val() + "";
+
 				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value + "|" + temp_limit;
 			}
 		});
@@ -219,11 +218,11 @@ jQuery(function($)
 		show_query_settings($(this).val());
 	});
 
-	$(document).on('blur', '.select_rows', 'input', function()
+	$(document).on('blur', '.select_rows input', function()
 	{
 		update_select();
 
-		if($(this).parent('div').parent('div').is(':last-child'))
+		if($(this).parents(".option").is(':last-child') && $(this).parents(".option").find(".form_textfield input[name=strFormTypeSelect_value]").val() != '')
 		{
 			add_option();
 		}
