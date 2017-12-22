@@ -342,7 +342,7 @@ class mf_form
 
 				$intPostID = wp_insert_post($post_data);
 
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formName, postID".$copy_fields.", formCreated, userID) (SELECT CONCAT(formName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", $intPostID, $this->id));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formName, postID".$copy_fields.", formCreated, userID) (SELECT CONCAT(formName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '%d' FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", $intPostID, get_current_user_id(), $this->id));
 				$intFormID_new = $wpdb->insert_id;
 
 				if($intFormID_new > 0)
@@ -1336,8 +1336,8 @@ class mf_form
 			1 => array('exclude' => "select_multiple",	'text' => "contains_html",					'explain' => __("Contains HTML", 'lang_form')),
 			2 => array('exclude' => "referer_url",		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => __("Link including http", 'lang_form')),
 			3 => array('exclude' => '',					'text' => "/([qm]){5}/",					'explain' => __("Question marks", 'lang_form')),
-			4 => array('exclude' => '',					'text' => "/(bit\.ly)/",					'explain' => __("bit.ly", 'lang_form')),
-			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("[url]", 'lang_form')),
+			4 => array('exclude' => '',					'text' => "/(bit\.ly)/",					'explain' => __("Shortening links", 'lang_form')),
+			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("URL shortcodes", 'lang_form')),
 			6 => array('exclude' => '',					'text' => "",								'explain' => __("Recurring E-mail", 'lang_form')),
 			7 => array('exclude' => '',					'text' => "",								'explain' => __("Honeypot", 'lang_form')),
 		);
@@ -3596,43 +3596,35 @@ class mf_answer_table extends mf_list_table
 
 		$obj_form->answer_column = 0;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id)); //formTypeID, 
 
 		foreach($result as $r)
 		{
-			$intFormTypeID = $r->formTypeID;
+			//$intFormTypeID = $r->formTypeID;
 			$strFormTypeCode = $r->formTypeCode;
 			$obj_form->label = $r->formTypeText;
 			$intForm2TypeID2 = $r->form2TypeID;
 
 			switch($strFormTypeCode)
 			{
-				//case 1:
 				case 'checkbox':
-				//case 8:
 				case 'radio_button':
 					$label_limit = 10;
 				break;
 
-				//case 2:
 				case 'range':
 					$obj_form->parse_range_label();
 
 					$label_limit = 10;
 				break;
 
-				//case 7:
 				case 'datepicker':
 					$label_limit = 15;
 				break;
 
-				//case 10:
 				case 'select':
-				//case 11:
 				case 'select_multiple':
-				//case 16:
 				case 'checkbox_multiple':
-				//case 17:
 				case 'radio_multiple':
 					list($obj_form->label, $str_select) = explode(":", $obj_form->label);
 
@@ -3801,12 +3793,14 @@ class mf_answer_table extends mf_list_table
 
 				else
 				{
-					$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
+					$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+
+					$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name)); //, formTypeID
 
 					foreach($resultText as $r)
 					{
 						$intForm2TypeID = $r->form2TypeID;
-						$intFormTypeID = $r->formTypeID;
+						//$intFormTypeID = $r->formTypeID;
 						$strFormTypeCode = $r->formTypeCode;
 						$obj_form->label = $r->formTypeText;
 						$strCheckCode = $r->checkCode;
@@ -3824,12 +3818,10 @@ class mf_answer_table extends mf_list_table
 
 							switch($strFormTypeCode)
 							{
-								//case 8:
 								case 'radio_button':
 									$strAnswerText = 1;
 								break;
 
-								//case 7:
 								case 'datepicker':
 									if(strlen($strAnswerText) > 10)
 									{
@@ -3842,23 +3834,18 @@ class mf_answer_table extends mf_list_table
 									}
 								break;
 
-								//case 10:
 								case 'select':
-								//case 17:
 								case 'radio_multiple':
 									$strAnswerText = $obj_form->parse_select_info($strAnswerText);
 								break;
 
-								//case 11:
 								case 'select_multiple':
-								//case 16:
 								case 'checkbox_multiple':
 									$obj_form->prefix = $obj_form->get_post_info()."_";
 
 									$strAnswerText = $obj_form->parse_multiple_info($strAnswerText);
 								break;
 
-								//case 15:
 								case 'file':
 									$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
 
@@ -3878,7 +3865,7 @@ class mf_answer_table extends mf_list_table
 											break;
 
 											case 'email':
-												$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
+												$strAnswerText = "<a href='mailto:".$strAnswerText."?subject=".__("Re", 'lang_form').": ".$strFormName."'>".$strAnswerText."</a>";
 
 												if($item['answerSpam'] == false)
 												{
