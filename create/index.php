@@ -519,45 +519,60 @@ echo "<div class='wrap'>
 								}
 
 							echo "</div>
-						</div>
-						<div class='postbox'>
-							<h3 class='hndle'><span>".__("Payment", 'lang_form')."</span></h3>
-							<div class='inside'>"
-								.show_select(array('data' => $obj_form->get_payment_providers_for_select(), 'name' => 'intFormPaymentProvider', 'value' => $intFormPaymentProvider, 'text' => __("Provider", 'lang_form')));
+						</div>";
 
-								switch($intFormPaymentProvider)
-								{
-									case 1:
-										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
-										.show_textfield(array('name' => 'strFormPaymentHmac', 'text' => __("HMAC key", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
-									break;
+						$arr_data_providers = $obj_form->get_payment_providers_for_select();
 
-									case 2:
-										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant E-mail", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
-										.show_textfield(array('name' => 'strFormPaymentHmac', 'text' => __("Secret word", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
-									break;
+						if(count($arr_data_providers) > 1)
+						{
+							echo "<div class='postbox'>
+								<h3 class='hndle'><span>".__("Payment", 'lang_form')."</span></h3>
+								<div class='inside'>"
+									.show_select(array('data' => $arr_data_providers, 'name' => 'intFormPaymentProvider', 'value' => $intFormPaymentProvider, 'text' => __("Provider", 'lang_form')));
 
-									case 3:
-										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Username", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
-										.show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password", 'lang_form'), 'value' => $strFormPaymentPassword, 'maxlength' => 100))
-										.show_textfield(array('name' => 'strFormPaymentHmac', 'text' => __("Signature", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
-									break;
+									$arr_fields = apply_filters('form_payment_fields', array(), $intFormPaymentProvider);
 
-									case 4:
-										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Store ID", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100))
-										.show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 100));
-									break;
-								}
+									if(in_array('merchant_id', $arr_fields))
+									{
+										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID / Email", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100));
+									}
 
-								if($intFormPaymentProvider > 0 && $strFormPaymentMerchant != '' && $strFormPaymentHmac != '')
-								{
-									echo show_select(array('data' => $obj_form->get_payment_currency_for_select($intFormPaymentProvider), 'name' => 'strFormPaymentCurrency', 'value' => $strFormPaymentCurrency, 'text' => __("Currency", 'lang_form')))
-									.show_select(array('data' => $obj_form->get_payment_amount_for_select(), 'name' => 'intFormPaymentAmount', 'value' => $intFormPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')));
-								}
+									if(in_array('merchant_username', $arr_fields))
+									{
+										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Username", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100));
+									}
 
-							echo "</div>
-						</div>
-					</form>
+									if(in_array('merchant_store', $arr_fields))
+									{
+										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Store ID", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100));
+									}
+
+									if(in_array('password', $arr_fields))
+									{
+										echo show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password", 'lang_form'), 'value' => $strFormPaymentPassword, 'maxlength' => 100));
+									}
+
+									if(in_array('secret_key', $arr_fields))
+									{
+										echo show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key / Signature", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
+									}
+
+									if($intFormPaymentProvider > 0 && $strFormPaymentMerchant != '' && $strFormPaymentHmac != '')
+									{
+										echo show_select(array('data' => $obj_form->get_payment_currency_for_select($intFormPaymentProvider), 'name' => 'strFormPaymentCurrency', 'value' => $strFormPaymentCurrency, 'text' => __("Currency", 'lang_form')))
+										.show_select(array('data' => $obj_form->get_payment_amount_for_select(), 'name' => 'intFormPaymentAmount', 'value' => $intFormPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')));
+									}
+
+								echo "</div>
+							</div>";
+						}
+
+						else if($intFormPaymentProvider > 0)
+						{
+							do_log(sprintf(__("There are no installed provider extension even though it seams like a provider has been set (%s)", 'lang_form'), $intFormPaymentProvider));
+						}
+
+					echo "</form>
 				</div>
 			</div>";
 		}

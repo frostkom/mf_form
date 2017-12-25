@@ -253,15 +253,9 @@ class mf_form
 	{
 		$arr_data = array(
 			'' => "-- ".__("Choose here", 'lang_form')." --",
-			4 => __("Billmate", 'lang_form'),
-			1 => __("DIBS", 'lang_form'),
-			3 => __("Paypal", 'lang_form'),
-			2 => __("Skrill", 'lang_form'),
 		);
 
-		//$arr_data = apply_filters('form_payment_alternatives', $arr_data);
-
-		return $arr_data;
+		return apply_filters('form_payment_alternatives', $arr_data);
 	}
 
 	function get_payment_currency_for_select($intFormPaymentProvider)
@@ -1909,7 +1903,6 @@ class mf_form
 						$intFormPaymentTest = isset($_POST['intFormPaymentTest']) && is_user_logged_in() && IS_ADMIN ? 1 : 0;
 
 						$obj_payment = new mf_form_payment($this->id);
-
 						$out .= $obj_payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest));
 					}
 
@@ -2105,7 +2098,6 @@ class mf_form
 		if(isset($_GET['accept']) || isset($_GET['callback']) || isset($_GET['cancel']))
 		{
 			$obj_payment = new mf_form_payment($this->id);
-
 			$out .= $obj_payment->process_callback();
 		}
 
@@ -2317,39 +2309,41 @@ class mf_form_payment
 	{
 		global $wpdb;
 
-		$out = "";
-
 		$this->amount = $data['amount'];
 		$this->orderid = $data['orderid'];
 		$this->test = $data['test'];
 
-		switch($this->provider)
+		/*switch($this->provider)
 		{
 			case 1:
-				$out .= $this->process_passthru_dibs();
+				$out = $this->process_passthru_dibs();
 			break;
 
 			case 2:
-				$out .= $this->process_passthru_skrill();
+				$out = $this->process_passthru_skrill();
 			break;
 
 			case 3:
-				$out .= $this->process_passthru_paypal();
+				$out = $this->process_passthru_paypal();
 			break;
 
 			case 4:
-				$out .= $this->process_passthru_billmate();
+				$out = $this->process_passthru_billmate();
 			break;
+		}*/
+
+		$out = apply_filters('form_process_passthru', $out, $this);
+
+		if($this->provider > 0 && $out == '')
+		{
+			do_log(sprintf(__("A provider was set (%s) to passthru but there seams to be no provider extensions installed", 'lang_form'), $this->provider));
 		}
 
-		//$out = apply_filters('form_process_passthru', $out, &$this);
-
 		return $out;
-
 		exit;
 	}
 
-	function process_passthru_dibs()
+	/*function process_passthru_dibs()
 	{
 		global $wpdb;
 
@@ -2611,14 +2605,14 @@ class mf_form_payment
 		);
 
 		$values["Cart"] = array(
-			/*"Handling" => array(
-				"withouttax" => "1000",
-				"taxrate" => "25"
-			),*/
-			/*"Shipping" => array(
-				"withouttax" => "3000",
-				"taxrate" => "25"
-			),*/
+			//"Handling" => array(
+				//"withouttax" => "1000",
+				//"taxrate" => "25"
+			//),
+			//"Shipping" => array(
+				//"withouttax" => "3000",
+				//"taxrate" => "25"
+			//),
 			"Total" => array(
 				"withouttax" => $amount_excl_tax,
 				"tax" => $amount_tax,
@@ -2651,7 +2645,7 @@ class mf_form_payment
 		}
 
 		return $out;
-	}
+	}*/
 
 	function confirm_cancel()
 	{
@@ -2753,8 +2747,6 @@ class mf_form_payment
 	{
 		global $wpdb;
 
-		$out = "";
-
 		$request_type = substr($_SERVER['REQUEST_URI'], 15);
 
 		$this->is_accept = isset($_GET['accept']) || $request_type == "accept";
@@ -2782,9 +2774,9 @@ class mf_form_payment
 
 		$this->amount = check_var('amount', 'int');
 
-		$out .= "<p>".__("Processing", 'lang_form')."&hellip;</p>";
+		$out = "<p>".__("Processing", 'lang_form')."&hellip;</p>";
 
-		switch($this->provider)
+		/*switch($this->provider)
 		{
 			case 1:
 				$out .= $this->process_callback_dibs();
@@ -2801,14 +2793,19 @@ class mf_form_payment
 			case 4:
 				$out .= $this->process_callback_billmate();
 			break;
-		}
+		}*/
 
-		//$out = apply_filters('form_process_callback', $out, &$this);
+		$out = apply_filters('form_process_callback', $out, $this);
+
+		if($this->provider > 0 && $out == '')
+		{
+			do_log(sprintf(__("A provider was set (%s) to callback but there seams to be no provider extensions installed", 'lang_form'), $this->provider));
+		}
 
 		return $out;
 	}
 
-	function process_callback_dibs()
+	/*function process_callback_dibs()
 	{
 		global $wpdb;
 
@@ -2923,18 +2920,18 @@ class mf_form_payment
 			{
 				$out .= $this->confirm_accept();
 
-				/*if('Completed' == $httpParsedResponseAr["PAYMENTINFO_0_PAYMENTSTATUS"])
-				{
-					$out .= "<div class='updated'><p>Payment Received! Your product will be sent to you very soon!</p></div>";
-				}
+				//if('Completed' == $httpParsedResponseAr["PAYMENTINFO_0_PAYMENTSTATUS"])
+				//{
+					//$out .= "<div class='updated'><p>Payment Received! Your product will be sent to you very soon!</p></div>";
+				//}
 
-				else if('Pending' == $httpParsedResponseAr["PAYMENTINFO_0_PAYMENTSTATUS"])
-				{
-					$out .= "<div class='error'>
-						<p>Transaction Complete, but payment is still pending!</p>
-						<p>You need to manually authorize this payment in your <a target='_new' href='//paypal.com'>Paypal Account</a></p>
-					</div>";
-				}*/
+				//else if('Pending' == $httpParsedResponseAr["PAYMENTINFO_0_PAYMENTSTATUS"])
+				//{
+					//$out .= "<div class='error'>
+						//<p>Transaction Complete, but payment is still pending!</p>
+						//<p>You need to manually authorize this payment in your <a target='_new' href='//paypal.com'>Paypal Account</a></p>
+					//</div>";
+				//}
 
 				// GetTransactionDetails requires a Transaction ID, and GetExpressCheckoutDetails requires Token returned by SetExpressCheckOut
 				$padata = '&TOKEN='.urlencode($this->token);
@@ -2950,11 +2947,10 @@ class mf_form_payment
 				{
 					$this->confirm_error(__("Payment done", 'lang_form')." (".__("But could not verify", 'lang_form').", Success - ".$this->token.")");
 
-					/*$out .= "<div class='error'>
-						<p>GetTransactionDetails failed: ".urldecode($httpParsedResponseAr["L_LONGMESSAGE0"])."</p>
-						<p>".var_export($httpParsedResponseAr, true)."</p>
-					</div>";*/
-
+					//$out .= "<div class='error'>
+						//<p>GetTransactionDetails failed: ".urldecode($httpParsedResponseAr["L_LONGMESSAGE0"])."</p>
+						//<p>".var_export($httpParsedResponseAr, true)."</p>
+					//</div>";
 				}
 			}
 
@@ -2962,11 +2958,11 @@ class mf_form_payment
 			{
 				$this->confirm_error(__("Payment done", 'lang_form')." (".__("But could not verify", 'lang_form').", ".$this->token.")");
 
-				/*$out .= "<div class='error'>
-					<p>Callback: ".urldecode($httpParsedResponseAr["L_LONGMESSAGE0"])."</p>
-					<p>".$padata."</p>
-					<p>".var_export($httpParsedResponseAr, true)."</p>
-				</div>";*/
+				//$out .= "<div class='error'>
+					//<p>Callback: ".urldecode($httpParsedResponseAr["L_LONGMESSAGE0"])."</p>
+					//<p>".$padata."</p>
+					//<p>".var_export($httpParsedResponseAr, true)."</p>
+				//</div>";
 			}
 		}
 
@@ -3038,7 +3034,7 @@ class mf_form_payment
 
 		$out = "";
 
-		/*"credentials": {
+		$arr_example = array("credentials": {
 			"hash": "26042c7bc65e106d1d0276a72edc4b1d00e8237155f0de52b4a3b2391c7f6a6bad828ecbb0533b04782e816341ff376943719d6de7519e3384379292ed2d9d22"
 		},
 		"data": {
@@ -3052,16 +3048,16 @@ class mf_form_payment
 				"expirymonth": "04",
 				"expiryyear": "20"
 			}
-		}*/
+		});
 
 		$result_credentials = isset($_POST['credentials']) ? json_decode(stripslashes($_POST['credentials']), true) : array();
 		$result_data = isset($_POST['data']) ? json_decode(stripslashes($_POST['data']), true) : array();
 
-		/*echo "POST: ".var_export($_POST, true)."<br>"
-		."Data: ".var_export($result_data, true)."<br>"
-		."Echo: ".$result_data."<br>"
-		."Decode: ".var_export(json_decode($result_data, true), true)."<br>"
-		."Order ID: ".$result_data['orderid'];*/
+		//echo "POST: ".var_export($_POST, true)."<br>"
+		//."Data: ".var_export($result_data, true)."<br>"
+		//."Echo: ".$result_data."<br>"
+		//."Decode: ".var_export(json_decode($result_data, true), true)."<br>"
+		//."Order ID: ".$result_data['orderid'];
 
 		$hash = $result_credentials['hash'];
 		$status = $result_data['status'];
@@ -3132,7 +3128,7 @@ class mf_form_payment
 		}
 
 		return $out;
-	}
+	}*/
 }
 
 class mf_form_export extends mf_export
