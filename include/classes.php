@@ -1972,10 +1972,12 @@ class mf_form
 					{
 						//Switch to temp site
 						####################
-						$wpdbobj = clone $wpdb;
+						/*$wpdbobj = clone $wpdb;
 						$wpdb->blogid = $blog_id;
-						$wpdb->set_prefix($wpdb->base_prefix);
+						$wpdb->set_prefix($wpdb->base_prefix);*/
 						####################
+
+						switch_to_blog($blog_id);
 
 						if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 						{
@@ -1991,9 +1993,11 @@ class mf_form
 							}
 						}
 
+						restore_current_blog();
+
 						//Switch back to orig site
 						###################
-						$wpdb = clone $wpdbobj;
+						//$wpdb = clone $wpdbobj;
 						###################
 					}
 
@@ -2683,10 +2687,12 @@ class mf_form_payment
 			{
 				//Switch to temp site
 				####################
-				$wpdbobj = clone $wpdb;
+				/*$wpdbobj = clone $wpdb;
 				$wpdb->blogid = $blog_id;
-				$wpdb->set_prefix($wpdb->base_prefix);
+				$wpdb->set_prefix($wpdb->base_prefix);*/
 				####################
+
+				switch_to_blog($blog_id);
 
 				if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 				{
@@ -2699,15 +2705,17 @@ class mf_form_payment
 					mf_redirect($strFormAnswerURL);
 				}
 
-				else
+				/*else
 				{
 					error_log("Redirect not verified");
 					//header("Status: 400 Bad Request");
-				}
+				}*/
+
+				restore_current_blog();
 
 				//Switch back to orig site
 				###################
-				$wpdb = clone $wpdbobj;
+				//$wpdb = clone $wpdbobj;
 				###################
 			}
 
@@ -3592,7 +3600,7 @@ class mf_answer_table extends mf_list_table
 
 		$obj_form->answer_column = 0;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id)); //formTypeID, 
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id)); //formTypeID,
 
 		foreach($result as $r)
 		{
@@ -4318,7 +4326,7 @@ class mf_form_output
 
 					$this->filter_form_fields($field_data);
 					$this->output .= input_hidden($field_data);
-					
+
 					$this->show_copy = $this->show_template_info = true;
 				}
 			break;
