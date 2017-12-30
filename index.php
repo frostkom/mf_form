@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.5.3
+Version: 11.5.4
 Author: Martin Fors
 Author URI: http://frostkom.se
 Text Domain: lang_form
@@ -90,7 +90,7 @@ function activate_form()
 		PRIMARY KEY (formID),
 		KEY blogID (blogID),
 		KEY postID (postID)
-	) DEFAULT CHARSET=".$default_charset); //queryConverted ENUM('0', '1') NOT NULL DEFAULT '0',
+	) DEFAULT CHARSET=".$default_charset);
 
 	$arr_add_column[$wpdb->base_prefix."form"] = array(
 		//'queryConverted' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER userID",
