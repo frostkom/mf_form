@@ -1,9 +1,10 @@
 <?php
 
+$plugin_include_url = plugins_url()."/mf_form/include/";
 $plugin_version = get_plugin_version(__FILE__);
 
-mf_enqueue_style('style_forms_wp', plugins_url()."/mf_form/include/style_wp.css", $plugin_version);
-mf_enqueue_script('script_forms_wp', plugins_url()."/mf_form/include/script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
+mf_enqueue_style('style_forms_wp', $plugin_include_url."style_wp.css", $plugin_version);
+mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
 
 $obj_form = new mf_form();
 $obj_form->fetch_request();
