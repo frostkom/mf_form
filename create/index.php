@@ -334,20 +334,9 @@ echo "<div class='wrap'>
 						<h3 class='hndle'><span>".__("Content", 'lang_form')."</span></h3>
 						<form method='post' action='".admin_url("admin.php?page=mf_form%2Fcreate%2Findex.php&intFormID=".$obj_form->id)."' class='mf_form mf_settings inside'>
 							<div class='flex_flow'>
-								<div>";
-
-									/*if($intFormTypeID == 13) //'custom_tag'
-									{
-										echo show_textfield(array('name' => 'intFormTypeID_name', 'text' => __("Type", 'lang_form'), 'value' => $obj_form->get_type_name($intFormTypeID), 'xtra' => "readonly"))
-										.input_hidden(array('name' => 'intFormTypeID', 'value' => $intFormTypeID, 'xtra' => "id='intFormTypeID'"));
-									}
-
-									else
-									{*/
-										echo show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'class' => "fontawesome")); //, 'text' => __("Type", 'lang_form')
-									//}
-
-								echo "</div>
+								<div>"
+									.show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'class' => "fontawesome"))
+								."</div>
 								<div>"
 									.show_textarea(array('name' => 'strFormTypeText', 'value' => $strFormTypeText, 'class' => "show_textarea hide", 'placeholder' => __("Text", 'lang_form')))
 									.show_select(array('data' => $obj_form->get_form_checks_for_select(), 'name' => "intCheckID", 'value' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"))
