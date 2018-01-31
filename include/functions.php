@@ -570,7 +570,7 @@ function get_count_answer_message($data = array()) //$id = 0
 
 	$out = "";
 
-	$last_viewed = get_user_meta($data['user_id'], 'mf_forms_viewed', true);
+	$last_viewed = get_user_meta($data['user_id'], 'meta_forms_viewed', true);
 
 	$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""))
 		." AND (blogID = '".$wpdb->blogid."' OR blogID IS null)"

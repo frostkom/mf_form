@@ -24,5 +24,5 @@ echo "<div class='wrap'>
 
 echo "</div>";
 
-update_user_meta(get_current_user_id(), 'mf_forms_viewed', date("Y-m-d H:i:s"));
+update_user_meta(get_current_user_id(), 'meta_forms_viewed', date("Y-m-d H:i:s"));
 update_option('option_form_list_viewed', date("Y-m-d H:i:s"), 'no'); //Temporary timestamp for updating wp_query -> wp_form
