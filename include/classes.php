@@ -130,16 +130,19 @@ class mf_form
 		return $strAnswerText;
 	}
 
-	function parse_multiple_info($strAnswerText, $return_value = true)
+	function parse_multiple_info($strAnswerText, $return_value)
 	{
+		$strAnswerText_orig = $strAnswerText;
+
 		$arr_answer_text = explode(",", str_replace($this->prefix, "", $strAnswerText));
 		$strAnswerText = "";
 
 		@list($this->label, $str_select) = explode(":", $this->label);
-		$arr_options = explode(",", $str_select);
 
-		if(true == $return_value)
+		if($return_value == true) // && $str_select != ''
 		{
+			$arr_options = explode(",", $str_select);
+
 			foreach($arr_options as $str_option)
 			{
 				$arr_option = explode("|", $str_option);
@@ -500,7 +503,7 @@ class mf_form
 						//case 'select_multiple':
 						case 16:
 						//case 'checkbox_multiple':
-							$strAnswerText = $this->parse_multiple_info($strAnswerText);
+							$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
 						break;
 
 						default:
@@ -1743,8 +1746,8 @@ class mf_form
 							}
 						}
 
+						$strAnswerText_send = $this->parse_multiple_info($strAnswerText, true);
 						$strAnswerText = $this->parse_multiple_info($strAnswerText, false);
-						$strAnswerText_send = $this->parse_multiple_info($strAnswerText);
 					break;
 
 					//case 15:
@@ -3241,7 +3244,7 @@ class mf_form_export extends mf_export
 						case 'select_multiple':
 						//case 16:
 						case 'checkbox_multiple':
-							$strAnswerText = $obj_form->parse_multiple_info($strAnswerText);
+							$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
 						break;
 
 						//case 15:
@@ -3847,7 +3850,7 @@ class mf_answer_table extends mf_list_table
 								case 'checkbox_multiple':
 									$obj_form->prefix = $obj_form->get_post_info()."_";
 
-									$strAnswerText = $obj_form->parse_multiple_info($strAnswerText);
+									$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
 								break;
 
 								case 'file':

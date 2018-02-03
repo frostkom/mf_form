@@ -504,7 +504,7 @@ echo "<div class='wrap'>
 
 								if($form_status == "publish")
 								{
-									echo show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline));
+									echo show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"));
 								}
 
 							echo "</div>
