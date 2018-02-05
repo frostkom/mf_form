@@ -233,9 +233,11 @@ jQuery(function($)
 		$(e.currentTarget).parents("mf-form-row").toggleClass('active').siblings("mf-form-row").removeClass('active');
 	});
 
-	if($('.mf_form.mf_sortable').length > 0)
+	var dom_sortable = $(".mf_form.mf_sortable");
+
+	if(dom_sortable.length > 0)
 	{
-		$('.mf_form.mf_sortable').sortable(
+		dom_sortable.sortable(
 		{
 			opacity: .7,
 			update: function()
