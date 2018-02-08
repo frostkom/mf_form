@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.5.12
+Version: 11.5.13
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -352,7 +352,7 @@ function uninstall_form()
 		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_form_reload', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'), 
 		'meta' => array('meta_forms_viewed', 'meta_answer_viewed'),
 		'post_types' => array('mf_form'),
-		'tables' => array('form', 'form2answer', 'form2type', 'form_answer', 'form_answer_email', 'form_check', 'form_type', 'form_spam', 'form_zipcode'),
+		'tables' => array('form', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),
 	));
 }
 
