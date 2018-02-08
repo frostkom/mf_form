@@ -1,195 +1,185 @@
-function on_load_form()
+jQuery(function($)
 {
-	jQuery('.mf_form input[type=range]').each(function()
+	function update_range_text(selector)
 	{
-		update_range_text(jQuery(this));
-	});
-
-	jQuery('.form_inline .error, .form_inline h2').each(function()
-	{
-		jQuery(this).parents('.form_inline').removeClass('hide');
-	});
-
-	jQuery('.mf_form .form_zipcode input').each(function()
-	{
-		jQuery(this).after("<span></span>");
-	});
-
-	jQuery('.form_action select').each(function()
-	{
-		do_form_type_action(jQuery(this));
-	});
-
-	if(jQuery('.mf_form .remember').length > 0)
-	{
-		check_remember_fields();
-	}
-
-	jQuery('.mf_form .form_zipcode input').each(function()
-	{
-		check_zip_code(jQuery(this));
-	});
-}
-
-function update_range_text(selector)
-{
-	if(selector.siblings('label').children('span').length == 0)
-	{
-		selector.siblings('label').append(" <span></span>");
-	}
-
-	selector.siblings('label').children('span').text(selector.val());
-}
-
-function do_form_type_action(dom_obj)
-{
-	var equals = dom_obj.attr('data-equals'),
-		show_obj = jQuery('#' + dom_obj.attr('data-show')),
-		show_obj_parent = false;
-
-	if(show_obj.is('input[type=checkbox]')){	show_obj_parent = show_obj.parents('.form_checkbox');}
-	else if(show_obj.is('input')){				show_obj_parent = show_obj.parents('.form_textfield');}
-	else if(show_obj.is('input[type=radio]')){	show_obj_parent = show_obj.parents('.form_radio');}
-	else if(show_obj.is('select')){				show_obj_parent = show_obj.parents('.form_select');}
-	else if(show_obj.is('textarea')){			show_obj_parent = show_obj.parents('.form_textarea');}
-	else
-	{
-		show_obj_parent = show_obj;
-	}
-
-	if(show_obj_parent !== false)
-	{
-		if(dom_obj.val() == equals){	show_obj_parent.removeClass('hide');}
-		else{							show_obj_parent.addClass('hide');}
-	}
-}
-
-function check_remember_fields()
-{
-	jQuery.getScript(script_form.plugins_url + "/mf_base/include/jquery.Storage.js").done(function()
-	{
-		if(jQuery.Storage)
+		if(selector.siblings('label').children('span').length == 0)
 		{
-			var remember_count = 0;
+			selector.siblings('label').append(" <span></span>");
+		}
 
-			function show_or_hide_clear_button()
+		selector.siblings('label').children('span').text(selector.val());
+	}
+
+	function do_form_type_action(dom_obj)
+	{
+		var equals = dom_obj.attr('data-equals'),
+			show_obj = $('#' + dom_obj.attr('data-show')),
+			show_obj_parent = false;
+
+		if(show_obj.is('input[type=checkbox]')){	show_obj_parent = show_obj.parents('.form_checkbox');}
+		else if(show_obj.is('input')){				show_obj_parent = show_obj.parents('.form_textfield');}
+		else if(show_obj.is('input[type=radio]')){	show_obj_parent = show_obj.parents('.form_radio');}
+		else if(show_obj.is('select')){				show_obj_parent = show_obj.parents('.form_select');}
+		else if(show_obj.is('textarea')){			show_obj_parent = show_obj.parents('.form_textarea');}
+		else
+		{
+			show_obj_parent = show_obj;
+		}
+
+		if(show_obj_parent !== false)
+		{
+			if(dom_obj.val() == equals){	show_obj_parent.removeClass('hide');}
+			else{							show_obj_parent.addClass('hide');}
+		}
+	}
+
+	function check_remember_fields()
+	{
+		$.getScript(script_form.plugins_url + "/mf_base/include/jquery.Storage.js").done(function()
+		{
+			if($.Storage)
 			{
-				if(remember_count > 0)
+				var remember_count = 0;
+
+				function show_or_hide_clear_button()
 				{
-					jQuery('.form_button .button-secondary').removeClass("hide");
-				}
-
-				else
-				{
-					jQuery('.form_button .button-secondary').addClass("hide");
-				}
-			}
-
-			var remember_fields = jQuery('.mf_form .remember');
-
-			remember_fields.each(function()
-			{
-				var selector = jQuery(this).find('input, select, textarea'),
-					dom_name = selector.attr('name'),
-					dom_value = jQuery.Storage.get(dom_name);
-
-				if(typeof dom_value !== 'undefined' && selector.val() == '')
-				{
-					selector.val(dom_value);
-
-					remember_count++;
-				}
-			});
-
-			show_or_hide_clear_button();
-
-			remember_fields.on('blur', 'input, select, textarea', function()
-			{
-				var selector = jQuery(this),
-					dom_name = selector.attr('name'),
-					dom_value = selector.val();
-
-				if(dom_value != '')
-				{
-					jQuery.Storage.set(dom_name, dom_value);
-
-					remember_count++;
-				}
-
-				else
-				{
-					var dom_value = jQuery.Storage.get(dom_name);
-
-					if(typeof dom_value !== 'undefined')
+					if(remember_count > 0)
 					{
-						jQuery.Storage.remove(dom_name);
+						$('.form_button .button-secondary').removeClass("hide");
+					}
 
-						remember_count--;
+					else
+					{
+						$('.form_button .button-secondary').addClass("hide");
 					}
 				}
 
-				show_or_hide_clear_button();
-			});
+				var remember_fields = $('.mf_form .remember');
 
-			jQuery('.form_button button[name=btnFormClear]').on('click', function()
-			{
 				remember_fields.each(function()
 				{
-					var selector = jQuery(this).find('input, select, textarea'),
+					var selector = $(this).find('input, select, textarea'),
 						dom_name = selector.attr('name'),
-						dom_value = jQuery.Storage.get(dom_name);
+						dom_value = $.Storage.get(dom_name);
 
-					if(typeof dom_value !== 'undefined')
+					if(typeof dom_value !== 'undefined' && selector.val() == '')
 					{
-						selector.val('');
+						selector.val(dom_value);
 
-						jQuery.Storage.remove(dom_name);
+						remember_count++;
 					}
 				});
 
-				remember_count = 0;
-
 				show_or_hide_clear_button();
-			});
-		}
-	});
-}
 
-function check_zip_code(selector)
-{
-	var search = selector.val();
-
-	if(search.length >= 5)
-	{
-		jQuery.ajax(
-		{
-			url: script_form.plugin_url + 'api/?type=zipcode/search/' + search,
-			type: 'get',
-			dataType: 'json',
-			success: function(data)
-			{
-				if(data.success)
+				remember_fields.on('blur', 'input, select, textarea', function()
 				{
-					selector.siblings('span').text(data.response);
-				}
+					var selector = $(this),
+						dom_name = selector.attr('name'),
+						dom_value = selector.val();
+
+					if(dom_value != '')
+					{
+						$.Storage.set(dom_name, dom_value);
+
+						remember_count++;
+					}
+
+					else
+					{
+						var dom_value = $.Storage.get(dom_name);
+
+						if(typeof dom_value !== 'undefined')
+						{
+							$.Storage.remove(dom_name);
+
+							remember_count--;
+						}
+					}
+
+					show_or_hide_clear_button();
+				});
+
+				$('.form_button button[name=btnFormClear]').on('click', function()
+				{
+					remember_fields.each(function()
+					{
+						var selector = $(this).find('input, select, textarea'),
+							dom_name = selector.attr('name'),
+							dom_value = $.Storage.get(dom_name);
+
+						if(typeof dom_value !== 'undefined')
+						{
+							selector.val('');
+
+							$.Storage.remove(dom_name);
+						}
+					});
+
+					remember_count = 0;
+
+					show_or_hide_clear_button();
+				});
 			}
 		});
 	}
 
-	else
+	function check_zip_code(selector)
 	{
-		selector.siblings('span').empty();
+		var search = selector.val();
+
+		if(search.length >= 5)
+		{
+			$.ajax(
+			{
+				url: script_form.plugin_url + 'api/?type=zipcode/search/' + search,
+				type: 'get',
+				dataType: 'json',
+				success: function(data)
+				{
+					if(data.success)
+					{
+						selector.siblings('span').text(data.response);
+					}
+				}
+			});
+		}
+
+		else
+		{
+			selector.siblings('span').empty();
+		}
 	}
-}
 
-jQuery(function($)
-{
-	on_load_form();
-
-	if(typeof collect_on_load == 'function')
+	$('.mf_form input[type=range]').each(function()
 	{
-		collect_on_load('on_load_form');
+		update_range_text($(this));
+	});
+
+	$('.form_inline .error, .form_inline h2').each(function()
+	{
+		$(this).parents('.form_inline').removeClass('hide');
+	});
+
+	$('.mf_form .form_zipcode input').each(function()
+	{
+		$(this).after("<span></span>");
+	});
+
+	$('.form_action select').each(function()
+	{
+		do_form_type_action($(this));
+	});
+
+	if($('.mf_form .remember').length > 0)
+	{
+		check_remember_fields();
 	}
+
+	$('.mf_form .form_zipcode input').each(function()
+	{
+		check_zip_code($(this));
+	});
 
 	$(document).on('click', '.form_link', function(event)
 	{
