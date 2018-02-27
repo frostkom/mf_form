@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.5.15
+Version: 11.5.16
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -208,7 +208,7 @@ function activate_form()
 		$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_type SET formTypeID = '%d', formTypeCode = %s, formTypeName = %s, formTypeDesc = %s, formTypeResult = '%d', formTypePublic = %s", $key, $value['code'], $value['name'], $value['desc'], $value['result'], $value['public']);
 	}
 
-	$arr_query_check = array(
+	$arr_form_check = array(
 		1 => array('name' => __("Number", 'lang_form'),				'code' => 'int',		'pattern' => '[0-9]*'),
 		5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email',		'pattern' => ''),
 		6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno',		'pattern' => ''),
@@ -218,12 +218,12 @@ function activate_form()
 
 	if(get_bloginfo('language') == "sv-SE")
 	{
-		$arr_query_check[2] = array('name' => __("Zip code", 'lang_form'),								'code' => 'zip',	'pattern' => '[0-9]{5}');
-		$arr_query_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",	'code' => 'soc',	'pattern' => '[0-9]{10}');
-		$arr_query_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",	'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
+		$arr_form_check[2] = array('name' => __("Zip code", 'lang_form'),								'code' => 'zip',	'pattern' => '[0-9]{5}');
+		$arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",	'code' => 'soc',	'pattern' => '[0-9]{10}');
+		$arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",	'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
 	}
 
-	foreach($arr_query_check as $key => $value)
+	foreach($arr_form_check as $key => $value)
 	{
 		if(!isset($value['public'])){	$value['public'] = 1;}
 
