@@ -222,14 +222,14 @@ function init_form()
 	}
 
 	//Can be removed later
-	global $wpdb;
+	/*global $wpdb;
 
 	$wpdb->get_results("SHOW TABLES LIKE '".$wpdb->base_prefix."form'");
 
 	if($wpdb->num_rows == 0)
 	{
 		activate_form();
-	}
+	}*/
 }
 
 function shortcode_form($atts)
