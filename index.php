@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.5.17
+Version: 11.5.18
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -247,7 +247,7 @@ function activate_form()
 
 	//Move data from old tables to new ones
 	#################################
-	/*$arr_copy = array();
+	$arr_copy = array();
 
 	$arr_copy[] = array(
 		'table_from' => "query",
@@ -330,7 +330,7 @@ function activate_form()
 		{
 			do_log($log_message, 'trash');
 		}
-	}*/
+	}
 	#################################
 
 	replace_user_meta(array('old' => 'answer_viewed', 'new' => 'meta_answer_viewed'));
