@@ -1174,6 +1174,11 @@ class mf_form
 				list($strFormTypeText, $str_select) = explode(":", $r->formTypeText);
 			}
 
+			else if(in_array($r->formTypeID, array(13))) //'custom_tag'
+			{
+				$strFormTypeText = "(".__("Custom tag", 'lang_form').")";
+			}
+
 			else
 			{
 				$strFormTypeText = $r->formTypeText;
@@ -2058,9 +2063,8 @@ class mf_form
 
 						else if($this->edit_mode == false)
 						{
-							$out .= show_textfield(array('name' => $strFormPrefix.'check', 'text' => __("This field should not visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
-
-							$out .= apply_filters('filter_form_after_fields', '')
+							$out .= show_textfield(array('name' => $strFormPrefix.'check', 'text' => __("This field should not visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"))
+							.apply_filters('filter_form_after_fields', '')
 							."<div class='form_button_container'>
 								<div class='form_button'>"
 									.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
