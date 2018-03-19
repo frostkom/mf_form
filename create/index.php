@@ -356,7 +356,7 @@ echo "<div class='wrap'>
 												@list($option_id, $option_value, $option_limit) = explode("|", $select_row, 3);
 
 												echo "<div class='option'>"
-													.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $option_id, 'placeholder' => __("#ID", 'lang_form'))) //input text is needed when using payment price as ID
+													.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $option_id, 'placeholder' => __("ID", 'lang_form'))) //input text is needed when using payment price as ID
 													.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $option_value, 'placeholder' => __("Enter option here", 'lang_form')))
 													.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $option_limit))
 												."</div>";

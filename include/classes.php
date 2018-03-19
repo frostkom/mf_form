@@ -673,11 +673,10 @@ class mf_form
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //formShowAnswers,
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
-			//$intFormShowAnswers = $r->formShowAnswers;
 			$intFormPaymentProvider = $r->formPaymentProvider;
 			$intFormPaymentAmount = $r->formPaymentAmount;
 
@@ -710,11 +709,10 @@ class mf_form
 		return $this->post_status;
 	}
 
-	/* Deprecated */
-	function get_form_array($data = array())
+	/*function get_form_array($data = array())
 	{
 		return $this->get_for_select($data);
-	}
+	}*/
 
 	function get_for_select($data = array())
 	{
@@ -892,13 +890,40 @@ class mf_form
 		return $intForm2TypeID > 0 ? true : false;
 	}
 
+	function set_meta($data)
+	{
+		global $wpdb;
+
+		if(!isset($data['key'])){		$data['key'] = '';}
+		if(!isset($data['value'])){		$data['value'] = '';}
+
+		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_meta SET answerID = '%d', metaKey = %s, metaValue = %s", $data['id'], $data['key'], $data['value']));
+	}
+
+	function get_meta($data)
+	{
+		global $wpdb;
+
+		return $wpdb->get_results($wpdb->prepare("SELECT metaKey, metaValue FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d'", $data['id']));
+	}
+
 	function get_answer_amount($data)
 	{
 		global $wpdb;
 
 		if(!isset($data['is_spam'])){		$data['is_spam'] = 0;}
+		if(!isset($data['meta_key'])){		$data['meta_key'] = '';}
+		if(!isset($data['meta_value'])){	$data['meta_value'] = '';}
 
-		$wpdb->get_results($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '%d' GROUP BY answerID", $data['form_id'], $data['is_spam']));
+		$query_join = $query_where = "";
+
+		if($data['meta_key'] != '')
+		{
+			$query_join .= " INNER JOIN ".$wpdb->base_prefix."form_answer_meta USING (answerID)";
+			$query_where .= " AND metaKey = '".esc_sql($data['meta_key'])."' AND metaValue = '".esc_sql($data['meta_value'])."'";
+		}
+
+		$wpdb->get_results($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID)".$query_join." WHERE formID = '%d' AND answerSpam = '%d'".$query_where." GROUP BY answerID", $data['form_id'], $data['is_spam']));
 
 		return $wpdb->num_rows;
 	}
@@ -1176,7 +1201,7 @@ class mf_form
 
 			else if(in_array($r->formTypeID, array(13))) //'custom_tag'
 			{
-				$strFormTypeText = "(".__("Custom tag", 'lang_form').")";
+				$strFormTypeText = "(".__("Custom Tag", 'lang_form').")";
 			}
 
 			else
@@ -3525,7 +3550,7 @@ class mf_form_table extends mf_list_table
 
 						$actions = array();
 
-						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intFormID=".$obj_form->id."'>".__("Show", 'lang_form')."</a>";
+						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intFormID=".$obj_form->id."'>".__("View", 'lang_form')."</a>";
 
 						$actions['export_csv'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportAction=csv", 'export_run')."'>".__("CSV", 'lang_form')."</a>";
 
@@ -3722,6 +3747,18 @@ class mf_answer_table extends mf_list_table
 					$actions['token'] = __("Token", 'lang_form').": ".$item['answerToken'];
 				}
 
+				$result = $obj_form->get_meta(array('id' => $intAnswerID));
+
+				if($wpdb->num_rows > 0)
+				{
+					$actions['meta_data'] = "<br><strong>".__("Meta Data", 'lang_form')."</strong><br>";
+
+					foreach($result as $r)
+					{
+						$actions['meta_data'] .= $r->metaKey.": ".$r->metaValue."<br>";
+					}
+				}
+
 				if($obj_form->has_payment == false)
 				{
 					$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
@@ -3731,7 +3768,7 @@ class mf_answer_table extends mf_list_table
 
 					if($strSentTo != '' && strlen($strSentTo) > 4)
 					{
-						$actions['sent_to'] = "<br><strong>".__("Sent to", 'lang_form')."</strong><br>".$strSentTo;
+						$actions['sent_to'] = "<br><strong>".__("Sent To", 'lang_form')."</strong><br>".$strSentTo;
 					}
 				}
 

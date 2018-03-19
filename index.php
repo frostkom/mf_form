@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.5.19
+Version: 11.5.20
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -153,6 +153,14 @@ function activate_form()
 		answerText TEXT,
 		KEY form2TypeID (form2TypeID),
 		KEY answerID (answerID)
+	) DEFAULT CHARSET=".$default_charset);
+
+	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer_meta (
+		answerID INT UNSIGNED DEFAULT NULL,
+		metaKey VARCHAR(40) DEFAULT NULL,
+		metaValue TEXT,
+		KEY answerID (answerID),
+		KEY metaKey (metaKey)
 	) DEFAULT CHARSET=".$default_charset);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer_email (
