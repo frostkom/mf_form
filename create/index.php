@@ -314,10 +314,11 @@ echo "<div class='wrap'>
 				$form_page_shortcodes .= ($form_page_shortcodes != '' ? ", " : "").sprintf(__("Document Types: %s, Products: %s, Product Name: %s, Yes Link: %s, No Link: %s", 'lang_forms'), "[doc_types]", "[products]", "[product]", "[link_yes]", "[link_no]");
 			}
 
-			if($intFormTypeID == '')
+			//Stop fetching the last one, this makes the chooseable fields to be filtered
+			/*if($intFormTypeID == '')
 			{
 				$intFormTypeID = $wpdb->get_var($wpdb->prepare("SELECT formTypeID FROM ".$wpdb->base_prefix."form2type WHERE userID = '%d' ORDER BY form2TypeCreated DESC", get_current_user_id()));
-			}
+			}*/
 
 			if($strFormTypeSelect == '')
 			{
@@ -335,7 +336,7 @@ echo "<div class='wrap'>
 						<form method='post' action='".admin_url("admin.php?page=mf_form%2Fcreate%2Findex.php&intFormID=".$obj_form->id)."' class='mf_form mf_settings inside'>
 							<div class='flex_flow'>
 								<div>"
-									.show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'class' => "fontawesome"))
+									.show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(array('form_type_id' => $intFormTypeID)), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'class' => "fontawesome"))
 								."</div>
 								<div>"
 									.show_textarea(array('name' => 'strFormTypeText', 'value' => $strFormTypeText, 'class' => "show_textarea hide", 'placeholder' => __("Text", 'lang_form')))
