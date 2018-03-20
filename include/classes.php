@@ -196,9 +196,9 @@ class mf_form
 
 			foreach($result as $r)
 			{
-				if($data['form_type_id'] != $r->formTypeID && in_array($r->formTypeCode, array('checkbox', 'radio_button'))) //1, 8
+				if($data['form_type_id'] != $r->formTypeID && in_array($r->formTypeCode, array('radio_button'))) //'checkbox', 1, 8
 				{
-					//Don't let new fields be old style checkbox or radio button
+					//Don't let new fields be old style radio button
 				}
 
 				else if(in_array($data['form_type_id'], array(10, 11, 16, 17)) && !in_array($r->formTypeCode, array('select', 'select_multiple', 'checkbox_multiple', 'radio_multiple')))
