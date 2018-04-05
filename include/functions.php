@@ -191,10 +191,15 @@ function init_form()
 	$plugin_include_url = plugin_dir_url(__FILE__);
 	$plugin_version = get_plugin_version(__FILE__);
 
-	//$setting_form_reload = get_option_or_default('setting_form_reload', 'yes');
-
 	mf_enqueue_style('style_form', $plugin_include_url."style.css", $plugin_version);
-	mf_enqueue_script('script_form', $plugin_include_url."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version); //, 'reload' => $setting_form_reload
+	mf_enqueue_script('script_form', $plugin_include_url."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version);
+
+	if(get_option('setting_replacement_form') > 0)
+	{
+		mf_enqueue_style('style_form_replacement', $plugin_include_url."style_replacement.css", $plugin_version);
+
+		add_filter('the_content', 'the_content_form');
+	}
 
 	$labels = array(
 		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
@@ -213,23 +218,6 @@ function init_form()
 	);
 
 	register_post_type('mf_form', $args);
-
-	if(get_option('setting_replacement_form') > 0)
-	{
-		mf_enqueue_style('style_form_replacement', $plugin_include_url."style_replacement.css", $plugin_version);
-
-		add_filter('the_content', 'the_content_form');
-	}
-
-	//Can be removed later
-	/*global $wpdb;
-
-	$wpdb->get_results("SHOW TABLES LIKE '".$wpdb->base_prefix."form'");
-
-	if($wpdb->num_rows == 0)
-	{
-		activate_form();
-	}*/
 }
 
 function shortcode_form($atts)
@@ -387,8 +375,6 @@ function settings_form()
 	$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
 	$arr_settings['setting_form_spam'] = __("Spam Filter", 'lang_form');
 
-	//$arr_settings['setting_form_reload'] = __("Reload page on form submission", 'lang_form');
-
 	$wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' LIMIT 0, 1");
 
 	if($wpdb->num_rows > 0)
@@ -479,14 +465,6 @@ function setting_replacement_form_text_callback()
 
 	echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Click here to send e-mail", 'lang_form')));
 }
-
-/*function setting_form_reload_callback()
-{
-	$setting_key = get_setting_key(__FUNCTION__);
-	$option = get_option($setting_key, 'yes');
-
-	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
-}*/
 
 function setting_form_clear_spam_callback()
 {

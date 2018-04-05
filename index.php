@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.5.22
+Version: 11.5.23
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -348,7 +348,8 @@ function activate_form()
 function deactivate_form()
 {
 	mf_uninstall_plugin(array(
-		'options' => array('setting_form_permission'),
+		'options' => array('setting_form_permission', 'setting_form_reload'),
+		'meta' => array('meta_answer_viewed'),
 		'tables' => array('form_check', 'form_type', 'form_spam', 'form_zipcode', 'query_check', 'query_type', 'query_zipcode'),
 	));
 }
@@ -357,8 +358,8 @@ function uninstall_form()
 {
 	mf_uninstall_plugin(array(
 		'uploads' => 'mf_form',
-		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_form_reload', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'), 
-		'meta' => array('meta_forms_viewed', 'meta_answer_viewed'),
+		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'), 
+		'meta' => array('meta_forms_viewed'),
 		'post_types' => array('mf_form'),
 		'tables' => array('form', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),
 	));
