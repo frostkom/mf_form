@@ -586,8 +586,7 @@ class mf_form
 					switch($strCheckCode)
 					{
 						case 'email':
-							if($intFormTypeID2 == 3)
-							//if($strFormTypeCode == 'input_field')
+							if($intFormTypeID2 == 3) //'input_field'
 							{
 								$this->email_visitor = $strAnswerText;
 							}
@@ -602,25 +601,15 @@ class mf_form
 
 					switch($strAnswerType)
 					{
-						/*case 'link_yes':
-
-						break;
-
-						case 'link_no':
-
-						break;*/
+						/*case 'link_yes':	break;
+						case 'link_no':		break;*/
 
 						case 'replace_link':
 							$this->send_to = $strAnswerEmail;
 						break;
 
-						/*case 'notify':
-
-						break;
-
-						case 'confirm':
-
-						break;*/
+						/*case 'notify':	break;
+						case 'confirm':		break;*/
 
 						case 'product':
 							$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content));
@@ -751,11 +740,6 @@ class mf_form
 
 		return $this->post_status;
 	}
-
-	/*function get_form_array($data = array())
-	{
-		return $this->get_for_select($data);
-	}*/
 
 	function get_for_select($data = array())
 	{
@@ -1444,8 +1428,6 @@ class mf_form
 	{
 		global $wpdb;
 
-		//$result = $wpdb->get_results($wpdb->prepare("SELECT spamID, spamText FROM ".$wpdb->base_prefix."form_spam WHERE (spamInclude = '' OR spamInclude = %s) AND (spamExclude = '' OR spamExclude != %s)", $data['code'], $data['code']));
-
 		$result = $this->get_spam_rules(array('type' => 'text', 'exclude' => $data['code']));
 
 		foreach($result as $key => $value)
@@ -1993,7 +1975,7 @@ class mf_form
 
 	/*function process_submit_fallback()
 	{
-		error_log("Submit Fallback: ".isset($_POST['btnFormSubmit'])." || ".isset($_POST['_wpnonce'])." && ".wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id)." (".var_export($this, true).", ".var_export($_REQUEST, true).")");
+		error_log("Submit Fallback: ".isset($_POST['btnFormSubmit'])." || ".isset($_POST['_wpnonce'])." (".var_export($this, true).", ".var_export($_REQUEST, true).")");
 	}*/
 
 	function get_form($data = array())
@@ -2044,13 +2026,6 @@ class mf_form
 
 					else if($intFormAnswerURL > 0)
 					{
-						//Switch to temp site
-						####################
-						/*$wpdbobj = clone $wpdb;
-						$wpdb->blogid = $blog_id;
-						$wpdb->set_prefix($wpdb->base_prefix);*/
-						####################
-
 						switch_to_blog($blog_id);
 
 						if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
@@ -2068,11 +2043,6 @@ class mf_form
 						}
 
 						restore_current_blog();
-
-						//Switch back to orig site
-						###################
-						//$wpdb = clone $wpdbobj;
-						###################
 					}
 
 					else
@@ -2148,7 +2118,6 @@ class mf_form
 
 								$out .= "</div>"
 								.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
-								//.wp_nonce_field('form_submit_'.$this->id, '_wpnonce', true, false)
 							."</div>";
 						}
 
@@ -2187,12 +2156,12 @@ class mf_form
 		{
 			$this->dup_ip = $this->check_if_duplicate();
 
-			if(isset($_POST['btnFormSubmit']) && $this->is_correct_form($data)) // && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id)
+			if(isset($_POST['btnFormSubmit']) && $this->is_correct_form($data))
 			{
 				$out .= $this->process_submit();
 			}
 
-			/*else if(isset($_POST['btnFormSubmit']) || isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$this->id))
+			/*else if(isset($_POST['btnFormSubmit']))
 			{
 				$this->process_submit_fallback();
 
@@ -2390,26 +2359,7 @@ class mf_form_payment
 		$this->orderid = $data['orderid'];
 		$this->test = $data['test'];
 
-		/*switch($this->provider)
-		{
-			case 1:
-				$out = $this->process_passthru_dibs();
-			break;
-
-			case 2:
-				$out = $this->process_passthru_skrill();
-			break;
-
-			case 3:
-				$out = $this->process_passthru_paypal();
-			break;
-
-			case 4:
-				$out = $this->process_passthru_billmate();
-			break;
-		}*/
-
-		$out = apply_filters('form_process_passthru', $out, $this);
+		$out = apply_filters('form_process_passthru', '', $this);
 
 		if($this->provider > 0 && $out == '')
 		{
@@ -2419,310 +2369,6 @@ class mf_form_payment
 		return $out;
 		exit;
 	}
-
-	/*function process_passthru_dibs()
-	{
-		global $wpdb;
-
-		$out = "";
-
-		if(!($this->currency > 0)){	$this->currency = 752;}
-
-		$instance = array();
-
-		$instance['amount'] = $this->amount * 100;
-		$instance['orderid'] = $this->orderid;
-		$instance['test'] = $this->test;
-
-		$hmac = $this->hmac;
-		$instance['merchant'] = $this->merchant;
-
-		$instance['currency'] = $this->currency;
-		$instance['paytype'] = "MC,VISA,MTRO,DIN,AMEX,DK,V-DK,ELEC"; //FFK,JCB
-		$instance['language'] = get_bloginfo('language');
-
-		$instance['acceptreturnurl'] = $this->base_callback_url."?accept";
-		$instance['callbackurl'] = $this->base_callback_url."?callback";
-		$instance['cancelreturnurl'] = $this->base_callback_url."?cancel";
-
-		$instance['capturenow'] = 1;
-		$dibs_action = "https://sat1.dibspayment.com/dibspaymentwindow/entrypoint";
-
-		$out .= "<form name='form_payment' method='post' action='".$dibs_action."'>
-			<input type='hidden' name='acceptreturnurl' value='".$instance['acceptreturnurl']."'>
-			<input type='hidden' name='amount' value='".$instance['amount']."'>
-			<input type='hidden' name='callbackurl' value='".$instance['callbackurl']."'>
-			<input type='hidden' name='cancelreturnurl' value='".$instance['cancelreturnurl']."'>
-			<input type='hidden' name='currency' value='".$instance['currency']."'>
-			<input type='hidden' name='language' value='".$instance['language']."'>
-			<input type='hidden' name='merchant' value='".$instance['merchant']."'>
-			<input type='hidden' name='orderid' value='".$instance['orderid']."'>
-			<input type='hidden' name='paytype' value='".$instance['paytype']."'>";
-
-			if($instance['test'] == 1)
-			{
-				$out .= "<input type='hidden' name='test' value='".$instance['test']."'>";
-			}
-
-			else
-			{
-				unset($instance['test']);
-			}
-
-			if($instance['capturenow'] == 1)
-			{
-				$out .= "<input type='hidden' name='capturenow' value='".$instance['capturenow']."'>";
-			}
-
-			else
-			{
-				unset($instance['capturenow']);
-			}
-
-			//Calculate HMAC
-			########
-			$k = hextostr($hmac);
-
-			$string = get_hmac_prepared_string($instance);
-
-			$instance['mac'] = hash_hmac("sha256", $string, $k);
-
-			$out .= "<input type='hidden' name='MAC' value='".$instance['mac']."' rel='".$string."'>";
-			########
-
-		$out .= "</form>";
-
-		if(isset($instance['test']) && $instance['test'] == 1)
-		{
-			$out .= "<a href='http://tech.dibspayment.com/toolbox/test_information_cards'>".__("See DIBS test info", 'lang_form')."</a><br>
-			<button type='button' onclick='document.form_payment.submit();'>".__("Send in test mode (No money will be charged)", 'lang_form')."</button>";
-		}
-
-		else
-		{
-			$out .= "<script>document.form_payment.submit();</script>";
-		}
-
-		$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."102: ".__("Sent to payment", 'lang_form')."' WHERE answerID = '".$this->orderid."' AND form2TypeID = '0' AND answerText LIKE '10%'");
-
-		return $out;
-	}
-
-	function save_token_with_answer_id()
-	{
-		global $wpdb;
-
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerToken = %s WHERE answerID = '%d'", urldecode($this->token), $this->orderid));
-	}
-
-	// developer.paypal.com/webapps/developer/docs/classic/express-checkout/integration-guide/ECCustomizing/
-	// developer.paypal.com/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/
-	function process_passthru_paypal()
-	{
-		global $wpdb;
-
-		include_once("lib/PayPal.php");
-
-		$out = "";
-
-		//$PayPalMode = $this->test == 1 ? 'sandbox' : 'live';
-		$paypalmode = $this->test == 1 ? '.sandbox' : '';
-
-		$PayPalReturnURL = $this->base_callback_url."?accept";
-		$PayPalCancelURL = $this->base_callback_url."?cancel";
-
-		$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "last"));
-
-		//Parameters for SetExpressCheckout, which will be sent to PayPal
-		$padata = '&METHOD=SetExpressCheckout'
-			.'&RETURNURL='.urlencode($PayPalReturnURL)
-			.'&CANCELURL='.urlencode($PayPalCancelURL)
-			.'&PAYMENTREQUEST_0_PAYMENTACTION='.urlencode("SALE")
-			//.'&L_PAYMENTREQUEST_0_AMT0='.urlencode($this->amount)
-			.'&NOSHIPPING=0' //set 1 to hide buyer's shipping address, in-case products that does not require shipping
-			//.'&PAYMENTREQUEST_0_ITEMAMT='.urlencode($this->amount)
-			.'&PAYMENTREQUEST_0_AMT='.urlencode($this->amount)
-			//.'&L_PAYMENTREQUEST_0_QTY0=1'
-			.'&PAYMENTREQUEST_0_CURRENCYCODE='.urlencode($this->currency)
-			//."&L_PAYMENTREQUEST_0_NAME=".urlencode($this->name)
-			."&PAYMENTREQUEST_0_DESC=".urlencode($this->name)
-			."&LANDINGPAGE=Billing" //Billing / Login
-			.'&LOCALECODE='.$this->language; //PayPal pages to match the language on your website.
-			//.'&LOGOIMG='."http://". //site logo
-			//.'&CARTBORDERCOLOR=FFFFFF'. //border color of cart
-			//.'&ALLOWNOTE=1';
-
-		//We need to execute the "SetExpressCheckOut" method to obtain paypal token
-		$httpParsedResponseAr = $this->PPHttpPost('SetExpressCheckout', $padata, $this->merchant, $this->password, $this->hmac); //, $PayPalMode
-
-		//Respond according to message we receive from Paypal
-		if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
-		{
-			echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
-
-			$this->token = $httpParsedResponseAr["TOKEN"];
-
-			$this->action = "https://www".$paypalmode.".paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=".$this->token;
-
-			$this->save_token_with_answer_id();
-
-			mf_redirect($this->action);
-		}
-
-		else
-		{
-			$out .= "<div class='error'>
-				<p>Passthru: ".urldecode($httpParsedResponseAr["L_LONGMESSAGE0"])."</p>
-				<p>".$padata."</p>
-				<p>".var_export($httpParsedResponseAr, true)."</p>
-			</div>";
-		}
-
-		return $out;
-	}
-
-	function process_passthru_skrill()
-	{
-		$out = "";
-
-		if($this->currency == ''){	$this->currency = "USD";}
-
-		$instance = array();
-
-		$this->action = "https://pay.skrill.com";
-		$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "first"));
-
-		$this->sid = get_url_content($this->action."/?pay_to_email=".$this->merchant."&amount=".$this->amount."&currency=".$this->currency."&language=".$this->language."&prepare_only=1");
-
-		$transaction_id = $this->prefix.$this->orderid;
-
-		$out .= "<form name='form_payment' action='".$this->action."' method='post'>
-			<input type='hidden' name='session_ID' value='".$this->sid."'>
-			<input type='hidden' name='pay_to_email' value='".$this->merchant."'>
-			<input type='hidden' name='recipient_description' value='".get_bloginfo('name')."'>
-			<input type='hidden' name='transaction_id' value='".$transaction_id."'>
-			<input type='hidden' name='return_url' value='".$this->base_callback_url."?accept'>
-			<input type='hidden' name='cancel_url' value='".$this->base_callback_url."?cancel&transaction_id=".$transaction_id."'>
-			<input type='hidden' name='status_url' value='".$this->base_callback_url."?callback'>
-			<input type='hidden' name='language' value='".$this->language."'>
-			<input type='hidden' name='amount' value='".$this->amount."'>
-			<input type='hidden' name='currency' value='".$this->currency."'>
-		</form>";
-
-		if(isset($this->test) && $this->test == 1)
-		{
-			$out .= "<button type='button' onclick='document.form_payment.submit();'>".__("Send in test mode (No money will be charged)", 'lang_form')."</button>";
-		}
-
-		else
-		{
-			$out .= "<script>document.form_payment.submit();</script>";
-		}
-
-		return $out;
-	}
-
-	// developer.billmate.se/api-integration
-	function process_passthru_billmate()
-	{
-		global $error_text;
-
-		include_once("lib/Billmate.php");
-
-		$out = "";
-
-		if($this->currency == ''){	$this->currency = "USD";}
-
-		$transaction_id = str_replace("_", "", $this->prefix).$this->orderid; //Billmate cannot handle anything but letters and numbers
-
-		$this->language = get_site_language(array('language' => get_bloginfo('language'), 'type' => "first"));
-		$this->country = get_site_language(array('language' => get_bloginfo('language'), 'type' => "last"));
-
-		define("BILLMATE_SERVER", "2.1.6");
-		define("BILLMATE_CLIENT", "Pluginname:BillMate:1.0");
-		define("BILLMATE_LANGUAGE", $this->language);
-
-		$bm = new BillMate($this->merchant, $this->hmac, true, $this->test, false);
-		$values = array();
-
-		$values["PaymentData"] = array(
-			"method" => 8, //1=Invoice Factoring, 2=Invoice Service, 4=Invoice Part Payment, 8=Card, 16=Bank and 32=Cash (Receipt)
-			//"paymentplanid" => "",
-			"currency" => $this->currency,
-			"language" => $this->language,
-			"country" => $this->country,
-			"autoactivate" => 0,
-			"orderid" => $transaction_id,
-			//"logo" => "Logo2.jpg",
-		);
-
-		$values["Card"] = array(
-			//"promptname" => "",
-			//"3dsecure" => "",
-			//"recurring" => "",
-			//"recurringnr" => "",
-			"accepturl" => $this->base_callback_url."?accept",
-			"cancelurl" => $this->base_callback_url."?cancel&transaction_id=".$transaction_id,
-			//"returnmethod" => "", //POST/GET
-			"callbackurl" => $this->base_callback_url."?callback",
-		);
-
-		$amount_incl_tax = $this->amount * 100;
-		$amount_excl_tax = $amount_incl_tax * .8;
-		$amount_tax = $amount_incl_tax * .2;
-
-		$values["Articles"][0] = array(
-				"artnr" => $transaction_id,
-				"title" => $this->name,
-				"quantity" => 1,
-				"aprice" => $amount_excl_tax,
-				"taxrate" => 25,
-				"discount" => 0,
-				"withouttax" => $amount_excl_tax,
-		);
-
-		$values["Cart"] = array(
-			//"Handling" => array(
-				//"withouttax" => "1000",
-				//"taxrate" => "25"
-			//),
-			//"Shipping" => array(
-				//"withouttax" => "3000",
-				//"taxrate" => "25"
-			//),
-			"Total" => array(
-				"withouttax" => $amount_excl_tax,
-				"tax" => $amount_tax,
-				"rounding" => 0,
-				"withtax" => $amount_incl_tax,
-			)
-		);
-
-		$result = $bm->addPayment($values);
-
-		if(isset($result['message']) && $result['message'] != '')
-		{
-			$error_text = $result['message'];
-
-			$out .= get_notification();
-		}
-
-		else if(isset($result['url']) && $result['url'] != '')
-		{
-			echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
-
-			$this->action = $result['url'];
-
-			mf_redirect($this->action, array(), 'get');
-		}
-
-		else
-		{
-			$out .= "<br><br>Billmate->addPayment() returned: ".var_export($bm, true)."<br><br>".var_export($result, true)."<br><br>---------------";
-		}
-
-		return $out;
-	}*/
 
 	function confirm_cancel()
 	{
@@ -2758,13 +2404,6 @@ class mf_form_payment
 
 			if($intFormAnswerURL > 0)
 			{
-				//Switch to temp site
-				####################
-				/*$wpdbobj = clone $wpdb;
-				$wpdb->blogid = $blog_id;
-				$wpdb->set_prefix($wpdb->base_prefix);*/
-				####################
-
 				switch_to_blog($blog_id);
 
 				if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
@@ -2785,11 +2424,6 @@ class mf_form_payment
 				}*/
 
 				restore_current_blog();
-
-				//Switch back to orig site
-				###################
-				//$wpdb = clone $wpdbobj;
-				###################
 			}
 
 			else
@@ -2855,28 +2489,8 @@ class mf_form_payment
 
 		$this->amount = check_var('amount', 'int');
 
-		$out = "<p>".__("Processing", 'lang_form')."&hellip;</p>";
-
-		/*switch($this->provider)
-		{
-			case 1:
-				$out .= $this->process_callback_dibs();
-			break;
-
-			case 2:
-				$out .= $this->process_callback_skrill();
-			break;
-
-			case 3:
-				$out .= $this->process_callback_paypal();
-			break;
-
-			case 4:
-				$out .= $this->process_callback_billmate();
-			break;
-		}*/
-
-		$out = apply_filters('form_process_callback', $out, $this);
+		$out = "<p>".__("Processing", 'lang_form')."&hellip;</p>"
+		.apply_filters('form_process_callback', '', $this);
 
 		if($this->provider > 0 && $out == '')
 		{
@@ -2885,331 +2499,6 @@ class mf_form_payment
 
 		return $out;
 	}
-
-	/*function process_callback_dibs()
-	{
-		global $wpdb;
-
-		$out = "";
-
-		$this->answer_id = check_var('orderid', 'char');
-
-		$hmac = $this->hmac;
-		$instance['merchant'] = $this->merchant;
-
-		if($this->is_accept)
-		{
-			$out .= $this->confirm_accept();
-		}
-
-		else if($this->is_callback)
-		{
-			$k = hextostr($hmac);
-
-			if(isset($_POST['mobilelib']) && $_POST['mobilelib'] == "android")
-			{
-				$arr_from_post = array('lang', 'orderid', 'merchantid');
-
-				$post_selection = array();
-
-				foreach($arr_from_post as $str_from_post)
-				{
-					$post_selection[$str_from_post] = $_POST[$str_from_post];
-				}
-
-				$string = get_hmac_prepared_string($post_selection);
-			}
-
-			else
-			{
-				$string = get_hmac_prepared_string($_POST);
-			}
-
-			$mac = hash_hmac("sha256", $string, $k);
-			$is_valid_mac = isset($_POST['MAC']) && $_POST['MAC'] == $mac;
-
-			$arr_confirm_type = explode("_", $this->answer_id);
-
-			$strConfirmType = $arr_confirm_type[0];
-			$strConfirmTypeID = $arr_confirm_type[1];
-
-			if($is_valid_mac)
-			{
-				$this->confirm_paid(__("Payment done", 'lang_form')." (".($this->amount / 100).")");
-			}
-
-			else
-			{
-				$this->confirm_error(__("Payment done", 'lang_form')." (".__("But could not verify", 'lang_form').", ".$mac." != ".$_POST['MAC'].")");
-			}
-		}
-
-		else if($this->is_cancel)
-		{
-			$this->confirm_cancel();
-		}
-
-		return $out;
-	}
-
-	function get_info_from_token()
-	{
-		global $wpdb;
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formPaymentAmount FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) WHERE answerToken = %s", $this->token));
-		$r = $result[0];
-		$this->answer_id = $r->answerID;
-		$intFormPaymentAmount = $r->formPaymentAmount;
-
-		$this->amount = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intFormPaymentAmount));
-	}
-
-	function process_callback_paypal()
-	{
-		global $wpdb;
-
-		include_once("lib/PayPal.php");
-
-		$out = "";
-
-		$this->token = check_var('token', 'char');
-		$payer_id = check_var('PayerID', 'char');
-
-		$this->get_info_from_token();
-
-		if($this->is_cancel)
-		{
-			$this->confirm_cancel();
-		}
-
-		else if($this->is_accept)
-		{
-			$padata = '&TOKEN='.urlencode($this->token).
-				'&PAYERID='.urlencode($payer_id).
-				'&PAYMENTREQUEST_0_PAYMENTACTION='.urlencode("SALE").
-				//'&L_PAYMENTREQUEST_0_AMT0='.urlencode($this->amount).
-				//'&PAYMENTREQUEST_0_ITEMAMT='.urlencode($this->amount).
-				'&PAYMENTREQUEST_0_AMT='.urlencode($this->amount).
-				//'&L_PAYMENTREQUEST_0_QTY0=1'.
-				'&PAYMENTREQUEST_0_CURRENCYCODE='.urlencode($this->currency);
-
-			//We need to execute the "DoExpressCheckoutPayment" at this point to Receive payment from user.
-			$httpParsedResponseAr = $this->PPHttpPost('DoExpressCheckoutPayment', $padata, $this->merchant, $this->password, $this->hmac); //, $PayPalMode
-
-			//Check if everything went ok..
-			if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
-			{
-				$out .= $this->confirm_accept();
-
-				//if('Completed' == $httpParsedResponseAr["PAYMENTINFO_0_PAYMENTSTATUS"])
-				//{
-					//$out .= "<div class='updated'><p>Payment Received! Your product will be sent to you very soon!</p></div>";
-				//}
-
-				//else if('Pending' == $httpParsedResponseAr["PAYMENTINFO_0_PAYMENTSTATUS"])
-				//{
-					//$out .= "<div class='error'>
-						//<p>Transaction Complete, but payment is still pending!</p>
-						//<p>You need to manually authorize this payment in your <a target='_new' href='//paypal.com'>Paypal Account</a></p>
-					//</div>";
-				//}
-
-				// GetTransactionDetails requires a Transaction ID, and GetExpressCheckoutDetails requires Token returned by SetExpressCheckOut
-				$padata = '&TOKEN='.urlencode($this->token);
-
-				$httpParsedResponseAr = $this->PPHttpPost('GetExpressCheckoutDetails', $padata, $this->merchant, $this->password, $this->hmac); //, $PayPalMode
-
-				if("SUCCESS" == strtoupper($httpParsedResponseAr["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($httpParsedResponseAr["ACK"]))
-				{
-					$this->confirm_paid(__("Payment done", 'lang_form')." (".$this->amount.")");
-				}
-
-				else
-				{
-					$this->confirm_error(__("Payment done", 'lang_form')." (".__("But could not verify", 'lang_form').", Success - ".$this->token.")");
-
-					//$out .= "<div class='error'>
-						//<p>GetTransactionDetails failed: ".urldecode($httpParsedResponseAr["L_LONGMESSAGE0"])."</p>
-						//<p>".var_export($httpParsedResponseAr, true)."</p>
-					//</div>";
-				}
-			}
-
-			else
-			{
-				$this->confirm_error(__("Payment done", 'lang_form')." (".__("But could not verify", 'lang_form').", ".$this->token.")");
-
-				//$out .= "<div class='error'>
-					//<p>Callback: ".urldecode($httpParsedResponseAr["L_LONGMESSAGE0"])."</p>
-					//<p>".$padata."</p>
-					//<p>".var_export($httpParsedResponseAr, true)."</p>
-				//</div>";
-			}
-		}
-
-		return $out;
-	}
-
-	function process_callback_skrill()
-	{
-		global $wpdb;
-
-		$out = "";
-
-		$transaction_id = check_var('transaction_id', 'char');
-		$this->answer_id = str_replace($this->prefix, "", $transaction_id);
-
-		if($this->is_accept)
-		{
-			$out .= $this->confirm_accept();
-		}
-
-		else if($this->is_callback)
-		{
-			//pay_to_email, pay_from_email, amount
-
-			$md5sig = check_var('md5sig', 'char');
-			$currency = check_var('currency', 'char');
-
-			$merchant_id = check_var('merchant_id', 'char');
-			$mb_amount = check_var('mb_amount', 'char');
-			$mb_currency = check_var('mb_currency', 'char');
-			$status = check_var('status', 'char');
-
-			$md5calc = strtoupper(md5($merchant_id.$transaction_id.strtoupper(md5($this->hmac)).$mb_amount.$mb_currency.$status));
-
-			$is_valid_mac = $md5sig == $md5calc;
-
-			$payment_status_text = "";
-
-			switch($status)
-			{
-				case -2:		$payment_status_text = __("Failed", 'lang_form');			break;
-				case 2:			$payment_status_text = __("Processed", 'lang_form');		break;
-				case 0:			$payment_status_text = __("Pending", 'lang_form');			break;
-				case -1:		$payment_status_text = __("Cancelled", 'lang_form');		break;
-			}
-
-			if($is_valid_mac)
-			{
-				$this->confirm_paid($status.": ".$payment_status_text." (".$this->amount." ".$currency.")");
-			}
-
-			else
-			{
-				$this->confirm_error($status.": ".$payment_status_text." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$this->amount." ".$currency.")");
-			}
-		}
-
-		else if($this->is_cancel)
-		{
-			$this->confirm_cancel();
-		}
-
-		return $out;
-	}
-
-	function process_callback_billmate()
-	{
-		global $wpdb;
-
-		$out = "";
-
-		$arr_example = array("credentials": {
-			"hash": "26042c7bc65e106d1d0276a72edc4b1d00e8237155f0de52b4a3b2391c7f6a6bad828ecbb0533b04782e816341ff376943719d6de7519e3384379292ed2d9d22"
-		},
-		"data": {
-			"number": "1043",
-			"status": "Paid",
-			"url": "https:\/\/invoice.billmate.se\/20170914150722041959bac84c65edf",
-			"orderid": "176",
-			"carddata": {
-				"maskedcardno": "xxxxxxxxxxxx5187",
-				"cardholdername": "",
-				"expirymonth": "04",
-				"expiryyear": "20"
-			}
-		});
-
-		$result_credentials = isset($_POST['credentials']) ? json_decode(stripslashes($_POST['credentials']), true) : array();
-		$result_data = isset($_POST['data']) ? json_decode(stripslashes($_POST['data']), true) : array();
-
-		//echo "POST: ".var_export($_POST, true)."<br>"
-		//."Data: ".var_export($result_data, true)."<br>"
-		//."Echo: ".$result_data."<br>"
-		//."Decode: ".var_export(json_decode($result_data, true), true)."<br>"
-		//."Order ID: ".$result_data['orderid'];
-
-		$hash = $result_credentials['hash'];
-		$status = $result_data['status'];
-		$orderid = $result_data['orderid'];
-
-		$this->answer_id = str_replace(str_replace("_", "", $this->prefix), "", $orderid);
-
-		$is_verified = hash_hmac('sha512', json_encode($result_data), $this->hmac) == $hash;
-
-		//do_log("Verified: ".$is_verified." (".hash_hmac('sha512', json_encode($result_data), $this->hmac)." == ".$hash.")");
-
-		if($is_verified)
-		{
-			if($this->is_accept)
-			{
-				$out .= $this->confirm_accept();
-			}
-
-			else if($this->is_callback)
-			{
-				do_log("Billmate callback: ".var_export($_REQUEST, true));
-
-				$payment_status_text = "";
-
-				switch($status)
-				{
-					case 'Paid':		$payment_status_text = __("Paid", 'lang_form');			break;
-					case 'Created':		$payment_status_text = __("Created", 'lang_form');		break;
-					case 'Pending':		$payment_status_text = __("Pending", 'lang_form');		break;
-					case 'Failed':		$payment_status_text = __("Failed", 'lang_form');		break;
-					case 'Cancelled':	$payment_status_text = __("Cancelled", 'lang_form');	break;
-				}
-
-				if($is_verified)
-				{
-					switch($status)
-					{
-						case 'Paid':
-						case 'Created':
-							//Do nothing here
-						break;
-
-						case 'Pending':
-						case 'Failed':
-						case 'Cancelled':
-							error_log("What should I do? I was given the callback but it sent me (".var_export($result, true).")");
-						break;
-					}
-
-					$this->confirm_paid($status." (".$orderid.")");
-				}
-
-				else
-				{
-					$this->confirm_error($status." (".__("But could not verify", 'lang_form').", ".$md5sig." != ".$md5calc.") (".$orderid.")");
-				}
-			}
-
-			else if($this->is_cancel)
-			{
-				$this->confirm_cancel();
-			}
-		}
-
-		else
-		{
-			error_log(__("Not verified correctly", 'lang_form')." (".var_export($_REQUEST, true).")");
-		}
-
-		return $out;
-	}*/
 }
 
 class mf_form_export extends mf_export
@@ -3593,11 +2882,11 @@ class mf_form_table extends mf_list_table
 
 						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intFormID=".$obj_form->id."'>".__("View", 'lang_form')."</a>";
 
-						$actions['export_csv'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportAction=csv", 'export_run')."'>".__("CSV", 'lang_form')."</a>";
+						$actions['export_csv'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv", 'export_run')."'>".__("CSV", 'lang_form')."</a>";
 
 						if(is_plugin_active("mf_phpexcel/index.php"))
 						{
-							$actions['export_xls'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportAction=xls", 'export_run')."'>".__("XLS", 'lang_form')."</a>";
+							$actions['export_xls'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls", 'export_run')."'>".__("XLS", 'lang_form')."</a>";
 						}
 
 						$out .= $query_answers.($query_spam > 0 ? " <span class='grey'>(".$query_spam.")</span>" : "")
