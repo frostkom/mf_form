@@ -21,19 +21,6 @@ class mf_form
 		}
 	}
 
-	/*function post_updated($post_id, $post_after, $post_before)
-	{
-		$arr_include = array('mf_form');
-
-		if(isset($post_after) && in_array($post_after->post_type, $arr_include) && ($post_after->post_status == 'publish' || $post_before->post_status == 'publish') && class_exists('mf_cache')) // && $post_after != $post_before //post_modified is different so point in checking for changes this way
-		{
-			$shortcode = "[mf_form id=".$post_id."]";
-
-			$obj_cache = new mf_cache();
-			$obj_cache->shortcode_updated($shortcode);
-		}
-	}*/
-
 	/*function get_user_reminders($array)
 	{
 		$user_id = $array['user_id'];
