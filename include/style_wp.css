@@ -262,20 +262,26 @@
 		overflow: hidden;
 	}
 
-		.flot_pie
+		.flot_wrapper > div
 		{
 			float: left;
-			height: 300px;
-			margin-bottom: 20px;
 			width: 400px;
 		}
 
-			.pieLabel
+			.flot_pie
 			{
-				background: #333;
-				background: rgba(0, 0, 0, .5);
-				border-radius: .3em;
-				color: #fff;
-				padding: .5em;
+				float: left;
+				height: 300px;
+				margin-bottom: 20px;
+				width: 100%;
 			}
+
+				.pieLabel
+				{
+					background: #333;
+					background: rgba(0, 0, 0, .5);
+					border-radius: .3em;
+					color: #fff;
+					padding: .5em;
+				}
 }

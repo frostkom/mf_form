@@ -2189,16 +2189,16 @@ class mf_form
 
 					foreach($resultPie as $r)
 					{
-						$intForm2TypeID2 = $r->form2TypeID;
+						$intForm2TypeID = $r->form2TypeID;
 						$intFormTypeID = $r->formTypeID;
-						$strFormTypeText2 = $r->formTypeText;
-						$strForm2TypeOrder2 = $r->form2TypeOrder;
+						$strFormTypeText = $r->formTypeText;
+						$strForm2TypeOrder = $r->form2TypeOrder;
 
 						switch($intFormTypeID)
 						{
 							case 1:
 							//case 'checkbox':
-								if($order_temp != '' && $strForm2TypeOrder2 != ($order_temp + 1))
+								if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
 								{
 									$i++;
 								}
@@ -2206,7 +2206,7 @@ class mf_form
 
 							case 8:
 							//case 'radio_button':
-								if($order_temp != '' && $strForm2TypeOrder2 != ($order_temp + 1))
+								if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
 								{
 									$i++;
 								}
@@ -2220,27 +2220,27 @@ class mf_form
 
 						if(!isset($data[$i])){	$data[$i] = "";}
 
-						$order_temp = $strForm2TypeOrder2;
+						$order_temp = $strForm2TypeOrder;
 
 						switch($intFormTypeID)
 						{
 							case 1:
 							//case 'checkbox':
-								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
+								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
 
-								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText2, 'limit' => 20))."', data: ".$intAnswerCount."}";
+								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
 
 							case 8:
 							//case 'radio_button':
-								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID2));
+								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
 
-								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText2, 'limit' => 20))."', data: ".$intAnswerCount."}";
+								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
 
 							case 10:
 							//case 'select':
-								list($strFormTypeText2, $strFormTypeSelect) = explode(":", $strFormTypeText2);
+								list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
 								$arr_options = explode(",", $strFormTypeSelect);
 
 								foreach($arr_options as $str_option)
@@ -2249,7 +2249,7 @@ class mf_form
 
 									if($arr_option[0] > 0 && $arr_option[1] != '')
 									{
-										$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID2, $arr_option[0]));
+										$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $arr_option[0]));
 
 										if($intAnswerCount > 0)
 										{
@@ -2265,7 +2265,11 @@ class mf_form
 
 						foreach($data as $key => $value)
 						{
-							$out .= "<div id='flot_pie_".$key."' class='flot_pie'></div>";
+							$out .= "<div>" //<h3>".$strFormTypeText."</h3>
+								//."<h3>".$strFormTypeText."</h3>
+								."<div id='flot_pie_".$key."' class='flot_pie'></div>
+							</div>";
+
 							$js_out .= "$.plot($('#flot_pie_".$key."'), [".$value."],
 							{
 								series:
@@ -2949,11 +2953,10 @@ class mf_answer_table extends mf_list_table
 
 		$obj_form->answer_column = 0;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id)); //formTypeID,
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id));
 
 		foreach($result as $r)
 		{
-			//$intFormTypeID = $r->formTypeID;
 			$strFormTypeCode = $r->formTypeCode;
 			$obj_form->label = $r->formTypeText;
 			$intForm2TypeID2 = $r->form2TypeID;
@@ -3160,12 +3163,11 @@ class mf_answer_table extends mf_list_table
 				{
 					$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 
-					$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name)); //, formTypeID
+					$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
 
 					foreach($resultText as $r)
 					{
 						$intForm2TypeID = $r->form2TypeID;
-						//$intFormTypeID = $r->formTypeID;
 						$strFormTypeCode = $r->formTypeCode;
 						$obj_form->label = $r->formTypeText;
 						$strCheckCode = $r->checkCode;
