@@ -2183,7 +2183,7 @@ class mf_form
 					mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js", '1.1');
 
 					$js_out = $order_temp = "";
-					$data = array();
+					$arr_data_pie = array();
 
 					$i = 0;
 
@@ -2218,7 +2218,12 @@ class mf_form
 							break;
 						}
 
-						if(!isset($data[$i])){	$data[$i] = "";}
+						if(!isset($arr_data_pie[$i]))
+						{
+							$arr_data_pie[$i] = array(
+								'data' => '',
+							);
+						}
 
 						$order_temp = $strForm2TypeOrder;
 
@@ -2228,14 +2233,14 @@ class mf_form
 							//case 'checkbox':
 								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
 
-								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
+								$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
 
 							case 8:
 							//case 'radio_button':
 								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
 
-								$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
+								$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
 
 							case 10:
@@ -2253,24 +2258,26 @@ class mf_form
 
 										if($intAnswerCount > 0)
 										{
-											$data[$i] .= ($data[$i] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_option[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
+											$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_option[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
 										}
 									}
 								}
 							break;
 						}
+
+						$arr_data_pie[$i]['label'] = $strFormTypeText;
 					}
 
 					$out .= "<div class='flot_wrapper'>";
 
-						foreach($data as $key => $value)
+						foreach($arr_data_pie as $key => $arr_value)
 						{
-							$out .= "<div>" //<h3>".$strFormTypeText."</h3>
-								//."<h3>".$strFormTypeText."</h3>
+							$out .= "<div>"
+								."<h3>".$arr_value['label']."</h3>"
 								."<div id='flot_pie_".$key."' class='flot_pie'></div>
 							</div>";
 
-							$js_out .= "$.plot($('#flot_pie_".$key."'), [".$value."],
+							$js_out .= "$.plot($('#flot_pie_".$key."'), [".$arr_value['data']."],
 							{
 								series:
 								{
