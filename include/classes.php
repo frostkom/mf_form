@@ -2695,7 +2695,7 @@ class mf_form_table extends mf_list_table
 			case 'post_title':
 				$strFormName = $item[$column_name];
 
-				$post_edit_url = IS_ADMIN ? "?page=mf_form/create/index.php&intFormID=".$obj_form->id : "#";
+				$post_edit_url = IS_ADMIN ? admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id) : "#";
 
 				$actions = array();
 
@@ -2713,7 +2713,7 @@ class mf_form_table extends mf_list_table
 						}
 					}
 
-					$actions['copy'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id, 'form_copy_'.$obj_form->id)."'>".__("Copy", 'lang_form')."</a>";
+					$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id), 'form_copy_'.$obj_form->id)."'>".__("Copy", 'lang_form')."</a>";
 
 					if($post_status == 'publish' && $obj_form->id > 0)
 					{
@@ -2878,13 +2878,13 @@ class mf_form_table extends mf_list_table
 
 						$actions = array();
 
-						$actions['show_answers'] = "<a href='?page=mf_form/answer/index.php&intFormID=".$obj_form->id."'>".__("View", 'lang_form')."</a>";
+						$actions['show_answers'] = "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>";
 
-						$actions['export_csv'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv", 'export_run')."'>".__("CSV", 'lang_form')."</a>";
+						$actions['export_csv'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run')."'>".__("CSV", 'lang_form')."</a>";
 
 						if(is_plugin_active("mf_phpexcel/index.php"))
 						{
-							$actions['export_xls'] = "<a href='".wp_nonce_url("?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls", 'export_run')."'>".__("XLS", 'lang_form')."</a>";
+							$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run')."'>".__("XLS", 'lang_form')."</a>";
 						}
 
 						$out .= $query_answers.($query_spam > 0 ? " <span class='grey'>(".$query_spam.")</span>" : "")

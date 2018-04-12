@@ -647,7 +647,7 @@ function menu_form()
 	$count_message = $count_forms > 0 ? get_count_answer_message() : "";
 
 	$menu_title = __("Forms", 'lang_form');
-	add_menu_page("", $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms');
+	add_menu_page("", $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms', 21);
 
 	$menu_title = __("List", 'lang_form');
 	add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_start);
