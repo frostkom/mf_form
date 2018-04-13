@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.6.1
+Version: 11.6.2
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -16,6 +16,8 @@ GitHub Plugin URI: frostkom/mf_form
 
 include_once("include/classes.php");
 include_once("include/functions.php");
+
+$obj_form = new mf_form();
 
 add_action('cron_base', 'activate_form', mt_rand(1, 10));
 add_action('cron_base', 'cron_form', mt_rand(1, 10));
@@ -30,6 +32,7 @@ if(is_admin())
 	register_uninstall_hook(__FILE__, 'uninstall_form');
 
 	add_action('admin_init', 'settings_form');
+	add_action('admin_init', array($obj_form, 'admin_init'), 0);
 	add_action('admin_menu', 'menu_form');
 	add_action('delete_post', 'delete_form');
 	add_action('deleted_user', 'deleted_user_form');
@@ -38,8 +41,13 @@ if(is_admin())
 	add_filter('get_shortcode_output', 'get_shortcode_output_form');
 	add_filter('get_shortcode_list', 'get_shortcode_list_form');
 
-	//$obj_form = new mf_form();
 	//add_filter('get_user_reminders', array($obj_form, 'get_user_reminders'), 10, 1);
+}
+
+else
+{
+	add_action('wp_head', array($obj_form, 'wp_head'), 0);
+	add_action('login_init', array($obj_form, 'login_init'));
 }
 
 add_shortcode('mf_form', 'shortcode_form');

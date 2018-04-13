@@ -21,6 +21,70 @@ class mf_form
 		}
 	}
 
+	function combined_head($load_replacement = false)
+	{
+		$plugin_include_url = plugin_dir_url(__FILE__);
+		$plugin_version = get_plugin_version(__FILE__);
+
+		mf_enqueue_style('style_form', $plugin_include_url."style.css", $plugin_version);
+		mf_enqueue_script('script_form', $plugin_include_url."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version);
+
+		if($load_replacement == true)
+		{
+			if(get_option('setting_replacement_form') > 0)
+			{
+				mf_enqueue_style('style_form_replacement', $plugin_include_url."style_replacement.css", $plugin_version);
+
+				add_filter('the_content', 'the_content_form');
+			}
+		}
+	}
+
+	function admin_init()
+	{
+		$this->combined_head();
+
+		global $pagenow;
+
+		if($pagenow == 'admin.php')
+		{
+			$page = check_var('page');
+			
+			$plugin_include_url = plugin_dir_url(__FILE__);
+			$plugin_version = get_plugin_version(__FILE__);
+			
+			if($page == 'mf_form/create/index.php')
+			{
+				mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
+			}
+
+			else
+			{
+				if($page == 'mf_form/create/index.php')
+				{
+					wp_enqueue_script('jquery-ui-sortable');
+					mf_enqueue_script('script_touch', $plugin_include_url."jquery.ui.touch-punch.min.js", '0.2.2');
+				}
+
+				if($page == 'mf_form/create/index.php' || $page == 'mf_form/answer/index.php')
+				{
+					mf_enqueue_style('style_forms_wp', $plugin_include_url."style_wp.css", $plugin_version);
+					mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
+				}
+			}
+		}
+	}
+
+	function login_init()
+	{
+		$this->combined_head(true);
+	}
+
+	function wp_head()
+	{
+		$this->combined_head(true);
+	}
+
 	/*function get_user_reminders($array)
 	{
 		$user_id = $array['user_id'];
@@ -2179,7 +2243,7 @@ class mf_form
 
 				if($rowsPie > 0)
 				{
-					mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js", '0.7');
+					mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js", '0.7'); //Should be placed in admin_init
 					mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js", '1.1');
 
 					$js_out = $order_temp = "";
