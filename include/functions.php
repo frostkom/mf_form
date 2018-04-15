@@ -2,8 +2,9 @@
 
 function get_site_language($data) //sv_SE, en_US etc.
 {
-	if(!isset($data['type'])){	$data['type'] = "";}
-	if(!isset($data['uc'])){	$data['uc'] = true;}
+	if(!isset($data['type'])){				$data['type'] = '';}
+	if(!isset($data['uc'])){				$data['uc'] = true;}
+	if(!isset($data['return_separator'])){	$data['return_separator'] = "_";}
 
 	if(preg_match("/\_/", $data['language']))
 	{
@@ -17,45 +18,46 @@ function get_site_language($data) //sv_SE, en_US etc.
 
 	$out = "";
 
-	if($data['type'] == "first")
+	switch($data['type'])
 	{
-		if(isset($arr_language[0]))
-		{
-			$out = $arr_language[0];
-
-			if($data['uc'] == true)
+		case 'first': //sv, en etc.
+			if(isset($arr_language[0]))
 			{
-				$out = strtoupper($out);
+				$out = $arr_language[0];
+
+				if($data['uc'] == true)
+				{
+					$out = strtoupper($out);
+				}
 			}
-		}
 
-		else
-		{
-			error_log("Wrong lang[0]: ".var_export($data, true));
-		}
-	}
-
-	else if($data['type'] == "last")
-	{
-		if(isset($arr_language[1]))
-		{
-			$out = $arr_language[1];
-
-			if($data['uc'] == true)
+			else
 			{
-				$out = strtoupper($out);
+				error_log("Wrong lang[0]: ".var_export($data, true));
 			}
-		}
+		break;
 
-		else
-		{
-			error_log("Wrong lang[1]: ".var_export($data, true));
-		}
-	}
+		case 'last': //SE, US etc.
+			if(isset($arr_language[1]))
+			{
+				$out = $arr_language[1];
 
-	else
-	{
-		$out = $data['language'];
+				if($data['uc'] == true)
+				{
+					$out = strtoupper($out);
+				}
+			}
+
+			else
+			{
+				error_log("Wrong lang[1]: ".var_export($data, true));
+			}
+		break;
+
+		default:
+			//$out = $data['language'];
+			$out = $arr_language[0].$data['return_separator'].$arr_language[1];
+		break;
 	}
 
 	return $out;

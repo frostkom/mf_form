@@ -53,7 +53,7 @@ class mf_form
 			$plugin_include_url = plugin_dir_url(__FILE__);
 			$plugin_version = get_plugin_version(__FILE__);
 			
-			if($page == 'mf_form/create/index.php')
+			if($page == 'mf_form/list/index.php')
 			{
 				mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
 			}
