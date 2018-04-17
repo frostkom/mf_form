@@ -63,7 +63,7 @@ class mf_form
 				if($page == 'mf_form/create/index.php')
 				{
 					wp_enqueue_script('jquery-ui-sortable');
-					mf_enqueue_script('script_touch', $plugin_include_url."jquery.ui.touch-punch.min.js", '0.2.2');
+					mf_enqueue_script('script_touch', $plugin_include_url."jquery.ui.touch-punch.min.js", $plugin_version);
 				}
 
 				if($page == 'mf_form/create/index.php' || $page == 'mf_form/answer/index.php')
@@ -400,7 +400,7 @@ class mf_form
 
 			if($rows > 0)
 			{
-				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentAmount";
+				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentAmount";
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -1403,8 +1403,6 @@ class mf_form
 
 				if($data['text'] != strip_tags($data['text']) || $string_decoded != strip_tags($string_decoded))
 				{
-					//error_log("Is spam (".$data['rule']."): ".var_export($data, true));
-
 					$this->is_spam = true;
 					$this->is_spam_id = $data['id'];
 				}
@@ -1421,8 +1419,6 @@ class mf_form
 				{
 					if(preg_match($reg_exp, $data['text']) || esc_sql($data['text']) != '' && preg_match($reg_exp, esc_sql($data['text'])))
 					{
-						//error_log("Is spam (".$data['rule']."): ".var_export($data, true));
-
 						$this->is_spam = true;
 						$this->is_spam_id = $data['id'];
 					}
@@ -1519,8 +1515,6 @@ class mf_form
 
 			if($wpdb->num_rows > 0)
 			{
-				//error_log(sprintf(__("The email %s has previously been marked as spam at least once (%s)", 'lang_form'), $data['text'], $wpdb->last_query));
-
 				$this->is_spam = true;
 				$this->is_spam_id = 6;
 			}
@@ -1662,7 +1656,7 @@ class mf_form
 		}
 	}
 
-	function send_transactional_email() //$data -> $this->mail_data
+	function send_transactional_email()
 	{
 		global $wpdb;
 
@@ -1825,6 +1819,11 @@ class mf_form
 						$strAnswerText_send = format_date($strAnswerText);
 					break;
 
+					//case 12:
+					case 'hidden_field':
+						$strAnswerText_send = '';
+					break;
+
 					//case 10:
 					case 'select':
 					//case 17:
@@ -1925,7 +1924,17 @@ class mf_form
 
 				if($this->label != '')
 				{
-					$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $this->label;
+					switch($strFormTypeCode)
+					{
+						//case 12:
+						case 'hidden_field':
+							unset($this->arr_email_content['fields'][$intForm2TypeID2]);
+						break;
+
+						default:
+							$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $this->label;
+						break;
+					}
 				}
 
 				if($strAnswerText != '')
@@ -1973,8 +1982,6 @@ class mf_form
 		{
 			if(check_var($this->prefix.'check') != '' && in_array('honeypot', $setting_form_spam))
 			{
-				//error_log("Is Honeypot");
-
 				$this->is_spam = true;
 				$this->is_spam_id = 7;
 			}
@@ -2023,11 +2030,6 @@ class mf_form
 
 		return $out;
 	}
-
-	/*function process_submit_fallback()
-	{
-		error_log("Submit Fallback: ".isset($_POST['btnFormSubmit'])." || ".isset($_POST['_wpnonce'])." (".var_export($this, true).", ".var_export($_REQUEST, true).")");
-	}*/
 
 	function get_form($data = array())
 	{
@@ -2395,13 +2397,14 @@ class mf_form_payment
 		$this->form_id = $id;
 		$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'];
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
 		foreach($result as $r)
 		{
 			$this->name = $r->formName;
 			$this->provider = $r->formPaymentProvider;
 			$this->hmac = $r->formPaymentHmac;
+			$this->terms_page = $r->formTermsPage;
 			$this->merchant = $r->formPaymentMerchant;
 			$this->password = $r->formPaymentPassword;
 			$this->currency = $r->formPaymentCurrency;
@@ -2481,7 +2484,7 @@ class mf_form_payment
 
 				/*else
 				{
-					error_log("Redirect not verified");
+					do_log("Redirect not verified");
 					//header("Status: 400 Bad Request");
 				}*/
 
@@ -3807,7 +3810,7 @@ class mf_form_output
 			break;
 
 			default:
-				error_log(__("There was no code for this type", 'lang_form')." (".$this->row->formTypeCode.")");
+				do_log(__("There was no code for this type", 'lang_form')." (".$this->row->formTypeCode.")");
 			break;
 		}
 

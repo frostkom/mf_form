@@ -33,7 +33,7 @@ function get_site_language($data) //sv_SE, en_US etc.
 
 			else
 			{
-				error_log("Wrong lang[0]: ".var_export($data, true));
+				do_log("Wrong lang[0]: ".var_export($data, true));
 			}
 		break;
 
@@ -50,7 +50,7 @@ function get_site_language($data) //sv_SE, en_US etc.
 
 			else
 			{
-				error_log("Wrong lang[1]: ".var_export($data, true));
+				do_log("Wrong lang[1]: ".var_export($data, true));
 			}
 		break;
 
@@ -229,7 +229,7 @@ function submit_form()
 	$obj_form = new mf_form();
 	$obj_form->dup_ip = $obj_form->check_if_duplicate();
 
-	error_log("This should not be used because btnFormSubmit is not in POST");
+	do_log("This should not be used because btnFormSubmit is not in POST");
 
 	if(isset($_POST['btnFormSubmit'])) // && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$obj_form->id)
 	{
@@ -271,7 +271,7 @@ function delete_form($post_id)
 
 	if($post_type == 'mf_form')
 	{
-		error_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form");
+		do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form");
 
 		/*$obj_form = new mf_form();
 		$obj_form->get_form_id($post_id);

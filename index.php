@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.6.4
+Version: 11.6.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -86,6 +86,7 @@ function activate_form()
 		formButtonSymbol VARCHAR(20) DEFAULT NULL,
 		formPaymentProvider INT DEFAULT NULL,
 		formPaymentHmac VARCHAR(200) DEFAULT NULL,
+		formTermsPage INT UNSIGNED DEFAULT NULL,
 		formPaymentMerchant VARCHAR(100) DEFAULT NULL,
 		formPaymentPassword VARCHAR(100) DEFAULT NULL,
 		formPaymentCurrency VARCHAR(3),
@@ -102,16 +103,16 @@ function activate_form()
 	) DEFAULT CHARSET=".$default_charset);
 
 	$arr_add_column[$wpdb->base_prefix."form"] = array(
-		//'queryConverted' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '0' AFTER userID",
+		'formTermsPage' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formPaymentHmac",
 	);
 
-	$arr_update_column[$wpdb->base_prefix."form"] = array(
-		//'formAnswerURL' => "ALTER TABLE [table] CHANGE [column] [column] INT UNSIGNED NOT NULL DEFAULT '0'",
-	);
+	/*$arr_update_column[$wpdb->base_prefix."form"] = array(
+		'' => "ALTER TABLE [table] CHANGE [column] [column] ",
+	);*/
 
-	$arr_add_index[$wpdb->base_prefix."form"] = array(
-		//'blogID' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
-	);
+	/*$arr_add_index[$wpdb->base_prefix."form"] = array(
+		'' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
+	);*/
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
 		form2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -336,7 +337,7 @@ function activate_form()
 
 				else
 				{
-					error_log($log_message);
+					do_log($log_message);
 				}
 			}
 		}
