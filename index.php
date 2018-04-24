@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.6.6
+Version: 11.6.8
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -311,10 +311,7 @@ function activate_form()
 	{
 		$log_message = sprintf(__("I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this.", 'lang_form'), $wpdb->base_prefix.$copy['table_from'], "<a href='".admin_url("admin.php?page=mf_form/list/index.php")."'>", "</a>");
 
-		$wpdb->get_results("SHOW TABLES LIKE '".$wpdb->base_prefix.$copy['table_from']."'");
-		$table_from_exists = $wpdb->num_rows;
-
-		if($table_from_exists > 0)
+		if(does_table_exist($wpdb->base_prefix.$copy['table_from']))
 		{
 			$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_to']." LIMIT 0, 1");
 			$table_to_rows = $wpdb->num_rows;

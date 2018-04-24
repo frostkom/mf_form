@@ -408,7 +408,7 @@ function setting_redirect_emails_callback()
 function setting_form_test_emails_callback()
 {
 	$setting_key = get_setting_key(__FUNCTION__);
-	$option = get_option($setting_key);
+	$option = get_option($setting_key, 'no');
 
 	echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
 }
