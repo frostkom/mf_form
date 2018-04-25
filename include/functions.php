@@ -472,7 +472,7 @@ function setting_link_yes_text_callback()
 		'class' => "hide_media_button hide_tabs",
 		'mini_toolbar' => true,
 		'textarea_rows' => 5,
-		'statusbar' => false,
+		//'statusbar' => false,
 	));
 }
 
@@ -485,7 +485,7 @@ function setting_link_no_text_callback()
 		'class' => "hide_media_button hide_tabs",
 		'mini_toolbar' => true,
 		'textarea_rows' => 5,
-		'statusbar' => false,
+		//'statusbar' => false,
 	));
 }
 
@@ -498,7 +498,7 @@ function setting_link_thanks_text_callback()
 		'class' => "hide_media_button hide_tabs",
 		'mini_toolbar' => true,
 		'textarea_rows' => 5,
-		'statusbar' => false,
+		//'statusbar' => false,
 	));
 }
 
