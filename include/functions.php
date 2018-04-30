@@ -220,7 +220,7 @@ function shortcode_form($atts)
 	return $obj_form->process_form();
 }
 
-function submit_form()
+/*function submit_form()
 {
 	global $error_text;
 
@@ -253,17 +253,10 @@ function submit_form()
 		}
 	}
 
-	/*else
-	{
-		$obj_form->process_submit_fallback();
-
-		$result['error'] = __("I could not validate the form submission correctly. If the problem persists, contact an admin", 'lang_form');
-	}*/
-
 	header('Content-Type: application/json');
 	echo json_encode($result);
 	die();
-}
+}*/
 
 function delete_form($post_id)
 {

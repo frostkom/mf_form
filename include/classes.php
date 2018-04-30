@@ -2012,9 +2012,9 @@ class mf_form
 
 					if($intFormPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
 					{
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing")));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
-						$intFormPaymentTest = isset($_POST['intFormPaymentTest']) && is_user_logged_in() && IS_ADMIN ? 1 : 0;
+						$intFormPaymentTest = isset($_POST['intFormPaymentTest']) && IS_ADMIN ? 1 : 0; // && is_user_logged_in()
 
 						$obj_payment = new mf_form_payment($this->id);
 						$out .= $obj_payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest));
@@ -2159,7 +2159,7 @@ class mf_form
 									.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
 									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
-									if($intFormPaymentProvider > 0 && is_user_logged_in() && IS_ADMIN)
+									if($intFormPaymentProvider > 0 && IS_ADMIN) // && is_user_logged_in()
 									{
 										$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
 									}
@@ -2397,7 +2397,7 @@ class mf_form_payment
 		$this->form_id = $id;
 		$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'];
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentAmount, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
 		foreach($result as $r)
 		{
@@ -2409,6 +2409,8 @@ class mf_form_payment
 			$this->password = $r->formPaymentPassword;
 			$this->currency = $r->formPaymentCurrency;
 			$this->answer_url = $r->formAnswerURL;
+			$this->payment_amount = $r->formPaymentAmount;
+			$this->payment_callback = $r->formPaymentCallback;
 
 			$obj_form = new mf_form($this->form_id);
 
@@ -2435,6 +2437,39 @@ class mf_form_payment
 		exit;
 	}
 
+	function run_confirm_callback()
+	{
+		global $wpdb;
+
+		if($this->payment_callback != '')
+		{
+			if(function_exists($this->payment_callback))
+			{
+				if(is_callable($this->payment_callback))
+				{
+					$paid = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $this->payment_amount));
+
+					call_user_func($this->payment_callback, array('paid' => $paid));
+				}
+
+				else
+				{
+					do_log("Function ".$this->payment_callback." not callable");
+				}
+			}
+
+			else
+			{
+				do_log("Function ".$this->payment_callback." does not exist");
+			}
+		}
+
+		else
+		{
+			do_log("No callback");
+		}
+	}
+
 	function confirm_cancel()
 	{
 		global $wpdb;
@@ -2446,7 +2481,7 @@ class mf_form_payment
 		mf_redirect(get_site_url());
 	}
 
-	function confirm_accept()
+	function confirm_accept($is_verified = false)
 	{
 		global $wpdb, $wp_query;
 
@@ -2454,7 +2489,17 @@ class mf_form_payment
 
 		if($this->answer_id > 0)
 		{
-			$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."104: ".__("User has paid. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
+			if($is_verified)
+			{
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0'", "116: ".__("Paid & Verfied", 'lang_form'), $this->answer_id));
+
+				$this->run_confirm_callback();
+			}
+
+			else
+			{
+				$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."104: ".__("User has paid. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
+			}
 
 			if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
 			{
@@ -2475,7 +2520,7 @@ class mf_form_payment
 				{
 					echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
-					$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
+					//$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
 
 					$strFormAnswerURL = get_permalink($intFormAnswerURL);
 
@@ -2510,6 +2555,8 @@ class mf_form_payment
 		global $wpdb;
 
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0'", "116: ".$message, $this->answer_id));
+
+		$this->run_confirm_callback();
 
 		header("Status: 200 OK");
 	}
@@ -2554,8 +2601,7 @@ class mf_form_payment
 
 		$this->amount = check_var('amount', 'int');
 
-		$out = "<p>".__("Processing", 'lang_form')."&hellip;</p>"
-		.apply_filters('form_process_callback', '', $this);
+		$out = apply_filters('form_process_callback', "<p>".__("Processing", 'lang_form')."&hellip;</p>", $this);
 
 		if($this->provider > 0 && $out == '')
 		{
@@ -2735,6 +2781,7 @@ class mf_form_table extends mf_list_table
 			'post_title' => __("Name", 'lang_form'),
 			'content' => __("Content", 'lang_form'),
 			'answers' => __("Answers", 'lang_form'),
+			'spam' => __("Spam", 'lang_form'),
 			'latest_answer' => __("Latest Answer", 'lang_form'),
 			'post_modified' => __("Modified", 'lang_form'),
 		));
@@ -2937,26 +2984,35 @@ class mf_form_table extends mf_list_table
 				if($post_status != 'trash')
 				{
 					$query_answers = $obj_form->get_answer_amount(array('form_id' => $obj_form->id));
-					$query_spam = $obj_form->get_answer_amount(array('form_id' => $obj_form->id, 'is_spam' => 1));
 
-					if($query_answers > 0 || $query_spam > 0)
+					if($query_answers > 0)
 					{
 						$count_message = get_count_answer_message(array('form_id' => $obj_form->id));
 
-						$actions = array();
-
-						$actions['show_answers'] = "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>";
-
-						$actions['export_csv'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run')."'>".__("CSV", 'lang_form')."</a>";
+						$actions = array(
+							'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>",
+							'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run')."'>".__("CSV", 'lang_form')."</a>",
+						);
 
 						if(is_plugin_active("mf_phpexcel/index.php"))
 						{
 							$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run')."'>".__("XLS", 'lang_form')."</a>";
 						}
 
-						$out .= $query_answers.($query_spam > 0 ? " <span class='grey'>(".$query_spam.")</span>" : "")
-						.$count_message
+						$out .= $query_answers.$count_message
 						.$this->row_actions($actions);
+					}
+				}
+			break;
+
+			case 'spam':
+				if($post_status != 'trash')
+				{
+					$query_spam = $obj_form->get_answer_amount(array('form_id' => $obj_form->id, 'is_spam' => 1));
+
+					if($query_spam > 0)
+					{
+						$out .= $query_spam;
 					}
 				}
 			break;
@@ -3111,7 +3167,7 @@ class mf_answer_table extends mf_list_table
 						}
 					}
 
-					$actions['unspam'] = "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'answer_approve_'.$intAnswerID)."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
+					$actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID)."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
 				}
 
 				/*else
@@ -3220,7 +3276,7 @@ class mf_answer_table extends mf_list_table
 
 						if($sent_failed_w_type > 0)
 						{
-							$out .= "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'message_resend_'.$intAnswerID)."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
+							$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID)."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
 						}
 
 					$out .= "</div>";
@@ -3310,7 +3366,7 @@ class mf_answer_table extends mf_list_table
 
 												if($item['answerSpam'] == false)
 												{
-													$actions['spam'] = "<a href='".wp_nonce_url("?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID, 'answer_spam_'.$intAnswerID)."' rel='confirm'>".__("Mark as Spam", 'lang_form')."</a>";
+													$actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID)."' rel='confirm'>".__("Mark as Spam", 'lang_form')."</a>";
 												}
 											break;
 

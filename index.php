@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.6.9
+Version: 11.7.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -51,8 +51,8 @@ else
 }
 
 add_shortcode('mf_form', 'shortcode_form');
-add_action('wp_ajax_submit_form', 'submit_form');
-add_action('wp_ajax_nopriv_submit_form', 'submit_form');
+/*add_action('wp_ajax_submit_form', 'submit_form');
+add_action('wp_ajax_nopriv_submit_form', 'submit_form');*/
 
 add_filter('single_template', 'custom_templates_form');
 
@@ -92,6 +92,7 @@ function activate_form()
 		formPaymentCurrency VARCHAR(3),
 		formPaymentCheck INT DEFAULT NULL,
 		formPaymentAmount INT DEFAULT NULL,
+		formPaymentCallback VARCHAR(100) DEFAULT NULL,
 		formCreated DATETIME DEFAULT NULL,
 		formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',
 		formDeletedDate DATETIME DEFAULT NULL,
@@ -104,11 +105,12 @@ function activate_form()
 
 	$arr_add_column[$wpdb->base_prefix."form"] = array(
 		'formTermsPage' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formPaymentHmac",
+		'formPaymentCallback' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formPaymentAmount",
 	);
 
-	/*$arr_update_column[$wpdb->base_prefix."form"] = array(
-		'' => "ALTER TABLE [table] CHANGE [column] [column] ",
-	);*/
+	$arr_update_column[$wpdb->base_prefix."form"] = array(
+		'formPaymentFunction' => "ALTER TABLE [table] CHANGE [column] formPaymentCallback VARCHAR(100) DEFAULT NULL",
+	);
 
 	/*$arr_add_index[$wpdb->base_prefix."form"] = array(
 		'' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
