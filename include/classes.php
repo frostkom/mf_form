@@ -2474,11 +2474,15 @@ class mf_form_payment
 	{
 		global $wpdb;
 
-		echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
+		//echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
 		$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."103: ".__("User canceled", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
 
-		mf_redirect(get_site_url());
+		$out .= "<p>".__("Your payment was cancelled", 'lang_form')."</p>";
+
+		//mf_redirect(get_site_url());
+
+		return $out;
 	}
 
 	function confirm_accept($is_verified = false)
@@ -2538,7 +2542,7 @@ class mf_form_payment
 
 			else
 			{
-				$out .= "<p>".__("Thank you!", 'lang_form')."</p>";
+				$out .= "<p>".__("Thank You!", 'lang_form')."</p>";
 			}
 		}
 
