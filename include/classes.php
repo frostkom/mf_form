@@ -2474,6 +2474,8 @@ class mf_form_payment
 	{
 		global $wpdb;
 
+		$out = "";
+
 		//echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
 		$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."103: ".__("User canceled", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
