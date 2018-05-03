@@ -4,61 +4,61 @@ jQuery(function($)
 {
 	function show_query_settings(this_val)
 	{
-		$('.toggler, .show_range, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_actions').addClass('hide');
+		$(".toggler, .show_range, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_actions").addClass('hide');
 
 		if(this_val > 0)
 		{
-			if(this_val == 2) //range
+			if(this_val == 2) /* range */
 			{
-				$('.show_range').removeClass('hide');
+				$(".show_range").removeClass('hide');
 			}
 
-			if(this_val == 3) //input_field
+			if(this_val == 3) /* input_field */
 			{
-				$('.show_validate_as').removeClass('hide');
+				$(".show_validate_as").removeClass('hide');
 			}
 
-			if(this_val == 3 || this_val == 4 || this_val == 7) //input_field, textarea, datepicker
+			if(this_val == 3 || this_val == 4 || this_val == 7) /* input_field, textarea, datepicker */
 			{
-				$('.show_placeholder').removeClass('hide');
+				$(".show_placeholder").removeClass('hide');
 			}
 
-			if(this_val != 6 && this_val != 13 && this_val != 14) //space, custom_tag, custom_tag_end
+			if(this_val != 6 && this_val != 13 && this_val != 14) /* space, custom_tag, custom_tag_end */
 			{
-				$('.show_textarea').removeClass('hide');
+				$(".show_textarea").removeClass('hide');
 			}
 
-			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 11 || this_val == 12 || this_val == 16 || this_val == 17) //range, input_field, textarea, datepicker, select, select_multiple, hidden_field, checkbox_multiple, radio_multiple
+			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 11 || this_val == 12 || this_val == 16 || this_val == 17) /* range, input_field, textarea, datepicker, select, select_multiple, hidden_field, checkbox_multiple, radio_multiple */
 			{
-				$('.show_fetch_from').removeClass('hide');
+				$(".show_fetch_from").removeClass('hide');
 			}
 
-			if(this_val == 10 || this_val == 11 || this_val == 16 || this_val == 17) //select, select_multiple, checkbox_multiple, radio_multiple
+			if(this_val == 10 || this_val == 11 || this_val == 16 || this_val == 17) /* select, select_multiple, checkbox_multiple, radio_multiple */
 			{
-				$('.show_select').removeClass('hide');
+				$(".show_select").removeClass('hide');
 			}
 
-			if(this_val == 5) //text
+			if(this_val == 5) /* text */
 			{
-				$('.show_custom_text_tag').removeClass('hide');
+				$(".show_custom_text_tag").removeClass('hide');
 			}
 
-			if(this_val == 13 || this_val == 14) //custom_tag, custom_tag_end
+			if(this_val == 13 || this_val == 14) /* custom_tag, custom_tag_end */
 			{
-				$('.show_custom_tag').removeClass('hide');
+				$(".show_custom_tag").removeClass('hide');
 			}
 
-			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 13 || this_val == 15) //input_field, textarea, text, custom_tag, file
+			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 13 || this_val == 15) /* input_field, textarea, text, custom_tag, file */
 			{
-				$('.show_custom_class').removeClass('hide');
+				$(".show_custom_class").removeClass('hide');
 			}
 
-			if(this_val == 10) //select
+			if(this_val == 10) /* select */
 			{
-				$('.show_actions').removeClass('hide');
+				$(".show_actions").removeClass('hide');
 			}
 
-			if(this_val != 6 && this_val != 9) //space, referer_url
+			if(this_val != 6 && this_val != 9) /* space, referer_url */
 			{
 				if($(".toggle_container").children("div:not(.hide)").length == 0)
 				{
@@ -67,7 +67,7 @@ jQuery(function($)
 
 				else
 				{
-					$('.toggler').removeClass('hide');
+					$(".toggler").removeClass('hide');
 				}
 			}
 		}
@@ -85,11 +85,11 @@ jQuery(function($)
 
 	function add_option()
 	{
-		var dom_content = $('.select_rows .option:last-child').html();
+		var dom_content = $(".select_rows .option:last-child").html();
 
-		$('.select_rows').append("<div class='option'>" + dom_content + "</div>");
+		$(".select_rows").append("<div class='option'>" + dom_content + "</div>");
 
-		var dom_obj = $('.select_rows .option:last-child input[name=strFormTypeSelect_id]'),
+		var dom_obj = $(".select_rows .option:last-child input[name=strFormTypeSelect_id]"),
 			dom_value = dom_obj.attr('value');
 
 		if(parseInt(dom_value) == dom_value)
@@ -100,7 +100,7 @@ jQuery(function($)
 			});
 		}
 
-		$('.select_rows .option:last-child input[name=strFormTypeSelect_value]').attr(
+		$(".select_rows .option:last-child input[name=strFormTypeSelect_value]").attr(
 		{
 			'value': ''
 		});
@@ -110,7 +110,7 @@ jQuery(function($)
 	{
 		var select_value = "";
 
-		$('.select_rows .option').each(function()
+		$(".select_rows .option").each(function()
 		{
 			var dom_obj = $(this),
 				temp_value = dom_obj.find("input[name=strFormTypeSelect_value]").val() + "";
@@ -124,10 +124,10 @@ jQuery(function($)
 			}
 		});
 
-		$('.show_select input[name=strFormTypeSelect]').val(select_value);
+		$(".show_select input[name=strFormTypeSelect]").val(select_value);
 	}
 
-	$(document).on('click', '.ajax_link', function()
+	$(document).on('click', ".ajax_link", function()
 	{
 		var self = $(this),
 			type = $(this).attr('href').substring(1);
@@ -148,14 +148,16 @@ jQuery(function($)
 				{
 					if(data.dom_id)
 					{
-						if($('#' + data.dom_id).length > 0)
+						var selector = $("#" + data.dom_id);
+
+						if(selector.length > 0)
 						{
-							$('#' + data.dom_id).remove();
+							selector.remove();
 						}
 
 						else
 						{
-							self.parents('tr').remove();
+							self.parents("tr").remove();
 						}
 					}
 				}
@@ -170,7 +172,7 @@ jQuery(function($)
 		return false;
 	});
 
-	$(document).on('click', '.ajax_checkbox', function()
+	$(document).on('click', ".ajax_checkbox", function()
 	{
 		var dom_obj = $(this),
 			type = dom_obj.attr('rel'),
@@ -187,7 +189,7 @@ jQuery(function($)
 				{
 					if(dom_obj.hasClass('autofocus'))
 					{
-						$('input[type=checkbox].autofocus').prop("checked", false);
+						$("input[type=checkbox].autofocus").prop("checked", false);
 
 						if(is_checked)
 						{
@@ -204,25 +206,20 @@ jQuery(function($)
 		});
 	});
 
-	/*show_query_settings($('#intFormTypeID').val());
+	show_query_settings($("input[name=intFormTypeID]:checked").val());
 
-	$(document).on('change', '#intFormTypeID', function()
-	{
-		show_query_settings($(this).val());
-	});*/
-
-	show_query_settings($('input[name=intFormTypeID]:checked').val());
-
-	$(document).on('change', 'input[name=intFormTypeID]', function()
+	$(document).on('change', "input[name=intFormTypeID]", function()
 	{
 		show_query_settings($(this).val());
 	});
 
-	$(document).on('blur', '.select_rows input', function()
+	add_option();
+
+	$(document).on('blur', ".select_rows input", function()
 	{
 		update_select();
 
-		if($(this).parents(".option").is(':last-child') && $(this).parents(".option").find(".form_textfield input[name=strFormTypeSelect_value]").val() != '')
+		if($(this).parents(".option").is(":last-child") && $(this).parents(".option").find(".form_textfield input[name=strFormTypeSelect_value]").val() != '')
 		{
 			add_option();
 		}
@@ -264,29 +261,29 @@ jQuery(function($)
 		});
 	}
 
-	$(document).on('click', '#intFormEmailConfirm', function()
+	$(document).on('click', "#intFormEmailConfirm", function()
 	{
 		if(this.checked)
 		{
-			$('.query_email_confirm_page').removeClass('hide');
+			$(".query_email_confirm_page").removeClass('hide');
 		}
 
 		else
 		{
-			$('.query_email_confirm_page').addClass('hide');
+			$(".query_email_confirm_page").addClass('hide');
 		}
 	});
 
-	$(document).on('click', '#intFormEmailNotify', function()
+	$(document).on('click', "#intFormEmailNotify", function()
 	{
 		if(this.checked)
 		{
-			$('.query_email_notify_page').removeClass('hide');
+			$(".query_email_notify_page").removeClass('hide');
 		}
 
 		else
 		{
-			$('.query_email_notify_page').addClass('hide');
+			$(".query_email_notify_page").addClass('hide');
 		}
 	});
 });
