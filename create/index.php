@@ -563,7 +563,7 @@ echo "<div class='wrap'>
 
 										if($strFormPaymentCallback != '' && !function_exists($strFormPaymentCallback))
 										{
-											$description = __("The action that you have entered either does not exist or is not accessible when the success is triggered", 'lang_form');
+											$description = "<i class='fa fa-warning yellow'></i> ".__("The action that you have entered either does not exist or is not accessible when the success is triggered", 'lang_form');
 										}
 
 										echo show_textfield(array('name' => 'strFormPaymentCallback', 'text' => __("Action on Successful Payment", 'lang_form'), 'value' => $strFormPaymentCallback, 'maxlength' => 100, 'description' => $description));
