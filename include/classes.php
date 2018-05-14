@@ -2754,8 +2754,6 @@ class mf_form_table extends mf_list_table
 {
 	function set_default()
 	{
-		global $wpdb;
-
 		$this->post_type = "mf_form";
 
 		$this->orderby_default = "post_modified";
@@ -2763,6 +2761,11 @@ class mf_form_table extends mf_list_table
 
 		/*$this->arr_settings['has_autocomplete'] = true;
 		$this->arr_settings['plugin_name'] = 'mf_form';*/
+	}
+
+	function init_fetch()
+	{
+		global $wpdb;
 
 		$this->query_join .= " INNER JOIN ".$wpdb->base_prefix."form ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."form.postID";
 		$this->query_where .= ($this->query_where != '' ? " AND " : "")."blogID = '".$wpdb->blogid."'";
