@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.7.9
+Version: 11.8.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -91,7 +91,8 @@ function activate_form()
 		formPaymentPassword VARCHAR(100) DEFAULT NULL,
 		formPaymentCurrency VARCHAR(3),
 		formPaymentCheck INT DEFAULT NULL,
-		formPaymentAmount INT DEFAULT NULL,
+		formPaymentAmount INT UNSIGNED DEFAULT NULL,
+		formPaymentTax TINYINT UNSIGNED DEFAULT NULL,
 		formPaymentCallback VARCHAR(100) DEFAULT NULL,
 		formCreated DATETIME DEFAULT NULL,
 		formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',
@@ -106,6 +107,7 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."form"] = array(
 		'formTermsPage' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formPaymentHmac",
 		'formPaymentCallback' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formPaymentAmount",
+		'formPaymentTax' => "ALTER TABLE [table] ADD [column] TINYINT UNSIGNED DEFAULT NULL AFTER formPaymentAmount",
 	);
 
 	$arr_update_column[$wpdb->base_prefix."form"] = array(
@@ -269,7 +271,7 @@ function activate_form()
 
 	$arr_copy[] = array(
 		'table_from' => "query",
-		'fields_from' => "queryID, blogID, postID, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount, queryCreated, queryDeleted, queryDeletedDate, queryDeletedID, userID",
+		'fields_from' => "queryID, blogID, postID, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount, queryPaymentTax, queryCreated, queryDeleted, queryDeletedDate, queryDeletedID, userID",
 
 		'table_to' => "form",
 		'fields_to' => "formID, blogID, postID, formName, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCheck, formPaymentAmount, formCreated, formDeleted, formDeletedDate, formDeletedID, userID",

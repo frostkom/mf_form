@@ -400,7 +400,7 @@ class mf_form
 
 			if($rows > 0)
 			{
-				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentAmount, formPaymentCallback";
+				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentAmount, formPaymentTax, formPaymentCallback";
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -539,7 +539,7 @@ class mf_form
 				$strFormName = $this->get_post_info(array('select' => "post_title"));
 				$this->prefix = $this->get_post_info()."_";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //, formMandatoryText, formPaymentProvider, formPaymentAmount
 				$r = $result[0];
 				$this->email_confirm = $r->formEmailConfirm;
 				$this->email_confirm_page = $r->formEmailConfirmPage;
@@ -2079,7 +2079,10 @@ class mf_form
 
 					else if($intFormAnswerURL > 0)
 					{
-						switch_to_blog($blog_id);
+						if($blog_id > 0)
+						{
+							switch_to_blog($blog_id);
+						}
 
 						if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 						{
@@ -2095,7 +2098,10 @@ class mf_form
 							}
 						}
 
-						restore_current_blog();
+						if($blog_id > 0)
+						{
+							restore_current_blog();
+						}
 					}
 
 					else
@@ -2397,7 +2403,7 @@ class mf_form_payment
 		$this->form_id = $id;
 		$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'];
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentAmount, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
 		foreach($result as $r)
 		{
@@ -2410,6 +2416,7 @@ class mf_form_payment
 			$this->currency = $r->formPaymentCurrency;
 			$this->answer_url = $r->formAnswerURL;
 			$this->payment_amount = $r->formPaymentAmount;
+			$this->payment_tax = $r->formPaymentTax != '' ? $r->formPaymentTax : 25;
 			$this->payment_callback = $r->formPaymentCallback;
 
 			$obj_form = new mf_form($this->form_id);
@@ -2423,6 +2430,7 @@ class mf_form_payment
 		global $wpdb;
 
 		$this->amount = $data['amount'];
+		$this->tax = $this->amount / ($this->payment_tax / 100);
 		$this->orderid = $data['orderid'];
 		$this->test = $data['test'];
 
@@ -2520,7 +2528,10 @@ class mf_form_payment
 
 			if($intFormAnswerURL > 0)
 			{
-				switch_to_blog($blog_id);
+				if($blog_id > 0)
+				{
+					switch_to_blog($blog_id);
+				}
 
 				if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 				{
@@ -2539,7 +2550,10 @@ class mf_form_payment
 					//header("Status: 400 Bad Request");
 				}*/
 
-				restore_current_blog();
+				if($blog_id > 0)
+				{
+					restore_current_blog();
+				}
 			}
 
 			else
