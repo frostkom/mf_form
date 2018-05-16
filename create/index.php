@@ -445,7 +445,7 @@ echo "<div class='wrap'>
 							<h3 class='hndle'><span>".__("Save", 'lang_form')."</span></h3>
 							<div class='inside'>"
 								.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
-								.show_textfield(array('name' => 'strFormURL', 'text' => __("Permalink", 'lang_form'), 'value' => $strFormURL, 'maxlength' => 100, 'required' => 1));
+								.show_textfield(array('name' => 'strFormURL', 'text' => __("Permalink", 'lang_form'), 'value' => $strFormURL, 'maxlength' => 100)); //, 'required' => 1
 
 								if($form_output != '')
 								{

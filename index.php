@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.8.0
+Version: 11.8.2
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -239,7 +239,7 @@ function activate_form()
 	if(get_bloginfo('language') == "sv-SE")
 	{
 		$arr_form_check[2] = array('name' => __("Zip code", 'lang_form'),								'code' => 'zip',	'pattern' => '[0-9]{5}');
-		$arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",	'code' => 'soc',	'pattern' => '[0-9]{10}');
+		$arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc',	'pattern' => '[0-9]{10}');
 		$arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",	'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
 	}
 

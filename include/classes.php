@@ -2017,7 +2017,7 @@ class mf_form
 						$intFormPaymentTest = isset($_POST['intFormPaymentTest']) && IS_ADMIN ? 1 : 0; // && is_user_logged_in()
 
 						$obj_payment = new mf_form_payment($this->id);
-						$out .= $obj_payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest));
+						$out .= $obj_payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest, 'email_visitor' => $this->email_visitor));
 					}
 
 					else
@@ -2430,9 +2430,14 @@ class mf_form_payment
 		global $wpdb;
 
 		$this->amount = $data['amount'];
-		$this->tax = $this->amount / ($this->payment_tax / 100);
+		$this->tax = 0;
 		$this->orderid = $data['orderid'];
 		$this->test = $data['test'];
+
+		if($this->payment_tax > 0)
+		{
+			$this->tax = $this->amount / ($this->payment_tax / 100);
+		}
 
 		$out = apply_filters('form_process_passthru', '', $this);
 
@@ -2486,7 +2491,7 @@ class mf_form_payment
 
 		//echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
-		$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."103: ".__("User canceled", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText LIKE %s", "103: ".__("User canceled", 'lang_form'), $this->answer_id, '10%'));
 
 		$out .= "<p>".__("Your payment was cancelled", 'lang_form')."</p>";
 
@@ -2512,7 +2517,7 @@ class mf_form_payment
 
 			else
 			{
-				$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."104: ".__("User has paid. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText LIKE %s", "104: ".__("User has paid. Waiting for confirmation...", 'lang_form'), $this->answer_id, '10%'));
 			}
 
 			if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
@@ -2537,7 +2542,7 @@ class mf_form_payment
 				{
 					echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
-					//$wpdb->query("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '"."105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_form')."' WHERE answerID = '".$this->answer_id."' AND form2TypeID = '0' AND answerText LIKE '10%'");
+					//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText LIKE %s", "105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_form'), $this->answer_id, '10%'));
 
 					$strFormAnswerURL = get_permalink($intFormAnswerURL);
 
@@ -3205,6 +3210,30 @@ class mf_answer_table extends mf_list_table
 				$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
 
 				$out .= $strAnswerText_temp;
+
+				if($strAnswerText_temp != '')
+				{
+					list($payment_number, $rest) = explode(":", $strAnswerText_temp);
+
+					switch($payment_number)
+					{
+						case 101:
+						case 102:
+							$out .= "<i class='set_tr_color' rel='yellow'></i>";
+						break;
+
+						case 103:
+						case 115:
+							$out .= "<i class='set_tr_color' rel='red'></i>";
+						break;
+
+						case 104:
+						case 105:
+						case 116:
+							$out .= "<i class='set_tr_color' rel='green'></i>";
+						break;
+					}
+				}
 			break;
 
 			case 'answerCreated':
