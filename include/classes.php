@@ -49,10 +49,10 @@ class mf_form
 		if($pagenow == 'admin.php')
 		{
 			$page = check_var('page');
-			
+
 			$plugin_include_url = plugin_dir_url(__FILE__);
 			$plugin_version = get_plugin_version(__FILE__);
-			
+
 			if($page == 'mf_form/list/index.php')
 			{
 				mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
@@ -2462,7 +2462,7 @@ class mf_form_payment
 				{
 					$paid = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $this->payment_amount));
 
-					call_user_func($this->payment_callback, array('paid' => $paid));
+					call_user_func($this->payment_callback, array('paid' => $paid, 'answer_id' => $this->answer_id));
 				}
 
 				else
