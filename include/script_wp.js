@@ -100,10 +100,12 @@ jQuery(function($)
 			});
 		}
 
+		dom_obj.removeAttr('readonly');
+
 		$(".select_rows .option:last-child input[name=strFormTypeSelect_value]").attr(
 		{
 			'value': ''
-		});
+		}).removeAttr('readonly');
 	}
 
 	function update_select()

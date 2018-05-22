@@ -353,19 +353,19 @@ class mf_form
 			break;
 
 			default:
-				$arr_data["DKK"] = __("Danish Krone", 'lang_form')." (DKK)";
-				$arr_data["EUR"] = __("Euro", 'lang_form')." (EUR)";
-				$arr_data["USD"] = __("US Dollar", 'lang_form')." (USD)";
-				$arr_data["GBP"] = __("English Pound", 'lang_form')." (GBP)";
-				$arr_data["SEK"] = __("Swedish Krona", 'lang_form')." (SEK)";
-				$arr_data["AUD"] = __("Australian Dollar", 'lang_form')." (AUD)";
-				$arr_data["CAD"] = __("Canadian Dollar", 'lang_form')." (CAD)";
-				$arr_data["ISK"] = __("Icelandic Krona", 'lang_form')." (ISK)";
-				$arr_data["JPY"] = __("Japanese Yen", 'lang_form')." (JPY)";
-				$arr_data["NZD"] = __("New Zealand Dollar", 'lang_form')." (NZD)";
-				$arr_data["NOK"] = __("Norwegian Krone", 'lang_form')." (NOK)";
-				$arr_data["CHF"] = __("Swiss Franc", 'lang_form')." (CHF)";
-				$arr_data["TRY"] = __("Turkish Lira", 'lang_form')." (TRY)";
+				$arr_data['DKK'] = __("Danish Krone", 'lang_form')." (DKK)";
+				$arr_data['EUR'] = __("Euro", 'lang_form')." (EUR)";
+				$arr_data['USD'] = __("US Dollar", 'lang_form')." (USD)";
+				$arr_data['GBP'] = __("English Pound", 'lang_form')." (GBP)";
+				$arr_data['SEK'] = __("Swedish Krona", 'lang_form')." (SEK)";
+				$arr_data['AUD'] = __("Australian Dollar", 'lang_form')." (AUD)";
+				$arr_data['CAD'] = __("Canadian Dollar", 'lang_form')." (CAD)";
+				$arr_data['ISK'] = __("Icelandic Krona", 'lang_form')." (ISK)";
+				$arr_data['JPY'] = __("Japanese Yen", 'lang_form')." (JPY)";
+				$arr_data['NZD'] = __("New Zealand Dollar", 'lang_form')." (NZD)";
+				$arr_data['NOK'] = __("Norwegian Krone", 'lang_form')." (NOK)";
+				$arr_data['CHF'] = __("Swiss Franc", 'lang_form')." (CHF)";
+				$arr_data['TRY'] = __("Turkish Lira", 'lang_form')." (TRY)";
 			break;
 		}
 
@@ -378,6 +378,22 @@ class mf_form
 	{
 		list($result, $rows) = $this->get_form_type_info(array('query_type_id' => array(10, 12))); //'select', 'hidden_field'
 		return $this->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
+	}
+
+	function is_select_value_used($data)
+	{
+		global $wpdb;
+
+		$out = false;
+
+		if($data['form2type_id'] > 0 && $data['option_id'] != 0 && $data['option_id'] != '')
+		{
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerText = %s LIMIT 0, 1", $data['form2type_id'], $data['option_id']));
+
+			$out = ($wpdb->num_rows > 0);
+		}
+
+		return $out;
 	}
 
 	function fetch_request()
@@ -1174,7 +1190,7 @@ class mf_form
 				."&answer_email=".$data['mail_to']
 				."&answer_id=".$this->answer_id
 				."&product_id=".$intProductID
-				."&hash=".md5(NONCE_SALT."_".$this->answer_id."_".$intProductID);
+				."&hash=".md5((defined('NONCE_SALT') ? NONCE_SALT : '')."_".$this->answer_id."_".$intProductID);
 
 			$arr_exclude = array(
 				"[answer_id]",
@@ -1322,7 +1338,7 @@ class mf_form
 		$strAnswerEmail = check_var('answer_email');
 		$hash = check_var('hash');
 
-		if($hash == md5(NONCE_SALT."_".$intAnswerID."_".$intProductID))
+		if($hash == md5((defined('NONCE_SALT') ? NONCE_SALT : '')."_".$intAnswerID."_".$intProductID))
 		{
 			if($intProductID > 0)
 			{
