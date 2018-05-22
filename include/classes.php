@@ -11,8 +11,6 @@ class mf_form
 
 		$this->meta_prefix = "mf_form_";
 
-		$this->answer_ip = $_SERVER['REMOTE_ADDR'];
-
 		$this->edit_mode = $this->is_spam = $this->is_spam_id = $this->is_sent = false;
 
 		if($this->id > 0)
@@ -724,7 +722,7 @@ class mf_form
 
 		if($this->is_poll())
 		{
-			$rowsIP = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerIP = %s LIMIT 0, 1", $this->id, $this->answer_ip));
+			$rowsIP = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerIP = %s LIMIT 0, 1", $this->id, $_SERVER['REMOTE_ADDR']));
 
 			if($rowsIP > 0)
 			{
@@ -1752,8 +1750,9 @@ class mf_form
 		$strFormName = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formSaveIP, formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 		$r = $result[0];
+		$strFormSaveIP = $r->formSaveIP;
 		$this->email_confirm = $r->formEmailConfirm;
 		$this->email_confirm_page = $r->formEmailConfirmPage;
 		$this->email_admin = $r->formEmail;
@@ -2002,7 +2001,7 @@ class mf_form
 				$this->is_spam_id = 7;
 			}
 
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, $this->answer_ip, $this->is_spam, $this->is_spam_id));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, ($strFormSaveIP == 'yes' ? $_SERVER['REMOTE_ADDR'] : ''), $this->is_spam, $this->is_spam_id));
 			$this->answer_id = $wpdb->insert_id;
 
 			$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content));
@@ -2704,14 +2703,14 @@ class mf_form_export extends mf_export
 
 		$this->data[] = $this_row;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formID, answerCreated, answerIP FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formID, answerCreated FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type)); //, answerIP
 
 		foreach($result as $r)
 		{
 			$intAnswerID = $r->answerID;
 			$intFormID = $r->formID;
 			$strAnswerCreated = $r->answerCreated;
-			$strAnswerIP = $r->answerIP;
+			//$strAnswerIP = $r->answerIP;
 
 			$this_row = array();
 
@@ -3255,10 +3254,14 @@ class mf_answer_table extends mf_list_table
 			case 'answerCreated':
 				$obj_form->answer_column = 0;
 
-				$actions = array();
+				$actions = array(
+					'id' => __("ID", 'lang_form').": ".$intAnswerID,
+				);
 
-				$actions['id'] = __("ID", 'lang_form').": ".$intAnswerID;
-				$actions['ip'] = __("IP", 'lang_form').": ".$item['answerIP'];
+				if($item['answerIP'] != '')
+				{
+					$actions['ip'] = __("IP", 'lang_form').": ".$item['answerIP'];
+				}
 
 				if($item['answerToken'] != '')
 				{

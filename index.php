@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.8.5
+Version: 11.9.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -73,6 +73,7 @@ function activate_form()
 		blogID TINYINT UNSIGNED,
 		postID INT UNSIGNED NOT NULL DEFAULT '0',
 		formName VARCHAR(100) DEFAULT NULL,
+		formSaveIP ENUM('no', 'yes') NOT NULL DEFAULT 'no',
 		formAnswerURL VARCHAR(20) DEFAULT NULL,
 		formEmail VARCHAR(100) DEFAULT NULL,
 		formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
@@ -108,6 +109,7 @@ function activate_form()
 		'formTermsPage' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formPaymentHmac",
 		'formPaymentCallback' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formPaymentAmount",
 		'formPaymentTax' => "ALTER TABLE [table] ADD [column] TINYINT UNSIGNED DEFAULT NULL AFTER formPaymentAmount",
+		'formSaveIP' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'no' AFTER formName",
 	);
 
 	$arr_update_column[$wpdb->base_prefix."form"] = array(
@@ -274,7 +276,7 @@ function activate_form()
 		'fields_from' => "queryID, blogID, postID, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount, queryPaymentTax, queryCreated, queryDeleted, queryDeletedDate, queryDeletedID, userID",
 
 		'table_to' => "form",
-		'fields_to' => "formID, blogID, postID, formName, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCheck, formPaymentAmount, formCreated, formDeleted, formDeletedDate, formDeletedID, userID",
+		'fields_to' => "formID, blogID, postID, formName, formSaveIP, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCheck, formPaymentAmount, formCreated, formDeleted, formDeletedDate, formDeletedID, userID",
 	);
 
 	$arr_copy[] = array(
