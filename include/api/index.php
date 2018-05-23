@@ -64,6 +64,7 @@ if(get_current_user_id() > 0)
 		else if($type_table == 'answer')
 		{
 			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $type_id));
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $type_id));
 			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $type_id));
 
 			if($wpdb->rows_affected > 0)
