@@ -4,28 +4,38 @@ jQuery(function($)
 {
 	function show_query_settings(this_val)
 	{
-		$(".toggler, .show_range, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_actions").addClass('hide');
+		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_actions").addClass('hide');
 
 		if(this_val > 0)
 		{
-			if(this_val == 2) /* range */
+			if(this_val == 1) /* checkbox */
+			{
+				$(".show_checkbox").removeClass('hide');
+			}
+
+			else if(this_val == 2) /* range */
 			{
 				$(".show_range").removeClass('hide');
 			}
 
-			if(this_val == 3) /* input_field */
+			else if(this_val == 3) /* input_field */
 			{
 				$(".show_validate_as").removeClass('hide');
+			}
+
+			else if(this_val == 5) /* text */
+			{
+				$(".show_custom_text_tag").removeClass('hide');
+			}
+
+			else if(this_val == 10) /* select */
+			{
+				$(".show_actions").removeClass('hide');
 			}
 
 			if(this_val == 3 || this_val == 4 || this_val == 7) /* input_field, textarea, datepicker */
 			{
 				$(".show_placeholder").removeClass('hide');
-			}
-
-			if(this_val != 6 && this_val != 13 && this_val != 14) /* space, custom_tag, custom_tag_end */
-			{
-				$(".show_textarea").removeClass('hide');
 			}
 
 			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 11 || this_val == 12 || this_val == 16 || this_val == 17) /* range, input_field, textarea, datepicker, select, select_multiple, hidden_field, checkbox_multiple, radio_multiple */
@@ -38,11 +48,6 @@ jQuery(function($)
 				$(".show_select").removeClass('hide');
 			}
 
-			if(this_val == 5) /* text */
-			{
-				$(".show_custom_text_tag").removeClass('hide');
-			}
-
 			if(this_val == 13 || this_val == 14) /* custom_tag, custom_tag_end */
 			{
 				$(".show_custom_tag").removeClass('hide');
@@ -51,11 +56,6 @@ jQuery(function($)
 			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 13 || this_val == 15) /* input_field, textarea, text, custom_tag, file */
 			{
 				$(".show_custom_class").removeClass('hide');
-			}
-
-			if(this_val == 10) /* select */
-			{
-				$(".show_actions").removeClass('hide');
 			}
 
 			if(this_val != 6 && this_val != 9) /* space, referer_url */
@@ -70,17 +70,12 @@ jQuery(function($)
 					$(".toggler").removeClass('hide');
 				}
 			}
-		}
 
-		/*if($(".show_validate_as").parent("div").children("div:not(.hide)").length > 0)
-		{
-			$(".show_validate_as").parent("div").removeClass('hide');
+			if(this_val != 6 && this_val != 13 && this_val != 14) /* space, custom_tag, custom_tag_end */
+			{
+				$(".show_textarea").removeClass('hide');
+			}
 		}
-
-		else
-		{
-			$(".show_validate_as").parent("div").addClass('hide');
-		}*/
 	}
 
 	function add_option()
@@ -225,6 +220,13 @@ jQuery(function($)
 		{
 			add_option();
 		}
+	});
+
+	$(document).on('click', ".show_checkbox li", function()
+	{
+		$("#strFormTypeText").val($(this).text());
+
+		return false;
 	});
 
 	$(document).on('click', "mf-form-row .row_icons", function(e)

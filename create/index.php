@@ -341,6 +341,13 @@ echo "<div class='wrap'>
 								."</div>
 								<div>"
 									.show_textarea(array('name' => 'strFormTypeText', 'value' => $strFormTypeText, 'class' => "show_textarea hide", 'placeholder' => __("Text", 'lang_form')))
+									."<div class='show_checkbox hide'>
+										<h4>".__("Examples", 'lang_form')."</h4>
+										<ol class='pointer'>
+											<li>".__("I consent to having this website store my submitted information, so that they can respond to my inquiry", 'lang_form')."</li>
+											<li>".__("By submitting this form I am aware that I will be sent to another website for payment", 'lang_form')."</li>
+										</ol>
+									</div>"
 									.show_select(array('data' => $obj_form->get_form_checks_for_select(), 'name' => "intCheckID", 'value' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"))
 									.show_textfield(array('name' => 'strFormTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strFormTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"))
 									.show_select(array('data' => array('div' => "div", 'fieldset' => "fieldset"), 'name' => 'strFormTypeText2', 'value' => $strFormTypeText, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
@@ -475,7 +482,6 @@ echo "<div class='wrap'>
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
 							<div class='inside'>"
-								.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $strFormSaveIP, 'text' => __("Save IP", 'lang_form')))
 								.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>"));
 
 								if($obj_form->is_poll())
@@ -505,14 +511,10 @@ echo "<div class='wrap'>
 								<div class='flex_flow'>"
 									.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $strFormButtonSymbol, 'text' => __("Symbol", 'lang_form')))
 									.show_textfield(array('name' => 'strFormButtonText', 'text' => __("Text", 'lang_form'), 'value' => $strFormButtonText, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
-								."</div>";
-
-								if($form_status == "publish")
-								{
-									echo show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"));
-								}
-
-							echo "</div>
+								."</div>"
+								.show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"))
+								.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $strFormSaveIP, 'text' => __("Save IP", 'lang_form')))
+							."</div>
 						</div>";
 
 						$arr_data_providers = $obj_form->get_payment_providers_for_select();
