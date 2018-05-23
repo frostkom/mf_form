@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-22 17:57+0100\n"
+"POT-Creation-Date: 2018-05-23 06:40+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -111,7 +111,7 @@ msgstr "Jag kunde inte att lägga in det nya fältet åt dig"
 
 #: ../create/index.php:256
 msgid "I could not find the form you were looking for. If the problem persists, please contact an admin"
-msgstr "Jag kunde inte hitta formuläret som du sökte efter. Om problemet kvarstår, kontakt en administratör"
+msgstr "Jag kunde inte hitta formuläret som du sökte efter. Om problemet kvarstår, kontakta en administratör"
 
 #: ../create/index.php:302
 #: ../create/index.php:418
