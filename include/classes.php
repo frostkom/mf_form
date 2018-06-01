@@ -2500,24 +2500,22 @@ class mf_form_payment
 
 	function confirm_cancel()
 	{
-		global $wpdb;
+		global $wpdb, $error_text;
 
 		$out = "";
 
-		//echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
-
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText LIKE %s", "103: ".__("User canceled", 'lang_form'), $this->answer_id, '10%'));
 
-		$out .= "<p>".__("Your payment was cancelled", 'lang_form')."</p>";
+		$error_text = __("Your payment was cancelled", 'lang_form');
 
-		//mf_redirect(get_site_url());
+		$out .= get_notification();
 
 		return $out;
 	}
 
 	function confirm_accept($is_verified = false)
 	{
-		global $wpdb, $wp_query;
+		global $wpdb, $wp_query, $done_text;
 
 		$out = "";
 
@@ -2578,7 +2576,9 @@ class mf_form_payment
 
 			else
 			{
-				$out .= "<p>".__("Thank You!", 'lang_form')."</p>";
+				$done_text = __("Thank You!", 'lang_form');
+
+				$out .= get_notification();
 			}
 		}
 

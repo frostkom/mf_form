@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-23 11:16+0100\n"
+"POT-Creation-Date: 2018-06-01 13:45+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -727,23 +727,23 @@ msgstr "Genomför testbetalning"
 msgid "A provider was set (%s) to passthru but there seams to be no provider extensions installed"
 msgstr "En leverantör var angiven (%s) för vidarebefordring men det verkar inte finnas några leverantörs-plugin installerade"
 
-#: ../include/classes.php:2509
+#: ../include/classes.php:2507
 msgid "User canceled"
 msgstr "Användaren avbröt"
 
-#: ../include/classes.php:2511
+#: ../include/classes.php:2509
 msgid "Your payment was cancelled"
 msgstr "Din betalning avbröts"
 
-#: ../include/classes.php:2528
+#: ../include/classes.php:2526
 msgid "Paid & Verfied"
 msgstr "Betalad och verifierad"
 
-#: ../include/classes.php:2535
+#: ../include/classes.php:2533
 msgid "User has paid. Waiting for confirmation..."
 msgstr "Användaren har betalat. Väntar på bekräftelse..."
 
-#: ../include/classes.php:2581
+#: ../include/classes.php:2579
 msgid "Thank You!"
 msgstr "Tack så mycket!"
 
