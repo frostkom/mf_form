@@ -220,44 +220,6 @@ function shortcode_form($atts)
 	return $obj_form->process_form();
 }
 
-/*function submit_form()
-{
-	global $error_text;
-
-	$result = array();
-
-	$obj_form = new mf_form();
-	$obj_form->dup_ip = $obj_form->check_if_duplicate();
-
-	do_log("This should not be used because btnFormSubmit is not in POST");
-
-	if(isset($_POST['btnFormSubmit'])) // && wp_verify_nonce($_POST['_wpnonce'], 'form_submit_'.$obj_form->id)
-	{
-		$result['output'] = $obj_form->process_submit();
-
-		if($error_text != '')
-		{
-			$result['output'] .= get_notification();
-		}
-
-		else
-		{
-			$result['output'] .= $obj_form->get_form(array('do_redirect' => false));
-
-			if(isset($obj_form->redirect_url) && $obj_form->redirect_url != '')
-			{
-				$result['redirect'] = $obj_form->redirect_url;
-			}
-
-			$result['success'] = true;
-		}
-	}
-
-	header('Content-Type: application/json');
-	echo json_encode($result);
-	die();
-}*/
-
 function delete_form($post_id)
 {
 	global $post_type;

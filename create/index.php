@@ -386,11 +386,30 @@ echo "<div class='wrap'>
 										if($intForm2TypeID > 0)
 										{
 											$handle_temp = $obj_form->get_post_info()."_".$intForm2TypeID;
+											
+											$description_temp = '';
 
-											$placeholder_temp = sprintf(__("Default is %s but you can assign a custom handle", 'lang_form'), $handle_temp);
-											$description_temp = sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."?".($strFormTypeFetchFrom != '' ? $strFormTypeFetchFrom : $handle_temp)."=2'>", "</a>");
+											if($strFormTypeFetchFrom == '')
+											{
+												$description_temp = "<ul>
+													<li>custom_handle_that_you_can_name_whatever</li>
+													<li>[user_display_name]</li>
+													<li>[user_email]</li>
+													<li>[user_address]</li>
+												</ul>";
+											}
 
-											echo show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Change Default Value", 'lang_form'), 'value' => $strFormTypeFetchFrom, 'maxlength' => 50, 'placeholder' => $placeholder_temp, 'xtra_class' => "show_fetch_from hide", 'description' => $description_temp));
+											if(substr($strFormTypeFetchFrom, 0, 1) == "[")
+											{
+												$description_temp .= sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."'>", "</a>");
+											}
+
+											else
+											{
+												$description_temp .= sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."?".($strFormTypeFetchFrom != '' ? $strFormTypeFetchFrom : $handle_temp)."=2'>", "</a>");
+											}
+
+											echo show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Change Default Value", 'lang_form'), 'value' => $strFormTypeFetchFrom, 'maxlength' => 50, 'placeholder' => sprintf(__("Assign handle or shortcode", 'lang_form'), $handle_temp), 'xtra_class' => "show_fetch_from hide", 'description' => $description_temp));
 
 											$arr_data_equals = array();
 

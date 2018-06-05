@@ -711,7 +711,7 @@ class mf_form
 
 		$not_poll_content_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(form2TypeID) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID != '5' AND formTypeID != '8' LIMIT 0, 1", $this->id));
 
-		return ($not_poll_content_amount == 0 ? true : false);
+		return ($not_poll_content_amount == 0);
 	}
 
 	function check_if_duplicate()
@@ -2053,7 +2053,7 @@ class mf_form
 
 	function get_form($data = array())
 	{
-		global $wpdb, $wp_query;
+		global $wpdb, $wp_query, $done_text, $error_text;
 
 		if(!isset($data['do_redirect'])){	$data['do_redirect'] = true;}
 
@@ -2126,7 +2126,9 @@ class mf_form
 
 					else
 					{
-						$out .= "<h2>".__("Thank you!", 'lang_form')."</h2>";
+						$done_text = __("Thank You!", 'lang_form');
+
+						$out .= get_notification();
 					}
 
 				$out .= "</div>";
@@ -2134,7 +2136,9 @@ class mf_form
 
 			else if($dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
 			{
-				$out .= "<p>".__("This form is not open for submissions anymore", 'lang_form')."</p>";
+				$error_text = __("This form is not open for submissions anymore", 'lang_form');
+
+				$out .= get_notification();
 			}
 
 			else if($out == '')
@@ -2240,13 +2244,6 @@ class mf_form
 			{
 				$out .= $this->process_submit();
 			}
-
-			/*else if(isset($_POST['btnFormSubmit']))
-			{
-				$this->process_submit_fallback();
-
-				$error_text = __("I could not validate the form submission correctly. If the problem persists, contact an admin", 'lang_form');
-			}*/
 
 			$out .= $this->get_form($data);
 		}
@@ -3536,9 +3533,36 @@ class mf_form_output
 
 	function filter_form_fields(&$field_data)
 	{
-		if($this->row->formTypeFetchFrom != '' && isset($field_data['value']) && $field_data['value'] == '')
+		if($this->row->formTypeFetchFrom != '')
 		{
-			$field_data['value'] = check_var($this->row->formTypeFetchFrom);
+			if(substr($this->row->formTypeFetchFrom, 0, 1) == "[")
+			{
+				$user_data = get_userdata(get_current_user_id());
+
+				switch($this->row->formTypeFetchFrom)
+				{
+					case '[user_display_name]':
+						$field_data['value'] = $user_data->display_name;
+					break;
+					
+					case '[user_email]':
+						$field_data['value'] = $user_data->user_email;
+					break;
+
+					case '[user_address]':
+						$profile_address_street = get_the_author_meta('profile_address_street', $user_data->ID);
+						$profile_address_zipcode = get_the_author_meta('profile_address_zipcode', $user_data->ID);
+						$profile_address_city = get_the_author_meta('profile_address_city', $user_data->ID);
+
+						$field_data['value'] = $profile_address_street.", ".$profile_address_zipcode." ".$profile_address_city;
+					break;
+				}
+			}
+
+			else if(isset($field_data['value']) && $field_data['value'] == '')
+			{
+				$field_data['value'] = check_var($this->row->formTypeFetchFrom);
+			}
 		}
 	}
 
