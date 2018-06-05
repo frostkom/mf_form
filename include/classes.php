@@ -2029,7 +2029,12 @@ class mf_form
 					{
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
-						$intFormPaymentTest = isset($_POST['intFormPaymentTest']) && IS_ADMIN ? 1 : 0; // && is_user_logged_in()
+						$intFormPaymentTest = (isset($_POST['intFormPaymentTest']) && IS_ADMIN);
+
+						if($intFormPaymentTest == true)
+						{
+							$this->set_meta(array('id' => $this->answer_id, 'key' => 'test_payment', 'value' => get_current_user_id()));
+						}
 
 						$obj_payment = new mf_form_payment($this->id);
 						$out .= $obj_payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest, 'email_visitor' => $this->email_visitor));
@@ -2180,9 +2185,10 @@ class mf_form
 									.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
 									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
-									if($intFormPaymentProvider > 0 && IS_ADMIN) // && is_user_logged_in()
+									if($intFormPaymentProvider > 0 && IS_ADMIN)
 									{
-										$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1));
+										$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
+										.apply_filters('filter_form_test_payment', '');
 									}
 
 									if(isset($this->send_to) && $this->send_to != '')
@@ -2448,6 +2454,7 @@ class mf_form_payment
 		$this->tax = 0;
 		$this->orderid = $data['orderid'];
 		$this->test = $data['test'];
+		$this->email_visitor = $data['email_visitor'];
 
 		if($this->payment_tax > 0)
 		{
