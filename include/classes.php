@@ -414,7 +414,7 @@ class mf_form
 
 			if($rows > 0)
 			{
-				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentAmount, formPaymentTax, formPaymentCallback";
+				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formPaymentAmount (the field ID is not the same in this copied form)
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -553,7 +553,7 @@ class mf_form
 				$strFormName = $this->get_post_info(array('select' => "post_title"));
 				$this->prefix = $this->get_post_info()."_";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //, formMandatoryText, formPaymentProvider, formPaymentAmount
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 				$r = $result[0];
 				$this->email_confirm = $r->formEmailConfirm;
 				$this->email_confirm_page = $r->formEmailConfirmPage;
@@ -566,7 +566,7 @@ class mf_form
 					'fields' => array(),
 				);
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE answerID = '%d' = '1' ORDER BY form2TypeOrder ASC", $this->answer_id)); // AND formTypeResult
+				$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE answerID = '%d' = '1' ORDER BY form2TypeOrder ASC", $this->answer_id));
 
 				foreach($result as $r)
 				{
@@ -770,14 +770,15 @@ class mf_form
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentCost, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
 			$intFormPaymentProvider = $r->formPaymentProvider;
+			$intFormPaymentCost = $r->formPaymentCost;
 			$intFormPaymentAmount = $r->formPaymentAmount;
 
-			$this->has_payment = $intFormPaymentProvider > 0 && $intFormPaymentAmount > 0;
+			$this->has_payment = $intFormPaymentProvider > 0 && ($intFormPaymentCost > 0 || $intFormPaymentAmount > 0);
 		}
 	}
 
@@ -1750,7 +1751,7 @@ class mf_form
 		$strFormName = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formSaveIP, formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formPaymentProvider, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formSaveIP, formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formPaymentProvider, formPaymentCost, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 		$r = $result[0];
 		$strFormSaveIP = $r->formSaveIP;
 		$this->email_confirm = $r->formEmailConfirm;
@@ -1761,6 +1762,7 @@ class mf_form
 		$this->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $strFormName);
 		$strFormMandatoryText = $r->formMandatoryText;
 		$intFormPaymentProvider = $r->formPaymentProvider;
+		$intFormPaymentCost = $r->formPaymentCost;
 		$intFormPaymentAmount = $r->formPaymentAmount;
 
 		$dblQueryPaymentAmount_value = 0;
@@ -2025,7 +2027,7 @@ class mf_form
 
 					$this->process_transactional_emails();
 
-					if($intFormPaymentProvider > 0 && $dblQueryPaymentAmount_value > 0)
+					if($intFormPaymentProvider > 0 && ($intFormPaymentCost > 0 || $dblQueryPaymentAmount_value > 0))
 					{
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
@@ -2037,7 +2039,7 @@ class mf_form
 						}
 
 						$obj_payment = new mf_form_payment($this->id);
-						$out .= $obj_payment->process_passthru(array('amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest, 'email_visitor' => $this->email_visitor));
+						$out .= $obj_payment->process_passthru(array('cost' => $intFormPaymentCost, 'amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest, 'email_visitor' => $this->email_visitor));
 					}
 
 					else
@@ -2422,7 +2424,7 @@ class mf_form_payment
 		$this->base_form_url = get_site_url().$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
 		$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
 		foreach($result as $r)
 		{
@@ -2434,8 +2436,9 @@ class mf_form_payment
 			$this->password = $r->formPaymentPassword;
 			$this->currency = $r->formPaymentCurrency;
 			$this->answer_url = $r->formAnswerURL;
+			$this->payment_cost = $r->formPaymentCost;
 			$this->payment_amount = $r->formPaymentAmount;
-			$this->payment_tax = $r->formPaymentTax != '' ? $r->formPaymentTax : 25;
+			$this->payment_tax_rate = $r->formPaymentTax != '' ? $r->formPaymentTax : 25;
 			$this->payment_callback = $r->formPaymentCallback;
 
 			$obj_form = new mf_form($this->form_id);
@@ -2454,15 +2457,30 @@ class mf_form_payment
 	{
 		global $wpdb;
 
-		$this->amount = $data['amount'];
-		$this->tax = 0;
+		$this->cost = $data['cost'];
+		$this->cost_total = $this->amount = intval($data['amount']) > 0 ? $data['amount'] : 1;
+		
 		$this->orderid = $data['orderid'];
 		$this->test = $data['test'];
 		$this->email_visitor = $data['email_visitor'];
 
-		if($this->payment_tax > 0)
+		if($this->cost > 0)
 		{
-			$this->tax = $this->amount / ($this->payment_tax / 100);
+			$this->cost_total *= $this->cost;
+		}
+
+		else
+		{
+			$this->cost = $this->amount;
+			$this->amount = 1;
+		}
+		
+		$this->tax = $this->tax_total = 0;
+
+		if($this->payment_tax_rate > 0)
+		{
+			$this->tax = ($this->cost / ($this->payment_tax_rate / 100));
+			$this->tax_total = ($this->cost_total / ($this->payment_tax_rate / 100));
 		}
 
 		$out = apply_filters('form_process_passthru', '', $this);

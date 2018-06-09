@@ -27,6 +27,7 @@ $intFormTermsPage = check_var('intFormTermsPage');
 $strFormPaymentMerchant = check_var('strFormPaymentMerchant');
 $strFormPaymentPassword = check_var('strFormPaymentPassword');
 $strFormPaymentCurrency = check_var('strFormPaymentCurrency');
+$intFormPaymentCost = check_var('intFormPaymentCost');
 $intFormPaymentAmount = check_var('intFormPaymentAmount');
 $intFormPaymentTax = check_var('intFormPaymentTax');
 $strFormPaymentCallback = check_var('strFormPaymentCallback');
@@ -71,7 +72,7 @@ if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_veri
 
 			$obj_form->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $dteFormDeadline));
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormSaveIP, $strFormAnswerURL, $strFormEmail, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $intFormTermsPage, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentAmount, $intFormPaymentTax, $strFormPaymentCallback, $obj_form->id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormSaveIP, $strFormAnswerURL, $strFormEmail, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $intFormTermsPage, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentCost, $intFormPaymentAmount, $intFormPaymentTax, $strFormPaymentCallback, $obj_form->id));
 
 			$done_text = __("I have updated the form for you", 'lang_form');
 		}
@@ -218,7 +219,7 @@ if($obj_form->id > 0)
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $obj_form->id));
 	}
 
-	$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
+	$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
 
 	if($wpdb->num_rows > 0)
 	{
@@ -241,6 +242,7 @@ if($obj_form->id > 0)
 		$strFormPaymentMerchant = $r->formPaymentMerchant;
 		$strFormPaymentPassword = $r->formPaymentPassword;
 		$strFormPaymentCurrency = $r->formPaymentCurrency;
+		$intFormPaymentCost = $r->formPaymentCost;
 		$intFormPaymentAmount = $r->formPaymentAmount;
 		$intFormPaymentTax = $r->formPaymentTax;
 		$strFormPaymentCallback = $r->formPaymentCallback;
@@ -585,7 +587,8 @@ echo "<div class='wrap'>
 									if($intFormPaymentProvider > 0 && $strFormPaymentMerchant != '' && $strFormPaymentHmac != '')
 									{
 										echo show_select(array('data' => $obj_form->get_payment_currency_for_select($intFormPaymentProvider), 'name' => 'strFormPaymentCurrency', 'value' => $strFormPaymentCurrency, 'text' => __("Currency", 'lang_form')))
-										.show_select(array('data' => $obj_form->get_payment_amount_for_select(), 'name' => 'intFormPaymentAmount', 'value' => $intFormPaymentAmount, 'text' => __("Field for payment cost", 'lang_form')))
+										.show_textfield(array('type' => 'number', 'name' => 'intFormPaymentCost', 'value' => $intFormPaymentCost, 'text' => __("Payment Cost", 'lang_form')))
+										.show_select(array('data' => $obj_form->get_payment_amount_for_select(), 'name' => 'intFormPaymentAmount', 'value' => $intFormPaymentAmount, 'text' => __("Field for Payment Amount", 'lang_form')))
 										.show_textfield(array('type' => 'number', 'name' => 'intFormPaymentTax', 'value' => $intFormPaymentTax, 'text' => __("Tax", 'lang_form'), 'xtra' => " min='0' max='25'"));
 
 										$description = "";
