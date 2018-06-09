@@ -386,7 +386,7 @@ echo "<div class='wrap'>
 										if($intForm2TypeID > 0)
 										{
 											$handle_temp = $obj_form->get_post_info()."_".$intForm2TypeID;
-											
+
 											$description_temp = '';
 
 											if($strFormTypeFetchFrom == '')

@@ -131,6 +131,22 @@
 			border-color: #ffd324;
 		}
 
+		mf-form-row.hide_publicly:before
+		{
+			content: "\f070";
+			font-family: FontAwesome;
+			font-style: normal;
+			font-weight: normal;
+			text-decoration: inherit;
+			/*--adjust as necessary--*/
+			font-size: 5em;
+			left: 50%;
+			opacity: .2;
+			position: absolute;
+			top: 50%;
+			transform: translate(-50%, -50%);
+		}
+
 		mf-form-row > .row_icons
 		{
 			border: .1em solid transparent;

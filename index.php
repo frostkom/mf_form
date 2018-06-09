@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 11.10.3
+Version: 11.10.7
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -133,6 +133,7 @@ function activate_form()
 		formTypeFetchFrom VARCHAR(50) DEFAULT NULL,
 		formTypeActionEquals VARCHAR(10),
 		formTypeActionShow INT UNSIGNED NOT NULL DEFAULT '0',
+		formTypeDisplay ENUM('0','1') NOT NULL DEFAULT '1',
 		formTypeRequired ENUM('0','1') NOT NULL DEFAULT '0',
 		formTypeAutofocus ENUM('0','1') NOT NULL DEFAULT '0',
 		formTypeRemember ENUM('0','1') NOT NULL DEFAULT '0',
@@ -143,6 +144,10 @@ function activate_form()
 		KEY formID (formID),
 		KEY formTypeID (formTypeID)
 	) DEFAULT CHARSET=".$default_charset);
+
+	$arr_add_column[$wpdb->base_prefix."form2type"] = array(
+		'formTypeDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '1' AFTER formTypeActionShow",
+	);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2answer (
 		answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,

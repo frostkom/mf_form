@@ -88,12 +88,16 @@ if(get_current_user_id() > 0)
 		}
 	}
 
-	else if(in_array($type_action, array('require', 'remember')))
+	else if(in_array($type_action, array('display', 'require', 'remember')))
 	{
 		if($type_table == 'type')
 		{
 			switch($type_action)
 			{
+				case 'display':
+					$type_field = "formTypeDisplay";
+				break;
+
 				case 'require':
 					$type_field = "formTypeRequired";
 				break;

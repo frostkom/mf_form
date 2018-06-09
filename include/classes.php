@@ -437,7 +437,7 @@ class mf_form
 					{
 						$intForm2TypeID = $r->form2TypeID;
 
-						$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
+						$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
 
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, ".$copy_fields.", form2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
 
@@ -951,24 +951,24 @@ class mf_form
 			$query_where .= " AND formTypeID = '".$data['query_type_id']."'";
 		}
 
-		if(isset($data['required']) && $data['required'] != '')
+		if(isset($data['display']))
+		{
+			$query_where .= " AND formTypeDisplay = '".$data['display']."'";
+		}
+
+		if(isset($data['required']))
 		{
 			$query_where .= " AND formTypeRequired = '".$data['required']."'";
 		}
 
-		if(isset($data['autofocus']) && $data['autofocus'] != '')
+		if(isset($data['autofocus']))
 		{
 			$query_where .= " AND formTypeAutofocus = '".$data['autofocus']."'";
 		}
 
-		if(isset($data['remember']) && $data['remember'] != '')
+		if(isset($data['remember']))
 		{
 			$query_where .= " AND formTypeRemember = '".$data['remember']."'";
-		}
-
-		if(isset($data['']) && $data[''] != '')
-		{
-			$query_where .= " AND formTypeAutofocus = '".$data['']."'";
 		}
 
 		if(isset($data['check_code']) && $data['check_code'] != '')
@@ -1323,7 +1323,7 @@ class mf_form
 			$query_where_id = $this->id;
 		}
 
-		return $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, checkCode, checkPattern, formTypeText, formTypePlaceholder, formTypeRequired, formTypeAutofocus, formTypeRemember, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."form2type.form2TypeID ORDER BY form2TypeOrder ASC", $query_where_id));
+		return $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, checkCode, checkPattern, formTypeText, formTypePlaceholder, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."form2type.form2TypeID ORDER BY form2TypeOrder ASC", $query_where_id));
 	}
 
 	function process_link_yes_no()
@@ -1772,7 +1772,7 @@ class mf_form
 
 		else
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeDisplay = '1' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->id));
 
 			foreach($result as $r)
 			{
@@ -2419,7 +2419,8 @@ class mf_form_payment
 		global $wpdb;
 
 		$this->form_id = $id;
-		$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'];
+		$this->base_form_url = get_site_url().$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
+		$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
@@ -2440,6 +2441,12 @@ class mf_form_payment
 			$obj_form = new mf_form($this->form_id);
 
 			$this->prefix = $obj_form->get_post_info()."_";
+
+			//The callback must have a public URL
+			if(is_admin())
+			{
+				$this->base_callback_url = get_permalink($obj_form->post_id)."?";
+			}
 		}
 	}
 
@@ -2977,6 +2984,11 @@ class mf_form_table extends mf_list_table
 
 						$out .= "<i class='fa fa-lg ".$icon." grey' title='".__("Provider", 'lang_form')."'></i> ";
 					}
+				}
+
+				if($obj_form->is_form_field_type_used(array('display' => '0')))
+				{
+					$out .= "<i class='fa fa-lg fa-eye-slash grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('required' => true)))
@@ -3544,7 +3556,7 @@ class mf_form_output
 					case '[user_display_name]':
 						$field_data['value'] = $user_data->display_name;
 					break;
-					
+
 					case '[user_email]':
 						$field_data['value'] = $user_data->user_email;
 					break;
@@ -3608,17 +3620,17 @@ class mf_form_output
 		return $arr_data;
 	}
 
-	function get_form_fields($data = array())
+	function get_form_fields() //$data = array()
 	{
 		global $intFormTypeID2_temp, $intForm2TypeID2_temp;
 
-		if(!isset($data['show_label'])){		$data['show_label'] = true;}
+		/*if(!isset($data['show_label'])){		$data['show_label'] = true;}
 		if(!isset($data['ignore_required'])){	$data['ignore_required'] = false;}
 
 		if($data['ignore_required'] == true)
 		{
 			$this->row->formTypeRequired = false;
-		}
+		}*/
 
 		$field_data = array(
 			'name' => $this->query_prefix.$this->row->form2TypeID,
@@ -3640,10 +3652,10 @@ class mf_form_output
 					$is_first_checkbox = true;
 				}
 
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->row->formTypeText;
-				}
+				//}
 
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['value'] = 1;
@@ -3664,10 +3676,10 @@ class mf_form_output
 					$this->answer_text = $arr_content[3];
 				}
 
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $arr_content[0]." (<span>".$this->answer_text."</span>)";
-				}
+				//}
 
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
@@ -3683,10 +3695,10 @@ class mf_form_output
 
 			//case 7:
 			case 'datepicker':
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->row->formTypeText;
-				}
+				//}
 
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
@@ -3724,10 +3736,10 @@ class mf_form_output
 
 				$field_data['name'] = "radio_".$intForm2TypeID2_temp;
 
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->row->formTypeText;
-				}
+				//}
 
 				$field_data['value'] = $this->row->form2TypeID;
 				$field_data['compare'] = $this->answer_text;
@@ -3742,10 +3754,10 @@ class mf_form_output
 			case 'radio_multiple':
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
 
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->label;
-				}
+				//}
 
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
@@ -3767,10 +3779,10 @@ class mf_form_output
 
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
 
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->label;
-				}
+				//}
 
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
@@ -3787,10 +3799,10 @@ class mf_form_output
 				$field_data['name'] .= "[]";
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
 
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->label;
-				}
+				//}
 
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
@@ -3808,10 +3820,10 @@ class mf_form_output
 				$field_data['name'] .= "[]";
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
 
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->label;
-				}
+				//}
 
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
@@ -3830,10 +3842,10 @@ class mf_form_output
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_zipcode";
 				}
 
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->row->formTypeText;
-				}
+				//}
 
 				$field_data['value'] = $this->answer_text;
 				$field_data['maxlength'] = 200;
@@ -3852,10 +3864,10 @@ class mf_form_output
 
 			//case 4:
 			case 'textarea':
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->row->formTypeText;
-				}
+				//}
 
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
@@ -3954,10 +3966,10 @@ class mf_form_output
 
 			//case 15:
 			case 'file':
-				if($data['show_label'] == true)
-				{
+				/*if($data['show_label'] == true)
+				{*/
 					$field_data['text'] = $this->row->formTypeText;
-				}
+				//}
 
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
@@ -3985,7 +3997,7 @@ class mf_form_output
 
 		if($this->in_edit_mode == true)
 		{
-			$row_settings = "";
+			$row_settings = show_checkbox(array('name' => "display_".$this->row->form2TypeID, 'text' => __("Display", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeDisplay, 'xtra' => "class='ajax_checkbox' rel='display/type/".$this->row->form2TypeID."'"));
 
 			if($this->show_required == true)
 			{
@@ -4019,7 +4031,7 @@ class mf_form_output
 				$row_settings .= "<p>".sprintf(__("For use in templates this field has got %s and %s", 'lang_form'), "[label_".$this->row->form2TypeID."]", "[answer_".$this->row->form2TypeID."]")."</p>";
 			}
 
-			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "")."'>"
+			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "").($this->row->formTypeDisplay == 0 ? " hide_publicly" : "")."'>"
 				.$this->output;
 
 				if($this->row->formTypeID != 14) //custom_tag_end
@@ -4043,7 +4055,7 @@ class mf_form_output
 			$out .= "</mf-form-row>";
 		}
 
-		else
+		else if($this->row->formTypeDisplay == 1)
 		{
 			$out .= $this->output;
 		}
