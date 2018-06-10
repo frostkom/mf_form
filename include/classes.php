@@ -2031,7 +2031,7 @@ class mf_form
 					{
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
-						$intFormPaymentTest = (isset($_POST['intFormPaymentTest']) && IS_ADMIN);
+						$intFormPaymentTest = (isset($_POST['intFormPaymentTest']) && (IS_ADMIN || isset($_GET['make_test_payment'])));
 
 						if($intFormPaymentTest == true)
 						{
@@ -2191,7 +2191,7 @@ class mf_form
 									.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
 									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
-									if($intFormPaymentProvider > 0 && IS_ADMIN)
+									if($intFormPaymentProvider > 0 && (IS_ADMIN || isset($_GET['make_test_payment'])))
 									{
 										$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
 										.apply_filters('filter_form_test_payment', '');
@@ -2521,10 +2521,10 @@ class mf_form_payment
 			}
 		}
 
-		else
+		/*else
 		{
 			do_log("No callback");
-		}
+		}*/
 	}
 
 	function confirm_cancel()
@@ -3565,7 +3565,7 @@ class mf_form_output
 	{
 		if($this->row->formTypeFetchFrom != '')
 		{
-			if(substr($this->row->formTypeFetchFrom, 0, 1) == "[")
+			if(substr($this->row->formTypeFetchFrom, 0, 1) == "[" && get_current_user_id() > 0)
 			{
 				$user_data = get_userdata(get_current_user_id());
 
