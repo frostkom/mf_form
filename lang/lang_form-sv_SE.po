@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-09 07:46+0100\n"
+"POT-Creation-Date: 2018-06-11 18:47+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -72,7 +72,7 @@ msgstr "Jag kunde inte hitta formuläret med ID '%d'"
 #: ../include/classes.php:1264
 #: ../include/classes.php:1285
 #: ../include/functions.php:147
-msgid "Choose here"
+msgid "Choose Here"
 msgstr "Välj här"
 
 #: ../create/index.php:45
@@ -741,8 +741,8 @@ msgid "Your payment was cancelled"
 msgstr "Din betalning avbröts"
 
 #: ../include/classes.php:2555
-msgid "Paid & Verfied"
-msgstr "Betalad och verifierad"
+msgid "Paid & Verified"
+msgstr "Betalad & verifierad"
 
 #: ../include/classes.php:2562
 msgid "User has paid. Waiting for confirmation..."

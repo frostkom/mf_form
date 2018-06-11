@@ -241,7 +241,7 @@ class mf_form
 
 		if($wpdb->num_rows > 0)
 		{
-			$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+			$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 
 			foreach($result as $r)
 			{
@@ -285,7 +285,7 @@ class mf_form
 
 		if($wpdb->num_rows > 0)
 		{
-			$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+			$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 
 			foreach($result as $r)
 			{
@@ -299,7 +299,7 @@ class mf_form
 	function get_tags_for_select()
 	{
 		return array(
-			'' => "-- ".__("Choose here", 'lang_form')." --",
+			'' => "-- ".__("Choose Here", 'lang_form')." --",
 			'h1' => "h1",
 			'h2' => "h2",
 			'h3' => "h3",
@@ -321,7 +321,7 @@ class mf_form
 	function get_payment_providers_for_select()
 	{
 		$arr_data = array(
-			'' => "-- ".__("Choose here", 'lang_form')." --",
+			'' => "-- ".__("Choose Here", 'lang_form')." --",
 		);
 
 		return apply_filters('form_payment_alternatives', $arr_data);
@@ -330,7 +330,7 @@ class mf_form
 	function get_payment_currency_for_select($intFormPaymentProvider)
 	{
 		$arr_data = array();
-		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+		$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 
 		switch($intFormPaymentProvider)
 		{
@@ -815,7 +815,7 @@ class mf_form
 		if(!isset($data['force_has_page'])){	$data['force_has_page'] = true;}
 
 		$arr_data = array(
-			'' => "-- ".__("Choose here", 'lang_form')." --"
+			'' => "-- ".__("Choose Here", 'lang_form')." --"
 		);
 
 		$result = $wpdb->get_results("SELECT formID, formName FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".(IS_ADMIN && $data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY formCreated DESC");
@@ -1261,7 +1261,7 @@ class mf_form
 	function get_icons_for_select()
 	{
 		$arr_data = array();
-		$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+		$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 
 		$obj_font_icons = new mf_font_icons();
 		$arr_icons = $obj_font_icons->get_array();
@@ -1282,7 +1282,7 @@ class mf_form
 
 		if($data['add_choose_here'] == true)
 		{
-			$arr_data[''] = "-- ".__("Choose here", 'lang_form')." --";
+			$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 		}
 
 		foreach($data['result'] as $r)
@@ -2552,7 +2552,7 @@ class mf_form_payment
 		{
 			if($is_verified)
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0'", "116: ".__("Paid & Verfied", 'lang_form'), $this->answer_id));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0'", "116: ".__("Paid & Verified", 'lang_form'), $this->answer_id));
 
 				$this->run_confirm_callback();
 			}

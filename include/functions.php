@@ -144,7 +144,7 @@ function get_shortcode_output_form($out)
 	if(count($tbl_group->data) > 0)
 	{
 		$arr_data = array(
-			'' => "-- ".__("Choose here", 'lang_form')." --",
+			'' => "-- ".__("Choose Here", 'lang_form')." --",
 		);
 
 		$obj_form = new mf_form();

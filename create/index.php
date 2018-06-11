@@ -42,7 +42,7 @@ $strFormTypeFetchFrom = check_var('strFormTypeFetchFrom');
 $strFormTypeActionEquals = check_var('strFormTypeActionEquals');
 $intFormTypeActionShow = check_var('intFormTypeActionShow');
 
-$strFormTypeSelect = check_var('strFormTypeSelect', '', true, "0|-- ".__("Choose here", 'lang_form')." --,1|".__("No", 'lang_form').",2|".__("Yes", 'lang_form'));
+$strFormTypeSelect = check_var('strFormTypeSelect', '', true, "0|-- ".__("Choose Here", 'lang_form')." --,1|".__("No", 'lang_form').",2|".__("Yes", 'lang_form'));
 $strFormTypeMin = check_var('strFormTypeMin', '', true, "0");
 $strFormTypeMax = check_var('strFormTypeMax', '', true, 100);
 $strFormTypeDefault = check_var('strFormTypeDefault', '', true, 1);
