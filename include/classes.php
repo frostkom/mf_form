@@ -3727,7 +3727,7 @@ class mf_form_output
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['value'] = 1;
 				$field_data['compare'] = $this->answer_text;
-				$field_data['xtra_class'] = $this->row->formTypeClass.($is_first_checkbox ? " clear" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass.($is_first_checkbox ? ($this->row->formTypeClass != '' ? " " : "")."clear" : "");
 
 				$this->output .= show_checkbox($field_data);
 
@@ -3810,7 +3810,7 @@ class mf_form_output
 
 				$field_data['value'] = $this->row->form2TypeID;
 				$field_data['compare'] = $this->answer_text;
-				$field_data['xtra_class'] = $this->row->formTypeClass.($is_first_radio ? " clear" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass.($is_first_radio ? ($this->row->formTypeClass != '' ? " " : "")."clear" : "");
 
 				$this->output .= show_radio_input($field_data);
 
