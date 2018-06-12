@@ -997,7 +997,32 @@ class mf_form
 	{
 		global $wpdb;
 
-		return $wpdb->get_results($wpdb->prepare("SELECT metaKey, metaValue FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d'", $data['id']));
+		if(!isset($data['meta_key'])){		$data['meta_key'] = '';}
+
+		$query_where = '';
+
+		if($data['meta_key'] != '')
+		{
+			$query_where .= " AND metaKey = '".esc_sql($data['meta_key'])."'";
+		}
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT metaKey, metaValue FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d'".$query_where, $data['id']));
+
+		if($data['meta_key'] != '')
+		{
+			foreach($result as $r)
+			{
+				if($data['meta_key'] == $r->metaKey)
+				{
+					return $r->metaValue;
+				}
+			}
+		}
+
+		else
+		{
+			return $result;
+		}
 	}
 
 	function get_answer_amount($data)
@@ -2027,6 +2052,11 @@ class mf_form
 
 					$this->process_transactional_emails();
 
+					if(get_current_user_id() > 0)
+					{
+						$this->set_meta(array('id' => $this->answer_id, 'key' => 'user_id', 'value' => get_current_user_id()));
+					}
+
 					if($intFormPaymentProvider > 0 && ($intFormPaymentCost > 0 || $dblQueryPaymentAmount_value > 0))
 					{
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
@@ -2552,9 +2582,17 @@ class mf_form_payment
 		{
 			if($is_verified)
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0'", "116: ".__("Paid & Verified", 'lang_form'), $this->answer_id));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid & Verified", 'lang_form'), $this->answer_id, '116:%'));
 
-				$this->run_confirm_callback();
+				if($wpdb->rows_affected > 0)
+				{
+					$this->run_confirm_callback();
+				}
+
+				else
+				{
+					do_log("Already Run");
+				}
 			}
 
 			else
@@ -2583,8 +2621,6 @@ class mf_form_payment
 				if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 				{
 					echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
-
-					//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText LIKE %s", "105: ".__("User has paid & has been sent to confirmation page. Waiting for confirmation...", 'lang_form'), $this->answer_id, '10%'));
 
 					$strFormAnswerURL = get_permalink($intFormAnswerURL);
 
@@ -2623,9 +2659,12 @@ class mf_form_payment
 	{
 		global $wpdb;
 
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0'", "116: ".$message, $this->answer_id));
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".$message, $this->answer_id, '116:%'));
 
-		$this->run_confirm_callback();
+		if($wpdb->rows_affected > 0)
+		{
+			$this->run_confirm_callback();
+		}
 
 		header("Status: 200 OK");
 	}
@@ -3310,7 +3349,17 @@ class mf_answer_table extends mf_list_table
 
 					foreach($result as $r)
 					{
-						$actions['meta_data'] .= $r->metaKey.": ".$r->metaValue."<br>";
+						switch($r->metaKey)
+						{
+							case 'test_payment':
+							case 'user_id':
+								$actions['meta_data'] .= $r->metaKey.": ".get_user_info(array('id' => $r->metaValue))."<br>";
+							break;
+
+							default:
+								$actions['meta_data'] .= $r->metaKey.": ".$r->metaValue."<br>";
+							break;
+						}
 					}
 				}
 
