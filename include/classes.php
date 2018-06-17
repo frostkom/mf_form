@@ -405,7 +405,7 @@ class mf_form
 
 		$out = "";
 
-		if(isset($_GET['btnFormCopy']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'form_copy_'.$this->id))
+		if(isset($_GET['btnFormCopy']) && wp_verify_nonce($_REQUEST['_wpnonce_form_copy'], 'form_copy_'.$this->id))
 		{
 			$inserted = true;
 
@@ -414,14 +414,14 @@ class mf_form
 
 			if($rows > 0)
 			{
-				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formPaymentAmount (the field ID is not the same in this copied form)
+				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formEmailConditions, formPaymentAmount (field IDs are not the same in this copied form)
 
 				$strFormName = $this->get_form_name($this->id);
 
 				$post_data = array(
 					'post_type' => 'mf_form',
 					'post_status' => 'publish',
-					'post_title' => $strFormName,
+					'post_title' => $strFormName." (".__("copy", 'lang_form').")",
 				);
 
 				$intPostID = wp_insert_post($post_data);
@@ -528,39 +528,43 @@ class mf_form
 			}
 		}
 
-		else if(isset($_GET['btnAnswerSpam']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_spam_'.$this->answer_id))
+		else if(isset($_GET['btnAnswerSpam']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_spam'], 'answer_spam_'.$this->answer_id))
 		{
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d'", $this->answer_id));
 
 			$done_text = __("I have marked the email as spam for you", 'lang_form');
 		}
 
-		else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'answer_approve_'.$this->answer_id))
+		else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_approve'], 'answer_approve_'.$this->answer_id))
 		{
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
 
 			$done_text = __("I have approved the answer for you", 'lang_form');
 		}
 
-		else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce'], 'message_resend_'.$this->answer_id))
+		else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
 		{
 			$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
 
 			if($wpdb->num_rows > 0)
 			{
-				$this->email_visitor = "";
-
-				$strFormName = $this->get_post_info(array('select' => "post_title"));
+				$this->form_name = $this->get_post_info(array('select' => "post_title"));
 				$this->prefix = $this->get_post_info()."_";
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
-				$r = $result[0];
-				$this->email_confirm = $r->formEmailConfirm;
-				$this->email_confirm_page = $r->formEmailConfirmPage;
-				$this->email_admin = $r->formEmail;
-				$this->email_notify = $r->formEmailNotify;
-				$this->email_notify_page = $r->formEmailNotifyPage;
-				$this->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $strFormName);
+				$this->email_visitor = '';
+
+				/*$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //, formEmailConfirm, formEmailConfirmPage, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName
+
+				foreach($result as $r)
+				{
+					//$this->email_confirm = $r->formEmailConfirm;
+					//$this->email_confirm_page = $r->formEmailConfirmPage;
+					$this->email_admin = $r->formEmail;
+					//$this->email_conditions = $r->formEmailConditions;
+					//$this->email_notify = $r->formEmailNotify;
+					//$this->email_notify_page = $r->formEmailNotifyPage;
+					//$this->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $this->form_name);
+				}*/
 
 				$this->arr_email_content = array(
 					'fields' => array(),
@@ -677,7 +681,7 @@ class mf_form
 						case 'confirm':		break;*/
 
 						case 'product':
-							$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content));
+							$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this)); //, 'answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content
 
 							if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
 							{
@@ -761,25 +765,32 @@ class mf_form
 			$query_where .= " AND formID = '".$this->id."'";
 		}
 
-		$intFormID = $wpdb->get_var("SELECT formID FROM ".$wpdb->base_prefix."form WHERE (formEmailNotifyPage > 0 OR formEmailConfirmPage > 0)".$query_where);
+		$intFormID = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' AND (formEmailNotifyPage > 0 OR formEmailConfirmPage > 0)".$query_where, $wpdb->blogid));
 
-		return ($intFormID > 0 ? true : false);
+		return ($intFormID > 0);
 	}
 
 	function check_if_has_payment()
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentCost, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
-
-		foreach($result as $r)
+		if(!isset($this->has_payment))
 		{
-			$intFormPaymentProvider = $r->formPaymentProvider;
-			$intFormPaymentCost = $r->formPaymentCost;
-			$intFormPaymentAmount = $r->formPaymentAmount;
+			$this->has_payment = false;
 
-			$this->has_payment = $intFormPaymentProvider > 0 && ($intFormPaymentCost > 0 || $intFormPaymentAmount > 0);
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentCost, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+
+			foreach($result as $r)
+			{
+				$this->payment_provider = $r->formPaymentProvider;
+				$this->payment_cost = $r->formPaymentCost;
+				$this->payment_amount = $r->formPaymentAmount;
+
+				$this->has_payment = $this->payment_provider > 0 && ($this->payment_cost > 0 || $this->payment_amount > 0);
+			}
 		}
+
+		return $this->has_payment;
 	}
 
 	function get_form_status($data = array())
@@ -1242,7 +1253,7 @@ class mf_form
 		return $out;
 	}
 
-	function get_page_content_for_email() //$data -> $this->page_content_data
+	function get_page_content_for_email()
 	{
 		global $wpdb;
 
@@ -1590,10 +1601,44 @@ class mf_form
 
 	function process_transactional_emails()
 	{
+		global $wpdb;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+
+		foreach($result as $r)
+		{
+			$this->email_confirm = $r->formEmailConfirm;
+			$this->email_confirm_page = $r->formEmailConfirmPage;
+			$this->email_admin = $r->formEmail;
+			$this->email_conditions = $r->formEmailConditions;
+			$this->email_notify = $r->formEmailNotify;
+			$this->email_notify_page = $r->formEmailNotifyPage;
+			$this->email_subject = ($r->formEmailName != '' ? $r->formEmailName : $this->form_name);
+		}
+
 		$this->page_content_data = array(
 			'subject' => $this->email_subject,
 			'content' => $this->arr_email_content,
 		);
+
+		if($this->email_conditions != '')
+		{
+			foreach(explode("\n", $this->email_conditions) as $arr_condition)
+			{
+				list($key, $value, $email) = explode("|", $arr_condition, 3);
+
+				if(substr($key, 0, strlen($this->prefix)) == $this->prefix)
+				{
+					$key = str_replace($this->prefix, "", $key);
+				}
+
+				if(isset($_REQUEST[$this->prefix.$key]) && check_var($this->prefix.$key) == $value)
+				//if($this->page_content_data['content']['fields'][$key]['value'] == $value)
+				{
+					$this->email_admin = $email;
+				}
+			}
+		}
 
 		if(isset($this->send_to) && $this->send_to != '')
 		{
@@ -1610,7 +1655,6 @@ class mf_form
 			}
 
 			$this->mail_data['content'] = $this->get_page_content_for_email();
-			//$this->mail_data['subject'] = $this->page_content_data['subject'];
 
 			$this->send_transactional_email();
 		}
@@ -1650,7 +1694,6 @@ class mf_form
 			$this->page_content_data['page_id'] = $this->email_notify_page;
 
 			$this->mail_data['content'] = $this->get_page_content_for_email();
-			//$this->mail_data['subject'] = $this->page_content_data['subject'];
 
 			$this->send_transactional_email();
 		}
@@ -1690,7 +1733,6 @@ class mf_form
 			$this->page_content_data['page_id'] = $this->email_confirm_page;
 
 			$this->mail_data['content'] = $this->get_page_content_for_email();
-			//$this->mail_data['subject'] = $this->page_content_data['subject'];
 
 			$this->send_transactional_email();
 		}
@@ -1759,6 +1801,27 @@ class mf_form
 		}
 	}
 
+	function allow_save_ip()
+	{
+		global $wpdb;
+
+		return $wpdb->get_var($wpdb->prepare("SELECT formSaveIP FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+	}
+
+	function get_mandatory_text()
+	{
+		global $wpdb;
+
+		$out = $wpdb->get_results($wpdb->prepare("SELECT formMandatoryText FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+
+		if($out == '')
+		{
+			$out = __("Please, enter all required fields", 'lang_form');
+		}
+
+		return $out;
+	}
+
 	function process_submit()
 	{
 		global $wpdb, $error_text, $done_text;
@@ -1773,22 +1836,26 @@ class mf_form
 
 		$setting_form_spam = get_option('setting_form_spam', array('email', 'filter', 'honeypot'));
 
-		$strFormName = $this->get_post_info(array('select' => "post_title"));
+		$this->form_name = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formSaveIP, formEmailConfirm, formEmailConfirmPage, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formPaymentProvider, formPaymentCost, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
-		$r = $result[0];
-		$strFormSaveIP = $r->formSaveIP;
-		$this->email_confirm = $r->formEmailConfirm;
-		$this->email_confirm_page = $r->formEmailConfirmPage;
-		$this->email_admin = $r->formEmail;
-		$this->email_notify = $r->formEmailNotify;
-		$this->email_notify_page = $r->formEmailNotifyPage;
-		$this->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $strFormName);
-		$strFormMandatoryText = $r->formMandatoryText;
-		$intFormPaymentProvider = $r->formPaymentProvider;
-		$intFormPaymentCost = $r->formPaymentCost;
-		$intFormPaymentAmount = $r->formPaymentAmount;
+		/*$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //formSaveIP, formMandatoryText, formEmailConfirm, formEmailConfirmPage, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formPaymentProvider, formPaymentCost, 
+
+		foreach($result as $r)
+		{
+			//$strFormSaveIP = $r->formSaveIP;
+			//$this->email_confirm = $r->formEmailConfirm;
+			//$this->email_confirm_page = $r->formEmailConfirmPage;
+			//$this->email_admin = $r->formEmail;
+			//$this->email_conditions = $r->formEmailConditions;
+			//$this->email_notify = $r->formEmailNotify;
+			//$this->email_notify_page = $r->formEmailNotifyPage;
+			//$this->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $this->form_name);
+			//$strFormMandatoryText = $r->formMandatoryText;
+			//$intFormPaymentProvider = $r->formPaymentProvider;
+			//$intFormPaymentCost = $r->formPaymentCost;
+			$intFormPaymentAmount = $r->formPaymentAmount;
+		}*/
 
 		$dblQueryPaymentAmount_value = 0;
 
@@ -1981,7 +2048,7 @@ class mf_form
 
 				if($strAnswerText != '')
 				{
-					if($intFormPaymentAmount == $intForm2TypeID2)
+					if($this->check_if_has_payment() && $this->payment_amount == $intForm2TypeID2)
 					{
 						$dblQueryPaymentAmount_value = $strAnswerText;
 					}
@@ -2015,7 +2082,7 @@ class mf_form
 
 				else if($intFormTypeRequired == true && !in_array($strFormTypeCode, array('text', 'space', 'referer_url')) && $error_text == '') //5, 6, 9
 				{
-					$error_text = ($strFormMandatoryText != '' ? $strFormMandatoryText : __("Please, enter all required fields", 'lang_form'))." (".$this->label.")";
+					$error_text = $this->get_mandatory_text()." (".$this->label.")";
 				}
 			}
 		}
@@ -2028,10 +2095,10 @@ class mf_form
 				$this->is_spam_id = 7;
 			}
 
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, ($strFormSaveIP == 'yes' ? $_SERVER['REMOTE_ADDR'] : ''), $this->is_spam, $this->is_spam_id));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, ($this->allow_save_ip() == 'yes' ? $_SERVER['REMOTE_ADDR'] : ''), $this->is_spam, $this->is_spam_id));
 			$this->answer_id = $wpdb->insert_id;
 
-			$email_content_temp = apply_filters('filter_form_on_submit', array('answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content));
+			$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this)); //, 'answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content
 
 			if($error_text == '')
 			{
@@ -2057,8 +2124,11 @@ class mf_form
 						$this->set_meta(array('id' => $this->answer_id, 'key' => 'user_id', 'value' => get_current_user_id()));
 					}
 
-					if($intFormPaymentProvider > 0 && ($intFormPaymentCost > 0 || $dblQueryPaymentAmount_value > 0))
+					//if($intFormPaymentProvider > 0 && ($intFormPaymentCost > 0 || $dblQueryPaymentAmount_value > 0))
+					if($this->check_if_has_payment())
 					{
+						do_log("Payment Check: ".$dblQueryPaymentAmount_value." == ".$this->page_content_data['content']['fields'][$this->payment_amount]['value']);
+
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
 						$intFormPaymentTest = (isset($_POST['intFormPaymentTest']) && (IS_ADMIN || isset($_GET['make_test_payment'])));
@@ -2069,7 +2139,7 @@ class mf_form
 						}
 
 						$obj_payment = new mf_form_payment($this->id);
-						$out .= $obj_payment->process_passthru(array('cost' => $intFormPaymentCost, 'amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest, 'email_visitor' => $this->email_visitor));
+						$out .= $obj_payment->process_passthru(array('cost' => $this->payment_cost, 'amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest, 'email_visitor' => $this->email_visitor));
 					}
 
 					else
@@ -2221,7 +2291,8 @@ class mf_form
 									.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
 									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
-									if($intFormPaymentProvider > 0 && (IS_ADMIN || isset($_GET['make_test_payment'])))
+									//if($intFormPaymentProvider > 0 && (IS_ADMIN || isset($_GET['make_test_payment'])))
+									if($this->check_if_has_payment() && (IS_ADMIN || isset($_GET['make_test_payment'])))
 									{
 										$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
 										.apply_filters('filter_form_test_payment', '');
@@ -2489,7 +2560,7 @@ class mf_form_payment
 
 		$this->cost = $data['cost'];
 		$this->cost_total = $this->amount = intval($data['amount']) > 0 ? $data['amount'] : 1;
-		
+
 		$this->orderid = $data['orderid'];
 		$this->test = $data['test'];
 		$this->email_visitor = $data['email_visitor'];
@@ -2504,7 +2575,7 @@ class mf_form_payment
 			$this->cost = $this->amount;
 			$this->amount = 1;
 		}
-		
+
 		$this->tax = $this->tax_total = 0;
 
 		if($this->payment_tax_rate > 0)
@@ -2859,7 +2930,7 @@ class mf_form_table extends mf_list_table
 		$this->post_type = "mf_form";
 
 		$this->orderby_default = "post_modified";
-		$this->orderby_default_order = "desc";
+		$this->orderby_default_order = "DESC";
 
 		/*$this->arr_settings['has_autocomplete'] = true;
 		$this->arr_settings['plugin_name'] = 'mf_form';*/
@@ -2938,7 +3009,7 @@ class mf_form_table extends mf_list_table
 						}
 					}
 
-					$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id), 'form_copy_'.$obj_form->id)."'>".__("Copy", 'lang_form')."</a>";
+					$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id), 'form_copy_'.$obj_form->id, '_wpnonce_form_copy')."'>".__("Copy", 'lang_form')."</a>";
 
 					if($post_status == 'publish' && $obj_form->id > 0)
 					{
@@ -2990,11 +3061,12 @@ class mf_form_table extends mf_list_table
 					$out .= "<i class='fa fa-lg fa-link grey' title='".__("Public", 'lang_form')."'></i> ";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailConditions, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
 
 				foreach($result as $r)
 				{
 					$strFormEmail = $r->formEmail;
+					$strFormEmailConditions = $r->formEmailConditions;
 					$intFormEmailNotifyPage = $r->formEmailNotifyPage;
 					$intFormEmailConfirm = $r->formEmailConfirm;
 					$intFormEmailConfirmPage = $r->formEmailConfirmPage;
@@ -3011,6 +3083,11 @@ class mf_form_table extends mf_list_table
 						{
 							$out .= "<i class='fa fa-lg fa-send grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
 						}
+					}
+
+					if($strFormEmailConditions != '')
+					{
+						$out .= "<i class='fa fa-lg fa-send grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
 					}
 
 					if($intFormEmailConfirm > 0)
@@ -3107,12 +3184,12 @@ class mf_form_table extends mf_list_table
 
 						$actions = array(
 							'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>",
-							'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run')."'>".__("CSV", 'lang_form')."</a>",
+							'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("CSV", 'lang_form')."</a>",
 						);
 
 						if(is_plugin_active("mf_phpexcel/index.php"))
 						{
-							$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run')."'>".__("XLS", 'lang_form')."</a>";
+							$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run', '_wpnonce_export_run')."'>".__("XLS", 'lang_form')."</a>";
 						}
 
 						$out .= $query_answers.$count_message
@@ -3168,7 +3245,7 @@ class mf_answer_table extends mf_list_table
 		$this->arr_settings['query_all_id'] = "0";
 		$this->arr_settings['query_trash_id'] = "1";
 		$this->orderby_default = "answerCreated";
-		$this->orderby_default_order = "desc";
+		$this->orderby_default_order = "DESC";
 
 		$this->arr_settings['page_vars'] = array('intFormID' => $obj_form->id);
 
@@ -3241,7 +3318,7 @@ class mf_answer_table extends mf_list_table
 			$arr_columns[$intForm2TypeID2] = shorten_text(array('string' => $obj_form->label, 'limit' => $label_limit));
 		}
 
-		if($obj_form->has_payment)
+		if($obj_form->check_if_has_payment())
 		{
 			$arr_columns['payment'] = __("Payment", 'lang_form');
 		}
@@ -3283,7 +3360,7 @@ class mf_answer_table extends mf_list_table
 						}
 					}
 
-					$actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID)."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
+					$actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
 				}
 
 				/*else
@@ -3363,7 +3440,7 @@ class mf_answer_table extends mf_list_table
 					}
 				}
 
-				if($obj_form->has_payment == false)
+				if($obj_form->check_if_has_payment() == false)
 				{
 					$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
 
@@ -3430,7 +3507,7 @@ class mf_answer_table extends mf_list_table
 
 						if($sent_failed_w_type > 0)
 						{
-							$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID)."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
+							$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
 						}
 
 					$out .= "</div>";
@@ -3520,7 +3597,7 @@ class mf_answer_table extends mf_list_table
 
 												if($item['answerSpam'] == false)
 												{
-													$actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID)."' rel='confirm'>".__("Mark as Spam", 'lang_form')."</a>";
+													$actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID, '_wpnonce_answer_spam')."' rel='confirm'>".__("Mark as Spam", 'lang_form')."</a>";
 												}
 											break;
 
@@ -3546,7 +3623,7 @@ class mf_answer_table extends mf_list_table
 
 						if($obj_form->answer_column == 0)
 						{
-							$actions['edit'] = "<a href='?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."'>".__("Edit", 'lang_form')."</a>";
+							$actions['edit'] = "<a href='".admin_url("admin.php?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID)."'>".__("Edit", 'lang_form')."</a>";
 							$actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 
 							$obj_form->answer_column++;
@@ -4083,7 +4160,7 @@ class mf_form_output
 
 			if($this->show_copy == true)
 			{
-				$row_settings .= "<a href='?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID."'>".__("Copy", 'lang_form')."</a>";
+				$row_settings .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."'>".__("Copy", 'lang_form')."</a>";
 			}
 
 			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' LIMIT 0, 1", $this->row->form2TypeID));
@@ -4095,7 +4172,7 @@ class mf_form_output
 
 			if($this->show_template_info == true)
 			{
-				$row_settings .= "<p>".sprintf(__("For use in templates this field has got %s and %s", 'lang_form'), "[label_".$this->row->form2TypeID."]", "[answer_".$this->row->form2TypeID."]")."</p>";
+				$row_settings .= "<p class='add2condition' rel='".$this->row->form2TypeID."'>".sprintf(__("For use in templates this field has got %s and %s", 'lang_form'), "<a href='#'>[label_".$this->row->form2TypeID."]</a>", "<a href='#'>[answer_".$this->row->form2TypeID."]</a>")."</p>";
 			}
 
 			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "").($this->row->formTypeDisplay == 0 ? " hide_publicly" : "")."'>"

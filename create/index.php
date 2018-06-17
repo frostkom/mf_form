@@ -15,6 +15,7 @@ $intFormShowAnswers = isset($_POST['intFormShowAnswers']) ? 1 : 0;
 $strFormSaveIP = check_var('strFormSaveIP');
 $strFormAnswerURL = check_var('strFormAnswerURL');
 $strFormEmail = check_var('strFormEmail', 'email');
+$strFormEmailConditions = check_var('strFormEmailConditions');
 $intFormEmailNotify = check_var('intFormEmailNotify');
 $intFormEmailNotifyPage = check_var('intFormEmailNotifyPage');
 $strFormEmailName = check_var('strFormEmailName');
@@ -49,7 +50,7 @@ $strFormTypeDefault = check_var('strFormTypeDefault', '', true, 1);
 
 $error_text = $done_text = "";
 
-if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce'], 'form_update_'.$obj_form->id))
+if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce_form_update'], 'form_update_'.$obj_form->id))
 {
 	if($strFormName == '')
 	{
@@ -72,7 +73,7 @@ if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_veri
 
 			$obj_form->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $dteFormDeadline));
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormSaveIP, $strFormAnswerURL, $strFormEmail, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $intFormTermsPage, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentCost, $intFormPaymentAmount, $intFormPaymentTax, $strFormPaymentCallback, $obj_form->id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormSaveIP, $strFormAnswerURL, $strFormEmail, $strFormEmailConditions, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $intFormTermsPage, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentCost, $intFormPaymentAmount, $intFormPaymentTax, $strFormPaymentCallback, $obj_form->id));
 
 			$done_text = __("I have updated the form for you", 'lang_form');
 		}
@@ -110,7 +111,7 @@ if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_veri
 	}
 }
 
-else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form_add_'.$obj_form->id))
+else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce_form_add'], 'form_add_'.$obj_form->id))
 {
 	//Clean up settings if not used for the specific type of field
 	################
@@ -212,14 +213,14 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce'], 'form
 	}
 }
 
-if($obj_form->id > 0)
+if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $obj_form->id > 0)
 {
 	if(isset($_GET['recover']))
 	{
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $obj_form->id));
 	}
 
-	$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
+	$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
 
 	if($wpdb->num_rows > 0)
 	{
@@ -230,6 +231,7 @@ if($obj_form->id > 0)
 		$strFormSaveIP = $r->formSaveIP;
 		$strFormAnswerURL = $r->formAnswerURL;
 		$strFormEmail = $r->formEmail;
+		$strFormEmailConditions = $r->formEmailConditions;
 		$intFormEmailNotify = $r->formEmailNotify;
 		$intFormEmailNotifyPage = $r->formEmailNotifyPage;
 		$strFormEmailName = $r->formEmailName;
@@ -259,7 +261,7 @@ if($obj_form->id > 0)
 	}
 }
 
-if($intForm2TypeID > 0)
+if(!isset($_POST['btnFormAdd']) && $intForm2TypeID > 0)
 {
 	$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $intForm2TypeID));
 	$r = $result[0];
@@ -391,16 +393,6 @@ echo "<div class='wrap'>
 
 											$description_temp = '';
 
-											if($strFormTypeFetchFrom == '')
-											{
-												$description_temp = "<ul>
-													<li>custom_handle_that_you_can_name_whatever</li>
-													<li>[user_display_name]</li>
-													<li>[user_email]</li>
-													<li>[user_address]</li>
-												</ul>";
-											}
-
 											if(substr($strFormTypeFetchFrom, 0, 1) == "[")
 											{
 												$description_temp .= sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."'>", "</a>");
@@ -411,7 +403,7 @@ echo "<div class='wrap'>
 												$description_temp .= sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."?".($strFormTypeFetchFrom != '' ? $strFormTypeFetchFrom : $handle_temp)."=2'>", "</a>");
 											}
 
-											echo show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Change Default Value", 'lang_form'), 'value' => $strFormTypeFetchFrom, 'maxlength' => 50, 'placeholder' => sprintf(__("Assign handle or shortcode", 'lang_form'), $handle_temp), 'xtra_class' => "show_fetch_from hide", 'description' => $description_temp));
+											echo show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Change Default Value", 'lang_form')." <i class='fa fa-info-circle' title='custom_handle_that_you_can_name_whatever, [user_display_name], [user_email] ".__("or", 'lang_form')." [user_address]'></i>", 'value' => $strFormTypeFetchFrom, 'maxlength' => 50, 'placeholder' => sprintf(__("Assign handle or shortcode", 'lang_form'), $handle_temp), 'xtra_class' => "show_fetch_from hide", 'description' => $description_temp));
 
 											$arr_data_equals = array();
 
@@ -447,14 +439,14 @@ echo "<div class='wrap'>
 
 							if($intForm2TypeID > 0)
 							{
-								echo "&nbsp;<a href='?page=mf_form/create/index.php&intFormID=".$obj_form->id."'>"
+								echo "&nbsp;<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."'>"
 									.show_button(array('type' => 'button', 'text' => __("Cancel", 'lang_form'), 'class' => "button"))
 								."</a>"
 								.input_hidden(array('name' => 'intForm2TypeID', 'value' => $intForm2TypeID));
 							}
 
 							echo input_hidden(array('name' => 'intFormID', 'value' => $obj_form->id))
-							.wp_nonce_field('form_add_'.$obj_form->id, '_wpnonce', true, false)
+							.wp_nonce_field('form_add_'.$obj_form->id, '_wpnonce_form_add', true, false)
 						."</form>
 					</div>";
 
@@ -477,7 +469,7 @@ echo "<div class='wrap'>
 							<h3 class='hndle'><span>".__("Save", 'lang_form')."</span></h3>
 							<div class='inside'>"
 								.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
-								.show_textfield(array('name' => 'strFormURL', 'text' => __("Permalink", 'lang_form'), 'value' => $strFormURL, 'maxlength' => 100)); //, 'required' => 1
+								.show_textfield(array('name' => 'strFormURL', 'text' => __("Permalink", 'lang_form'), 'value' => $strFormURL, 'maxlength' => 100));
 
 								if($form_output != '')
 								{
@@ -497,44 +489,50 @@ echo "<div class='wrap'>
 								}
 
 								echo input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))
-								.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce', true, false)
+								.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false)
 							."</div>
 						</div>
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
 							<div class='inside'>"
-								.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>"));
+								.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation Page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>"));
 
 								if($obj_form->is_poll())
 								{
 									echo show_checkbox(array('name' => 'intFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => 1, 'compare' => $intFormShowAnswers));
 								}
 
-								echo "<h4>".__("E-mail", 'lang_form')."</h4>"
-								.show_textfield(array('name' => 'strFormEmail', 'text' => __("Send from/to", 'lang_form'), 'value' => $strFormEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
+								echo "<div class='flex_flow'>"
+									.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $strFormButtonSymbol, 'text' => __("Button Symbol", 'lang_form')))
+									.show_textfield(array('name' => 'strFormButtonText', 'text' => __("Text", 'lang_form'), 'value' => $strFormButtonText, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
+								."</div>"
+								.show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"))
+								.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $strFormSaveIP, 'text' => __("Save IP", 'lang_form')))
+							."</div>
+						</div>
+						<div class='postbox'>
+							<h3 class='hndle'><span>".__("E-mail", 'lang_form')."</span></h3>
+							<div class='inside'>";
 
 								if($strFormEmailName != '')
 								{
 									echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $strFormEmailName, 'maxlength' => 100));
 								}
 
-								echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Notification on new answer", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailNotify))
-								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Notification template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-lg fa-plus'></i></a>", 'class' => "query_email_notify_page".($intFormEmailNotify == 1 ? "" : " hide")));
+								echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailNotify))
+								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-lg fa-plus'></i></a>"));
 
 								if($obj_form->has_email_field() > 0)
 								{
-									echo "<h4>".__("E-mail to visitor", 'lang_form')."</h4>"
-									.show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send confirmation to questionnaire", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailConfirm))
-									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Confirmation template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-lg fa-plus'></i></a>", 'class' => "query_email_confirm_page".($intFormEmailConfirm == 1 ? " " : " hide")));
+									echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailConfirm))
+									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-lg fa-plus'></i></a>"));
 								}
 
-								echo "<h4>".__("Button", 'lang_form')."</h4>
-								<div class='flex_flow'>"
-									.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $strFormButtonSymbol, 'text' => __("Symbol", 'lang_form')))
-									.show_textfield(array('name' => 'strFormButtonText', 'text' => __("Text", 'lang_form'), 'value' => $strFormButtonText, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
-								."</div>"
-								.show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"))
-								.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $strFormSaveIP, 'text' => __("Save IP", 'lang_form')))
+								echo show_textfield(array('name' => 'strFormEmail', 'text' => __("Send From/To", 'lang_form'), 'value' => $strFormEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
+
+								$conditions_placeholder = "[field_id]|[field_value]|".get_bloginfo('admin_email');
+
+								echo show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $strFormEmailConditions, 'placeholder' => $conditions_placeholder))
 							."</div>
 						</div>";
 
@@ -579,9 +577,7 @@ echo "<div class='wrap'>
 										$arr_data = array();
 										get_post_children(array('add_choose_here' => true), $arr_data);
 
-										$post_title = __("Terms", 'lang_form');
-
-										echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $intFormTermsPage, 'required' => true, 'suffix' => "<a href='".admin_url("post-new.php?post_type=page&post_title=".$post_title)."'><i class='fa fa-lg fa-plus'></i></a>"));
+										echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $intFormTermsPage, 'required' => true, 'suffix' => "<a href='".admin_url("post-new.php?post_type=page&post_title=".__("Terms", 'lang_form'))."'><i class='fa fa-lg fa-plus'></i></a>"));
 									}
 
 									if($intFormPaymentProvider > 0 && $strFormPaymentMerchant != '' && $strFormPaymentHmac != '')
@@ -623,7 +619,7 @@ echo "<div class='wrap'>
 						.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
 						.show_button(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))
 						.input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))
-						.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce', true, false)
+						.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false)
 					."</div>
 				</div>
 			</form>";

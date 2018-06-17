@@ -265,29 +265,80 @@ jQuery(function($)
 		});
 	}
 
-	$(document).on('click', "#intFormEmailConfirm", function()
+	var dom_email_confirm = $("#intFormEmailConfirm"),
+		dom_email_confirm_parent = $("#intFormEmailConfirmPage").parent(".form_select"),
+		dom_email_notify = $("#intFormEmailNotify"),
+		dom_email_notify_parent = $("#intFormEmailNotifyPage").parent(".form_select"),
+		dom_form_email_parent = $("#strFormEmail").parent(".form_textfield"),
+		dom_form_email_conditions_parent = $("#strFormEmailConditions").parent(".form_textfield");
+
+	function toggle_email_settings()
 	{
-		if(this.checked)
+		var display_dom_form_email = false;
+
+		if(dom_email_confirm.is(":checked"))
 		{
-			$(".query_email_confirm_page").removeClass('hide');
+			dom_email_confirm_parent.removeClass('hide');
+
+			display_dom_form_email = true;
 		}
 
 		else
 		{
-			$(".query_email_confirm_page").addClass('hide');
+			dom_email_confirm_parent.addClass('hide');
 		}
+
+		if(dom_email_notify.is(":checked"))
+		{
+			dom_email_notify_parent.removeClass('hide');
+
+			display_dom_form_email = true;
+		}
+
+		else
+		{
+			dom_email_notify_parent.addClass('hide');
+		}
+
+		if(display_dom_form_email == true)
+		{
+			dom_form_email_parent.removeClass('hide');
+			dom_form_email_conditions_parent.removeClass('hide');
+		}
+
+		else
+		{
+			dom_form_email_parent.addClass('hide');
+			dom_form_email_conditions_parent.addClass('hide');
+		}
+	}
+
+	toggle_email_settings();
+
+	$(document).on('click', "#intFormEmailConfirm, #intFormEmailNotify", function()
+	{
+		toggle_email_settings();
 	});
 
-	$(document).on('click', "#intFormEmailNotify", function()
+	var dom_form_email_conditions = $("#strFormEmailConditions");
+
+	$(document).on('click', ".add2condition a", function()
 	{
-		if(this.checked)
+		var dom_form_email_conditions_value = dom_form_email_conditions.val(),
+			dom_condition_rel = $(this).parent("p").attr('rel');
+
+		if(dom_condition_rel != '')
 		{
-			$(".query_email_notify_page").removeClass('hide');
+			if(dom_form_email_conditions_value != '')
+			{
+				dom_form_email_conditions_value += '\n';
+			}
+
+			dom_form_email_conditions_value += dom_condition_rel + '|[value]|[e-mail]';
+
+			dom_form_email_conditions.val(dom_form_email_conditions_value);
 		}
 
-		else
-		{
-			$(".query_email_notify_page").addClass('hide');
-		}
+		return false;
 	});
 });

@@ -335,11 +335,15 @@ function settings_form()
 
 	$obj_form = new mf_form();
 
-	if($obj_form->has_template())
+	if($obj_form->has_template() && is_plugin_active("mf_webshop/index.php"))
 	{
 		$arr_settings['setting_link_yes_text'] = __("Text to send as positive response", 'lang_form');
-		$arr_settings['setting_link_no_text'] = __("Text to send as negative response", 'lang_form');
-		$arr_settings['setting_link_thanks_text'] = __("Thank you message after sending response", 'lang_form');
+
+		if(get_option('setting_link_yes_text') != '')
+		{
+			$arr_settings['setting_link_no_text'] = __("Text to send as negative response", 'lang_form');
+			$arr_settings['setting_link_thanks_text'] = __("Thank you message after sending response", 'lang_form');
+		}
 	}
 
 	show_settings_fields(array('area' => $options_area, 'settings' => $arr_settings));

@@ -6,7 +6,6 @@ echo $obj_form->save_data();
 
 if($obj_form->id > 0)
 {
-	$obj_form->check_if_has_payment();
 	$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 
 	echo "<div class='wrap'>

@@ -7,7 +7,7 @@ echo $obj_form->save_data();
 echo "<div class='wrap'>
 	<h2>"
 		.__("Forms", 'lang_form')
-		."<a href='?page=mf_form/create/index.php' class='add-new-h2'>".__("Add New", 'lang_form')."</a>"
+		."<a href='".admin_url("admin.php?page=mf_form/create/index.php")."' class='add-new-h2'>".__("Add New", 'lang_form')."</a>"
 	."</h2>"
 	.get_notification();
 
