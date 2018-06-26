@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.0.2
+Version: 12.0.3
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: http://frostkom.se
@@ -23,7 +23,6 @@ add_action('cron_base', 'activate_form', mt_rand(1, 10));
 add_action('cron_base', 'cron_form', mt_rand(1, 10));
 
 add_action('init', 'init_form', 1);
-add_action('widgets_init', 'widgets_form');
 
 if(is_admin())
 {
@@ -51,6 +50,8 @@ else
 }
 
 add_shortcode('mf_form', 'shortcode_form');
+add_action('widgets_init', 'widgets_form');
+
 /*add_action('wp_ajax_submit_form', 'submit_form');
 add_action('wp_ajax_nopriv_submit_form', 'submit_form');*/
 
