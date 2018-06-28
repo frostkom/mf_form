@@ -311,12 +311,12 @@ echo "<div class='wrap'>
 		{
 			$intForm2TypeID_example = $intForm2TypeID > 0 ? $intForm2TypeID : 123;
 
-			$form_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_forms'), "[answer_id]", "[label_".$intForm2TypeID_example."]", "[answer_".$intForm2TypeID_example."]")
-				."&content=".sprintf(__("Ticket: %s, Answers: %s", 'lang_forms'), "[answer_id]", "[form_fields]");
+			$form_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_form'), "[answer_id]", "[label_".$intForm2TypeID_example."]", "[answer_".$intForm2TypeID_example."]")
+				."&content=".sprintf(__("Ticket: %s, Answers: %s", 'lang_form'), "[answer_id]", "[form_fields]");
 
 			if(is_plugin_active("mf_webshop/index.php"))
 			{
-				$form_page_shortcodes .= ($form_page_shortcodes != '' ? ", " : "").sprintf(__("Document Types: %s, Products: %s, Product Name: %s, Yes Link: %s, No Link: %s", 'lang_forms'), "[doc_types]", "[products]", "[product]", "[link_yes]", "[link_no]");
+				$form_page_shortcodes .= ($form_page_shortcodes != '' ? ", " : "").sprintf(__("Document Types: %s, Products: %s, Product Name: %s, Yes Link: %s, No Link: %s", 'lang_form'), "[doc_types]", "[products]", "[product]", "[link_yes]", "[link_no]");
 			}
 
 			//Stop fetching the last one, this makes the chooseable fields to be filtered

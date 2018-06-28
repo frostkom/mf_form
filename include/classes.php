@@ -3260,8 +3260,8 @@ class mf_answer_table extends mf_list_table
 		$this->set_views(array(
 			'db_field' => 'answerSpam',
 			'types' => array(
-				'0' => __("All", 'lang_address'),
-				'1' => __("Spam", 'lang_address')
+				'0' => __("All", 'lang_form'),
+				'1' => __("Spam", 'lang_form')
 			),
 		));
 
