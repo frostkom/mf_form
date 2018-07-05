@@ -127,7 +127,7 @@ jQuery(function($)
 	$(document).on('click', ".ajax_link", function()
 	{
 		var self = $(this),
-			type = $(this).attr('href').substring(1);
+			type = self.attr('href').substring(1);
 
 		if($(this).hasClass("confirm_link") && !confirm(script_forms_wp.confirm_question))
 		{

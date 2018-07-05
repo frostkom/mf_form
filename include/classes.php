@@ -2584,6 +2584,8 @@ class mf_form_payment
 			$this->tax_total = ($this->cost_total / ($this->payment_tax_rate / 100));
 		}
 
+		//do_log("Before Sending: ".var_export($data, true).", ".var_export($this, true));
+
 		$out = apply_filters('form_process_passthru', '', $this);
 
 		if($this->provider > 0 && $out == '')
@@ -4270,7 +4272,7 @@ class widget_form extends WP_Widget
 		$obj_form = new mf_form();
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading']))
+			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='form-title'"))
 			.show_select(array('data' => $obj_form->get_for_select(array('force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
 		."</div>";
 	}
