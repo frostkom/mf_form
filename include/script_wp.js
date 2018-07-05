@@ -270,7 +270,7 @@ jQuery(function($)
 		dom_email_notify = $("#intFormEmailNotify"),
 		dom_email_notify_parent = $("#intFormEmailNotifyPage").parent(".form_select"),
 		dom_form_email_parent = $("#strFormEmail").parent(".form_textfield"),
-		dom_form_email_conditions_parent = $("#strFormEmailConditions").parent(".form_textfield");
+		dom_form_email_conditions_parent = $("#strFormEmailConditions").parent(".form_textarea");
 
 	function toggle_email_settings()
 	{
