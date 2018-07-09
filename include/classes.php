@@ -1001,7 +1001,17 @@ class mf_form
 		if(!isset($data['key'])){		$data['key'] = '';}
 		if(!isset($data['value'])){		$data['value'] = '';}
 
-		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_meta SET answerID = '%d', metaKey = %s, metaValue = %s", $data['id'], $data['key'], $data['value']));
+		$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d' AND metaKey = %s", $data['id'], $data['key']));
+
+		if($wpdb->num_rows > 0)
+		{
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer_meta SET metaValue = %s WHERE answerID = '%d' AND metaKey = %s", $data['value'], $data['id'], $data['key']));
+		}
+
+		else
+		{
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_meta SET answerID = '%d', metaKey = %s, metaValue = %s", $data['id'], $data['key'], $data['value']));
+		}
 	}
 
 	function get_meta($data)
@@ -2127,7 +2137,7 @@ class mf_form
 					//if($intFormPaymentProvider > 0 && ($intFormPaymentCost > 0 || $dblQueryPaymentAmount_value > 0))
 					if($this->check_if_has_payment())
 					{
-						do_log("Payment Check: ".$dblQueryPaymentAmount_value." == ".$this->page_content_data['content']['fields'][$this->payment_amount]['value']);
+						//do_log("Payment Check: ".$dblQueryPaymentAmount_value." == ".$this->page_content_data['content']['fields'][$this->payment_amount]['value']);
 
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
@@ -2784,10 +2794,11 @@ class mf_form_payment
 
 		$out = apply_filters('form_process_callback', "<p>".__("Processing", 'lang_form')."&hellip;</p>", $this);
 
-		if($this->provider > 0 && $out == '')
+		// This also happens when the provider code doesn't return anything so it's kinda useless
+		/*if($this->provider > 0 && $out == '')
 		{
 			do_log(sprintf(__("A provider was set (%s) to callback but there seams to be no provider extensions installed", 'lang_form'), $this->provider));
-		}
+		}*/
 
 		return $out;
 	}
