@@ -9,6 +9,9 @@ if(!defined('ABSPATH'))
 	require_once($folder."wp-load.php");
 }
 
+include_once("../classes.php");
+require_once("../functions.php");
+
 $json_output = array();
 
 $type = check_var('type', 'char');
@@ -63,11 +66,9 @@ if(get_current_user_id() > 0)
 
 		else if($type_table == 'answer')
 		{
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $type_id));
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $type_id));
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $type_id));
+			$obj_form = new mf_form();
 
-			if($wpdb->rows_affected > 0)
+			if($obj_form->delete_answer($type_id) > 0)
 			{
 				$json_output['success'] = true;
 				$json_output['dom_id'] = $type_table."_".$type_id;

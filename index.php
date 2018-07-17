@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.0.10
+Version: 12.1.1
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -33,8 +33,12 @@ if(is_admin())
 	add_action('admin_init', 'settings_form');
 	add_action('admin_init', array($obj_form, 'admin_init'), 0);
 	add_action('admin_menu', 'menu_form');
+
 	add_action('delete_post', 'delete_form');
 	add_action('deleted_user', 'deleted_user_form');
+
+	add_filter('wp_privacy_personal_data_exporters', array($obj_form, 'wp_privacy_personal_data_exporters'), 10);
+	add_filter('wp_privacy_personal_data_erasers', array($obj_form, 'wp_privacy_personal_data_erasers'), 10);
 
 	add_filter('count_shortcode_button', 'count_shortcode_button_form');
 	add_filter('get_shortcode_output', 'get_shortcode_output_form');
@@ -101,8 +105,8 @@ function activate_form()
 		formCreated DATETIME DEFAULT NULL,
 		formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',
 		formDeletedDate DATETIME DEFAULT NULL,
-		formDeletedID INT UNSIGNED DEFAULT '0',
-		userID INT UNSIGNED DEFAULT '0',
+		formDeletedID INT UNSIGNED DEFAULT NULL,
+		userID INT UNSIGNED DEFAULT NULL,
 		PRIMARY KEY (formID),
 		KEY blogID (blogID),
 		KEY postID (postID)
@@ -379,7 +383,7 @@ function uninstall_form()
 {
 	mf_uninstall_plugin(array(
 		'uploads' => 'mf_form',
-		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'), 
+		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'),
 		'meta' => array('meta_forms_viewed'),
 		'post_types' => array('mf_form'),
 		'tables' => array('form', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),

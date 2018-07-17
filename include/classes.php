@@ -9,7 +9,7 @@ class mf_form
 		$this->post_status = "";
 		$this->form2type_id = $this->post_id = 0;
 
-		$this->meta_prefix = "mf_form_";
+		$this->meta_prefix = 'mf_form_';
 
 		$this->edit_mode = $this->is_spam = $this->is_spam_id = $this->is_sent = false;
 
@@ -73,12 +73,123 @@ class mf_form
 		}
 	}
 
-	function login_init()
+	function export_personal_data($email_address, $page = 1)
+	{
+		global $wpdb;
+
+		$number = 200;
+		$page = (int)$page;
+
+		$group_id = $this->meta_prefix;
+		$group_label = __("Forms", 'lang_form');
+
+		$export_items = array();
+
+		$tbl_group = new mf_answer_table(array('search' => $email_address));
+
+		$tbl_group->select_data(array(
+			'select' => "answerID, answerCreated",
+			'limit' => (($page - 1) * $number),
+			'amount' => $number,
+			//'debug' => true,
+		));
+
+		foreach($tbl_group->data as $r)
+		{
+			$item_id = $this->meta_prefix."-".$r->answerID;
+
+			$data = array(
+				array(
+					'name' => __("Created"),
+					'value' => $r->answerCreated,
+				),
+			);
+
+			$export_items[] = array(
+				'group_id' => $group_id,
+				'group_label' => $group_label,
+				'item_id' => $item_id,
+				'data' => $data,
+			);
+		}
+
+		return array(
+			'data' => $export_items,
+			'done' => (count($tbl_group->data) < $number),
+		);
+	}
+
+	function wp_privacy_personal_data_exporters($exporters)
+	{
+		$exporters[$this->meta_prefix] = array(
+			'exporter_friendly_name' => __("Forms", 'lang_form'),
+			'callback' => array($this, 'export_personal_data'),
+		);
+
+		return $exporters;
+	}
+
+	function erase_personal_data($email_address, $page = 1)
+	{
+		global $wpdb;
+
+		$number = 200;
+		$page = (int)$page;
+
+		$items_removed = false;
+
+		$tbl_group = new mf_answer_table(array('search' => $email_address));
+
+		$tbl_group->select_data(array(
+			'select' => "answerID, answerCreated",
+			//'limit' => (($page - 1) * $number),
+			//'amount' => $number,
+			//'debug' => true,
+		));
+
+		foreach($tbl_group->data as $r)
+		{
+			//$this->delete_answer($r->answerID)
+			do_log("Delete Answer ".$r->answerID);
+
+			$items_removed = true;
+		}
+
+		return array(
+			'items_removed' => $items_removed,
+			'items_retained' => false, // always false in this example
+			'messages' => array(), // no messages in this example
+			'done' => (count($result) < $number),
+		);
+	}
+
+	function wp_privacy_personal_data_erasers($erasers)
+	{
+		$erasers[$this->meta_prefix] = array(
+			'eraser_friendly_name' => __("Forms", 'lang_form'),
+			'callback' => array($this, 'erase_personal_data'),
+		);
+
+		return $erasers;
+	}
+
+	function delete_answer($answer_id)
+	{
+		global $wpdb;
+
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $answer_id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $answer_id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $answer_id));
+
+		return $wpdb->rows_affected;
+	}
+
+	function wp_head()
 	{
 		$this->combined_head(true);
 	}
 
-	function wp_head()
+	function login_init()
 	{
 		$this->combined_head(true);
 	}
@@ -1849,7 +1960,7 @@ class mf_form
 		$this->form_name = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
 
-		/*$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //formSaveIP, formMandatoryText, formEmailConfirm, formEmailConfirmPage, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formPaymentProvider, formPaymentCost, 
+		/*$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //formSaveIP, formMandatoryText, formEmailConfirm, formEmailConfirmPage, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formPaymentProvider, formPaymentCost,
 
 		foreach($result as $r)
 		{
