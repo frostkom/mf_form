@@ -22,7 +22,7 @@ $obj_form = new mf_form();
 add_action('cron_base', 'activate_form', mt_rand(1, 10));
 add_action('cron_base', 'cron_form', mt_rand(1, 10));
 
-add_action('init', 'init_form', 1);
+add_action('init', array($obj_form, 'init'), 1);
 
 if(is_admin())
 {
@@ -37,6 +37,7 @@ if(is_admin())
 	add_action('delete_post', 'delete_form');
 	add_action('deleted_user', 'deleted_user_form');
 
+	add_filter('wp_get_default_privacy_policy_content', array($obj_form, 'add_policy'));
 	add_filter('wp_privacy_personal_data_exporters', array($obj_form, 'wp_privacy_personal_data_exporters'), 10);
 	add_filter('wp_privacy_personal_data_erasers', array($obj_form, 'wp_privacy_personal_data_erasers'), 10);
 

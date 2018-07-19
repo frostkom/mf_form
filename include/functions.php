@@ -188,27 +188,6 @@ function deleted_user_form($user_id)
 	$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
 }
 
-function init_form()
-{
-	$labels = array(
-		'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
-		'singular_name' => _x(__("Form", 'lang_form'), 'post type singular name'),
-		'menu_name' => __("Forms", 'lang_form')
-	);
-
-	$args = array(
-		'labels' => $labels,
-		'public' => true,
-		'show_in_menu' => false,
-		'exclude_from_search' => true,
-		'rewrite' => array(
-			'slug' => "form",
-		),
-	);
-
-	register_post_type('mf_form', $args);
-}
-
 function shortcode_form($atts)
 {
 	extract(shortcode_atts(array(

@@ -19,6 +19,27 @@ class mf_form
 		}
 	}
 
+	function init()
+	{
+		$labels = array(
+			'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
+			'singular_name' => _x(__("Form", 'lang_form'), 'post type singular name'),
+			'menu_name' => __("Forms", 'lang_form')
+		);
+
+		$args = array(
+			'labels' => $labels,
+			'public' => true,
+			'show_in_menu' => false,
+			'exclude_from_search' => true,
+			'rewrite' => array(
+				'slug' => "form",
+			),
+		);
+
+		register_post_type('mf_form', $args);
+	}
+
 	function combined_head($load_replacement = false)
 	{
 		$plugin_include_url = plugin_dir_url(__FILE__);
@@ -71,6 +92,32 @@ class mf_form
 				}
 			}
 		}
+	}
+
+	function has_remember_fields()
+	{
+		global $wpdb;
+
+		$form_id = $wpdb->get_var("SELECT formID FROM ".$wpdb->base_prefix."form2type WHERE formTypeRemember = '1'");
+
+		return ($form_id > 0);
+	}
+
+	function add_policy($content)
+	{
+		$content .= "<h3>".__("Forms", 'lang_form')."</h3>
+		<p>"
+			.__("Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient.", 'lang_form')
+		."</p>";
+
+		if($this->has_remember_fields())
+		{
+			$content .= "<p>"
+				.__("When a visitor enters personal information in a form it is also saved in the so called 'localStorage' which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", 'lang_form')
+			."</p>";
+		}
+
+		return $content;
 	}
 
 	function export_personal_data($email_address, $page = 1)
