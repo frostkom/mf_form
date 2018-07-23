@@ -439,7 +439,7 @@ msgstr "Formulär som samlar in personlig information sparar datan i databasen f
 
 #: ../include/classes.php:116
 msgid "When a visitor enters personal information in a form it is also saved in the so called 'localStorage' which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor."
-msgstr "När en besökare fyller i personlig information i ett formulär sparas det också en sk. 'localStorage' vilket gör att webbläsaren kommer ihåg vad som senast skrevs in i respektive fält. Detta används endast för återkommande besökare och kan raderas av besökaren."
+msgstr "När en besökare fyller i personlig information i ett formulär sparas det också i en sk. 'localStorage' vilket gör att webbläsaren kommer ihåg vad som senast skrevs in i respektive fält. Detta används endast för återkommande besökare och kan raderas av besökaren."
 
 #: ../include/classes.php:150
 #: ../include/classes.php:3012
