@@ -24,6 +24,7 @@ $strFormButtonText = check_var('strFormButtonText');
 $strFormButtonSymbol = check_var('strFormButtonSymbol');
 $intFormPaymentProvider = check_var('intFormPaymentProvider');
 $strFormPaymentHmac = check_var('strFormPaymentHmac');
+$strFormPaymentFile = check_var('strFormPaymentFile');
 $intFormTermsPage = check_var('intFormTermsPage');
 $strFormPaymentMerchant = check_var('strFormPaymentMerchant');
 $strFormPaymentPassword = check_var('strFormPaymentPassword');
@@ -73,7 +74,7 @@ if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_veri
 
 			$obj_form->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $dteFormDeadline));
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormSaveIP, $strFormAnswerURL, $strFormEmail, $strFormEmailConditions, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $intFormTermsPage, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentCost, $intFormPaymentAmount, $intFormPaymentTax, $strFormPaymentCallback, $obj_form->id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formPaymentFile = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormSaveIP, $strFormAnswerURL, $strFormEmail, $strFormEmailConditions, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $strFormPaymentFile, $intFormTermsPage, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentCost, $intFormPaymentAmount, $intFormPaymentTax, $strFormPaymentCallback, $obj_form->id));
 
 			$done_text = __("I have updated the form for you", 'lang_form');
 		}
@@ -220,7 +221,7 @@ if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $obj_fo
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $obj_form->id));
 	}
 
-	$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
+	$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentFile, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
 
 	if($wpdb->num_rows > 0)
 	{
@@ -240,6 +241,7 @@ if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $obj_fo
 		$strFormButtonSymbol = $r->formButtonSymbol;
 		$intFormPaymentProvider = $r->formPaymentProvider;
 		$strFormPaymentHmac = $r->formPaymentHmac;
+		$strFormPaymentFile = $r->formPaymentFile;
 		$intFormTermsPage = $r->formTermsPage;
 		$strFormPaymentMerchant = $r->formPaymentMerchant;
 		$strFormPaymentPassword = $r->formPaymentPassword;
@@ -528,11 +530,8 @@ echo "<div class='wrap'>
 									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-lg fa-plus'></i></a>"));
 								}
 
-								echo show_textfield(array('name' => 'strFormEmail', 'text' => __("Send From/To", 'lang_form'), 'value' => $strFormEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
-
-								$conditions_placeholder = "[field_id]|[field_value]|".get_bloginfo('admin_email');
-
-								echo show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $strFormEmailConditions, 'placeholder' => $conditions_placeholder))
+								echo show_textfield(array('name' => 'strFormEmail', 'text' => __("Send From/To", 'lang_form'), 'value' => $strFormEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')))
+								.show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $strFormEmailConditions, 'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email')))
 							."</div>
 						</div>";
 
@@ -549,7 +548,7 @@ echo "<div class='wrap'>
 
 									if(in_array('merchant_id', $arr_fields))
 									{
-										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID / Email", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100));
+										echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID", 'lang_form')." / ".__("E-mail", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100));
 									}
 
 									if(in_array('merchant_username', $arr_fields))
@@ -569,7 +568,20 @@ echo "<div class='wrap'>
 
 									if(in_array('secret_key', $arr_fields))
 									{
-										echo show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key / Signature", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
+										echo show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key", 'lang_form')." / ".__("Signature", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
+									}
+
+									if(in_array('file', $arr_fields))
+									{
+										$description = '';
+
+										if($strFormPaymentFile == '')
+										{
+											$description = sprintf(__("The file should be a %s file.", 'lang_form'), ".pem")
+												." <a href='//comcert.getswish.net/cert-mgmt-web/authentication.html'>".__("Get yours here", 'lang_form')."</a>";
+										}
+
+										echo get_media_library(array('name' => 'strFormPaymentFile', 'label' => __("Certificate", 'lang_form'), 'value' => $strFormPaymentFile, 'type' => 'file', 'description' => $description));
 									}
 
 									if(in_array('terms_page', $arr_fields))
@@ -580,12 +592,19 @@ echo "<div class='wrap'>
 										echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $intFormTermsPage, 'required' => true, 'suffix' => "<a href='".admin_url("post-new.php?post_type=page&post_title=".__("Terms", 'lang_form'))."'><i class='fa fa-lg fa-plus'></i></a>"));
 									}
 
-									if($intFormPaymentProvider > 0 && $strFormPaymentMerchant != '' && $strFormPaymentHmac != '')
+									if($intFormPaymentProvider > 0 && ($strFormPaymentMerchant != '' || $strFormPaymentHmac != ''))
 									{
 										echo show_select(array('data' => $obj_form->get_payment_currency_for_select($intFormPaymentProvider), 'name' => 'strFormPaymentCurrency', 'value' => $strFormPaymentCurrency, 'text' => __("Currency", 'lang_form')))
-										.show_textfield(array('type' => 'number', 'name' => 'intFormPaymentCost', 'value' => $intFormPaymentCost, 'text' => __("Payment Cost", 'lang_form')))
-										.show_select(array('data' => $obj_form->get_payment_amount_for_select(), 'name' => 'intFormPaymentAmount', 'value' => $intFormPaymentAmount, 'text' => __("Field for Payment Amount", 'lang_form')))
-										.show_textfield(array('type' => 'number', 'name' => 'intFormPaymentTax', 'value' => $intFormPaymentTax, 'text' => __("Tax", 'lang_form'), 'xtra' => " min='0' max='25'"));
+										.show_textfield(array('type' => 'number', 'name' => 'intFormPaymentCost', 'value' => $intFormPaymentCost, 'text' => __("Payment Cost", 'lang_form')));
+
+										$arr_data_amount = $obj_form->get_payment_amount_for_select();
+
+										if(count($arr_data_amount) > 1)
+										{
+											echo show_select(array('data' => $arr_data_amount, 'name' => 'intFormPaymentAmount', 'value' => $intFormPaymentAmount, 'text' => __("Field for Payment Amount", 'lang_form')));
+										}
+
+										echo show_textfield(array('type' => 'number', 'name' => 'intFormPaymentTax', 'value' => $intFormPaymentTax, 'text' => __("Tax", 'lang_form'), 'xtra' => " min='0' max='25'"));
 
 										$description = "";
 
