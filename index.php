@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.1.5
+Version: 12.1.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -32,7 +32,7 @@ if(is_admin())
 
 	add_action('admin_init', 'settings_form');
 	add_action('admin_init', array($obj_form, 'admin_init'), 0);
-	add_action('admin_menu', 'menu_form');
+	add_action('admin_menu', array($obj_form, 'admin_menu'));
 
 	add_action('delete_post', 'delete_form');
 	add_action('deleted_user', 'deleted_user_form');

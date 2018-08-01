@@ -94,6 +94,133 @@ class mf_form
 		}
 	}
 
+	function get_count_answer_message($data = array())
+	{
+		global $wpdb;
+
+		if(!isset($data['form_id'])){		$data['form_id'] = 0;}
+		if(!isset($data['user_id'])){		$data['user_id'] = get_current_user_id();}
+		if(!isset($data['return_type'])){	$data['return_type'] = 'html';}
+
+		$out = "";
+
+		$last_viewed = get_user_meta($data['user_id'], 'meta_forms_viewed', true);
+
+		$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""))
+			." AND (blogID = '".$wpdb->blogid."' OR blogID IS null)"
+			." AND answerSpam = '0'";
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID)".$query_xtra, $last_viewed));
+		$rows = $wpdb->num_rows;
+
+		if($rows > 0)
+		{
+			switch($data['return_type'])
+			{
+				default:
+				case 'html':
+					$out = "&nbsp;<span class='update-plugins' title='".__("Unread answers", 'lang_form')."'>
+						<span>".$rows."</span>
+					</span>";
+				break;
+
+				case 'array':
+					$out = array(
+						'title' => $rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form'),
+						'tag' => 'form',
+						'link' => admin_url("admin.php?page=mf_form/list/index.php"),
+					);
+				break;
+			}
+		}
+
+		else if(!($data['form_id'] > 0) && IS_SUPER_ADMIN)
+		{
+			$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) ORDER BY answerCreated DESC LIMIT 0, 2");
+
+			if($wpdb->num_rows == 2)
+			{
+				$dteAnswerNew = $dteAnswerOld = "";
+
+				$i = 0;
+
+				foreach($result as $r)
+				{
+					if($i == 0)
+					{
+						$dteAnswerNew = $r->answerCreated;
+					}
+
+					else
+					{
+						$dteAnswerOld = $r->answerCreated;
+					}
+
+					$i++;
+				}
+
+				$date_diff_old = time_between_dates(array('start' => $dteAnswerOld, 'end' => $dteAnswerNew, 'type' => 'round', 'return' => 'minutes'));
+				$date_diff_new = time_between_dates(array('start' => $dteAnswerNew, 'end' => date("Y-m-d H:i:s"), 'type' => 'round', 'return' => 'minutes'));
+
+				if($date_diff_new > ($date_diff_old * 2) && $date_diff_new > (60 * 24 * 2) && $last_viewed < date("Y-m-d H:i:s", strtotime("-".$date_diff_new." minute")))
+				{
+					$message_temp = sprintf(__("There are no answers since %s", 'lang_form'), format_date($dteAnswerNew));
+
+					switch($data['return_type'])
+					{
+						default:
+						case 'html':
+							$out = "&nbsp;<span title='".$message_temp."'>
+								<i class='fa fa-warning yellow'></i>
+							</span>";
+						break;
+
+						case 'array':
+							$out = array(
+								'title' => $message_temp,
+								'tag' => 'form',
+								'link' => admin_url("admin.php?page=mf_form/list/index.php"),
+							);
+						break;
+					}
+				}
+			}
+		}
+
+		return $out;
+	}
+
+	function admin_menu()
+	{
+		//$obj_form = new mf_form();
+		$count_forms = $this->count_forms();
+
+		$menu_root = 'mf_form/';
+		$menu_start = $count_forms > 0 ? $menu_root."list/index.php" : $menu_root."create/index.php";
+
+		$menu_capability = 'edit_pages';
+
+		$count_message = $count_forms > 0 ? $this->get_count_answer_message() : "";
+
+		$menu_title = __("Forms", 'lang_form');
+		add_menu_page("", $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms', 21);
+
+		$menu_title = __("List", 'lang_form');
+		add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_start);
+
+		if($count_forms > 0)
+		{
+			$menu_title = __("Add New", 'lang_form');
+			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'create/index.php');
+
+			$menu_title = __("Answers", 'lang_form');
+			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'answer/index.php');
+
+			$menu_title = __("Edit Answer", 'lang_form');
+			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
+		}
+	}
+
 	function has_remember_fields()
 	{
 		global $wpdb;
@@ -105,16 +232,19 @@ class mf_form
 
 	function add_policy($content)
 	{
-		$content .= "<h3>".__("Forms", 'lang_form')."</h3>
-		<p>"
-			.__("Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient.", 'lang_form')
-		."</p>";
-
-		if($this->has_remember_fields())
+		if($this->count_forms() > 0)
 		{
-			$content .= "<p>"
-				.__("When a visitor enters personal information in a form it is also saved in the so called 'localStorage' which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", 'lang_form')
+			$content .= "<h3>".__("Forms", 'lang_form')."</h3>
+			<p>"
+				.__("Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient.", 'lang_form')
 			."</p>";
+
+			if($this->has_remember_fields())
+			{
+				$content .= "<p>"
+					.__("When a visitor enters personal information in a form it is also saved in the so called 'localStorage' which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", 'lang_form')
+				."</p>";
+			}
 		}
 
 		return $content;
@@ -248,7 +378,7 @@ class mf_form
 
 		do_log("obj_form->get_user_reminder was run for ".$user_id." (".$reminder_cutoff.")");
 
-		$update_form = get_count_answer_message(array('form_id' => $obj_form->id));
+		$update_form = $this->get_count_answer_message(array('form_id' => $this->id));
 
 		if($update_form != '')
 		{
@@ -3352,7 +3482,7 @@ class mf_form_table extends mf_list_table
 
 					if($query_answers > 0)
 					{
-						$count_message = get_count_answer_message(array('form_id' => $obj_form->id));
+						$count_message = $obj_form->get_count_answer_message(array('form_id' => $obj_form->id));
 
 						$actions = array(
 							'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>",
