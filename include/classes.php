@@ -2961,10 +2961,10 @@ class mf_form_payment
 					$this->run_confirm_callback();
 				}
 
-				else
+				/*else
 				{
 					do_log("Already Run");
-				}
+				}*/
 			}
 
 			else
@@ -3002,7 +3002,11 @@ class mf_form_payment
 				/*else
 				{
 					do_log("Redirect not verified");
-					//header("Status: 400 Bad Request");
+					
+					if(!headers_sent())
+					{
+						//header("Status: 400 Bad Request");
+					}
 				}*/
 
 				if($blog_id > 0)
@@ -3021,7 +3025,10 @@ class mf_form_payment
 
 		else
 		{
-			header("Status: 400 Bad Request");
+			if(!headers_sent())
+			{
+				header("Status: 400 Bad Request");
+			}
 		}
 
 		return $out;
@@ -3038,7 +3045,10 @@ class mf_form_payment
 			$this->run_confirm_callback();
 		}
 
-		header("Status: 200 OK");
+		if(!headers_sent())
+		{
+			header("Status: 200 OK");
+		}
 	}
 
 	function confirm_error($message)
@@ -3047,7 +3057,10 @@ class mf_form_payment
 
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0'", "115: ".$message, $this->answer_id));
 
-		header("Status: 400 Bad Request");
+		if(!headers_sent())
+		{
+			header("Status: 400 Bad Request");
+		}
 	}
 
 	function process_callback()
