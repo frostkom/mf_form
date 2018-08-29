@@ -19,6 +19,26 @@ class mf_form
 		}
 	}
 
+	function run_cron()
+	{
+		global $wpdb;
+
+		$setting_form_clear_spam = get_option_or_default('setting_form_clear_spam', 6);
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' AND answerCreated < DATE_SUB(NOW(), INTERVAL %d MONTH)", $setting_form_clear_spam));
+
+		if($wpdb->num_rows > 0)
+		{
+			foreach($result as $r)
+			{
+				$intAnswerID = $r->answerID;
+
+				$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = %d", $intAnswerID));
+				$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = %d", $intAnswerID));
+			}
+		}
+	}
+
 	function init()
 	{
 		$labels = array(
@@ -40,6 +60,193 @@ class mf_form
 		register_post_type('mf_form', $args);
 	}
 
+	function settings_form()
+	{
+		global $wpdb;
+
+		$options_area = __FUNCTION__;
+
+		add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
+
+		$arr_settings = array();
+		$arr_settings['setting_redirect_emails'] = __("Redirect all e-mails", 'lang_form');
+		$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
+		$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
+		$arr_settings['setting_form_spam'] = __("Spam Filter", 'lang_form');
+
+		$wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' LIMIT 0, 1");
+
+		if($wpdb->num_rows > 0)
+		{
+			$arr_settings['setting_form_clear_spam'] = __("Clear Spam", 'lang_form');
+		}
+
+		$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
+
+		if(get_option('setting_replacement_form') > 0)
+		{
+			$arr_settings['setting_replacement_form_text'] = __("Text to replace all e-mail links", 'lang_form');
+		}
+
+		//$obj_form = new mf_form();
+
+		if($this->has_template() && is_plugin_active("mf_webshop/index.php"))
+		{
+			$arr_settings['setting_link_yes_text'] = __("Text to send as positive response", 'lang_form');
+
+			if(get_option('setting_link_yes_text') != '')
+			{
+				$arr_settings['setting_link_no_text'] = __("Text to send as negative response", 'lang_form');
+				$arr_settings['setting_link_thanks_text'] = __("Thank you message after sending response", 'lang_form');
+			}
+		}
+
+		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
+	}
+
+	function settings_form_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+
+		echo settings_header($setting_key, __("Forms", 'lang_form'));
+	}
+
+	function setting_redirect_emails_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key, 'no');
+
+		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
+	}
+
+	function setting_form_test_emails_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key, 'no');
+
+		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
+	}
+
+	function setting_form_permission_see_all_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key);
+
+		$arr_data = get_roles_for_select(array('add_choose_here' => true));
+
+		echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
+	}
+
+	function setting_form_spam_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key, array('email', 'filter', 'honeypot'));
+
+		$arr_data = array(
+			'email' => __("Recurring E-mail", 'lang_form'),
+			'filter' => __("HTML & Links", 'lang_form'),
+			'honeypot' => __("Honeypot", 'lang_form'),
+		);
+
+		echo show_select(array('data' => $arr_data, 'name' => $setting_key."[]", 'value' => $option));
+	}
+
+	function setting_replacement_form_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key);
+
+		//$obj_form = new mf_form();
+
+		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+	}
+
+	function setting_replacement_form_text_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key);
+
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Click here to send e-mail", 'lang_form')));
+	}
+
+	function setting_form_clear_spam_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option_or_default($setting_key, 6);
+
+		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'suffix' => __("months", 'lang_form')));
+	}
+
+	function setting_link_yes_text_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key);
+
+		echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
+			'class' => "hide_media_button hide_tabs",
+			'mini_toolbar' => true,
+			'textarea_rows' => 5,
+			//'statusbar' => false,
+		));
+	}
+
+	function setting_link_no_text_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key);
+
+		echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
+			'class' => "hide_media_button hide_tabs",
+			'mini_toolbar' => true,
+			'textarea_rows' => 5,
+			//'statusbar' => false,
+		));
+	}
+
+	function setting_link_thanks_text_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key);
+
+		echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
+			'class' => "hide_media_button hide_tabs",
+			'mini_toolbar' => true,
+			'textarea_rows' => 5,
+			//'statusbar' => false,
+		));
+	}
+
+	function preg_email_concat($matches)
+	{
+		$setting_replacement_form = get_option('setting_replacement_form');
+		$setting_replacement_form_text = get_option_or_default('setting_replacement_form_text', __("Click here to send e-mail", 'lang_form'));
+
+		$email = $matches[1];
+
+		$obj_form = new mf_form($setting_replacement_form);
+
+		$form_md5 = md5("form_link_".$email."_".mt_rand(1, 1000));
+
+		$out = "<a href='#' class='form_link' rel='".$form_md5."'>".$setting_replacement_form_text."</a>
+		<div id='inline_form_".$form_md5."' class='form_inline hide'>"
+			.$obj_form->process_form(array('send_to' => $email))
+		."</div>";
+
+		return $out;
+	}
+
+	function the_content_form($html)
+	{
+		$char_before = "?<=^|\s|\(|\[";
+		$chars = "[-A-Za-z\d_.]+[@][A-Za-z\d_-]+([.][A-Za-z\d_-]+)*[.][A-Za-z]{2,8}";
+		$char_after = "?=\s|$|\)|\'|\!|(\?)|\.|\]|\<|\[|;";
+
+		$html = preg_replace("/(".$char_before.")(".$chars.")(".$char_after.")/", "<a href='mailto:$1'>$1</a>", $html);
+		$html = preg_replace_callback("/<a.*?href=['\"]mailto:(.*?)['\"]>.*?<\/a>/i", array($this, 'preg_email_concat'), $html);
+
+		return $html;
+	}
+
 	function combined_head($load_replacement = false)
 	{
 		$plugin_include_url = plugin_dir_url(__FILE__);
@@ -54,7 +261,7 @@ class mf_form
 			{
 				mf_enqueue_style('style_form_replacement', $plugin_include_url."style_replacement.css", $plugin_version);
 
-				add_filter('the_content', 'the_content_form');
+				add_filter('the_content', array($this, 'the_content_form'));
 			}
 		}
 	}
@@ -192,7 +399,6 @@ class mf_form
 
 	function admin_menu()
 	{
-		//$obj_form = new mf_form();
 		$count_forms = $this->count_forms();
 
 		$menu_root = 'mf_form/';
@@ -219,6 +425,31 @@ class mf_form
 			$menu_title = __("Edit Answer", 'lang_form');
 			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
 		}
+	}
+
+	function delete_post($post_id)
+	{
+		global $post_type;
+
+		if($post_type == 'mf_form')
+		{
+			do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form");
+
+			/*$this->get_form_id($post_id);
+
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $this->id));
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = (SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d')", $this->id));
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d'", $this->id));
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));*/
+		}
+	}
+
+	function deleted_user($user_id)
+	{
+		global $wpdb;
+
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
 	}
 
 	function has_remember_fields()
@@ -350,6 +581,69 @@ class mf_form
 		return $erasers;
 	}
 
+	function count_shortcode_button($count)
+	{
+		if($count == 0)
+		{
+			//$obj_form = new mf_form();
+
+			if($this->count_forms(array('post_status' => 'publish')) > 0)
+			{
+				$count++;
+			}
+		}
+
+		return $count;
+	}
+
+	function get_shortcode_output($out)
+	{
+		$tbl_group = new mf_form_table();
+
+		$tbl_group->select_data(array(
+			//'select' => "*",
+			//'debug' => true,
+		));
+
+		if(count($tbl_group->data) > 0)
+		{
+			$arr_data = array(
+				'' => "-- ".__("Choose Here", 'lang_form')." --",
+			);
+
+			//$obj_form = new mf_form();
+
+			foreach($tbl_group->data as $r)
+			{
+				$arr_data[$this->get_form_id($r['ID'])] = $r['post_title'];
+			}
+
+			$out .= "<h3>".__("Choose a Form", 'lang_form')."</h3>"
+			.show_select(array('data' => $arr_data, 'xtra' => "rel='mf_form'"));
+		}
+
+		return $out;
+	}
+
+	function get_shortcode_list($data)
+	{
+		$post_id = $data[0];
+		$content_list = $data[1];
+
+		if($post_id > 0)
+		{
+			//$obj_form = new mf_form();
+			$this->get_form_id_from_post_content($post_id);
+
+			if($this->id > 0)
+			{
+				$content_list .= "<li><a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'>".$this->get_form_name()."</a> <span class='grey'>[mf_form id=".$this->id."]</span></li>";
+			}
+		}
+
+		return array($post_id, $content_list);
+	}
+
 	function delete_answer($answer_id)
 	{
 		global $wpdb;
@@ -369,6 +663,58 @@ class mf_form
 	function login_init()
 	{
 		$this->combined_head(true);
+	}
+
+	function shortcode_form($atts)
+	{
+		extract(shortcode_atts(array(
+			'id' => ''
+		), $atts));
+
+		//$obj_form = new mf_form($id);
+		$this->id = $id;
+
+		return $this->process_form();
+	}
+
+	function widgets_init()
+	{
+		register_widget('widget_form');
+	}
+
+	function phpmailer_init($phpmailer)
+	{
+		if(is_user_logged_in() && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
+		{
+			$user_data = get_userdata(get_current_user_id());
+
+			$mail_to = $phpmailer->getToAddresses();
+			$mail_to_old = $mail_to[0][0];
+			$mail_to_new = $user_data->user_email;
+
+			$reject_subject_start = "[".get_bloginfo('name')."] ";
+
+			if($mail_to_new != $mail_to_old && $phpmailer->FromName != "WordPress" && substr($phpmailer->Subject, 0, strlen($reject_subject_start)) != $reject_subject_start)
+			{
+				$phpmailer->Subject = __("Redirect Test", 'lang_form')." (".$mail_to_old."): ".$phpmailer->Subject;
+				$phpmailer->clearAddresses();
+				$phpmailer->addAddress($mail_to_new);
+			}
+		}
+
+		else if(get_option('setting_redirect_emails') == 'yes')
+		{
+			$mail_to = $phpmailer->getToAddresses();
+			$mail_to_old = $mail_to[0][0];
+			$mail_to_new = get_bloginfo('admin_email');
+
+			if($mail_to_new != $mail_to_old)
+			{
+				$phpmailer->Subject = __("Redirect All", 'lang_form')." (".$mail_to_old."): ".$phpmailer->Subject;
+				$phpmailer->clearAddresses();
+				$phpmailer->addAddress($mail_to_new);
+			}
+		}
 	}
 
 	/*function get_user_reminders($array)
@@ -2451,6 +2797,48 @@ class mf_form
 		return $out;
 	}
 
+	function get_poll_results($data)
+	{
+		global $wpdb;
+
+		$out = "";
+
+		//$obj_form = new mf_form($data['form_id']);
+		$this->id = $data['form_id'];
+		list($result, $rows) = $this->get_form_type_info(array('query_type_id' => array(5, 8))); //'text', 'radio_button'
+
+		foreach($result as $r)
+		{
+			$intForm2TypeID2 = $r->form2TypeID;
+			$intFormTypeID2 = $r->formTypeID;
+			$strFormTypeText2 = $r->formTypeText;
+
+			$out .= "<div".($intFormTypeID2 == 8 ? " class='form_radio'" : "").">";
+
+				if($intFormTypeID2 == 8)
+				{
+					$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID = '8' AND form2TypeID = '".$intForm2TypeID2."'", $this->id));
+
+					$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
+
+					$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
+				}
+
+				$out .= "<p>"
+					.$strFormTypeText2;
+
+					if($intFormTypeID2 == 8)
+					{
+						$out .= "<span>".$intAnswerPercent."%</span>";
+					}
+
+				$out .= "</p>
+			</div>";
+		}
+
+		return $out;
+	}
+
 	function get_form($data = array())
 	{
 		global $wpdb, $wp_query, $done_text, $error_text;
@@ -2494,7 +2882,7 @@ class mf_form
 
 					if($intFormShowAnswers == 1 && $data['total_answers'] > 0)
 					{
-						$out .= get_poll_results($data);
+						$out .= $this->get_poll_results($data);
 					}
 
 					else if($intFormAnswerURL > 0)
@@ -2815,7 +3203,7 @@ class mf_form
 
 class mf_form_payment
 {
-	function __construct($id)
+	function __construct($id = 0)
 	{
 		global $wpdb;
 
@@ -2823,34 +3211,100 @@ class mf_form_payment
 		$this->base_form_url = get_site_url().$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
 		$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formPaymentFile, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
-
-		foreach($result as $r)
+		if($this->form_id > 0)
 		{
-			$this->name = $r->formName;
-			$this->provider = $r->formPaymentProvider;
-			$this->hmac = $r->formPaymentHmac;
-			$this->cert_file = $r->formPaymentFile;
-			$this->terms_page = $r->formTermsPage;
-			$this->merchant = $r->formPaymentMerchant;
-			$this->password = $r->formPaymentPassword;
-			$this->currency = $r->formPaymentCurrency;
-			$this->answer_url = $r->formAnswerURL;
-			$this->payment_cost = $r->formPaymentCost;
-			$this->payment_amount = $r->formPaymentAmount;
-			$this->payment_tax_rate = $r->formPaymentTax != '' ? $r->formPaymentTax : 25;
-			$this->payment_callback = $r->formPaymentCallback;
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formPaymentFile, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
-			$obj_form = new mf_form($this->form_id);
-
-			$this->prefix = $obj_form->get_post_info()."_";
-
-			//The callback must have a public URL
-			if(is_admin())
+			foreach($result as $r)
 			{
-				$this->base_callback_url = get_permalink($obj_form->post_id)."?";
+				$this->name = $r->formName;
+				$this->provider = $r->formPaymentProvider;
+				$this->hmac = $r->formPaymentHmac;
+				$this->cert_file = $r->formPaymentFile;
+				$this->terms_page = $r->formTermsPage;
+				$this->merchant = $r->formPaymentMerchant;
+				$this->password = $r->formPaymentPassword;
+				$this->currency = $r->formPaymentCurrency;
+				$this->answer_url = $r->formAnswerURL;
+				$this->payment_cost = $r->formPaymentCost;
+				$this->payment_amount = $r->formPaymentAmount;
+				$this->payment_tax_rate = $r->formPaymentTax != '' ? $r->formPaymentTax : 25;
+				$this->payment_callback = $r->formPaymentCallback;
+
+				$obj_form = new mf_form($this->form_id);
+
+				$this->prefix = $obj_form->get_post_info()."_";
+
+				//The callback must have a public URL
+				if(is_admin())
+				{
+					$this->base_callback_url = get_permalink($obj_form->post_id)."?";
+				}
 			}
 		}
+	}
+
+	function get_site_language($data) //sv_SE, en_US etc.
+	{
+		if(!isset($data['type'])){				$data['type'] = '';}
+		if(!isset($data['uc'])){				$data['uc'] = true;}
+		if(!isset($data['return_separator'])){	$data['return_separator'] = "_";}
+
+		if(preg_match("/\_/", $data['language']))
+		{
+			$arr_language = explode("_", $data['language']);
+		}
+
+		else
+		{
+			$arr_language = explode("-", $data['language']);
+		}
+
+		$out = "";
+
+		switch($data['type'])
+		{
+			case 'first': //sv, en etc.
+				if(isset($arr_language[0]))
+				{
+					$out = $arr_language[0];
+
+					if($data['uc'] == true)
+					{
+						$out = strtoupper($out);
+					}
+				}
+
+				else
+				{
+					do_log("Wrong lang[0]: ".var_export($data, true));
+				}
+			break;
+
+			case 'last': //SE, US etc.
+				if(isset($arr_language[1]))
+				{
+					$out = $arr_language[1];
+
+					if($data['uc'] == true)
+					{
+						$out = strtoupper($out);
+					}
+				}
+
+				else
+				{
+					do_log("Wrong lang[1]: ".var_export($data, true));
+				}
+			break;
+
+			default:
+				//$out = $data['language'];
+				$out = $arr_language[0].$data['return_separator'].$arr_language[1];
+			break;
+		}
+
+		return $out;
 	}
 
 	function process_passthru($data)
@@ -3002,7 +3456,7 @@ class mf_form_payment
 				/*else
 				{
 					do_log("Redirect not verified");
-					
+
 					if(!headers_sent())
 					{
 						//header("Status: 400 Bad Request");

@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.1.7
+Version: 12.1.8
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -20,7 +20,7 @@ include_once("include/functions.php");
 $obj_form = new mf_form();
 
 add_action('cron_base', 'activate_form', mt_rand(1, 10));
-add_action('cron_base', 'cron_form', mt_rand(1, 10));
+add_action('cron_base', array($obj_form, 'run_cron'), mt_rand(1, 10));
 
 add_action('init', array($obj_form, 'init'), 1);
 
@@ -30,20 +30,20 @@ if(is_admin())
 	register_deactivation_hook(__FILE__, 'deactivate_form');
 	register_uninstall_hook(__FILE__, 'uninstall_form');
 
-	add_action('admin_init', 'settings_form');
+	add_action('admin_init', array($obj_form, 'settings_form'));
 	add_action('admin_init', array($obj_form, 'admin_init'), 0);
 	add_action('admin_menu', array($obj_form, 'admin_menu'));
 
-	add_action('delete_post', 'delete_form');
-	add_action('deleted_user', 'deleted_user_form');
+	add_action('delete_post', array($obj_form, 'delete_post'));
+	add_action('deleted_user', array($obj_form, 'deleted_user'));
 
 	add_filter('wp_get_default_privacy_policy_content', array($obj_form, 'add_policy'));
 	add_filter('wp_privacy_personal_data_exporters', array($obj_form, 'wp_privacy_personal_data_exporters'), 10);
 	add_filter('wp_privacy_personal_data_erasers', array($obj_form, 'wp_privacy_personal_data_erasers'), 10);
 
-	add_filter('count_shortcode_button', 'count_shortcode_button_form');
-	add_filter('get_shortcode_output', 'get_shortcode_output_form');
-	add_filter('get_shortcode_list', 'get_shortcode_list_form');
+	add_filter('count_shortcode_button', array($obj_form, 'count_shortcode_button'));
+	add_filter('get_shortcode_output', array($obj_form, 'get_shortcode_output'));
+	add_filter('get_shortcode_list', array($obj_form, 'get_shortcode_list'));
 
 	//add_filter('get_user_reminders', array($obj_form, 'get_user_reminders'), 10, 1);
 }
@@ -54,15 +54,15 @@ else
 	add_action('login_init', array($obj_form, 'login_init'), 0);
 }
 
-add_shortcode('mf_form', 'shortcode_form');
-add_action('widgets_init', 'widgets_form');
+add_shortcode('mf_form', array($obj_form, 'shortcode_form'));
+add_action('widgets_init', array($obj_form, 'widgets_init'));
 
 /*add_action('wp_ajax_submit_form', 'submit_form');
 add_action('wp_ajax_nopriv_submit_form', 'submit_form');*/
 
 add_filter('single_template', 'custom_templates_form');
 
-add_action('phpmailer_init', 'phpmailer_init_form', 0);
+add_action('phpmailer_init', array($obj_form, 'phpmailer_init'), 0);
 
 load_plugin_textdomain('lang_form', false, dirname(plugin_basename(__FILE__)).'/lang/');
 

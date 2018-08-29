@@ -158,7 +158,7 @@ jQuery(function($)
 
 	$('.form_inline .error, .form_inline h2').each(function()
 	{
-		$(this).parents('.form_inline').removeClass('hide');
+		$(this).parents('.form_inline').show();
 	});
 
 	$('.mf_form .form_zipcode input').each(function()
