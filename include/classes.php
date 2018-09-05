@@ -156,8 +156,6 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		//$obj_form = new mf_form();
-
 		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 	}
 
@@ -223,13 +221,14 @@ class mf_form
 
 		$email = $matches[1];
 
-		$obj_form = new mf_form($setting_replacement_form);
+		//$obj_form = new mf_form();
+		$this->id = $setting_replacement_form;
 
 		$form_md5 = md5("form_link_".$email."_".mt_rand(1, 1000));
 
 		$out = "<a href='#' class='form_link' rel='".$form_md5."'>".$setting_replacement_form_text."</a>
 		<div id='inline_form_".$form_md5."' class='form_inline hide'>"
-			.$obj_form->process_form(array('send_to' => $email))
+			.$this->process_form(array('send_to' => $email))
 		."</div>";
 
 		return $out;
@@ -583,14 +582,9 @@ class mf_form
 
 	function count_shortcode_button($count)
 	{
-		if($count == 0)
+		if($count == 0 &&$this->count_forms(array('post_status' => 'publish')) > 0)
 		{
-			//$obj_form = new mf_form();
-
-			if($this->count_forms(array('post_status' => 'publish')) > 0)
-			{
-				$count++;
-			}
+			$count++;
 		}
 
 		return $count;
@@ -611,8 +605,6 @@ class mf_form
 				'' => "-- ".__("Choose Here", 'lang_form')." --",
 			);
 
-			//$obj_form = new mf_form();
-
 			foreach($tbl_group->data as $r)
 			{
 				$arr_data[$this->get_form_id($r['ID'])] = $r['post_title'];
@@ -632,7 +624,6 @@ class mf_form
 
 		if($post_id > 0)
 		{
-			//$obj_form = new mf_form();
 			$this->get_form_id_from_post_content($post_id);
 
 			if($this->id > 0)
@@ -671,7 +662,6 @@ class mf_form
 			'id' => ''
 		), $atts));
 
-		//$obj_form = new mf_form($id);
 		$this->id = $id;
 
 		return $this->process_form();
@@ -963,8 +953,9 @@ class mf_form
 
 	function get_payment_currency_for_select($intFormPaymentProvider)
 	{
-		$arr_data = array();
-		$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
+		$arr_data = array(
+			'' => "-- ".__("Choose Here", 'lang_form')." --"
+		);
 
 		switch($intFormPaymentProvider)
 		{
@@ -1009,6 +1000,7 @@ class mf_form
 	function get_payment_amount_for_select()
 	{
 		list($result, $rows) = $this->get_form_type_info(array('query_type_id' => array(10, 12))); //'select', 'hidden_field'
+
 		return $this->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
 	}
 
