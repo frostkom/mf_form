@@ -2584,7 +2584,7 @@ class mf_form
 					case 'checkbox_multiple':
 						$strAnswerText = "";
 
-						if(is_array($_POST[$handle2fetch]))
+						if(isset($_POST[$handle2fetch]) && is_array($_POST[$handle2fetch]))
 						{
 							foreach($_POST[$handle2fetch] as $value)
 							{
