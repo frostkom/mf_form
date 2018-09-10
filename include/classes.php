@@ -183,7 +183,7 @@ class mf_form
 		echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
 			'class' => "hide_media_button hide_tabs",
 			'mini_toolbar' => true,
-			'textarea_rows' => 5,
+			'editor_height' => 100,
 			//'statusbar' => false,
 		));
 	}
@@ -196,7 +196,7 @@ class mf_form
 		echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
 			'class' => "hide_media_button hide_tabs",
 			'mini_toolbar' => true,
-			'textarea_rows' => 5,
+			'editor_height' => 100,
 			//'statusbar' => false,
 		));
 	}
@@ -209,7 +209,7 @@ class mf_form
 		echo show_wp_editor(array('name' => $setting_key, 'value' => $option,
 			'class' => "hide_media_button hide_tabs",
 			'mini_toolbar' => true,
-			'textarea_rows' => 5,
+			'editor_height' => 100,
 			//'statusbar' => false,
 		));
 	}
@@ -2964,8 +2964,8 @@ class mf_form
 						{
 							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"))
 							.apply_filters('filter_form_after_fields', '')
-							."<div class='form_button_container'>
-								<div class='form_button'>"
+							//."<div class='form_button_container'>"
+								."<div class='form_button'>"
 									.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
 									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
@@ -2983,7 +2983,8 @@ class mf_form
 
 								$out .= "</div>"
 								.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
-							."</div>";
+							//."</div>"
+							."";
 						}
 
 					$out .= "</form>";

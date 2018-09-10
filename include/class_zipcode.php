@@ -18610,7 +18610,7 @@ class mf_zipcode
 	function get_city($key)
 	{
 		$arr_exclude = array("å", "ä", "ö", "Å", "Ä", "Ö");
-		$arr_include = array(__("aring", 'lang_form'), __("auml", 'lang_form'), __("ouml", 'lang_form'), __("Aring", 'lang_form'), __("Auml", 'lang_form'), __("Ouml", 'lang_form'));
+		$arr_include = array("aring", "auml", "ouml", "Aring", "Auml", "Ouml");
 
 		return (isset($this->arr_data[$key][0]) ? str_replace($arr_exclude, $arr_include, $this->arr_data[$key][0]) : '');
 	}
