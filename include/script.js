@@ -205,7 +205,7 @@ jQuery(function($)
 
 			else
 			{
-				dom_overlay.html("<i class='fa fa-2x fa-close'></i>" + dom_obj_inline.html()).parent('#overlay_form').fadeIn();
+				dom_overlay.html("<i class='fa fa-close fa-2x'></i>" + dom_obj_inline.html()).parent('#overlay_form').fadeIn();
 			}
 		}
 

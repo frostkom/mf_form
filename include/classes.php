@@ -156,7 +156,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-lg fa-plus'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus fa-lg'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 	}
 
 	function setting_replacement_form_text_callback()
@@ -377,7 +377,7 @@ class mf_form
 						default:
 						case 'html':
 							$out = "&nbsp;<span title='".$message_temp."'>
-								<i class='fa fa-warning yellow'></i>
+								<i class='fas fa-exclamation-triangle yellow'></i>
 							</span>";
 						break;
 
@@ -3820,7 +3820,7 @@ class mf_form_table extends mf_list_table
 			case 'content':
 				if($post_status == 'publish')
 				{
-					$out .= "<i class='fa fa-lg fa-link grey' title='".__("Public", 'lang_form')."'></i> ";
+					$out .= "<i class='fas fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
 				}
 
 				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailConditions, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
@@ -3838,30 +3838,30 @@ class mf_form_table extends mf_list_table
 					{
 						if($intFormEmailNotifyPage > 0)
 						{
-							$out .= "<i class='fa fa-lg fa-send grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
+							$out .= "<i class='far fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
 						}
 
 						else
 						{
-							$out .= "<i class='fa fa-lg fa-send grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
+							$out .= "<i class='far fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
 						}
 					}
 
 					if($strFormEmailConditions != '')
 					{
-						$out .= "<i class='fa fa-lg fa-send grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
+						$out .= "<i class='far fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
 					}
 
 					if($intFormEmailConfirm > 0)
 					{
 						if($intFormEmailConfirmPage > 0)
 						{
-							$out .= "<i class='fa fa-lg fa-send-o grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
+							$out .= "<i class='far fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
 						}
 
 						else
 						{
-							$out .= "<i class='fa fa-lg fa-send-o grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
+							$out .= "<i class='far fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
 						}
 					}
 
@@ -3870,68 +3870,68 @@ class mf_form_table extends mf_list_table
 						switch($intFormPaymentProvider)
 						{
 							case 3:
-								$icon = "fa-paypal";
+								$icon = "fab fa-paypal";
 							break;
 
 							default:
-								$icon = "fa-shopping-cart";
+								$icon = "fa fa-shopping-cart";
 							break;
 						}
 
-						$out .= "<i class='fa fa-lg ".$icon." grey' title='".__("Provider", 'lang_form')."'></i> ";
+						$out .= "<i class='".$icon." fa-lg grey' title='".__("Provider", 'lang_form')."'></i> ";
 					}
 				}
 
 				if($obj_form->is_form_field_type_used(array('display' => '0')))
 				{
-					$out .= "<i class='fa fa-lg fa-eye-slash grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
+					$out .= "<i class='far fa-eye-slash fa-lg grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('required' => true)))
 				{
-					$out .= "<i class='fa fa-lg fa-asterisk grey' title='".__("There are required fields", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-asterisk fa-lg grey' title='".__("There are required fields", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('autofocus' => true)))
 				{
-					$out .= "<i class='fa fa-lg fa-i-cursor grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-i-cursor fa-lg grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('remember' => true)))
 				{
-					$out .= "<i class='fa fa-lg fa-refresh grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
+					$out .= "<i class='fas fa-sync fa-lg grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
 				}
 
 				$out .= "<br>";
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
 				{
-					$out .= "<i class='fa fa-lg fa-at grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-at fa-lg grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 1)))
 				{
-					$out .= "<i class='fa fa-lg fa-check-square-o grey' title='".__("Checkbox", 'lang_form')."'></i> ";
+					$out .= "<i class='far fa-check-square fa-lg grey' title='".__("Checkbox", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 2)))
 				{
-					$out .= "<i class='fa fa-lg fa-sliders grey' title='".__("Range", 'lang_form')."'></i> ";
+					$out .= "<i class='fas fa-sliders-h fa-lg grey' title='".__("Range", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
 				{
-					$out .= "<i class='fa fa-lg fa-calendar grey' title='".__("Datepicker", 'lang_form')."'></i> ";
+					$out .= "<i class='fas fa-calendar-alt fa-lg grey' title='".__("Datepicker", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 8)))
 				{
-					$out .= "<i class='fa fa-lg fa-circle-o grey' title='".__("Radio button", 'lang_form')."'></i> ";
+					$out .= "<i class='far fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
 				{
-					$out .= "<i class='fa fa-lg fa-file-o grey' title='".__("File", 'lang_form')."'></i> ";
+					$out .= "<i class='far fa-file fa-lg grey' title='".__("File", 'lang_form')."'></i> ";
 				}
 			break;
 
@@ -4110,7 +4110,7 @@ class mf_answer_table extends mf_list_table
 
 				if($item[$column_name] == true)
 				{
-					$out .= "<i class='fa fa-lg fa-close red'></i>";
+					$out .= "<i class='fa fa-close fa-lg red'></i>";
 
 					if($item['spamID'] > 0)
 					{
@@ -4127,7 +4127,7 @@ class mf_answer_table extends mf_list_table
 
 				/*else
 				{
-					$out .= "<i class='fa fa-lg fa-check green'></i>";
+					$out .= "<i class='fa fa-check fa-lg green'></i>";
 				}*/
 
 				$out .= $this->row_actions($actions);
@@ -4236,14 +4236,14 @@ class mf_answer_table extends mf_list_table
 
 						if($intAnswerSent == 1)
 						{
-							$fa_class = "fa-check green";
+							$fa_class = "fa fa-check green";
 
 							$sent_successfully++;
 						}
 
 						else
 						{
-							$fa_class = "fa-close red";
+							$fa_class = "fa fa-close red";
 
 							$sent_failed++;
 
@@ -4256,7 +4256,7 @@ class mf_answer_table extends mf_list_table
 						if($strAnswerEmail != $strAnswerEmail_temp)
 						{
 							$li_out .= "<li>
-								<i class='fa ".$fa_class."'></i> ".$strAnswerEmail
+								<i class='".$fa_class."'></i> ".$strAnswerEmail
 							."</li>";
 
 							$strAnswerEmail_temp = $strAnswerEmail;
@@ -4949,7 +4949,7 @@ class mf_form_output
 							$out .= "<i class='fa fa-info-circle blue'></i>";
 						}
 
-						$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='fa fa-pencil-square-o'></i></a>
+						$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='far fa-edit'></i></a>
 					</div>";
 
 					if($row_settings != '')

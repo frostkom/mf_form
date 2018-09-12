@@ -497,7 +497,7 @@ echo "<div class='wrap'>
 						<div class='postbox'>
 							<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
 							<div class='inside'>"
-								.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation Page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-lg fa-plus'></i></a>"));
+								.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation Page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-plus fa-lg'></i></a>"));
 
 								if($obj_form->is_poll())
 								{
@@ -522,12 +522,12 @@ echo "<div class='wrap'>
 								}
 
 								echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailNotify))
-								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-lg fa-plus'></i></a>"));
+								.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-plus fa-lg'></i></a>"));
 
 								if($obj_form->has_email_field() > 0)
 								{
 									echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailConfirm))
-									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-lg fa-plus'></i></a>"));
+									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-plus fa-lg'></i></a>"));
 								}
 
 								echo show_textfield(array('name' => 'strFormEmail', 'text' => __("Send From/To", 'lang_form'), 'value' => $strFormEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')))
@@ -589,7 +589,7 @@ echo "<div class='wrap'>
 										$arr_data = array();
 										get_post_children(array('add_choose_here' => true), $arr_data);
 
-										echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $intFormTermsPage, 'required' => true, 'suffix' => "<a href='".admin_url("post-new.php?post_type=page&post_title=".__("Terms", 'lang_form'))."'><i class='fa fa-lg fa-plus'></i></a>"));
+										echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $intFormTermsPage, 'required' => true, 'suffix' => "<a href='".admin_url("post-new.php?post_type=page&post_title=".__("Terms", 'lang_form'))."'><i class='fa fa-plus fa-lg'></i></a>"));
 									}
 
 									if($intFormPaymentProvider > 0 && ($strFormPaymentMerchant != '' || $strFormPaymentHmac != ''))
@@ -610,7 +610,7 @@ echo "<div class='wrap'>
 
 										if($strFormPaymentCallback != '' && !function_exists($strFormPaymentCallback))
 										{
-											$description = "<i class='fa fa-warning yellow'></i> ".__("The action that you have entered either does not exist or is not accessible when the success is triggered", 'lang_form');
+											$description = "<i class='fas fa-exclamation-triangle yellow'></i> ".__("The action that you have entered either does not exist or is not accessible when the success is triggered", 'lang_form');
 										}
 
 										echo show_textfield(array('name' => 'strFormPaymentCallback', 'text' => __("Action on Successful Payment", 'lang_form'), 'value' => $strFormPaymentCallback, 'maxlength' => 100, 'description' => $description));
