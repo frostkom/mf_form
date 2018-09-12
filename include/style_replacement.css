@@ -51,7 +51,8 @@
 			top: 50vh;
 			-webkit-transform: translate(-50%, -50%);
 			transform: translate(-50%, -50%);
-			width: 40%;
+			width: 400px;
+			max-width: 90%;
 		}
 
 			#overlay_form > div .fa-times
