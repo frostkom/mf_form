@@ -156,7 +156,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus fa-lg'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 	}
 
 	function setting_replacement_form_text_callback()
@@ -833,7 +833,7 @@ class mf_form
 	function get_form_types()
 	{
 		return array(
-			1 => array('code' => 'checkbox',			'name' => "&#xf046; ".__("Checkbox", 'lang_form'),					'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
+			1 => array('code' => 'checkbox',			'name' => "&#xf14a; ".__("Checkbox", 'lang_form'),					'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
 			2 => array('code' => 'range',				'name' => "&#xf1de; ".__("Range", 'lang_form'),						'desc' => __("To choose a min and max value and create a slider for that", 'lang_form'),	'result' => 1),
 			3 => array('code' => 'input_field',			'name' => "&#xf120; ".__("Input Field", 'lang_form'),				'desc' => __("To enter a short text", 'lang_form'),											'result' => 1),
 			4 => array('code' => 'textarea',			'name' => "&#xf044; ".__("Textarea", 'lang_form'),					'desc' => __("To enter a longer text on multiple rows", 'lang_form'),						'result' => 1),
@@ -847,8 +847,8 @@ class mf_form
 			12 => array('code' => 'hidden_field',		'name' => "&#xf070; ".__("Hidden Field", 'lang_form'),				'desc' => __("To add hidden data to the form", 'lang_form'),								'result' => 1),
 			13 => array('code' => 'custom_tag',			'name' => "&#xf121; ".__("Custom Tag", 'lang_form'),				'desc' => __("To add a custom tag", 'lang_form'),											'result' => 0),
 			14 => array('code' => 'custom_tag_end',		'name' => "&#xf121; ".__("Custom Tag (end)", 'lang_form'),			'desc' => __("To add a custom end tag", 'lang_form'),										'result' => 0,		'public' => 'no'),
-			15 => array('code' => 'file',				'name' => "&#xf115; ".__("File", 'lang_form'),						'desc' => __("To add a file upload to the form", 'lang_form'),								'result' => 1), //f03e
-			16 => array('code' => 'checkbox_multiple',	'name' => "&#xf046; ".__("Multiple Checkboxes", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
+			15 => array('code' => 'file',				'name' => "&#xf07c; ".__("File", 'lang_form'),						'desc' => __("To add a file upload to the form", 'lang_form'),								'result' => 1), //f03e
+			16 => array('code' => 'checkbox_multiple',	'name' => "&#xf14a; ".__("Multiple Checkboxes", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
 			17 => array('code' => 'radio_multiple',		'name' => "&#xf192; ".__("Multiple Radio Buttons", 'lang_form'),	'desc' => __("To choose one alternative", 'lang_form'),										'result' => 1),
 		);
 	}
@@ -4110,7 +4110,7 @@ class mf_answer_table extends mf_list_table
 
 				if($item[$column_name] == true)
 				{
-					$out .= "<i class='fa fa-close fa-lg red'></i>";
+					$out .= "<i class='fa fa-times fa-lg red'></i>";
 
 					if($item['spamID'] > 0)
 					{
@@ -4243,7 +4243,7 @@ class mf_answer_table extends mf_list_table
 
 						else
 						{
-							$fa_class = "fa fa-close red";
+							$fa_class = "fa fa-times red";
 
 							$sent_failed++;
 
@@ -4949,7 +4949,7 @@ class mf_form_output
 							$out .= "<i class='fa fa-info-circle blue'></i>";
 						}
 
-						$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='far fa-edit'></i></a>
+						$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='fa fa-edit'></i></a>
 					</div>";
 
 					if($row_settings != '')

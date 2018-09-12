@@ -205,7 +205,7 @@ jQuery(function($)
 
 			else
 			{
-				dom_overlay.html("<i class='fa fa-close fa-2x'></i>" + dom_obj_inline.html()).parent('#overlay_form').fadeIn();
+				dom_overlay.html("<i class='fa fa-times fa-2x'></i>" + dom_obj_inline.html()).parent('#overlay_form').fadeIn();
 			}
 		}
 
@@ -230,7 +230,7 @@ jQuery(function($)
 		}
 	});
 
-	$(document).on('click', '#overlay_form .fa-close', function(e)
+	$(document).on('click', '#overlay_form .fa-times', function(e)
 	{
 		hide_form_overlay();
 	});
