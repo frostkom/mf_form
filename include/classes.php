@@ -377,7 +377,7 @@ class mf_form
 						default:
 						case 'html':
 							$out = "&nbsp;<span title='".$message_temp."'>
-								<i class='fas fa-exclamation-triangle yellow'></i>
+								<i class='fa fa-exclamation-triangle yellow'></i>
 							</span>";
 						break;
 
