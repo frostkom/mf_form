@@ -3884,7 +3884,7 @@ class mf_form_table extends mf_list_table
 
 				if($obj_form->is_form_field_type_used(array('display' => '0')))
 				{
-					$out .= "<i class='far fa-eye-slash fa-lg grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-eye-slash fa-lg grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('required' => true)))
