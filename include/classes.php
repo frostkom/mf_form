@@ -834,20 +834,20 @@ class mf_form
 	{
 		return array(
 			1 => array('code' => 'checkbox',			'name' => "&#xf14a; ".__("Checkbox", 'lang_form'),					'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
-			2 => array('code' => 'range',				'name' => "&#xf1de; ".__("Range", 'lang_form'),						'desc' => __("To choose a min and max value and create a slider for that", 'lang_form'),	'result' => 1),
-			3 => array('code' => 'input_field',			'name' => "&#xf120; ".__("Input Field", 'lang_form'),				'desc' => __("To enter a short text", 'lang_form'),											'result' => 1),
+			2 => array('code' => 'range',				'name' => "&#xf1de; ".__("Range", 'lang_form'),						'desc' => __("To choose a min and max value and create a slider for that", 'lang_form'),	'result' => 1), // Wrong icon
+			3 => array('code' => 'input_field',			'name' => "&#xf044; ".__("Input Field", 'lang_form'),				'desc' => __("To enter a short text", 'lang_form'),											'result' => 1),
 			4 => array('code' => 'textarea',			'name' => "&#xf044; ".__("Textarea", 'lang_form'),					'desc' => __("To enter a longer text on multiple rows", 'lang_form'),						'result' => 1),
-			5 => array('code' => 'text',				'name' => "&#xf1dd; ".__("Text", 'lang_form'),						'desc' => __("To present information to the visitor", 'lang_form'),							'result' => 0),
-			6 => array('code' => 'space',				'name' => "&#xf141; ".__("Space", 'lang_form'),						'desc' => __("To separate fields in the form with empty space", 'lang_form'),				'result' => 0), //f07d
+			5 => array('code' => 'text',				'name' => "&#xf27a; ".__("Text", 'lang_form'),						'desc' => __("To present information to the visitor", 'lang_form'),							'result' => 0),
+			6 => array('code' => 'space',				'name' => "&#xf0c1; ".__("Space", 'lang_form'),						'desc' => __("To separate fields in the form with empty space", 'lang_form'),				'result' => 0), // Wrong icon
 			7 => array('code' => 'datepicker',			'name' => "&#xf073; ".__("Datepicker", 'lang_form'),				'desc' => __("To choose a date", 'lang_form'),												'result' => 1),
 			8 => array('code' => 'radio_button',		'name' => "&#xf192; ".__("Radio Button", 'lang_form'),				'desc' => __("To choose one alternative", 'lang_form'),										'result' => 1),
-			9 => array('code' => 'referer_url',			'name' => "&#xf1e0; ".__("Referer URL", 'lang_form'),				'desc' => __("To get which URL the visitor came from", 'lang_form'),						'result' => 1),
-			10 => array('code' => 'select',				'name' => "&#xf00b; ".__("Dropdown", 'lang_form'),					'desc' => __("To choose one alternative", 'lang_form'),										'result' => 1),
+			9 => array('code' => 'referer_url',			'name' => "&#xf164; ".__("Referer URL", 'lang_form'),				'desc' => __("To get which URL the visitor came from", 'lang_form'),						'result' => 1),
+			10 => array('code' => 'select',				'name' => "&#xf022; ".__("Dropdown", 'lang_form'),					'desc' => __("To choose one alternative", 'lang_form'),										'result' => 1),
 			11 => array('code' => 'select_multiple',	'name' => "&#xf022; ".__("Multiple Selection", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
 			12 => array('code' => 'hidden_field',		'name' => "&#xf070; ".__("Hidden Field", 'lang_form'),				'desc' => __("To add hidden data to the form", 'lang_form'),								'result' => 1),
-			13 => array('code' => 'custom_tag',			'name' => "&#xf121; ".__("Custom Tag", 'lang_form'),				'desc' => __("To add a custom tag", 'lang_form'),											'result' => 0),
+			13 => array('code' => 'custom_tag',			'name' => "&#xf121; ".__("Custom Tag", 'lang_form'),				'desc' => __("To add a custom tag", 'lang_form'),											'result' => 0), // Wrong icon
 			14 => array('code' => 'custom_tag_end',		'name' => "&#xf121; ".__("Custom Tag (end)", 'lang_form'),			'desc' => __("To add a custom end tag", 'lang_form'),										'result' => 0,		'public' => 'no'),
-			15 => array('code' => 'file',				'name' => "&#xf07c; ".__("File", 'lang_form'),						'desc' => __("To add a file upload to the form", 'lang_form'),								'result' => 1), //f03e
+			15 => array('code' => 'file',				'name' => "&#xf07c; ".__("File", 'lang_form'),						'desc' => __("To add a file upload to the form", 'lang_form'),								'result' => 1),
 			16 => array('code' => 'checkbox_multiple',	'name' => "&#xf14a; ".__("Multiple Checkboxes", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form'),							'result' => 1),
 			17 => array('code' => 'radio_multiple',		'name' => "&#xf192; ".__("Multiple Radio Buttons", 'lang_form'),	'desc' => __("To choose one alternative", 'lang_form'),										'result' => 1),
 		);
@@ -2928,7 +2928,7 @@ class mf_form
 
 				if($intTotalRows > 0)
 				{
-					$out .= "<form method='post' action='' id='form_".$this->id."' class='mf_form mf_form_submit".($this->edit_mode == true ? " mf_sortable" : "").apply_filters('filter_form_class', '')."' enctype='multipart/form-data'>";
+					$out .= "<form method='post' action='' id='form_".$this->id."' class='mf_form mf_form_submit".($this->edit_mode == true ? " mf_sortable" : "").apply_filters('filter_form_class', '', $this)."' enctype='multipart/form-data'>";
 
 						if($this->edit_mode == false)
 						{
@@ -3820,7 +3820,7 @@ class mf_form_table extends mf_list_table
 			case 'content':
 				if($post_status == 'publish')
 				{
-					$out .= "<i class='fas fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
 				}
 
 				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailConditions, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
@@ -3838,30 +3838,30 @@ class mf_form_table extends mf_list_table
 					{
 						if($intFormEmailNotifyPage > 0)
 						{
-							$out .= "<i class='far fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
 						}
 
 						else
 						{
-							$out .= "<i class='far fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
 						}
 					}
 
 					if($strFormEmailConditions != '')
 					{
-						$out .= "<i class='far fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
+						$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
 					}
 
 					if($intFormEmailConfirm > 0)
 					{
 						if($intFormEmailConfirmPage > 0)
 						{
-							$out .= "<i class='far fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
 						}
 
 						else
 						{
-							$out .= "<i class='far fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
 						}
 					}
 
@@ -3899,7 +3899,7 @@ class mf_form_table extends mf_list_table
 
 				if($obj_form->is_form_field_type_used(array('remember' => true)))
 				{
-					$out .= "<i class='fas fa-sync fa-lg grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-sync fa-lg grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
 				}
 
 				$out .= "<br>";
@@ -3911,27 +3911,27 @@ class mf_form_table extends mf_list_table
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 1)))
 				{
-					$out .= "<i class='far fa-check-square fa-lg grey' title='".__("Checkbox", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-check-square fa-lg grey' title='".__("Checkbox", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 2)))
 				{
-					$out .= "<i class='fas fa-sliders-h fa-lg grey' title='".__("Range", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-sliders-h fa-lg grey' title='".__("Range", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
 				{
-					$out .= "<i class='fas fa-calendar-alt fa-lg grey' title='".__("Datepicker", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-calendar-alt fa-lg grey' title='".__("Datepicker", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 8)))
 				{
-					$out .= "<i class='far fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
 				{
-					$out .= "<i class='far fa-file fa-lg grey' title='".__("File", 'lang_form')."'></i> ";
+					$out .= "<i class='fa fa-file fa-lg grey' title='".__("File", 'lang_form')."'></i> ";
 				}
 			break;
 

@@ -266,39 +266,50 @@ if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $obj_fo
 if(!isset($_POST['btnFormAdd']) && $intForm2TypeID > 0)
 {
 	$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $intForm2TypeID));
-	$r = $result[0];
-	$intFormTypeID = $r->formTypeID;
-	$strFormTypeText = $r->formTypeText;
-	$strFormTypePlaceholder = $r->formTypePlaceholder;
-	$intCheckID = $r->checkID;
-	$strFormTypeTag = $r->formTypeTag;
-	$strFormTypeClass = $r->formTypeClass;
-	$strFormTypeFetchFrom = $r->formTypeFetchFrom;
-	$strFormTypeActionEquals = $r->formTypeActionEquals;
-	$intFormTypeActionShow = $r->formTypeActionShow;
 
-	switch($intFormTypeID)
+	if($wpdb->num_rows > 0)
 	{
-		case 2:
-		//case 'range':
-			list($strFormTypeText, $strFormTypeMin, $strFormTypeMax, $strFormTypeDefault) = explode("|", $strFormTypeText);
-		break;
+		foreach($result as $r)
+		{
+			$intFormTypeID = $r->formTypeID;
+			$strFormTypeText = $r->formTypeText;
+			$strFormTypePlaceholder = $r->formTypePlaceholder;
+			$intCheckID = $r->checkID;
+			$strFormTypeTag = $r->formTypeTag;
+			$strFormTypeClass = $r->formTypeClass;
+			$strFormTypeFetchFrom = $r->formTypeFetchFrom;
+			$strFormTypeActionEquals = $r->formTypeActionEquals;
+			$intFormTypeActionShow = $r->formTypeActionShow;
 
-		case 10:
-		//case 'select':
-		case 11:
-		//case 'select_multiple':
-		case 16:
-		//case 'checkbox_multiple':
-		case 17:
-		//case 'radio_multiple':
-			list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
-		break;
+			switch($intFormTypeID)
+			{
+				case 2:
+				//case 'range':
+					list($strFormTypeText, $strFormTypeMin, $strFormTypeMax, $strFormTypeDefault) = explode("|", $strFormTypeText);
+				break;
+
+				case 10:
+				//case 'select':
+				case 11:
+				//case 'select_multiple':
+				case 16:
+				//case 'checkbox_multiple':
+				case 17:
+				//case 'radio_multiple':
+					list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
+				break;
+			}
+
+			if(isset($_GET['btnFieldCopy']))
+			{
+				$intForm2TypeID = "";
+			}
+		}
 	}
 
-	if(isset($_GET['btnFieldCopy']))
+	else
 	{
-		$intForm2TypeID = "";
+		do_log("No results from btnFormAdd (".$wpdb->last_query.")");
 	}
 }
 
