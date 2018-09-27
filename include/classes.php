@@ -1036,9 +1036,8 @@ class mf_form
 			$inserted = true;
 
 			$result_temp = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
-			$rows = $wpdb->num_rows;
 
-			if($rows > 0)
+			if($wpdb->num_rows > 0)
 			{
 				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentFile, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formEmailConditions, formPaymentAmount (field IDs are not the same in this copied form)
 
@@ -1087,7 +1086,7 @@ class mf_form
 
 			else
 			{
-				$done_text = __("Wow! The form was copied successfully!", 'lang_form');
+				$done_text = __("The form was succesfully copied", 'lang_form');
 			}
 		}
 
@@ -1323,7 +1322,15 @@ class mf_form
 			$done_text = __("I have resent the messages for you", 'lang_form');
 		}
 
-		$obj_export = new mf_form_export();
+		else if(isset($_GET['btnFormExport']))
+		{
+			new mf_form_export();
+		}
+
+		else if(isset($_GET['btnFormAnswerExport']))
+		{
+			new mf_form_answer_export();
+		}
 
 		return $out;
 	}
@@ -3567,6 +3574,43 @@ class mf_form_export extends mf_export
 		$obj_form = new mf_form($this->type);
 		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->type)); //, formTypeCode
+
+		foreach($result as $r)
+		{
+			$this->data[] = array(
+				$r->formTypeID,
+				//$r->formTypeCode,
+				$r->formTypeText,
+				$r->formTypePlaceholder,
+				$r->checkID,
+				$r->formTypeTag,
+				$r->formTypeClass,
+				$r->formTypeFetchFrom,
+				$r->formTypeDisplay,
+				$r->formTypeRequired,
+				$r->formTypeAutofocus,
+				$r->formTypeRemember,
+				$r->form2TypeOrder,
+			);
+		}
+	}
+}
+
+class mf_form_answer_export extends mf_export
+{
+	function get_defaults()
+	{
+		$this->plugin = "mf_form";
+	}
+
+	function get_export_data()
+	{
+		global $wpdb;
+
+		$obj_form = new mf_form($this->type);
+		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
+
 		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->type));
 
 		$this_row = array();
@@ -3773,6 +3817,8 @@ class mf_form_table extends mf_list_table
 
 					$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id), 'form_copy_'.$obj_form->id, '_wpnonce_form_copy')."'>".__("Copy", 'lang_form')."</a>";
 
+					$actions['export'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("Export", 'lang_form')."</a>";
+
 					if($post_status == 'publish' && $obj_form->id > 0)
 					{
 						$shortcode = "[mf_form id=".$obj_form->id."]";
@@ -3946,12 +3992,12 @@ class mf_form_table extends mf_list_table
 
 						$actions = array(
 							'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>",
-							'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("CSV", 'lang_form')."</a>",
+							'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("CSV", 'lang_form')."</a>",
 						);
 
 						if(is_plugin_active("mf_phpexcel/index.php"))
 						{
-							$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run', '_wpnonce_export_run')."'>".__("XLS", 'lang_form')."</a>";
+							$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run', '_wpnonce_export_run')."'>".__("XLS", 'lang_form')."</a>";
 						}
 
 						$out .= $query_answers.$count_message

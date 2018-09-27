@@ -3,6 +3,8 @@
 $obj_form = new mf_form();
 
 $strFormName = check_var('strFormName');
+$strFormImport = check_var('strFormImport');
+
 $strFormURL = check_var('strFormURL');
 $dteFormDeadline = check_var('dteFormDeadline');
 
@@ -100,6 +102,18 @@ if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_veri
 
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formName = %s, formCreated = NOW(), userID = '%d'", $wpdb->blogid, $obj_form->post_id, $strFormName, get_current_user_id()));
 				$obj_form->id = $wpdb->insert_id;
+
+				if($strFormImport != '')
+				{
+					$arr_import_rows = explode("\n", $strFormImport);
+
+					foreach($arr_import_rows as $import_row)
+					{
+						list($intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $intForm2TypeOrder) = explode(",", $import_row); //, $strFormTypeCode
+
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d', userID = '%d'", $obj_form->id, $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $intForm2TypeOrder, get_current_user_id()));
+					}
+				}
 
 				$done_text = __("I have created the form for you", 'lang_form');
 			}
@@ -647,6 +661,7 @@ echo "<div class='wrap'>
 				<div class='postbox'>
 					<div class='inside'>"
 						.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
+						.show_textarea(array('name' => 'strFormImport', 'text' => __("Import", 'lang_form'), 'value' => $strFormImport))
 						.show_button(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))
 						.input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))
 						.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false)
