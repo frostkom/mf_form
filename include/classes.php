@@ -2856,7 +2856,7 @@ class mf_form
 			$strFormAnswerURL = $r->formAnswerURL;
 			$strFormButtonText = $r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form');
 			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag($r->formButtonSymbol);
-			$intFormPaymentProvider = $r->formPaymentProvider;
+			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
 
 			$this->prefix = $this->get_post_info()."_";
 

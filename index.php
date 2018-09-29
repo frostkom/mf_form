@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.2.2
+Version: 12.2.4
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -132,6 +132,35 @@ function activate_form()
 		'' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
 	);*/
 
+	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (
+		checkID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		checkPublic ENUM('0','1'),
+		checkName VARCHAR(50),
+		checkCode VARCHAR(10),
+		checkPattern VARCHAR(200),
+		PRIMARY KEY (checkID),
+		KEY checkCode (checkCode)
+	) DEFAULT CHARSET=".$default_charset);
+
+	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_type (
+		formTypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		formTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
+		formTypeCode VARCHAR(30),
+		formTypeName VARCHAR(40) DEFAULT NULL,
+		formTypeDesc TEXT DEFAULT NULL,
+		formTypeResult ENUM('0','1') NOT NULL DEFAULT '1',
+		PRIMARY KEY (formTypeID),
+		KEY formTypeResult (formTypeResult)
+	) DEFAULT CHARSET=".$default_charset);
+
+	$arr_add_column[$wpdb->base_prefix."form_type"] = array(
+		'formTypeDesc' => "ALTER TABLE [table] ADD [column] VARCHAR(40) DEFAULT NULL AFTER formTypeName",
+	);
+
+	$arr_update_column[$wpdb->base_prefix."form_type"] = array(
+		'formTypeName' => "ALTER TABLE [table] CHANGE [column] formTypeName VARCHAR(40) DEFAULT NULL",
+	);
+
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
 		form2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		form2TypeID2 INT UNSIGNED NOT NULL DEFAULT '0',
@@ -160,6 +189,17 @@ function activate_form()
 	$arr_add_column[$wpdb->base_prefix."form2type"] = array(
 		'formTypeDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '1' AFTER formTypeActionShow",
 	);
+
+	/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
+		formOptionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		form2TypeID INT UNSIGNED NOT NULL,
+		formOptionValue TEXT,
+		formOptionLimit SMALLINT UNSIGNED,
+		formOptionOrder INT UNSIGNED NOT NULL DEFAULT '0',
+		PRIMARY KEY (formOptionID),
+		KEY form2TypeID (form2TypeID),
+		KEY formOptionOrder (formOptionOrder)
+	) DEFAULT CHARSET=".$default_charset);*/
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2answer (
 		answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -203,35 +243,6 @@ function activate_form()
 		KEY answerEmail (answerEmail)
 	) DEFAULT CHARSET=".$default_charset);
 
-	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (
-		checkID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		checkPublic ENUM('0','1'),
-		checkName VARCHAR(50),
-		checkCode VARCHAR(10),
-		checkPattern VARCHAR(200),
-		PRIMARY KEY (checkID),
-		KEY checkCode (checkCode)
-	) DEFAULT CHARSET=".$default_charset);
-
-	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_type (
-		formTypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		formTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
-		formTypeCode VARCHAR(30),
-		formTypeName VARCHAR(40) DEFAULT NULL,
-		formTypeDesc TEXT DEFAULT NULL,
-		formTypeResult ENUM('0','1') NOT NULL DEFAULT '1',
-		PRIMARY KEY (formTypeID),
-		KEY formTypeResult (formTypeResult)
-	) DEFAULT CHARSET=".$default_charset);
-
-	$arr_add_column[$wpdb->base_prefix."form_type"] = array(
-		'formTypeDesc' => "ALTER TABLE [table] ADD [column] VARCHAR(40) DEFAULT NULL AFTER formTypeName",
-	);
-
-	$arr_update_column[$wpdb->base_prefix."form2type"] = array(
-		'formTypeName' => "ALTER TABLE [table] CHANGE [column] formTypeName VARCHAR(40) DEFAULT NULL",
-	);
-
 	update_columns($arr_update_column);
 	add_columns($arr_add_column);
 	add_index($arr_add_index);
@@ -271,7 +282,7 @@ function activate_form()
 
 	run_queries($arr_run_query);
 
-	//Convert wp_query to wp_posts
+	// Convert wp_query to wp_posts
 	#################################
 	/*$result = $wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix."form WHERE post_type = 'mf_form' AND queryConverted = '0'");
 
@@ -284,7 +295,7 @@ function activate_form()
 	}*/
 	#################################
 
-	//Move data from old tables to new ones
+	// Move data from old tables to new ones
 	#################################
 	$arr_copy = array();
 
@@ -369,6 +380,71 @@ function activate_form()
 	}
 	#################################
 
+	// Start using form_option
+	#################################
+	if(does_table_exist($wpdb->base_prefix."form_option"))
+	{
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, form2TypeID, formTypeText FROM ".$wpdb->base_prefix."form2type WHERE formTypeID IN ('10', '11', '16', '17') AND formTypeText LIKE '%|%'"));
+
+		foreach($result as $r)
+		{
+			$intFormID = $r->formID;
+			$intForm2TypeID = $r->form2TypeID;
+			$strFormTypeText = $r->formTypeText;
+
+			list($strFormLabel, $strFormOptions) = explode(":", $strFormTypeText, 2);
+
+			$arr_options = explode(",", $strFormOptions);
+
+			$success = true;
+			$i = 0;
+
+			foreach($arr_options as $str_option)
+			{
+				@list($option_id, $option_value, $option_limit) = explode("|", $str_option, 3);
+
+				if($option_value != '')
+				{
+					$intFormOptionID = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND formOptionValue = %s", $intForm2TypeID, $option_value));
+
+					if($intFormOptionID > 0)
+					{
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_value, $option_limit, $i));
+					}
+
+					else
+					{
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_value, $option_limit, $i));
+
+						$intFormOptionID = $wpdb->insert_id;
+					}
+
+					if($option_id != '')
+					{
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '%d' WHERE form2TypeID = '%d' AND answerText = %s", $intFormOptionID, $intForm2TypeID, $option_id));
+
+						do_log("Updated form_answer (".$wpdb->last_query.")");
+					}
+
+					$i++;
+				}
+
+				else
+				{
+					$success = false;
+
+					do_log("There was no value for the option (".$intFormID.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
+				}
+			}
+
+			if($success == true)
+			{
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s WHERE form2TypeID = '%d'", $strFormLabel, $intForm2TypeID));
+			}
+		}
+	}
+	#################################
+
 	replace_user_meta(array('old' => 'answer_viewed', 'new' => 'meta_answer_viewed'));
 	replace_user_meta(array('old' => 'mf_forms_viewed', 'new' => 'meta_forms_viewed'));
 }
@@ -389,7 +465,7 @@ function uninstall_form()
 		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'),
 		'meta' => array('meta_forms_viewed'),
 		'post_types' => array('mf_form'),
-		'tables' => array('form', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),
+		'tables' => array('form', 'form_option', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),
 	));
 }
 

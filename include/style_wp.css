@@ -133,8 +133,8 @@
 
 		mf-form-row.hide_publicly:before
 		{
-			content: "\f070";
-			font-family: FontAwesome;
+			content: '\f070';
+			font-family: 'Font Awesome 5 Free';
 			font-style: normal;
 			font-weight: normal;
 			text-decoration: inherit;
