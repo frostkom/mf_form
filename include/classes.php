@@ -3535,7 +3535,7 @@ class mf_form_payment
 		else if($this->is_callback){	$file_suffix = "callback";}
 		else if($this->is_cancel){		$file_suffix = "cancel";}
 
-		$file = date("YmdHis")."_".$file_suffix;
+		$file = prepare_file_name($file_suffix);
 		$debug = "URI: ".$_SERVER['REQUEST_URI']."\n\n"
 			."GET: ".var_export($_GET, true)."\n\n"
 			."POST: ".var_export($_POST, true)."\n\n"

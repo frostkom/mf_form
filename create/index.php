@@ -51,7 +51,7 @@ $strFormTypeMin = check_var('strFormTypeMin', '', true, "0");
 $strFormTypeMax = check_var('strFormTypeMax', '', true, 100);
 $strFormTypeDefault = check_var('strFormTypeDefault', '', true, 1);
 
-$error_text = $done_text = "";
+$error_text = $done_text = '';
 
 if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce_form_update'], 'form_update_'.$obj_form->id))
 {
@@ -130,48 +130,49 @@ else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce_form_add
 {
 	//Clean up settings if not used for the specific type of field
 	################
-	if($intFormTypeID != 3) //'input_field'
+	/*if($intFormTypeID != 3) //'input_field'
 	{
 		$intCheckID = "";
-	}
+	}*/
 	################
 
-	if(in_array($intFormTypeID, array(10, 11, 16, 17)) && $strFormTypeSelect == "") //'select', 'select_multiple', 'checkbox_multiple', 'radio_multiple'
+	switch($intFormTypeID)
 	{
-		$error_text = __("Please, enter all required fields", 'lang_form');
-	}
+		case 2: // range
+			$strFormTypeText = str_replace("|", "", $strFormTypeText)."|".str_replace("|", "", $strFormTypeMin)."|".str_replace("|", "", $strFormTypeMax)."|".str_replace("|", "", $strFormTypeDefault);
+		break;
 
-	else
-	{
-		switch($intFormTypeID)
-		{
-			case 2:
-			//case 'range':
-				$strFormTypeText = str_replace("|", "", $strFormTypeText)."|".str_replace("|", "", $strFormTypeMin)."|".str_replace("|", "", $strFormTypeMax)."|".str_replace("|", "", $strFormTypeDefault);
-			break;
+		/*case 6: // space
+		case 9: // referer_url
 
-			case 10:
-			//case 'select':
-			case 11:
-			//case 'select_multiple':
-			case 16:
-			//case 'checkbox_multiple':
-			case 17:
-			//case 'radio_multiple':
+		break;*/
+
+		case 10: // select
+		case 11: // select_multiple
+		case 16: // checkbox_multiple
+		case 17: // radio_multiple
+			if($strFormTypeSelect == '')
+			{
+				$error_text = __("Please, enter all required fields", 'lang_form');
+			}
+
+			else
+			{
 				$obj_form->formTypeSelect = $strFormTypeSelect;
 				$obj_form->validate_select_array();
 
 				$strFormTypeText = str_replace(":", "", $strFormTypeText).":".str_replace(":", "", $obj_form->formTypeSelect);
-			break;
+			}
+		break;
 
-			case 13:
-			//case 'custom_tag':
-			case 14:
-			//case 'custom_tag_end':
-				$strFormTypeText = $strFormTypeText2;
-			break;
-		}
+		case 13: // custom_tag
+		case 14: // custom_tag_end
+			$strFormTypeText = $strFormTypeText2;
+		break;
+	}
 
+	if($error_text == '')
+	{
 		if($intForm2TypeID > 0)
 		{
 			if($intFormTypeID > 0 && ($intFormTypeID == 6 || $intFormTypeID == 9 || $strFormTypeText != '')) //'space', 'referer_url'
@@ -239,32 +240,34 @@ if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $obj_fo
 
 	if($wpdb->num_rows > 0)
 	{
-		$r = $result[0];
-		$intFormEmailConfirm = $r->formEmailConfirm;
-		$intFormEmailConfirmPage = $r->formEmailConfirmPage;
-		$intFormShowAnswers = $r->formShowAnswers;
-		$strFormSaveIP = $r->formSaveIP;
-		$strFormAnswerURL = $r->formAnswerURL;
-		$strFormEmail = $r->formEmail;
-		$strFormEmailConditions = $r->formEmailConditions;
-		$intFormEmailNotify = $r->formEmailNotify;
-		$intFormEmailNotifyPage = $r->formEmailNotifyPage;
-		$strFormEmailName = $r->formEmailName;
-		$strFormMandatoryText = $r->formMandatoryText;
-		$strFormButtonText = $r->formButtonText;
-		$strFormButtonSymbol = $r->formButtonSymbol;
-		$intFormPaymentProvider = $r->formPaymentProvider;
-		$strFormPaymentHmac = $r->formPaymentHmac;
-		$strFormPaymentFile = $r->formPaymentFile;
-		$intFormTermsPage = $r->formTermsPage;
-		$strFormPaymentMerchant = $r->formPaymentMerchant;
-		$strFormPaymentPassword = $r->formPaymentPassword;
-		$strFormPaymentCurrency = $r->formPaymentCurrency;
-		$intFormPaymentCost = $r->formPaymentCost;
-		$intFormPaymentAmount = $r->formPaymentAmount;
-		$intFormPaymentTax = $r->formPaymentTax;
-		$strFormPaymentCallback = $r->formPaymentCallback;
-		$strFormCreated = $r->formCreated;
+		foreach($result as $r)
+		{
+			$intFormEmailConfirm = $r->formEmailConfirm;
+			$intFormEmailConfirmPage = $r->formEmailConfirmPage;
+			$intFormShowAnswers = $r->formShowAnswers;
+			$strFormSaveIP = $r->formSaveIP;
+			$strFormAnswerURL = $r->formAnswerURL;
+			$strFormEmail = $r->formEmail;
+			$strFormEmailConditions = $r->formEmailConditions;
+			$intFormEmailNotify = $r->formEmailNotify;
+			$intFormEmailNotifyPage = $r->formEmailNotifyPage;
+			$strFormEmailName = $r->formEmailName;
+			$strFormMandatoryText = $r->formMandatoryText;
+			$strFormButtonText = $r->formButtonText;
+			$strFormButtonSymbol = $r->formButtonSymbol;
+			$intFormPaymentProvider = $r->formPaymentProvider;
+			$strFormPaymentHmac = $r->formPaymentHmac;
+			$strFormPaymentFile = $r->formPaymentFile;
+			$intFormTermsPage = $r->formTermsPage;
+			$strFormPaymentMerchant = $r->formPaymentMerchant;
+			$strFormPaymentPassword = $r->formPaymentPassword;
+			$strFormPaymentCurrency = $r->formPaymentCurrency;
+			$intFormPaymentCost = $r->formPaymentCost;
+			$intFormPaymentAmount = $r->formPaymentAmount;
+			$intFormPaymentTax = $r->formPaymentTax;
+			$strFormPaymentCallback = $r->formPaymentCallback;
+			$strFormCreated = $r->formCreated;
+		}
 
 		$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 		$strFormURL = $obj_form->get_post_info();
@@ -297,19 +300,14 @@ if(!isset($_POST['btnFormAdd']) && $intForm2TypeID > 0)
 
 			switch($intFormTypeID)
 			{
-				case 2:
-				//case 'range':
+				case 2: // range
 					list($strFormTypeText, $strFormTypeMin, $strFormTypeMax, $strFormTypeDefault) = explode("|", $strFormTypeText);
 				break;
 
-				case 10:
-				//case 'select':
-				case 11:
-				//case 'select_multiple':
-				case 16:
-				//case 'checkbox_multiple':
-				case 17:
-				//case 'radio_multiple':
+				case 10: // select
+				case 11: // select_multiple
+				case 16: // checkbox_multiple
+				case 17: // radio_multiple
 					list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
 				break;
 			}
@@ -357,7 +355,15 @@ echo "<div class='wrap'>
 				$strFormTypeSelect = "|";
 			}
 
-			$arr_select_rows = explode(",", $strFormTypeSelect);
+			if(does_table_exist($wpdb->base_prefix."form_option") && $intForm2TypeID > 0)
+			{
+				$result_select = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
+			}
+
+			else
+			{
+				$arr_select_rows = explode(",", $strFormTypeSelect);
+			}
 
 			$arr_data_pages = $obj_form->get_pages_for_select();
 
@@ -391,17 +397,34 @@ echo "<div class='wrap'>
 										<label>".__("Value", 'lang_form')." <i class='fa fa-info-circle' title='".__("Enter ID, Name and Limit (optional)", 'lang_form')."'></i></label>
 										<div class='select_rows'>";
 
-											foreach($arr_select_rows as $select_row)
+											if(does_table_exist($wpdb->base_prefix."form_option") && $intForm2TypeID > 0)
 											{
-												@list($option_id, $option_value, $option_limit) = explode("|", $select_row, 3);
+												foreach($result_select as $r)
+												{
+													$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $intForm2TypeID, 'option_id' => $r->formOptionID));
 
-												$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $intForm2TypeID, 'option_id' => $option_id));
+													echo "<div class='option'>"
+														.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $r->formOptionValue, 'placeholder' => __("Enter option here", 'lang_form'), 'readonly' => $is_select_value_used))
+														.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $r->formOptionLimit))
+														.input_hidden(array('name' => 'strFormTypeSelect_id', 'value' => $r->formOptionID))
+													."</div>";
+												}
+											}
 
-												echo "<div class='option'>"
-													.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $option_id, 'placeholder' => __("ID", 'lang_form'), 'readonly' => $is_select_value_used)) //input text is needed when using payment price as ID
-													.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $option_value, 'placeholder' => __("Enter option here", 'lang_form'), 'readonly' => $is_select_value_used))
-													.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $option_limit))
-												."</div>";
+											else
+											{
+												foreach($arr_select_rows as $select_row)
+												{
+													@list($option_id, $option_value, $option_limit) = explode("|", $select_row, 3);
+
+													$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $intForm2TypeID, 'option_id' => $option_id));
+
+													echo "<div class='option'>"
+														.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $option_id, 'placeholder' => __("ID", 'lang_form'), 'readonly' => $is_select_value_used)) //input text is needed when using payment price as ID
+														.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $option_value, 'placeholder' => __("Enter option here", 'lang_form'), 'readonly' => $is_select_value_used))
+														.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $option_limit))
+													."</div>";
+												}
 											}
 
 										echo "</div>"
@@ -434,11 +457,22 @@ echo "<div class='wrap'>
 
 											$arr_data_equals = array();
 
-											foreach($arr_select_rows as $str_option)
+											if(does_table_exist($wpdb->base_prefix."form_option") && $intForm2TypeID > 0)
 											{
-												list($option_id, $option_value) = explode("|", $str_option);
+												foreach($result_select as $r)
+												{
+													$arr_data_equals[$r->formOptionID] = $r->formOptionValue;
+												}
+											}
 
-												$arr_data_equals[$option_id] = $option_value;
+											else
+											{
+												foreach($arr_select_rows as $str_option)
+												{
+													list($option_id, $option_value) = explode("|", $str_option);
+
+													$arr_data_equals[$option_id] = $option_value;
+												}
 											}
 
 											if(count($arr_data_equals) > 1)

@@ -52,7 +52,7 @@
 				-ms-flex-wrap: wrap;
 				flex-wrap: wrap;
 				list-style: none;
-				padding: .2em;
+				padding: .5em .2em 0;
 			}
 
 				.mf_form .fontawesome li
@@ -61,7 +61,7 @@
 					-webkit-flex: 1 1 50%;
 					-ms-flex: 1 1 50%;
 					flex: 1 1 50%;
-					margin: 0;
+					/*margin: 0;*/
 					overflow: initial;
 					position: relative;
 					max-width: 50%;

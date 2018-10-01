@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.2.4
+Version: 12.2.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -190,6 +190,7 @@ function activate_form()
 		'formTypeDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '1' AFTER formTypeActionShow",
 	);
 
+	//How do I solve this in payment forms where ID is set to the price?
 	/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
 		formOptionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		form2TypeID INT UNSIGNED NOT NULL,
