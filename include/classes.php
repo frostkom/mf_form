@@ -68,11 +68,12 @@ class mf_form
 
 		add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
-		$arr_settings = array();
-		$arr_settings['setting_redirect_emails'] = __("Redirect all e-mails", 'lang_form');
-		$arr_settings['setting_form_test_emails'] = __("Redirect test e-mails", 'lang_form');
-		$arr_settings['setting_form_permission_see_all'] = __("Role to see all", 'lang_form');
-		$arr_settings['setting_form_spam'] = __("Spam Filter", 'lang_form');
+		$arr_settings = array(
+			'setting_redirect_emails' => __("Redirect all e-mails", 'lang_form'),
+			'setting_form_test_emails' => __("Redirect test e-mails", 'lang_form'),
+			'setting_form_permission_see_all' => __("Role to see all", 'lang_form'),
+			'setting_form_spam' => __("Spam Filter", 'lang_form'),
+		);
 
 		$wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' LIMIT 0, 1");
 
@@ -87,8 +88,6 @@ class mf_form
 		{
 			$arr_settings['setting_replacement_form_text'] = __("Text to replace all e-mail links", 'lang_form');
 		}
-
-		//$obj_form = new mf_form();
 
 		if($this->has_template() && is_plugin_active("mf_webshop/index.php"))
 		{
@@ -234,35 +233,28 @@ class mf_form
 		return $out;
 	}
 
-	function the_content_form($html)
+	function the_content($html)
 	{
-		$char_before = "?<=^|\s|\(|\[";
-		$chars = "[-A-Za-z\d_.]+[@][A-Za-z\d_-]+([.][A-Za-z\d_-]+)*[.][A-Za-z]{2,8}";
-		$char_after = "?=\s|$|\)|\'|\!|(\?)|\.|\]|\<|\[|;";
+		if(get_option('setting_replacement_form') > 0)
+		{
+			$char_before = "?<=^|\s|\(|\[";
+			$chars = "[-A-Za-z\d_.]+[@][A-Za-z\d_-]+([.][A-Za-z\d_-]+)*[.][A-Za-z]{2,8}";
+			$char_after = "?=\s|$|\)|\'|\!|(\?)|\.|\]|\<|\[|;";
 
-		$html = preg_replace("/(".$char_before.")(".$chars.")(".$char_after.")/", "<a href='mailto:$1'>$1</a>", $html);
-		$html = preg_replace_callback("/<a.*?href=['\"]mailto:(.*?)['\"]>.*?<\/a>/i", array($this, 'preg_email_concat'), $html);
+			$html = preg_replace("/(".$char_before.")(".$chars.")(".$char_after.")/", "<a href='mailto:$1'>$1</a>", $html);
+			$html = preg_replace_callback("/<a.*?href=['\"]mailto:(.*?)['\"]>.*?<\/a>/i", array($this, 'preg_email_concat'), $html);
+		}
 
 		return $html;
 	}
 
-	function combined_head($load_replacement = false)
+	function combined_head()
 	{
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		$plugin_version = get_plugin_version(__FILE__);
 
 		mf_enqueue_style('style_form', $plugin_include_url."style.css", $plugin_version);
 		mf_enqueue_script('script_form', $plugin_include_url."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version);
-
-		if($load_replacement == true)
-		{
-			if(get_option('setting_replacement_form') > 0)
-			{
-				mf_enqueue_style('style_form_replacement', $plugin_include_url."style_replacement.css", $plugin_version);
-
-				add_filter('the_content', array($this, 'the_content_form'));
-			}
-		}
 	}
 
 	function admin_init()
@@ -648,12 +640,12 @@ class mf_form
 
 	function wp_head()
 	{
-		$this->combined_head(true);
+		$this->combined_head();
 	}
 
 	function login_init()
 	{
-		$this->combined_head(true);
+		$this->combined_head();
 	}
 
 	function shortcode_form($atts)
