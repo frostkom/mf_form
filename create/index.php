@@ -321,7 +321,7 @@ if(!isset($_POST['btnFormAdd']) && $intForm2TypeID > 0)
 
 	else
 	{
-		do_log("No results from btnFormAdd (".$wpdb->last_query.")");
+		do_log("No results from btnFormAdd (".$obj_form->id.", ".$wpdb->last_query.")");
 	}
 }
 
