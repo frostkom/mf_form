@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-02 05:11+0100\n"
+"POT-Creation-Date: 2018-10-03 12:10+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,6 +15,9 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
+msgid "Answers"
+msgstr "Svar"
+
 msgid "Choose Here"
 msgstr "Velg Her"
 
@@ -23,6 +26,12 @@ msgstr "Nei"
 
 msgid "Yes"
 msgstr "Ja"
+
+msgid "Please, enter all required fields"
+msgstr "Vennligst skriv inn alle obligatoriske felt"
+
+msgid "Update"
+msgstr "Oppdater"
 
 msgid "Add New"
 msgstr "Legg Til Ny"
@@ -33,8 +42,17 @@ msgstr "Innhold"
 msgid "Text"
 msgstr "Tekst"
 
+msgid "Value"
+msgstr "Verdi"
+
+msgid "Enter option here"
+msgstr "Skriv inn alternativ her"
+
 msgid "Add"
 msgstr "Legg til"
+
+msgid "Overview"
+msgstr "Oversikt"
 
 msgid "Save"
 msgstr "Spare"
@@ -42,11 +60,26 @@ msgstr "Spare"
 msgid "Name"
 msgstr "Namn"
 
+msgid "Publish"
+msgstr "Publisere"
+
 msgid "Settings"
 msgstr "Innstillinger"
 
+msgid "Submit"
+msgstr "Sende inn"
+
 msgid "E-mail"
 msgstr "E-post"
+
+msgid "Subject"
+msgstr "Emne"
+
+msgid "Template"
+msgstr "Mal"
+
+msgid "Conditions"
+msgstr "Forhold"
 
 msgid "Username"
 msgstr "Brukernavn"
@@ -87,15 +120,6 @@ msgstr "Legg Til Nytt Innlegg"
 msgid "Add New Page"
 msgstr "Legg Til Ny Side"
 
-msgid "CSV"
-msgstr "CSV"
-
-msgid "Full"
-msgstr "Full"
-
 msgid "Hidden"
 msgstr "Skjult"
-
-msgid "URL"
-msgstr "URL"
 
