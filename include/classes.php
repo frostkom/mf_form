@@ -651,10 +651,15 @@ class mf_form
 	function shortcode_form($atts)
 	{
 		extract(shortcode_atts(array(
-			'id' => ''
+			'id' => '',
 		), $atts));
 
+		//do_log("shortcode_form(".var_export($atts, true).")");
+
 		$this->id = $id;
+
+		unset($atts['id']);
+		$this->form_atts = $atts;
 
 		return $this->process_form();
 	}
@@ -2963,27 +2968,29 @@ class mf_form
 						{
 							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"))
 							.apply_filters('filter_form_after_fields', '')
-							//."<div class='form_button_container'>"
-								."<div class='form_button'>"
-									.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
-									.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
+							."<div class='form_button'>"
+								.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
+								.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
-									//if($intFormPaymentProvider > 0 && (IS_ADMIN || isset($_GET['make_test_payment'])))
-									if($this->check_if_has_payment() && (IS_ADMIN || isset($_GET['make_test_payment'])))
-									{
-										$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
-										.apply_filters('filter_form_test_payment', '');
-									}
+								if($this->check_if_has_payment() && (IS_ADMIN || isset($_GET['make_test_payment'])))
+								{
+									$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
+									.apply_filters('filter_form_test_payment', '');
+								}
 
-									if(isset($this->send_to) && $this->send_to != '')
-									{
-										$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $this->send_to)));
-									}
+								if(isset($this->send_to) && $this->send_to != '')
+								{
+									$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $this->send_to)));
+								}
 
-								$out .= "</div>"
-								.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
-							//."</div>"
-							."";
+								$out .= input_hidden(array('name' => 'intFormID', 'value' => $this->id));
+
+								foreach($this->form_atts as $key => $value)
+								{
+									$out .= input_hidden(array('name' => $key, 'value' => $value));
+								}
+
+							$out .= "</div>";
 						}
 
 					$out .= "</form>";
