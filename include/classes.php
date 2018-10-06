@@ -19,7 +19,7 @@ class mf_form
 		}
 	}
 
-	function run_cron()
+	function cron_base()
 	{
 		global $wpdb;
 
