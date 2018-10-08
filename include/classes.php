@@ -150,12 +150,27 @@ class mf_form
 		echo show_select(array('data' => $arr_data, 'name' => $setting_key."[]", 'value' => $option));
 	}
 
+	function get_option_form_suffix($data)
+	{
+		if($data['value'] > 0)
+		{
+			$out = "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$data['value'])."'><i class='fa fa-wrench fa-lg'></i></a>";
+		}
+
+		else
+		{
+			$out = "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>";
+		}
+
+		return $out;
+	}
+
 	function setting_replacement_form_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => "<a href='".admin_url("admin.php?page=mf_form/create/index.php")."'><i class='fa fa-plus-circle fa-lg'></i></a>", 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => $this->get_option_form_suffix(array('value' => $option)), 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 	}
 
 	function setting_replacement_form_text_callback()
@@ -653,8 +668,6 @@ class mf_form
 		extract(shortcode_atts(array(
 			'id' => '',
 		), $atts));
-
-		//do_log("shortcode_form(".var_export($atts, true).")");
 
 		$this->id = $id;
 
@@ -2985,9 +2998,12 @@ class mf_form
 
 								$out .= input_hidden(array('name' => 'intFormID', 'value' => $this->id));
 
-								foreach($this->form_atts as $key => $value)
+								if(isset($this->form_atts) && is_array($this->form_atts))
 								{
-									$out .= input_hidden(array('name' => $key, 'value' => $value));
+									foreach($this->form_atts as $key => $value)
+									{
+										$out .= input_hidden(array('name' => $key, 'value' => $value));
+									}
 								}
 
 							$out .= "</div>";
