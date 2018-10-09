@@ -1219,37 +1219,29 @@ class mf_form
 
 					switch($intFormTypeID2)
 					{
-						case 1:
-						//case 'checkbox':
+						case 1:	//checkbox
 							$strAnswerText = "x";
 						break;
 
-						case 2:
-						//case 'range':
+						case 2: //range
 							$this->parse_range_label();
 						break;
 
-						case 7:
-						//case 'datepicker':
+						case 7: //datepicker
 							$strAnswerText = format_date($strAnswerText);
 						break;
 
-						case 8:
-						//case 'radio_button':
+						case 8: //radio_button
 							$strAnswerText = "x";
 						break;
 
-						case 10:
-						//case 'select':
-						case 17:
-						//case 'radio_multiple':
+						case 10: //select
+						case 17: //radio_multiple
 							$strAnswerText = $this->parse_select_info($strAnswerText);
 						break;
 
-						case 11:
-						//case 'select_multiple':
-						case 16:
-						//case 'checkbox_multiple':
+						case 11: //select_multiple
+						case 16: //checkbox_multiple
 							$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
 						break;
 
