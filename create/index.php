@@ -647,7 +647,7 @@ echo "<div class='wrap'>
 									{
 										$arr_data = array();
 										get_post_children(array('add_choose_here' => true), $arr_data);
-										
+
 										$post_title = __("Terms", 'lang_form');
 
 										echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $intFormTermsPage, 'required' => true, 'suffix' => get_option_page_suffix(array('value' => $intFormTermsPage, 'title' => $post_title))));
