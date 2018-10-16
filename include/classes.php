@@ -19,6 +19,37 @@ class mf_form
 		}
 	}
 
+	function check_allow_edit()
+	{
+		global $wpdb;
+
+		$out = false;
+
+		$setting_form_permission_edit_all = get_option('setting_form_permission_edit_all');
+
+		if($setting_form_permission_edit_all != '')
+		{
+			$out = current_user_can($setting_form_permission_edit_all);
+
+			if($out == false && $this->id > 0)
+			{
+				$intUserID = $wpdb->get_var($wpdb->prepare("SELECT userID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
+
+				if($intUserID == get_current_user_id())
+				{
+					$out = true;
+				}
+			}
+		}
+
+		else
+		{
+			$out = IS_ADMIN;
+		}
+
+		return $out;
+	}
+
 	function cron_base()
 	{
 		global $wpdb;
@@ -71,7 +102,8 @@ class mf_form
 		$arr_settings = array(
 			'setting_redirect_emails' => __("Redirect all e-mails", 'lang_form'),
 			'setting_form_test_emails' => __("Redirect test e-mails", 'lang_form'),
-			'setting_form_permission_see_all' => __("Role to see all", 'lang_form'),
+			'setting_form_permission_see_all' => __("View All", 'lang_form'),
+			'setting_form_permission_edit_all' => __("Edit All", 'lang_form'),
 			'setting_form_spam' => __("Spam Filter", 'lang_form'),
 		);
 
@@ -127,6 +159,16 @@ class mf_form
 	}
 
 	function setting_form_permission_see_all_callback()
+	{
+		$setting_key = get_setting_key(__FUNCTION__);
+		$option = get_option($setting_key);
+
+		$arr_data = get_roles_for_select(array('add_choose_here' => true));
+
+		echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
+	}
+
+	function setting_form_permission_edit_all_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
@@ -235,7 +277,6 @@ class mf_form
 
 		$email = $matches[1];
 
-		//$obj_form = new mf_form();
 		$this->id = $setting_replacement_form;
 
 		$form_md5 = md5("form_link_".$email."_".mt_rand(1, 1000));
@@ -3804,13 +3845,16 @@ class mf_form_table extends mf_list_table
 			case 'post_title':
 				$strFormName = $item[$column_name];
 
-				$post_edit_url = IS_ADMIN ? admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id) : "#";
+				if($obj_form->check_allow_edit())
+				{
+					$post_edit_url = admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id);
+				}
 
 				$actions = array();
 
 				if($post_status != 'trash')
 				{
-					if(IS_ADMIN)
+					if($obj_form->check_allow_edit())
 					{
 						$actions['edit'] = "<a href='".$post_edit_url."'>".__("Edit", 'lang_form')."</a>";
 
@@ -3836,14 +3880,18 @@ class mf_form_table extends mf_list_table
 						{
 							foreach($result as $post_id_temp)
 							{
-								$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
+								if($obj_form->check_allow_edit())
+								{
+									$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
+								}
+
 								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View", 'lang_form')."</a>";
 							}
 						}
 
 						else
 						{
-							if($obj_form->get_form_status() == "publish")
+							if($obj_form->get_form_status() == 'publish')
 							{
 								$post_url = get_permalink($post_id);
 
@@ -3854,20 +3902,27 @@ class mf_form_table extends mf_list_table
 							}
 
 							//$actions['add_post'] = "<a href='".admin_url("post-new.php?post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
-							$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
+							//$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 						}
 					}
 				}
 
-				else if(IS_ADMIN)
+				else if($obj_form->check_allow_edit())
 				{
 					$actions['recover'] = "<a href='".$post_edit_url."&recover'>".__("Recover", 'lang_form')."</a>";
 				}
 
-				$out .= "<a href='".$post_edit_url."'>"
-					.$strFormName
-				."</a>"
-				.$this->row_actions($actions);
+				if($obj_form->check_allow_edit())
+				{
+					$out .= "<a href='".$post_edit_url."'>".$strFormName."</a>";
+				}
+
+				else
+				{
+					$out .= $strFormName;
+				}
+
+				$out .= $this->row_actions($actions);
 			break;
 
 			case 'content':
