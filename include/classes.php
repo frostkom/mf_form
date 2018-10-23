@@ -2768,7 +2768,8 @@ class mf_form
 
 				else if($intFormTypeRequired == true && !in_array($strFormTypeCode, array('text', 'space', 'referer_url')) && $error_text == '') //5, 6, 9
 				{
-					$error_text = $this->get_mandatory_text()." (".$this->label.")";
+					$error_text = $this->get_mandatory_text()
+						." (".$this->label.")";
 				}
 			}
 		}
