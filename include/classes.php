@@ -4035,7 +4035,7 @@ class mf_form_table extends mf_list_table
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 8)))
 				{
-					$out .= "<i class='fa fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
+					$out .= "<i class='far fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
 				}
 
 				if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
