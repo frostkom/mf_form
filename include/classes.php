@@ -184,9 +184,11 @@ class mf_form
 		$option = get_option($setting_key, array('email', 'filter', 'honeypot'));
 
 		$arr_data = array(
+			'honeypot' => __("Honeypot", 'lang_form'),
 			'email' => __("Recurring E-mail", 'lang_form'),
 			'filter' => __("HTML & Links", 'lang_form'),
-			'honeypot' => __("Honeypot", 'lang_form'),
+			//'urls' => __("URLs", 'lang_form'),
+			//'emails' => __("Emails", 'lang_form'),
 		);
 
 		echo show_select(array('data' => $arr_data, 'name' => $setting_key."[]", 'value' => $option));
@@ -1598,6 +1600,26 @@ class mf_form
 		return $post_name;
 	}
 
+	function pre_format_date($date)
+	{
+		if($date != '')
+		{
+			$date_formatted = date("Y-m-d", strtotime($date));
+
+			if($date_formatted != $date && strlen($date_formatted) == 10 && $date_formatted > DEFAULT_DATE)
+			{
+				$date = $date_formatted;
+			}
+		}
+
+		if(strlen($date) == 10)
+		{
+			$date = format_date($date);
+		}
+
+		return $date;
+	}
+
 	function get_form_id_from_post_content($post_id)
 	{
 		global $wpdb;
@@ -2171,13 +2193,15 @@ class mf_form
 		if(!isset($data['type'])){		$data['type'] = '';}
 
 		$arr_data = array(
-			1 => array('exclude' => "select_multiple",	'text' => "contains_html",					'explain' => __("Contains HTML", 'lang_form')),
-			2 => array('exclude' => "referer_url",		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => __("Link including http", 'lang_form')),
+			1 => array('exclude' => 'select_multiple',	'text' => 'contains_html',					'explain' => __("Contains HTML", 'lang_form')),
+			2 => array('exclude' => 'referer_url',		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => __("Link including http", 'lang_form')),
 			3 => array('exclude' => '',					'text' => "/([qm]){5}/",					'explain' => __("Question marks", 'lang_form')),
 			4 => array('exclude' => '',					'text' => "/(bit\.ly)/",					'explain' => __("Shortening links", 'lang_form')),
 			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("URL shortcodes", 'lang_form')),
 			6 => array('exclude' => '',					'text' => "",								'explain' => __("Recurring E-mail", 'lang_form')),
 			7 => array('exclude' => '',					'text' => "",								'explain' => __("Honeypot", 'lang_form')),
+			//8 => array('exclude' => '',					'text' => array($this, 'contains_urls'),	'explain' => __("URLs", 'lang_form')),
+			//9 => array('exclude' => '',					'text' => array($this, 'contains_emails'),	'explain' => __("Emails", 'lang_form')),
 		);
 
 		if($data['exclude'] != '')
@@ -2525,24 +2549,6 @@ class mf_form
 		$this->form_name = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
 
-		/*$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //formSaveIP, formMandatoryText, formEmailConfirm, formEmailConfirmPage, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formPaymentProvider, formPaymentCost,
-
-		foreach($result as $r)
-		{
-			//$strFormSaveIP = $r->formSaveIP;
-			//$this->email_confirm = $r->formEmailConfirm;
-			//$this->email_confirm_page = $r->formEmailConfirmPage;
-			//$this->email_admin = $r->formEmail;
-			//$this->email_conditions = $r->formEmailConditions;
-			//$this->email_notify = $r->formEmailNotify;
-			//$this->email_notify_page = $r->formEmailNotifyPage;
-			//$this->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $this->form_name);
-			//$strFormMandatoryText = $r->formMandatoryText;
-			//$intFormPaymentProvider = $r->formPaymentProvider;
-			//$intFormPaymentCost = $r->formPaymentCost;
-			$intFormPaymentAmount = $r->formPaymentAmount;
-		}*/
-
 		$dblQueryPaymentAmount_value = 0;
 
 		if($this->dup_ip == true)
@@ -2581,6 +2587,28 @@ class mf_form
 							{
 								$this->check_spam_rules(array('code' => $strFormTypeCode, 'text' => $strAnswerText));
 							}
+
+							/*if(in_array('urls', $setting_form_spam))
+							{
+								$this->check_spam_rules(array('code' => $strFormTypeCode, 'text' => $strAnswerText));
+
+								if()
+								{
+									$this->is_spam = true;
+									$this->is_spam_id = 8;
+								}
+							}
+
+							if(in_array('emails', $setting_form_spam))
+							{
+								$this->check_spam_rules(array('code' => $strFormTypeCode, 'text' => $strAnswerText));
+
+								if()
+								{
+									$this->is_spam = true;
+									$this->is_spam_id = 9;
+								}
+							}*/
 						break;
 
 						case 'email':
@@ -2599,38 +2627,30 @@ class mf_form
 
 				switch($strFormTypeCode)
 				{
-					//case 1:
 					case 'checkbox':
 						$strAnswerText_send = "x";
 					break;
 
-					//case 2:
 					case 'range':
 						$this->parse_range_label();
 					break;
 
-					//case 7:
 					case 'datepicker':
 						$strAnswerText_send = format_date($strAnswerText);
 					break;
 
-					//case 12:
 					case 'hidden_field':
 						$strAnswerText_send = '';
 					break;
 
-					//case 10:
 					case 'select':
-					//case 17:
 					case 'radio_multiple':
 						$this->check_limit(array('string' => $this->label, 'value' => $strAnswerText, 'form2TypeID' => $intForm2TypeID2));
 
 						$strAnswerText_send = $this->parse_select_info($strAnswerText);
 					break;
 
-					//case 11:
 					case 'select_multiple':
-					//case 16:
 					case 'checkbox_multiple':
 						$strAnswerText = "";
 
@@ -2650,7 +2670,6 @@ class mf_form
 						$strAnswerText = $this->parse_multiple_info($strAnswerText, false);
 					break;
 
-					//case 15:
 					case 'file':
 						if(isset($_FILES[$handle2fetch]))
 						{
@@ -2721,7 +2740,6 @@ class mf_form
 				{
 					switch($strFormTypeCode)
 					{
-						//case 12:
 						case 'hidden_field':
 							unset($this->arr_email_content['fields'][$intForm2TypeID2]);
 						break;
@@ -3295,6 +3313,7 @@ class mf_form_payment
 
 	function get_site_language($data) //sv_SE, en_US etc.
 	{
+		if(!isset($data['language'])){			$data['language'] = get_bloginfo('language');}
 		if(!isset($data['type'])){				$data['type'] = '';}
 		if(!isset($data['uc'])){				$data['uc'] = true;}
 		if(!isset($data['return_separator'])){	$data['return_separator'] = "_";}
@@ -3727,31 +3746,24 @@ class mf_form_answer_export extends mf_export
 
 					switch($strFormTypeCode)
 					{
-						//case 8:
 						case 'radio_button':
 							$strAnswerText = 1;
 						break;
 
-						//case 7:
 						case 'datepicker':
 							$strAnswerText = format_date($strAnswerText);
 						break;
 
-						//case 10:
 						case 'select':
-						//case 17:
 						case 'radio_multiple':
 							$strAnswerText = $obj_form->parse_select_info($strAnswerText);
 						break;
 
-						//case 11:
 						case 'select_multiple':
-						//case 16:
 						case 'checkbox_multiple':
 							$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
 						break;
 
-						//case 15:
 						case 'file':
 							$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
 
@@ -4422,15 +4434,7 @@ class mf_answer_table extends mf_list_table
 								break;
 
 								case 'datepicker':
-									if(strlen($strAnswerText) > 10)
-									{
-										$strAnswerText = format_date($strAnswerText);
-									}
-
-									else
-									{
-										$strAnswerText = $strAnswerText;
-									}
+									$strAnswerText = $obj_form->pre_format_date($strAnswerText);
 								break;
 
 								case 'select':
@@ -4540,13 +4544,18 @@ class mf_form_output
 			{
 				switch($this->row->formTypeCode)
 				{
-					default:
-						$this->answer_text = stripslashes(stripslashes($r->answerText));
-					break;
-
-					//case 8:
 					case 'radio_button':
 						$this->answer_text = $this->row->form2TypeID;
+					break;
+
+					case 'datepicker':
+						$obj_form = new mf_form();
+
+						$this->answer_text = $obj_form->pre_format_date($r->answerText);
+					break;
+
+					default:
+						$this->answer_text = stripslashes(stripslashes($r->answerText));
 					break;
 				}
 			}
@@ -4656,7 +4665,6 @@ class mf_form_output
 
 		switch($this->row->formTypeCode)
 		{
-			//case 1:
 			case 'checkbox':
 				$is_first_checkbox = false;
 
@@ -4667,11 +4675,7 @@ class mf_form_output
 					$is_first_checkbox = true;
 				}
 
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->row->formTypeText;
-				//}
-
+				$field_data['text'] = $this->row->formTypeText;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['value'] = 1;
 				$field_data['compare'] = $this->answer_text;
@@ -4682,7 +4686,6 @@ class mf_form_output
 				$this->show_required = $this->show_copy = true;
 			break;
 
-			//case 2:
 			case 'range':
 				$arr_content = explode("|", $this->row->formTypeText);
 
@@ -4691,11 +4694,7 @@ class mf_form_output
 					$this->answer_text = $arr_content[3];
 				}
 
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $arr_content[0]." (<span>".$this->answer_text."</span>)";
-				//}
-
+				$field_data['text'] = $arr_content[0]." (<span>".$this->answer_text."</span>)";
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['xtra'] = "min='".$arr_content[1]."' max='".$arr_content[2]."'".($this->row->formTypeAutofocus ? " autofocus" : "");
@@ -4708,13 +4707,8 @@ class mf_form_output
 				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = true;
 			break;
 
-			//case 7:
 			case 'datepicker':
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->row->formTypeText;
-				//}
-
+				$field_data['text'] = $this->row->formTypeText;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
@@ -4728,7 +4722,6 @@ class mf_form_output
 				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
-			//case 8:
 			case 'radio_button':
 				$is_first_radio = false;
 
@@ -4750,12 +4743,7 @@ class mf_form_output
 				}
 
 				$field_data['name'] = "radio_".$intForm2TypeID2_temp;
-
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->row->formTypeText;
-				//}
-
+				$field_data['text'] = $this->row->formTypeText;
 				$field_data['value'] = $this->row->form2TypeID;
 				$field_data['compare'] = $this->answer_text;
 				$field_data['xtra_class'] = $this->row->formTypeClass.($is_first_radio ? ($this->row->formTypeClass != '' ? " " : "")."clear" : "");
@@ -4765,15 +4753,9 @@ class mf_form_output
 				$this->show_required = $this->show_copy = true;
 			break;
 
-			//case 17:
 			case 'radio_multiple':
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
-
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->label;
-				//}
-
+				$field_data['text'] = $this->label;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
@@ -4784,7 +4766,6 @@ class mf_form_output
 				$this->show_required = $this->show_copy = true;
 			break;
 
-			//case 10:
 			case 'select':
 				if($this->row->formTypeActionShow > 0)
 				{
@@ -4793,12 +4774,7 @@ class mf_form_output
 				}
 
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
-
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->label;
-				//}
-
+				$field_data['text'] = $this->label;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
@@ -4809,16 +4785,10 @@ class mf_form_output
 				$this->show_required = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
-			//case 11:
 			case 'select_multiple':
 				$field_data['name'] .= "[]";
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
-
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->label;
-				//}
-
+				$field_data['text'] = $this->label;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
@@ -4830,16 +4800,10 @@ class mf_form_output
 				$this->show_required = $this->show_copy = true;
 			break;
 
-			//case 16:
 			case 'checkbox_multiple':
 				$field_data['name'] .= "[]";
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
-
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->label;
-				//}
-
+				$field_data['text'] = $this->label;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
@@ -4850,18 +4814,13 @@ class mf_form_output
 				$this->show_required = true;
 			break;
 
-			//case 3:
 			case 'input_field':
 				if($this->row->checkCode == "zip")
 				{
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_zipcode";
 				}
 
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->row->formTypeText;
-				//}
-
+				$field_data['text'] = $this->row->formTypeText;
 				$field_data['value'] = $this->answer_text;
 				$field_data['maxlength'] = 200;
 				$field_data['required'] = $this->row->formTypeRequired;
@@ -4877,13 +4836,8 @@ class mf_form_output
 				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
-			//case 4:
 			case 'textarea':
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->row->formTypeText;
-				//}
-
+				$field_data['text'] = $this->row->formTypeText;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
@@ -4896,7 +4850,6 @@ class mf_form_output
 				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
-			//case 5:
 			case 'text':
 				if($this->row->formTypeTag != '')
 				{
@@ -4913,12 +4866,10 @@ class mf_form_output
 				}
 			break;
 
-			//case 6:
 			case 'space':
 				$this->output .= $this->in_edit_mode == true ? "<p class='grey".$class_output_small."'>(".__("Space", 'lang_form').")</p>" : "<p".$class_output.">&nbsp;</p>";
 			break;
 
-			//case 9:
 			case 'referer_url':
 				$referer_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "";
 
@@ -4935,7 +4886,6 @@ class mf_form_output
 				}
 			break;
 
-			//case 12:
 			case 'hidden_field':
 				if($this->in_edit_mode == true)
 				{
@@ -4953,7 +4903,6 @@ class mf_form_output
 				}
 			break;
 
-			//case 13:
 			case 'custom_tag':
 				if($this->in_edit_mode == true)
 				{
@@ -4966,7 +4915,6 @@ class mf_form_output
 				}
 			break;
 
-			//case 14:
 			case 'custom_tag_end':
 				if($this->in_edit_mode == true)
 				{
@@ -4979,13 +4927,8 @@ class mf_form_output
 				}
 			break;
 
-			//case 15:
 			case 'file':
-				/*if($data['show_label'] == true)
-				{*/
-					$field_data['text'] = $this->row->formTypeText;
-				//}
-
+				$field_data['text'] = $this->row->formTypeText;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
 

@@ -1,14 +1,14 @@
 <?php
 
 /* Deprecated 180829 but needs to be here until all MF Form *** plugins are updated */
-function get_site_language($data) //sv_SE, en_US etc.
+/*function get_site_language($data) //sv_SE, en_US etc.
 {
 	do_log("Old get_site_language() is still in use");
 
 	$obj_form_payment = new mf_form_payment();
 
 	return $obj_form_payment->get_site_language($data);
-}
+}*/
 
 function get_form_url($form_id)
 {
