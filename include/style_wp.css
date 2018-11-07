@@ -61,7 +61,6 @@
 					-webkit-flex: 1 1 50%;
 					-ms-flex: 1 1 50%;
 					flex: 1 1 50%;
-					/*margin: 0;*/
 					overflow: initial;
 					position: relative;
 					max-width: 50%;
@@ -77,9 +76,10 @@
 						border: .1em solid transparent;
 						box-sizing: border-box;
 						display: block;
+						font-size: 1.2em;
 						margin: 0 .2em;
 						overflow: hidden;
-						padding: .3em;
+						padding: 0 .3em;
 						text-overflow: ellipsis;
 						white-space: nowrap;
 						width: 100%;
