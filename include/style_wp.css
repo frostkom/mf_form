@@ -186,12 +186,12 @@
 				text-decoration: none;
 			}
 
-			mf-form-row .row_icons .fa:not(.fa-info-circle)
+			mf-form-row .row_icons .fa:not(.fa-info-circle), mf-form-row .row_icons .far:not(.fa-info-circle)
 			{
 				display: none;
 			}
 
-				mf-form-row:hover .row_icons .fa, mf-form-row.active .row_icons .fa
+				mf-form-row:hover .row_icons .fa, mf-form-row.active .row_icons .fa, mf-form-row:hover .row_icons .far, mf-form-row.active .row_icons .far
 				{
 					display: block;
 					margin-bottom: .2em;

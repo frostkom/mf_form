@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-05 11:36+0100\n"
+"POT-Creation-Date: 2018-11-12 09:07+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -268,6 +268,7 @@ msgstr "Spara"
 
 #: ../create/index.php:534
 #: ../create/index.php:701
+#: ../create/index.php:702
 #: ../include/classes.php:3830
 msgid "Name"
 msgstr "Namn"
@@ -427,8 +428,8 @@ msgid "There are no installed provider extension even though it seams like a pro
 msgstr "Det finns inga installerade leverantörs-plugin även om en leverantör verkar vara angiven (%s)"
 
 #: ../create/index.php:702
-msgid "Import"
-msgstr "Importera"
+msgid "Import Form Fields"
+msgstr "Importera formulärfält"
 
 #: ../create/index.php:717
 msgid "You don't have permission to edit this form"
@@ -1127,3 +1128,5 @@ msgstr "Det verkar som att formuläret redan har blivit raderat"
 msgid "You don't have permission to delete this form"
 msgstr "Du har inte behörighet att radera formuläret"
 
+#~ msgid "Import"
+#~ msgstr "Importera"

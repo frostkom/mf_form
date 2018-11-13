@@ -403,10 +403,10 @@ if($obj_form->check_allow_edit())
 												{
 													foreach($result_select as $r)
 													{
-														$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $intForm2TypeID, 'option_id' => $r->formOptionID));
+														//$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $intForm2TypeID, 'option_id' => $r->formOptionID));
 
 														echo "<div class='option'>"
-															.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $r->formOptionValue, 'placeholder' => __("Enter option here", 'lang_form'), 'readonly' => $is_select_value_used))
+															.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $r->formOptionValue, 'placeholder' => __("Enter option here", 'lang_form'))) //, 'readonly' => $is_select_value_used
 															.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $r->formOptionLimit))
 															.input_hidden(array('name' => 'strFormTypeSelect_id', 'value' => $r->formOptionID))
 														."</div>";
@@ -423,7 +423,7 @@ if($obj_form->check_allow_edit())
 
 														echo "<div class='option'>"
 															.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $option_id, 'placeholder' => __("ID", 'lang_form'), 'readonly' => $is_select_value_used)) //input text is needed when using payment price as ID
-															.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $option_value, 'placeholder' => __("Enter option here", 'lang_form'), 'readonly' => $is_select_value_used))
+															.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $option_value, 'placeholder' => __("Enter option here", 'lang_form'))) //, 'readonly' => $is_select_value_used
 															.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $option_limit))
 														."</div>";
 													}
@@ -699,7 +699,7 @@ if($obj_form->check_allow_edit())
 					<div class='postbox'>
 						<div class='inside'>"
 							.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
-							.show_textarea(array('name' => 'strFormImport', 'text' => __("Import", 'lang_form'), 'value' => $strFormImport))
+							.show_textarea(array('name' => 'strFormImport', 'text' => __("Import Form Fields", 'lang_form'), 'value' => $strFormImport, 'placeholder' => "3,".__("Name", 'lang_form').","))
 							.show_button(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))
 							.input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))
 							.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false)

@@ -5001,7 +5001,7 @@ class mf_form_output
 							$out .= "<i class='fa fa-info-circle blue'></i>";
 						}
 
-						$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='fa fa-edit'></i></a>
+						$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='far fa-edit'></i></a>
 					</div>";
 
 					if($row_settings != '')
