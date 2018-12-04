@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.3.9
+Version: 12.3.10
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -108,10 +108,10 @@ function activate_form()
 		formPaymentTax TINYINT UNSIGNED DEFAULT NULL,
 		formPaymentCallback VARCHAR(100) DEFAULT NULL,
 		formCreated DATETIME DEFAULT NULL,
+		userID INT UNSIGNED DEFAULT NULL,
 		formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',
 		formDeletedDate DATETIME DEFAULT NULL,
 		formDeletedID INT UNSIGNED DEFAULT NULL,
-		userID INT UNSIGNED DEFAULT NULL,
 		PRIMARY KEY (formID),
 		KEY blogID (blogID),
 		KEY postID (postID)
