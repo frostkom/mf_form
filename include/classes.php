@@ -1633,6 +1633,13 @@ class mf_form
 			$this->id = $form_id;
 		}
 	}
+	
+	function get_form_if_from_answer($intAnswerID)
+	{
+		global $wpdb;
+
+		$this->id = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $intAnswerID));
+	}
 
 	function get_form_email_field()
 	{
@@ -1644,6 +1651,11 @@ class mf_form
 	function get_answer_email($intAnswerID)
 	{
 		global $wpdb;
+
+		if(!($this->id > 0))
+		{
+			$this->get_form_if_from_answer($intAnswerID);
+		}
 
 		$intForm2TypeID = $this->get_form_email_field();
 
