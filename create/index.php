@@ -558,7 +558,7 @@ if($obj_form->check_allow_edit())
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
 								<div class='inside'>"
-									.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation Page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+									.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation Page", 'lang_form'), 'suffix' => get_option_page_suffix(array('value' => $strFormAnswerURL)))); //get_option_page_suffix(array('value' => $option))." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-plus-circle fa-lg'></i></a>"
 
 									if($obj_form->is_poll())
 									{

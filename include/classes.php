@@ -1452,8 +1452,8 @@ class mf_form
 	{
 		global $wpdb;
 
-		if(!isset($this->has_payment))
-		{
+		/*if(!isset($this->has_payment)) // This is not usable when multiple forms are displayed on a single page
+		{*/
 			$this->has_payment = false;
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentCost, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
@@ -1466,7 +1466,7 @@ class mf_form
 
 				$this->has_payment = $this->payment_provider > 0 && ($this->payment_cost > 0 || $this->payment_amount > 0);
 			}
-		}
+		//}
 
 		return $this->has_payment;
 	}
@@ -2798,8 +2798,12 @@ class mf_form
 
 				else if($intFormTypeRequired == true && !in_array($strFormTypeCode, array('text', 'space', 'referer_url')) && $error_text == '') //5, 6, 9
 				{
-					$error_text = $this->get_mandatory_text()
-						." (".$this->label.")";
+					if(is_array($this->label))
+					{
+						do_log("Label is array: ".var_export($this->label, true));
+					}
+
+					$error_text = $this->get_mandatory_text()." (".$this->label.")";
 				}
 			}
 		}
@@ -2815,7 +2819,7 @@ class mf_form
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, ($this->allow_save_ip() == 'yes' ? $_SERVER['REMOTE_ADDR'] : ''), $this->is_spam, $this->is_spam_id));
 			$this->answer_id = $wpdb->insert_id;
 
-			$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this)); //, 'answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content
+			$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
 
 			if($error_text == '')
 			{
@@ -2841,22 +2845,21 @@ class mf_form
 						$this->set_meta(array('id' => $this->answer_id, 'key' => 'user_id', 'value' => get_current_user_id()));
 					}
 
-					//if($intFormPaymentProvider > 0 && ($intFormPaymentCost > 0 || $dblQueryPaymentAmount_value > 0))
 					if($this->check_if_has_payment())
 					{
 						//do_log("Payment Check: ".$dblQueryPaymentAmount_value." == ".$this->page_content_data['content']['fields'][$this->payment_amount]['value']);
 
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
-						$intFormPaymentTest = (isset($_POST['intFormPaymentTest']) && (IS_ADMIN || isset($_GET['make_test_payment'])));
+						$test_payment = (isset($_POST[$this->prefix.'test_payment']) && (IS_ADMIN || isset($_GET['make_test_payment'])));
 
-						if($intFormPaymentTest == true)
+						if($test_payment == true)
 						{
 							$this->set_meta(array('id' => $this->answer_id, 'key' => 'test_payment', 'value' => get_current_user_id()));
 						}
 
 						$obj_payment = new mf_form_payment($this->id);
-						$out .= $obj_payment->process_passthru(array('cost' => $this->payment_cost, 'amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $intFormPaymentTest, 'email_visitor' => $this->email_visitor));
+						$out .= $obj_payment->process_passthru(array('cost' => $this->payment_cost, 'amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $test_payment, 'email_visitor' => $this->email_visitor));
 					}
 
 					else
@@ -2931,8 +2934,6 @@ class mf_form
 			$strFormButtonText = $r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form');
 			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag(array('symbol' => $r->formButtonSymbol));
 			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
-
-			$this->prefix = $this->get_post_info()."_";
 
 			if($strFormAnswerURL != '' && preg_match("/_/", $strFormAnswerURL))
 			{
@@ -3046,12 +3047,12 @@ class mf_form
 							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"))
 							.apply_filters('filter_form_after_fields', '')
 							."<div class='form_button'>"
-								.show_button(array('name' => "btnFormSubmit", 'text' => $strFormButtonSymbol.$strFormButtonText))
-								.show_button(array('type' => "button", 'name' => "btnFormClear", 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
+								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => $strFormButtonSymbol.$strFormButtonText))
+								.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
 								if($this->check_if_has_payment() && (IS_ADMIN || isset($_GET['make_test_payment'])))
 								{
-									$out .= show_checkbox(array('name' => "intFormPaymentTest", 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
+									$out .= show_checkbox(array('name' => $this->prefix.'test_payment', 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
 									.apply_filters('filter_form_test_payment', '');
 								}
 
@@ -3106,9 +3107,10 @@ class mf_form
 
 		else
 		{
+			$this->prefix = $this->get_post_info()."_";
 			$this->dup_ip = $this->check_if_duplicate();
 
-			if(isset($_POST['btnFormSubmit']) && $this->is_correct_form($data))
+			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data))
 			{
 				$out .= $this->process_submit();
 			}
@@ -3417,8 +3419,6 @@ class mf_form_payment
 			$this->tax_total = ($this->cost_total / ($this->payment_tax_rate / 100));
 		}
 
-		//do_log("Before Sending: ".var_export($data, true).", ".var_export($this, true));
-
 		$out = apply_filters('form_process_passthru', '', $this);
 
 		if($this->provider > 0 && $out == '')
@@ -3440,20 +3440,28 @@ class mf_form_payment
 			{
 				if(is_callable($this->payment_callback))
 				{
-					$paid = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $this->payment_amount));
+					if($this->payment_amount > 0)
+					{
+						$paid = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $this->payment_amount));
 
-					call_user_func($this->payment_callback, array('paid' => $paid, 'answer_id' => $this->answer_id));
+						call_user_func($this->payment_callback, array('paid' => $paid, 'answer_id' => $this->answer_id));
+					}
+
+					else
+					{
+						do_log(sprintf(__("The Field for Payment Amount was not set on the form with ID %d so the function %s could not be triggered", 'lang_form'), $this->id, $this->payment_callback));
+					}
 				}
 
 				else
 				{
-					do_log("Function ".$this->payment_callback." not callable");
+					do_log(sprintf(__("Function %s not callable", 'lang_form'), $this->payment_callback));
 				}
 			}
 
 			else
 			{
-				do_log("Function ".$this->payment_callback." does not exist");
+				do_log(sprintf(__("Function %s does not exist", 'lang_form'), $this->payment_callback));
 			}
 		}
 
@@ -3526,7 +3534,7 @@ class mf_form_payment
 
 				if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 				{
-					echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
+					echo "<i class='fa fa-spinner fa-spin fa-3x' rel='test3_".$intFormAnswerURL."'></i>";
 
 					$strFormAnswerURL = get_permalink($intFormAnswerURL);
 

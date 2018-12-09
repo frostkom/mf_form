@@ -2,25 +2,25 @@ jQuery(function($)
 {
 	function update_range_text(selector)
 	{
-		if(selector.siblings('label').children('span').length == 0)
+		if(selector.siblings("label").children("span").length == 0)
 		{
-			selector.siblings('label').append(" <span></span>");
+			selector.siblings("label").append(" <span></span>");
 		}
 
-		selector.siblings('label').children('span').text(selector.val());
+		selector.siblings("label").children("span").text(selector.val());
 	}
 
 	function do_form_type_action(dom_obj)
 	{
 		var equals = dom_obj.attr('data-equals'),
-			show_obj = $('#' + dom_obj.attr('data-show')),
+			show_obj = $("#" + dom_obj.attr('data-show')),
 			show_obj_parent = false;
 
-		if(show_obj.is('input[type=checkbox]')){	show_obj_parent = show_obj.parents('.form_checkbox');}
-		else if(show_obj.is('input')){				show_obj_parent = show_obj.parents('.form_textfield');}
-		else if(show_obj.is('input[type=radio]')){	show_obj_parent = show_obj.parents('.form_radio');}
-		else if(show_obj.is('select')){				show_obj_parent = show_obj.parents('.form_select');}
-		else if(show_obj.is('textarea')){			show_obj_parent = show_obj.parents('.form_textarea');}
+		if(show_obj.is("input[type=checkbox]")){	show_obj_parent = show_obj.parents(".form_checkbox");}
+		else if(show_obj.is("input")){				show_obj_parent = show_obj.parents(".form_textfield");}
+		else if(show_obj.is("input[type=radio]")){	show_obj_parent = show_obj.parents(".form_radio");}
+		else if(show_obj.is("select")){				show_obj_parent = show_obj.parents(".form_select");}
+		else if(show_obj.is("textarea")){			show_obj_parent = show_obj.parents(".form_textarea");}
 		else
 		{
 			show_obj_parent = show_obj;
@@ -45,20 +45,20 @@ jQuery(function($)
 				{
 					if(remember_count > 0)
 					{
-						$('.form_button .button-secondary').removeClass("hide");
+						$(".form_button .button-secondary").removeClass("hide");
 					}
 
 					else
 					{
-						$('.form_button .button-secondary').addClass("hide");
+						$(".form_button .button-secondary").addClass("hide");
 					}
 				}
 
-				var remember_fields = $('.mf_form .remember');
+				var remember_fields = $(".mf_form .remember");
 
 				remember_fields.each(function()
 				{
-					var selector = $(this).find('input, select, textarea'),
+					var selector = $(this).find("input, select, textarea"),
 						dom_name = selector.attr('name'),
 						dom_value = $.Storage.get(dom_name);
 
@@ -72,7 +72,7 @@ jQuery(function($)
 
 				show_or_hide_clear_button();
 
-				remember_fields.on('blur', 'input, select, textarea', function()
+				remember_fields.on('blur', "input, select, textarea", function()
 				{
 					var selector = $(this),
 						dom_name = selector.attr('name'),
@@ -100,11 +100,11 @@ jQuery(function($)
 					show_or_hide_clear_button();
 				});
 
-				$('.form_button button[name=btnFormClear]').on('click', function()
+				$(".form_button button[name=btnFormClear]").on('click', function()
 				{
 					remember_fields.each(function()
 					{
-						var selector = $(this).find('input, select, textarea'),
+						var selector = $(this).find("input, select, textarea"),
 							dom_name = selector.attr('name'),
 							dom_value = $.Storage.get(dom_name);
 
@@ -139,7 +139,7 @@ jQuery(function($)
 				{
 					if(data.success)
 					{
-						selector.siblings('span').text(data.response);
+						selector.siblings("span").text(data.response);
 					}
 				}
 			});
@@ -147,65 +147,65 @@ jQuery(function($)
 
 		else
 		{
-			selector.siblings('span').empty();
+			selector.siblings("span").empty();
 		}
 	}
 
-	$('.mf_form input[type=range]').each(function()
+	$(".mf_form input[type=range]").each(function()
 	{
 		update_range_text($(this));
 	});
 
-	$('.form_inline .error, .form_inline h2').each(function()
+	$(".form_inline .error, .form_inline h2").each(function()
 	{
-		$(this).parents('.form_inline').show();
+		$(this).parents(".form_inline").show();
 	});
 
-	$('.mf_form .form_zipcode input').each(function()
+	$(".mf_form .form_zipcode input").each(function()
 	{
 		$(this).after("<span></span>");
 	});
 
-	$('.form_action select').each(function()
+	$(".form_action select").each(function()
 	{
 		do_form_type_action($(this));
 	});
 
-	if($('.mf_form .remember').length > 0)
+	if($(".mf_form .remember").length > 0)
 	{
 		check_remember_fields();
 	}
 
-	$('.mf_form .form_zipcode input').each(function()
+	$(".mf_form .form_zipcode input").each(function()
 	{
 		check_zip_code($(this));
 	});
 
-	$(document).on('click', '.form_link', function(event)
+	$(document).on('click', ".form_link", function(event)
 	{
 		/*console.log("Clicked");*/
 
 		var dom_obj_link = $(this),
 			dom_obj_inline = $("#inline_form_" + dom_obj_link.attr('rel')),
-			dom_overlay = $('#overlay_form > div');
+			dom_overlay = $("#overlay_form > div");
 
-		if($('#wrapper').length > 0)
+		if($("#wrapper").length > 0)
 		{
 			if(dom_overlay.length == 0)
 			{
-				$('#wrapper').append("<div id='overlay_form'><div></div></div>");
+				$("#wrapper").append("<div id='overlay_form'><div></div></div>");
 
-				dom_overlay = $('#overlay_form > div');
+				dom_overlay = $("#overlay_form > div");
 			}
 
 			if(dom_overlay.children().length > 0)
 			{
-				dom_overlay.html('').parent('#overlay_form').fadeOut();
+				dom_overlay.html('').parent("#overlay_form").fadeOut();
 			}
 
 			else
 			{
-				dom_overlay.html("<i class='fa fa-times fa-2x'></i>" + dom_obj_inline.html()).parent('#overlay_form').fadeIn();
+				dom_overlay.html("<i class='fa fa-times fa-2x'></i>" + dom_obj_inline.html()).parent("#overlay_form").fadeIn();
 			}
 		}
 
@@ -219,10 +219,10 @@ jQuery(function($)
 
 	function hide_form_overlay()
 	{
-		$('#overlay_form').fadeOut().children('div').html('');
+		$("#overlay_form").fadeOut().children("div").html('');
 	}
 
-	$(document).on('click', '#overlay_form', function(e)
+	$(document).on('click', "#overlay_form", function(e)
 	{
 		if(e.target == e.currentTarget)
 		{
@@ -230,14 +230,14 @@ jQuery(function($)
 		}
 	});
 
-	$(document).on('click', '#overlay_form .fa-times', function(e)
+	$(document).on('click', "#overlay_form .fa-times", function(e)
 	{
 		hide_form_overlay();
 	});
 
 	/*if(script_form.reload == 'no')
 	{
-		$(document).on('submit', '.mf_form_submit', function()
+		$(document).on('submit', ".mf_form_submit", function()
 		{
 			var self = $(this),
 				form_data = self.serialize();
@@ -275,7 +275,7 @@ jQuery(function($)
 
 					else if(data.error)
 					{
-						$('h1').after("<div class='error'><p>" + data.error + "</p></div>");
+						$("h1").after("<div class='error'><p>" + data.error + "</p></div>");
 					}
 				}
 			});
@@ -284,22 +284,22 @@ jQuery(function($)
 		});
 	}*/
 
-	$(document).on('change', '.mf_form input[type=range]', function()
+	$(document).on('change', ".mf_form input[type=range]", function()
 	{
 		update_range_text($(this));
 	});
 
-	$(document).on('keyup, focusout', '.mf_form .form_zipcode input', function()
+	$(document).on('keyup, focusout', ".mf_form .form_zipcode input", function()
 	{
 		check_zip_code($(this));
 	});
 
-	$(document).on('change', '.form_action select', function()
+	$(document).on('change', ".form_action select", function()
 	{
 		do_form_type_action($(this));
 	});
 
-	$(document).on('click', '.mf_form_submit button.button-primary', function()
+	$(document).on('click', ".mf_form_submit button.button-primary", function()
 	{
 		var dom_obj = $(this);
 
@@ -311,7 +311,7 @@ jQuery(function($)
 		else
 		{
 			var dom_obj_label = dom_obj.html(),
-				dom_empty_required = dom_obj.parents('form').find('[required]:visible').filter(function()
+				dom_empty_required = dom_obj.parents("form").find("[required]:visible").filter(function()
 				{
 					return !this.value;
 				});
