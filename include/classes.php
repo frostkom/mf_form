@@ -1229,7 +1229,7 @@ class mf_form
 				$this->form_name = $this->get_post_info(array('select' => "post_title"));
 				$this->prefix = $this->get_post_info()."_";
 
-				$this->email_visitor = '';
+				$this->answer_data = array();
 
 				/*$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //, formEmailConfirm, formEmailConfirmPage, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName
 
@@ -1248,66 +1248,64 @@ class mf_form
 					'fields' => array(),
 				);
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE answerID = '%d' = '1' ORDER BY form2TypeOrder ASC", $this->answer_id));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE answerID = '%d' = '1' ORDER BY form2TypeOrder ASC", $this->answer_id)); //, formTypeID
 
 				foreach($result as $r)
 				{
 					$intForm2TypeID2 = $r->form2TypeID;
-					$intFormTypeID2 = $r->formTypeID;
+					//$intFormTypeID2 = $r->formTypeID;
+					$strFormTypeCode = $r->formTypeCode;
 					$this->label = $r->formTypeText;
 					$strCheckCode = $r->checkCode;
 					$strAnswerText = $r->answerText;
 
 					$this->arr_email_content['fields'][$intForm2TypeID2] = array();
 
-					switch($intFormTypeID2)
+					switch($strFormTypeCode)
 					{
-						case 1:	//checkbox
+						case 'checkbox':
 							$strAnswerText = "x";
 						break;
 
-						case 2: //range
+						case 'range':
 							$this->parse_range_label();
 						break;
 
-						case 7: //datepicker
+						case 'datepicker':
 							$strAnswerText = format_date($strAnswerText);
 						break;
 
-						case 8: //radio_button
+						case 'radio_button':
 							$strAnswerText = "x";
 						break;
 
-						case 10: //select
-						case 17: //radio_multiple
+						case 'select':
+						case 'radio_multiple':
 							$strAnswerText = $this->parse_select_info($strAnswerText);
 						break;
 
-						case 11: //select_multiple
-						case 16: //checkbox_multiple
+						case 'select_multiple':
+						case 'checkbox_multiple':
 							$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
 						break;
 
 						default:
-							if($strCheckCode != '')
+							switch($strCheckCode)
 							{
-								switch($strCheckCode)
-								{
-									case 'zip':
-										if(get_bloginfo('language') == "sv-SE")
+								case 'zip':
+									if(get_bloginfo('language') == "sv-SE")
+									{
+										include_once("class_zipcode.php");
+										$obj_zipcode = new mf_zipcode();
+
+										$city_name = $obj_zipcode->get_city($strAnswerText);
+
+										if($city_name != '')
 										{
-											include_once("class_zipcode.php");
-											$obj_zipcode = new mf_zipcode();
-
-											$city_name = $obj_zipcode->get_city($strAnswerText);
-
-											if($city_name != '')
-											{
-												$strAnswerText .= ", ".$city_name;
-											}
+											$strAnswerText .= ", ".$city_name;
 										}
-									break;
-								}
+									}
+								break;
 							}
 						break;
 					}
@@ -1322,14 +1320,20 @@ class mf_form
 						$this->arr_email_content['fields'][$intForm2TypeID2]['value'] = $strAnswerText;
 					}
 
-					switch($strCheckCode)
+					if($strFormTypeCode == 'input_field')
 					{
-						case 'email':
-							if($intFormTypeID2 == 3) //'input_field'
-							{
-								$this->email_visitor = $strAnswerText;
-							}
-						break;
+						switch($strCheckCode)
+						{
+							case 'address':
+							case 'city':
+							case 'country':
+							case 'email':
+							case 'name':
+							case 'telno':
+							case 'zip':
+								$this->answer_data[$strCheckCode] = $strAnswerText;
+							break;
+						}
 					}
 				}
 
@@ -1351,7 +1355,7 @@ class mf_form
 						case 'confirm':		break;*/
 
 						case 'product':
-							$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this)); //, 'answer_id' => $this->answer_id, 'mail_from' => $this->email_visitor, 'mail_admin' => $this->email_admin, 'mail_subject' => $this->email_subject, 'notify_page' => $this->email_notify_page, 'arr_mail_content' => $this->arr_email_content
+							$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
 
 							if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
 							{
@@ -2371,9 +2375,19 @@ class mf_form
 				'content' => '',
 			);
 
-			if($this->email_visitor != '')
+			if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
 			{
-				$this->mail_data['headers'] = "From: ".$this->email_visitor." <".$this->email_visitor.">\r\n";
+				if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
+				{
+					$name_temp = $this->answer_data['name'];
+				}
+
+				else
+				{
+					$name_temp = $this->answer_data['email'];
+				}
+
+				$this->mail_data['headers'] = "From: ".$name_temp." <".$this->answer_data['email'].">\r\n";
 			}
 
 			$this->mail_data['content'] = $this->get_page_content_for_email();
@@ -2407,9 +2421,19 @@ class mf_form
 				$this->mail_data['to'] = get_bloginfo('admin_email');
 			}
 
-			if($this->email_visitor != '')
+			if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
 			{
-				$this->mail_data['headers'] = "From: ".$this->email_visitor." <".$this->email_visitor.">\r\n";
+				if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
+				{
+					$name_temp = $this->answer_data['name'];
+				}
+				
+				else
+				{
+					$name_temp = $this->answer_data['email'];
+				}
+
+				$this->mail_data['headers'] = "From: ".$name_temp." <".$this->answer_data['email'].">\r\n";
 			}
 
 			$this->page_content_data['mail_to'] = $this->mail_data['to'];
@@ -2420,11 +2444,11 @@ class mf_form
 			$this->send_transactional_email();
 		}
 
-		if($this->email_confirm == 1 && isset($this->email_visitor) && $this->email_visitor != '')
+		if($this->email_confirm == 1 && isset($this->answer_data['email']) && $this->answer_data['email'] != '')
 		{
 			$this->mail_data = array(
 				'type' => 'confirm',
-				'to' => $this->email_visitor,
+				'to' => $this->answer_data['email'],
 				'subject' => $this->page_content_data['subject'],
 				'content' => '',
 			);
@@ -2534,7 +2558,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		$out = $wpdb->get_results($wpdb->prepare("SELECT formMandatoryText FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$out = $wpdb->get_var($wpdb->prepare("SELECT formMandatoryText FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		if($out == '')
 		{
@@ -2548,10 +2572,9 @@ class mf_form
 	{
 		global $wpdb, $error_text, $done_text;
 
-		$out = "";
+		$out = $error_text = "";
+		$this->answer_data = $this->arr_answer_queries = array();
 
-		$this->email_visitor = $error_text = "";
-		$this->arr_answer_queries = array();
 		$this->arr_email_content = array(
 			'fields' => array(),
 		);
@@ -2570,15 +2593,15 @@ class mf_form
 
 		else
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeDisplay = '1' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeDisplay = '1' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->id)); //, formTypeID
 
 			foreach($result as $r)
 			{
 				$intForm2TypeID2 = $r->form2TypeID;
-				$intFormTypeID2 = $r->formTypeID;
+				//$intFormTypeID2 = $r->formTypeID;
 				$strFormTypeCode = $r->formTypeCode;
 				$this->label = $r->formTypeText;
-				$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
+				$strCheckCode = $r->checkCode != '' ? $r->checkCode : 'char';
 				$intFormTypeRequired = $r->formTypeRequired;
 
 				if(!isset($this->arr_email_content['fields'][$intForm2TypeID2]))
@@ -2626,12 +2649,24 @@ class mf_form
 						case 'email':
 							if(in_array('email', $setting_form_spam))
 							{
-								$this->check_spam_email(array('text' => $strAnswerText)); //'id' => $intForm2TypeID2,
+								$this->check_spam_email(array('text' => $strAnswerText));
+							}
 
-								if($intFormTypeID2 == 3)
-								{
-									$this->email_visitor = $strAnswerText;
-								}
+							if($strFormTypeCode == 'input_field')
+							{
+								$this->answer_data['email'] = $strAnswerText;
+							}
+						break;
+
+						case 'address':
+						case 'city':
+						case 'country':
+						case 'name':
+						case 'telno':
+						case 'zip':
+							if($strFormTypeCode == 'input_field')
+							{
+								$this->answer_data[$strCheckCode] = $strAnswerText;
 							}
 						break;
 					}
@@ -2798,11 +2833,6 @@ class mf_form
 
 				else if($intFormTypeRequired == true && !in_array($strFormTypeCode, array('text', 'space', 'referer_url')) && $error_text == '') //5, 6, 9
 				{
-					if(is_array($this->label))
-					{
-						do_log("Label is array: ".var_export($this->label, true));
-					}
-
 					$error_text = $this->get_mandatory_text()." (".$this->label.")";
 				}
 			}
@@ -2859,7 +2889,7 @@ class mf_form
 						}
 
 						$obj_payment = new mf_form_payment($this->id);
-						$out .= $obj_payment->process_passthru(array('cost' => $this->payment_cost, 'amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $test_payment, 'email_visitor' => $this->email_visitor));
+						$out .= $obj_payment->process_passthru(array('cost' => $this->payment_cost, 'amount' => $dblQueryPaymentAmount_value, 'orderid' => $this->answer_id, 'test' => $test_payment, 'answer_data' => $this->answer_data));
 					}
 
 					else
@@ -3397,7 +3427,7 @@ class mf_form_payment
 
 		$this->orderid = $data['orderid'];
 		$this->test = $data['test'];
-		$this->email_visitor = $data['email_visitor'];
+		$this->answer_data = $data['answer_data'];
 
 		if($this->cost > 0)
 		{

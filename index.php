@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.3.13
+Version: 12.4.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -262,15 +262,19 @@ function activate_form()
 
 	$arr_form_check = array(
 		1 => array('name' => __("Number", 'lang_form'),				'code' => 'int',		'pattern' => '[0-9]*'),
+		2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip',		'pattern' => '[0-9]{5}'),
 		5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email',		'pattern' => ''),
 		6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno',		'pattern' => ''),
 		7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
 		8 => array('name' => __("URL", 'lang_form'),				'code' => 'url',		'pattern' => ''),
+		9 => array('name' => __("Name", 'lang_form'),				'code' => 'name',		'pattern' => ''),
+		10 => array('name' => __("Street Address", 'lang_form'),	'code' => 'address',	'pattern' => ''),
+		11 => array('name' => __("City", 'lang_form'),				'code' => 'city',		'pattern' => ''),
+		11 => array('name' => __("Country", 'lang_form'),			'code' => 'country',	'pattern' => ''),
 	);
 
 	if(get_bloginfo('language') == "sv-SE")
 	{
-		$arr_form_check[2] = array('name' => __("Zip code", 'lang_form'),								'code' => 'zip',	'pattern' => '[0-9]{5}');
 		$arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc',	'pattern' => '[0-9]{10}');
 		$arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",	'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
 	}
