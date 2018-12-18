@@ -1092,7 +1092,7 @@ class mf_form
 
 			if($wpdb->num_rows > 0)
 			{
-				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentFile, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formEmailConditions, formPaymentAmount (field IDs are not the same in this copied form)
+				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formEmailConditions, formPaymentAmount (field IDs are not the same in this copied form)
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -1633,7 +1633,7 @@ class mf_form
 			$this->id = $form_id;
 		}
 	}
-	
+
 	function get_form_if_from_answer($intAnswerID)
 	{
 		global $wpdb;
@@ -3017,7 +3017,7 @@ class mf_form
 							$out .= get_notification();
 						}
 
-						$i = 1;
+						//$i = 1;
 
 						$intFormTypeID2_temp = $intForm2TypeID2_temp = "";
 
@@ -3032,7 +3032,7 @@ class mf_form
 
 							$out .= $obj_form_output->get_output($data);
 
-							$i++;
+							//$i++;
 						}
 
 						if($this->answer_id > 0)
@@ -3294,14 +3294,13 @@ class mf_form_payment
 
 		if($this->form_id > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formPaymentFile, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
 			foreach($result as $r)
 			{
 				$this->name = $r->formName;
 				$this->provider = $r->formPaymentProvider;
 				$this->hmac = $r->formPaymentHmac;
-				$this->cert_file = $r->formPaymentFile;
 				$this->terms_page = $r->formTermsPage;
 				$this->merchant = $r->formPaymentMerchant;
 				$this->password = $r->formPaymentPassword;
