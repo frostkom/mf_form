@@ -2427,7 +2427,7 @@ class mf_form
 				{
 					$name_temp = $this->answer_data['name'];
 				}
-				
+
 				else
 				{
 					$name_temp = $this->answer_data['email'];
@@ -3478,7 +3478,7 @@ class mf_form_payment
 
 					else
 					{
-						do_log(sprintf(__("The Field for Payment Amount was not set on the form with ID %d so the function %s could not be triggered", 'lang_form'), $this->id, $this->payment_callback));
+						do_log(sprintf(__("The Field for Payment Amount was not set on the form with ID %d so the function %s could not be triggered", 'lang_form'), $this->form_id, $this->payment_callback));
 					}
 				}
 
