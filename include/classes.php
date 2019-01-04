@@ -3067,7 +3067,7 @@ class mf_form
 
 						if($this->answer_id > 0)
 						{
-							$out .= show_button(array('name' => "btnFormUpdate", 'text' => __("Update", 'lang_form')))
+							$out .= show_button(array('name' => 'btnFormUpdate', 'text' => __("Update", 'lang_form')))
 							.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
 							.input_hidden(array('name' => 'intAnswerID', 'value' => $this->answer_id));
 						}
@@ -3964,7 +3964,7 @@ class mf_form_table extends mf_list_table
 							}
 
 							//$actions['add_post'] = "<a href='".admin_url("post-new.php?post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
-							//$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
+							$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 						}
 					}
 				}

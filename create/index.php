@@ -500,7 +500,7 @@ if($obj_form->check_allow_edit())
 
 									echo "</div>
 								</div>"
-								.show_button(array('name' => "btnFormAdd", 'text' => ($intForm2TypeID > 0 ? __("Update", 'lang_form') : __("Add", 'lang_form'))));
+								.show_button(array('name' => 'btnFormAdd', 'text' => ($intForm2TypeID > 0 ? __("Update", 'lang_form') : __("Add", 'lang_form'))));
 
 								if($intForm2TypeID > 0)
 								{
@@ -538,24 +538,52 @@ if($obj_form->check_allow_edit())
 
 									if($form_output != '')
 									{
-										echo show_button(array('name' => "btnFormPublish", 'text' => ($form_status == "publish" ? __("Save", 'lang_form') : __("Publish", 'lang_form'))));
+										echo show_button(array('name' => 'btnFormPublish', 'text' => ($form_status == 'publish' ? __("Save", 'lang_form') : __("Publish", 'lang_form'))));
 									}
 
-									echo show_button(array('name' => "btnFormDraft", 'text' => __("Save Draft", 'lang_form'), 'class' => "button"));
+									echo show_button(array('name' => 'btnFormDraft', 'text' => __("Save Draft", 'lang_form'), 'class' => "button"))
+									.input_hidden(array('name' => 'intFormID', 'value' => $obj_form->id))
+									.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false);
 
-									if($form_status == "publish")
+									if($form_status == 'publish' && $obj_form->id > 0) //post_status -> form_status
 									{
-										$post_url = get_permalink($obj_form->post_id);
+										$shortcode = "[mf_form id=".$obj_form->id."]";
 
-										if($post_url != '')
+										echo show_textfield(array('text' => __("Shortcode", 'lang_form'), 'value' => $shortcode, 'xtra' => "readonly onclick='this.select()'"));
+
+										$result = get_pages_from_shortcode($shortcode);
+
+										if(count($result) > 0)
 										{
-											echo "<a href='".$post_url."' class='button'>".__("View form", 'lang_form')."</a>";
+											foreach($result as $post_id_temp)
+											{
+												if($obj_form->check_allow_edit())
+												{
+													echo " <a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
+												}
+
+												$actions['view_page'] = " <a href='".get_permalink($post_id_temp)."'>".__("View", 'lang_form')."</a>";
+											}
+										}
+
+										else
+										{
+											if($form_status == 'publish')
+											{
+												$post_url = get_permalink($obj_form->post_id);
+
+												if($post_url != '')
+												{
+													$actions['view'] = " <a href='".$post_url."'>".__("View", 'lang_form')."</a>";
+												}
+											}
+
+											echo " <a href='".admin_url("post-new.php?post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
+											echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 										}
 									}
 
-									echo input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))
-									.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false)
-								."</div>
+								echo "</div>
 							</div>
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
@@ -691,8 +719,8 @@ if($obj_form->check_allow_edit())
 						<div class='inside'>"
 							.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
 							.show_textarea(array('name' => 'strFormImport', 'text' => __("Import Form Fields", 'lang_form'), 'value' => $strFormImport, 'placeholder' => "3,".__("Name", 'lang_form').","))
-							.show_button(array('name' => "btnFormPublish", 'text' => __("Add", 'lang_form')))
-							.input_hidden(array('name' => "intFormID", 'value' => $obj_form->id))
+							.show_button(array('name' => 'btnFormPublish', 'text' => __("Add", 'lang_form')))
+							.input_hidden(array('name' => 'intFormID', 'value' => $obj_form->id))
 							.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false)
 						."</div>
 					</div>

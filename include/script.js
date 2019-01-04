@@ -183,8 +183,6 @@ jQuery(function($)
 
 	$(document).on('click', ".form_link", function(event)
 	{
-		/*console.log("Clicked");*/
-
 		var dom_obj_link = $(this),
 			dom_obj_inline = $("#inline_form_" + dom_obj_link.attr('rel')),
 			dom_overlay = $("#overlay_form > div");
