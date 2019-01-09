@@ -252,7 +252,7 @@
 					.select_rows .option .form_textfield:first-child
 					{
 						/*display: none;*/
-						margin-right: 0.5em;
+						margin-right: .5em;
 						min-width: 35px;
 					}
 
