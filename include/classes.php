@@ -1143,32 +1143,16 @@ class mf_form
 		{
 			$this->prefix = $this->get_post_info()."_";
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeID != '13' ORDER BY form2TypeOrder ASC", $this->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeID != '13' ORDER BY form2TypeOrder ASC", $this->id));
 
 			foreach($result as $r)
 			{
 				$intForm2TypeID2 = $r->form2TypeID;
 				$strFormTypeCode = $r->formTypeCode;
 				$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
+				$intFormTypeRequired = $r->formTypeRequired;
 
 				$strAnswerText = check_var($this->prefix.$intForm2TypeID2, $strCheckCode, true, '', true, 'post');
-
-				if($strAnswerText != ''){}
-
-				else if($strFormTypeCode == 'radio_button') //8
-				{
-					$strAnswerText_radio = isset($_POST["radio_".$intForm2TypeID2]) ? check_var($_POST["radio_".$intForm2TypeID2], 'int', false) : '';
-
-					if($strAnswerText_radio != '')
-					{
-						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $this->answer_id, $strAnswerText_radio));
-
-						if($wpdb->num_rows == 0)
-						{
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = ''", $this->answer_id, $strAnswerText_radio));
-						}
-					}
-				}
 
 				if($strAnswerText != '')
 				{
@@ -1190,10 +1174,25 @@ class mf_form
 					}
 				}
 
-				/*else
+				else if($strFormTypeCode == 'radio_button')
+				{
+					$strAnswerText_radio = isset($_POST["radio_".$intForm2TypeID2]) ? check_var($_POST["radio_".$intForm2TypeID2], 'int', false) : '';
+
+					if($strAnswerText_radio != '')
+					{
+						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $this->answer_id, $strAnswerText_radio));
+
+						if($wpdb->num_rows == 0)
+						{
+							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = ''", $this->answer_id, $strAnswerText_radio));
+						}
+					}
+				}
+
+				else if($intFormTypeRequired == 0 && in_array($strFormTypeCode, array('range', 'input_field', 'textarea', 'text', 'datepicker')))
 				{
 					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intForm2TypeID2));
-				}*/
+				}
 			}
 
 			if(!isset($error_text) || $error_text == '')

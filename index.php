@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.4.5
+Version: 12.4.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -71,7 +71,7 @@ load_plugin_textdomain('lang_form', false, dirname(plugin_basename(__FILE__)).'/
 
 function activate_form()
 {
-	global $wpdb;
+	global $wpdb, $obj_form;
 
 	$default_charset = DB_CHARSET != '' ? DB_CHARSET : "utf8";
 
@@ -251,7 +251,7 @@ function activate_form()
 
 	$arr_run_query = array();
 
-	$obj_form = new mf_form();
+	//$obj_form = new mf_form();
 
 	foreach($obj_form->get_form_types() as $key => $value)
 	{

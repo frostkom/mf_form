@@ -196,7 +196,7 @@ if($type_action == 'zipcode')
 
 	if(get_bloginfo('language') == "sv-SE")
 	{
-		include_once("class_zipcode.php");
+		include_once("../class_zipcode.php");
 		$obj_zipcode = new mf_zipcode();
 
 		$city_name = $obj_zipcode->get_city($search);
