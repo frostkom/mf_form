@@ -389,7 +389,7 @@ if($obj_form->check_allow_edit())
 												<li>".__("By submitting this form I am aware that I will be sent to another website for payment", 'lang_form')."</li>
 											</ol>
 										</div>"
-										.show_select(array('data' => $obj_form->get_form_checks_for_select(), 'name' => "intCheckID", 'value' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"))
+										.show_select(array('data' => $obj_form->get_form_checks_for_select(), 'name' => 'intCheckID', 'value' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"))
 										.show_textfield(array('name' => 'strFormTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strFormTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"))
 										.show_select(array('data' => array('div' => "div", 'fieldset' => "fieldset"), 'name' => 'strFormTypeText2', 'value' => $strFormTypeText, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
 										."<div class='show_range flex_flow hide'>"

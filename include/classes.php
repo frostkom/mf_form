@@ -187,8 +187,8 @@ class mf_form
 			'honeypot' => __("Honeypot", 'lang_form'),
 			'email' => __("Recurring E-mail", 'lang_form'),
 			'filter' => __("HTML & Links", 'lang_form'),
-			//'urls' => __("URLs", 'lang_form'),
-			//'emails' => __("Emails", 'lang_form'),
+			//'urls' => "URLs",
+			//'emails' => "Emails",
 		);
 
 		echo show_select(array('data' => $arr_data, 'name' => $setting_key."[]", 'value' => $option));
@@ -532,8 +532,6 @@ class mf_form
 
 	function export_personal_data($email_address, $page = 1)
 	{
-		global $wpdb;
-
 		$number = 200;
 		$page = (int)$page;
 
@@ -588,8 +586,6 @@ class mf_form
 
 	function erase_personal_data($email_address, $page = 1)
 	{
-		global $wpdb;
-
 		$number = 200;
 		$page = (int)$page;
 
@@ -1531,8 +1527,6 @@ class mf_form
 
 	function get_form_name($id = 0)
 	{
-		global $wpdb;
-
 		if($id > 0)
 		{
 			$this->id = $id;
@@ -1626,8 +1620,6 @@ class mf_form
 
 	function get_form_id_from_post_content($post_id)
 	{
-		global $wpdb;
-
 		$post_content = mf_get_post_content($post_id);
 
 		$form_id = get_match("/\[mf_form id=(.*?)\]/", $post_content, false);
@@ -2168,8 +2160,6 @@ class mf_form
 
 	function check_if_spam($data)
 	{
-		global $wpdb;
-
 		if($data['text'] != '' && $data['rule'] != '')
 		{
 			if(function_exists($data['rule']))
@@ -2216,8 +2206,8 @@ class mf_form
 			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("URL shortcodes", 'lang_form')),
 			6 => array('exclude' => '',					'text' => "",								'explain' => __("Recurring E-mail", 'lang_form')),
 			7 => array('exclude' => '',					'text' => "",								'explain' => __("Honeypot", 'lang_form')),
-			//8 => array('exclude' => '',					'text' => array($this, 'contains_urls'),	'explain' => __("URLs", 'lang_form')),
-			//9 => array('exclude' => '',					'text' => array($this, 'contains_emails'),	'explain' => __("Emails", 'lang_form')),
+			//8 => array('exclude' => '',					'text' => array($this, 'contains_urls'),	'explain' => "URLs"),
+			//9 => array('exclude' => '',					'text' => array($this, 'contains_emails'),	'explain' => "Emails"),
 		);
 
 		if($data['exclude'] != '')
@@ -2250,8 +2240,6 @@ class mf_form
 
 	function check_spam_rules($data)
 	{
-		global $wpdb;
-
 		$result = $this->get_spam_rules(array('type' => 'text', 'exclude' => $data['code']));
 
 		foreach($result as $key => $value)
@@ -3114,7 +3102,7 @@ class mf_form
 
 	function process_form($data = array())
 	{
-		global $wpdb, $error_text;
+		global $error_text;
 
 		$out = "";
 
@@ -3420,8 +3408,6 @@ class mf_form_payment
 
 	function process_passthru($data)
 	{
-		global $wpdb;
-
 		$this->cost = $data['cost'];
 		$this->cost_total = $this->amount = intval($data['amount']) > 0 ? $data['amount'] : 1;
 
@@ -3636,8 +3622,6 @@ class mf_form_payment
 
 	function process_callback()
 	{
-		global $wpdb;
-
 		$request_type = substr($_SERVER['REQUEST_URI'], 15);
 
 		$this->is_accept = isset($_GET['accept']) || $request_type == "accept";
@@ -3666,12 +3650,6 @@ class mf_form_payment
 		$this->amount = check_var('amount', 'int');
 
 		$out = apply_filters('form_process_callback', "<p>".__("Processing", 'lang_form')."&hellip;</p>", $this);
-
-		// This also happens when the provider code doesn't return anything so it's kinda useless
-		/*if($this->provider > 0 && $out == '')
-		{
-			do_log(sprintf(__("A provider was set (%s) to callback but there seams to be no provider extensions installed", 'lang_form'), $this->provider));
-		}*/
 
 		return $out;
 	}
@@ -5090,8 +5068,6 @@ class widget_form extends WP_Widget
 
 	function widget($args, $instance)
 	{
-		global $wpdb;
-
 		extract($args);
 
 		$instance = wp_parse_args((array)$instance, $this->arr_default);

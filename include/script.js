@@ -301,7 +301,7 @@ jQuery(function($)
 	{
 		var dom_obj = $(this);
 
-		if(dom_obj.hasClass("disabled"))
+		if(dom_obj.hasClass('disabled'))
 		{
 			return false;
 		}
@@ -318,11 +318,11 @@ jQuery(function($)
 
 			else
 			{
-				dom_obj.addClass("disabled").html("<i class='fa fa-spinner fa-spin'></i> " + script_form.please_wait + "&hellip;");
+				dom_obj.addClass('disabled').html("<i class='fa fa-spinner fa-spin'></i> " + script_form.please_wait + "&hellip;");
 
 				setTimeout(function()
 				{
-					dom_obj.removeClass("disabled").html(dom_obj_label);
+					dom_obj.removeClass('disabled').html(dom_obj_label);
 				}, 5000);
 			}
 		}
