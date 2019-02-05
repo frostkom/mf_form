@@ -133,24 +133,11 @@ if($obj_form->check_allow_edit())
 
 	else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce_form_add'], 'form_add_'.$obj_form->id))
 	{
-		//Clean up settings if not used for the specific type of field
-		################
-		/*if($intFormTypeID != 3) //'input_field'
-		{
-			$intCheckID = "";
-		}*/
-		################
-
 		switch($intFormTypeID)
 		{
 			case 2: // range
 				$strFormTypeText = str_replace("|", "", $strFormTypeText)."|".str_replace("|", "", $strFormTypeMin)."|".str_replace("|", "", $strFormTypeMax)."|".str_replace("|", "", $strFormTypeDefault);
 			break;
-
-			/*case 6: // space
-			case 9: // referer_url
-
-			break;*/
 
 			case 10: // select
 			case 11: // select_multiple
@@ -163,10 +150,92 @@ if($obj_form->check_allow_edit())
 
 				else
 				{
-					$obj_form->formTypeSelect = $strFormTypeSelect;
-					$obj_form->validate_select_array();
+					if($obj_form->form_option_exists)
+					{
+						$arr_select_id = check_var('intFormTypeSelect_id', 'array');
+						$arr_select_key = check_var('strFormTypeSelect_key', 'array');
+						$arr_select_value = check_var('strFormTypeSelect_value', 'array');
+						$arr_select_limit = check_var('strFormTypeSelect_limit', 'array');
 
-					$strFormTypeText = str_replace(":", "", $strFormTypeText).":".str_replace(":", "", $obj_form->formTypeSelect);
+						$count_temp = count($arr_select_value);
+
+						for($i = 0; $i < $count_temp; $i++)
+						{
+							if($arr_select_id[$i] > 0)
+							{
+								$wpdb->get_results($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND formOptionID = '%d'", $intForm2TypeID, $arr_select_id[$i]));
+								$rows = $wpdb->num_rows;
+
+								if($rows == 1)
+								{
+									if($arr_select_value[$i] != '')
+									{
+										$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", $arr_select_key[$i], $arr_select_value[$i], $arr_select_limit[$i], $intForm2TypeID, $arr_select_id[$i]));
+
+										if($wpdb->rows_affected == 1)
+										{
+											//$updated = true;
+										}
+
+										else
+										{
+											do_log("I could not update the option (".var_export($wpdb->last_quer, true).")");
+										}
+									}
+
+									else
+									{
+										$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND formOptionID = '%d'", $intForm2TypeID, $arr_select_id[$i]));
+
+										if($wpdb->rows_affected == 1)
+										{
+											//$reload = $updated = true;
+										}
+
+										else
+										{
+											do_log("I could not remove the option (".$wpdb->last_query.")");
+										}
+									}
+								}
+
+								/*else
+								{
+									do_log("I could not find just one (".$wpdb->last_query." -> ".$rows.")");
+								}*/
+							}
+
+							else
+							{
+								if($arr_event_name[$i] != '')
+								{
+									$intFormOptionOrder_temp = $wpdb->get_var($wpdb->prepare("SELECT formOptionOrder FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder DESC LIMIT 0, 1", $this->row->form2TypeID));
+
+									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $arr_select_key[$i], $arr_select_value[$i], $arr_select_limit[$i], ($intFormOptionOrder_temp + 1)));
+
+									if($wpdb->rows_affected == 1)
+									{
+										//$reload = $updated = true;
+									}
+
+									else
+									{
+										do_log("I could not save the option (".$wpdb->last_query.")");
+									}
+								}
+							}
+						}
+
+						$strFormTypeText = str_replace(":", "", $strFormTypeText);
+					}
+
+					else
+					{
+						$obj_form->formTypeSelect = $strFormTypeSelect;
+						$obj_form->validate_select_array();
+						
+						$strFormTypeText = str_replace(":", "", $strFormTypeText).":".str_replace(":", "", $obj_form->formTypeSelect);
+					}
 				}
 			break;
 
@@ -354,18 +423,18 @@ if($obj_form->check_allow_edit())
 					$intFormTypeID = $wpdb->get_var($wpdb->prepare("SELECT formTypeID FROM ".$wpdb->base_prefix."form2type WHERE userID = '%d' ORDER BY form2TypeCreated DESC", get_current_user_id()));
 				}*/
 
-				if($strFormTypeSelect == '')
+				if($obj_form->form_option_exists && $intForm2TypeID > 0)
 				{
-					$strFormTypeSelect = "|";
-				}
-
-				if(does_table_exist($wpdb->base_prefix."form_option") && $intForm2TypeID > 0)
-				{
-					$result_select = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
+					$result_select = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
 				}
 
 				else
 				{
+					if($strFormTypeSelect == '')
+					{
+						$strFormTypeSelect = "|";
+					}
+
 					$arr_select_rows = explode(",", $strFormTypeSelect);
 				}
 
@@ -401,16 +470,17 @@ if($obj_form->check_allow_edit())
 											<label>".__("Value", 'lang_form')." <i class='fa fa-info-circle' title='".__("Enter ID, Name and Limit (optional)", 'lang_form')."'></i></label>
 											<div class='select_rows'>";
 
-												if(does_table_exist($wpdb->base_prefix."form_option") && $intForm2TypeID > 0)
+												if($obj_form->form_option_exists && $intForm2TypeID > 0)
 												{
 													foreach($result_select as $r)
 													{
 														//$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $intForm2TypeID, 'option_id' => $r->formOptionID));
 
 														echo "<div class='option'>"
-															.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $r->formOptionValue, 'placeholder' => __("Enter option here", 'lang_form'))) //, 'readonly' => $is_select_value_used
-															.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $r->formOptionLimit))
-															.input_hidden(array('name' => 'strFormTypeSelect_id', 'value' => $r->formOptionID))
+															.show_textfield(array('name' => 'strFormTypeSelect_key[]', 'value' => $r->formOptionKey, 'placeholder' => __("Key", 'lang_form'))) //, 'readonly' => $is_select_value_used //input text is needed when using payment price as ID
+															.show_textfield(array('name' => 'strFormTypeSelect_value[]', 'value' => $r->formOptionValue, 'placeholder' => __("Enter Option Here", 'lang_form'))) //, 'readonly' => $is_select_value_used
+															.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit[]', 'value' => $r->formOptionLimit))
+															.input_hidden(array('name' => 'intFormTypeSelect_id[]', 'value' => $r->formOptionID))
 														."</div>";
 													}
 												}
@@ -424,15 +494,15 @@ if($obj_form->check_allow_edit())
 														$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $intForm2TypeID, 'option_id' => $option_id));
 
 														echo "<div class='option'>"
-															.show_textfield(array('name' => 'strFormTypeSelect_id', 'value' => $option_id, 'placeholder' => __("ID", 'lang_form'), 'readonly' => $is_select_value_used)) //input text is needed when using payment price as ID
-															.show_textfield(array('name' => 'strFormTypeSelect_value', 'value' => $option_value, 'placeholder' => __("Enter option here", 'lang_form'))) //, 'readonly' => $is_select_value_used
-															.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit', 'value' => $option_limit))
+															.show_textfield(array('name' => 'strFormTypeSelect_id[]', 'value' => $option_id, 'placeholder' => __("Key", 'lang_form'), 'readonly' => $is_select_value_used)) //input text is needed when using payment price as ID
+															.show_textfield(array('name' => 'strFormTypeSelect_value[]', 'value' => $option_value, 'placeholder' => __("Enter Option Here", 'lang_form'))) //, 'readonly' => $is_select_value_used
+															.show_textfield(array('type' => 'number', 'name' => 'intFormTypeSelect_limit[]', 'value' => $option_limit))
 														."</div>";
 													}
 												}
 
 											echo "</div>"
-											.input_hidden(array('name' => 'strFormTypeSelect', 'value' => $strFormTypeSelect))
+											//.input_hidden(array('name' => 'strFormTypeSelect', 'value' => $strFormTypeSelect))
 										."</div>";
 
 										//Advanced
@@ -461,7 +531,7 @@ if($obj_form->check_allow_edit())
 
 												$arr_data_equals = array();
 
-												if(does_table_exist($wpdb->base_prefix."form_option") && $intForm2TypeID > 0)
+												if($obj_form->form_option_exists && $intForm2TypeID > 0)
 												{
 													foreach($result_select as $r)
 													{

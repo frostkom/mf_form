@@ -84,7 +84,9 @@ jQuery(function($)
 
 		$(".select_rows").append("<div class='option'>" + dom_content + "</div>");
 
-		var dom_obj = $(".select_rows .option:last-child input[name=strFormTypeSelect_id]"),
+		var dom_parent = $(".select_rows .option:last-child");
+
+		/*var dom_obj = dom_parent.find("input[name=strFormTypeSelect_id]"),
 			dom_value = dom_obj.attr('value');
 
 		if(parseInt(dom_value) == dom_value)
@@ -93,17 +95,12 @@ jQuery(function($)
 			{
 				'value': parseInt(dom_value) + 1
 			});
-		}
+		}*/
 
-		dom_obj.removeAttr('readonly');
-
-		$(".select_rows .option:last-child input[name=strFormTypeSelect_value]").attr(
-		{
-			'value': ''
-		}).removeAttr('readonly');
+		dom_parent.find("input").val('').attr({'value': ''}).removeAttr('readonly')
 	}
 
-	function update_select()
+	/*function update_select()
 	{
 		var select_value = "";
 
@@ -122,7 +119,7 @@ jQuery(function($)
 		});
 
 		$(".show_select input[name=strFormTypeSelect]").val(select_value);
-	}
+	}*/
 
 	$(document).on('click', ".ajax_link", function()
 	{
@@ -214,9 +211,11 @@ jQuery(function($)
 
 	$(document).on('blur', ".select_rows input", function()
 	{
-		update_select();
+		//update_select();
 
-		if($(this).parents(".option").is(":last-child") && $(this).parents(".option").find(".form_textfield input[name=strFormTypeSelect_value]").val() != '')
+		var dom_parent = $(this).parents(".option");
+
+		if(dom_parent.is(":last-child") && dom_parent.find("input[name=strFormTypeSelect_value]").val() != '')
 		{
 			add_option();
 		}

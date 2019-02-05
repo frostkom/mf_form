@@ -10,8 +10,10 @@ if($obj_form->id > 0)
 
 	echo "<div class='wrap'>
 		<h2>".__("Answers", 'lang_form')." (".$strFormName.")</h2>"
-		.get_notification()
-		.$obj_form->get_pie_chart();
+		.get_notification();
+
+		//Has to fixed for form_option
+		//echo $obj_form->get_pie_chart();
 
 		$tbl_group = new mf_answer_table();
 

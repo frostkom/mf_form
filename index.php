@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 12.4.6
+Version: 1.0.0.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -191,17 +191,20 @@ function activate_form()
 		'formTypeDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '1' AFTER formTypeActionShow",
 	);
 
-	//How do I solve this in payment forms where ID is set to the price?
-	/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
-		formOptionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		form2TypeID INT UNSIGNED NOT NULL,
-		formOptionValue TEXT,
-		formOptionLimit SMALLINT UNSIGNED,
-		formOptionOrder INT UNSIGNED NOT NULL DEFAULT '0',
-		PRIMARY KEY (formOptionID),
-		KEY form2TypeID (form2TypeID),
-		KEY formOptionOrder (formOptionOrder)
-	) DEFAULT CHARSET=".$default_charset);*/
+	if(get_site_option('setting_convert_form_options') == 'yes')
+	{
+		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
+			formOptionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			form2TypeID INT UNSIGNED NOT NULL,
+			formOptionKey VARCHAR(10) DEFAULT NULL,
+			formOptionValue TEXT,
+			formOptionLimit SMALLINT UNSIGNED,
+			formOptionOrder INT UNSIGNED NOT NULL DEFAULT '0',
+			PRIMARY KEY (formOptionID),
+			KEY form2TypeID (form2TypeID),
+			KEY formOptionOrder (formOptionOrder)
+		) DEFAULT CHARSET=".$default_charset);
+	}
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2answer (
 		answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -250,8 +253,6 @@ function activate_form()
 	add_index($arr_add_index);
 
 	$arr_run_query = array();
-
-	//$obj_form = new mf_form();
 
 	foreach($obj_form->get_form_types() as $key => $value)
 	{
@@ -388,64 +389,67 @@ function activate_form()
 
 	// Start using form_option
 	#################################
-	if(does_table_exist($wpdb->base_prefix."form_option"))
+	if($obj_form->form_option_exists)
 	{
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, form2TypeID, formTypeText FROM ".$wpdb->base_prefix."form2type WHERE formTypeID IN ('10', '11', '16', '17') AND formTypeText LIKE '%|%'"));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, form2TypeID, formTypeText FROM ".$wpdb->base_prefix."form2type WHERE formTypeID IN ('10', '11', '16', '17') AND formTypeText LIKE %s", "%|%"));
 
-		foreach($result as $r)
+		if($wpdb->num_rows > 0)
 		{
-			$intFormID = $r->formID;
-			$intForm2TypeID = $r->form2TypeID;
-			$strFormTypeText = $r->formTypeText;
-
-			list($strFormLabel, $strFormOptions) = explode(":", $strFormTypeText, 2);
-
-			$arr_options = explode(",", $strFormOptions);
-
-			$success = true;
-			$i = 0;
-
-			foreach($arr_options as $str_option)
+			foreach($result as $r)
 			{
-				@list($option_id, $option_value, $option_limit) = explode("|", $str_option, 3);
+				$intFormID = $r->formID;
+				$intForm2TypeID = $r->form2TypeID;
+				$strFormTypeText = $r->formTypeText;
 
-				if($option_value != '')
+				list($strFormLabel, $strFormOptions) = explode(":", $strFormTypeText, 2);
+
+				$arr_options = explode(",", $strFormOptions);
+
+				$success = true;
+				$i = 0;
+
+				foreach($arr_options as $str_option)
 				{
-					$intFormOptionID = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND formOptionValue = %s", $intForm2TypeID, $option_value));
+					@list($option_key, $option_value, $option_limit) = explode("|", $str_option, 3);
 
-					if($intFormOptionID > 0)
+					if($option_value != '')
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_value, $option_limit, $i));
+						$intFormOptionID = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND (formOptionKey = %s OR formOptionValue = %s)", $intForm2TypeID, $option_key, $option_value));
+
+						if($intFormOptionID > 0)
+						{
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d' WHERE formOptionID = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i, $intFormOptionID));
+						}
+
+						else
+						{
+							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i));
+
+							$intFormOptionID = $wpdb->insert_id;
+						}
+
+						if($option_key != '')
+						{
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '%d' WHERE form2TypeID = '%d' AND answerText = %s", $intFormOptionID, $intForm2TypeID, $option_key));
+
+							//do_log("Updated form_answer (".$wpdb->last_query.")");
+						}
+
+						$i++;
 					}
 
 					else
 					{
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_value, $option_limit, $i));
+						$success = false;
 
-						$intFormOptionID = $wpdb->insert_id;
+						do_log("There was no value for the option (".$intFormID.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
 					}
-
-					if($option_id != '')
-					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '%d' WHERE form2TypeID = '%d' AND answerText = %s", $intFormOptionID, $intForm2TypeID, $option_id));
-
-						do_log("Updated form_answer (".$wpdb->last_query.")");
-					}
-
-					$i++;
 				}
 
-				else
+				if($success == true)
 				{
-					$success = false;
-
-					do_log("There was no value for the option (".$intFormID.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s WHERE form2TypeID = '%d'", $strFormLabel, $intForm2TypeID));
 				}
-			}
-
-			if($success == true)
-			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s WHERE form2TypeID = '%d'", $strFormLabel, $intForm2TypeID));
 			}
 		}
 	}
@@ -466,20 +470,22 @@ function deactivate_form()
 
 function uninstall_form()
 {
+	global $obj_form;
+
 	mf_uninstall_plugin(array(
-		'uploads' => 'mf_form',
-		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'),
+		'uploads' => $obj_form->post_type,
+		'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'setting_convert_form_options', 'option_form_list_viewed'),
 		'meta' => array('meta_forms_viewed'),
-		'post_types' => array('mf_form'),
+		'post_types' => array($obj_form->post_type),
 		'tables' => array('form', 'form_option', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),
 	));
 }
 
 function custom_templates_form($single_template)
 {
-	global $post;
+	global $post, $obj_form;
 
-	if(in_array($post->post_type, array("mf_form")))
+	if($post->post_type == $obj_form->post_type)
 	{
 		$single_template = plugin_dir_path(__FILE__)."templates/single-".$post->post_type.".php";
 	}
