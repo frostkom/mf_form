@@ -180,7 +180,10 @@ if($obj_form->check_allow_edit())
 
 						for($i = 0; $i < $count_temp; $i++)
 						{
-							$obj_form->formTypeSelect .= ($i > 0 ? "," : "").$arrFormTypeSelect_id[$i]."|".$arrFormTypeSelect_value[$i]."|".$arrFormTypeSelect_limit[$i];
+							if($arrFormTypeSelect_value[$i] != '')
+							{
+								$obj_form->formTypeSelect .= ($i > 0 ? "," : "").$arrFormTypeSelect_id[$i]."|".$arrFormTypeSelect_value[$i]."|".$arrFormTypeSelect_limit[$i];
+							}
 						}
 
 						$obj_form->validate_select_array();
@@ -251,13 +254,23 @@ if($obj_form->check_allow_edit())
 						//case 'checkbox_multiple':
 						case 17:
 						//case 'radio_multiple':
-							$obj_form->save_options($intForm2TypeID, $arrFormTypeSelect_id, $arrFormTypeSelect_key, $arrFormTypeSelect_value, $arrFormTypeSelect_limit);
+							if($obj_form->form_option_exists)
+							{
+								$obj_form->save_options($intForm2TypeID, $arrFormTypeSelect_id, $arrFormTypeSelect_key, $arrFormTypeSelect_value, $arrFormTypeSelect_limit);
+							}
 						break;
 					}
 
 					if($wpdb->rows_affected > 0)
 					{
 						$intForm2TypeID = $intFormTypeID = $strFormTypeText = $strFormTypePlaceholder = $intCheckID = $strFormTypeTag = $strFormTypeClass = $strFormTypeFetchFrom = $strFormTypeActionEquals = $intFormTypeActionShow = "";
+
+						if($obj_form->form_option_exists){}
+
+						else
+						{
+							list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
+						}
 					}
 				}
 
@@ -374,15 +387,19 @@ if($obj_form->check_allow_edit())
 
 						else
 						{
+							echo "Test: ".$strFormTypeText;
+
 							list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
 
 							$arrFormTypeSelect_id = $arrFormTypeSelect_value = $arrFormTypeSelect_limit = array();
 
 							foreach(explode(",", $strFormTypeSelect) as $option_temp)
 							{
-								$arrFormTypeSelect_id[] = $option_temp[0];
-								$arrFormTypeSelect_value[] = $option_temp[1];
-								$arrFormTypeSelect_limit[] = $option_temp[2];
+								list($option_id, $option_value, $option_limit) = explode("|", $option_temp);
+
+								$arrFormTypeSelect_id[] = $option_id;
+								$arrFormTypeSelect_value[] = $option_value;
+								$arrFormTypeSelect_limit[] = $option_limit;
 							}
 						}
 					break;
@@ -459,14 +476,14 @@ if($obj_form->check_allow_edit())
 													if($obj_form->form_option_exists)
 													{
 														$arrFormTypeSelect_id = array('', '', '');
-														$arrFormTypeSelect_key = array(0, 1, 2);
+														$arrFormTypeSelect_key = array('0', '1', '2');
 														$arrFormTypeSelect_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
 														$arrFormTypeSelect_limit = array('', '', '');
 													}
 
 													else
 													{
-														$arrFormTypeSelect_id = array(0, 1, 2);
+														$arrFormTypeSelect_id = array('0', '1', '2');
 														$arrFormTypeSelect_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
 														$arrFormTypeSelect_limit = array('', '', '');
 													}

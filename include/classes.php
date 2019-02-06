@@ -507,6 +507,8 @@ class mf_form
 
 			/*$this->get_form_id($post_id);
 
+			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = (SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d')", $this->id));
+
 			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $this->id));
 			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = (SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d')", $this->id));
 			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d'", $this->id));

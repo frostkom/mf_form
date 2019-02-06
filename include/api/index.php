@@ -12,6 +12,8 @@ if(!defined('ABSPATH'))
 include_once("../classes.php");
 require_once("../functions.php");
 
+$obj_form = new mf_form();
+
 $json_output = array();
 
 $type = check_var('type', 'char');
@@ -29,7 +31,7 @@ if(get_current_user_id() > 0)
 	{
 		if($type_table == 'form')
 		{
-			$obj_form = new mf_form($type_id);
+			$obj_form->id = $type_id;
 
 			if($obj_form->get_answer_amount(array('form_id' => $obj_form->id)) == 0)
 			{
@@ -66,8 +68,6 @@ if(get_current_user_id() > 0)
 
 		else if($type_table == 'answer')
 		{
-			$obj_form = new mf_form();
-
 			if($obj_form->delete_answer($type_id) > 0)
 			{
 				$json_output['success'] = true;
@@ -81,7 +81,11 @@ if(get_current_user_id() > 0)
 
 			if($wpdb->rows_affected > 0)
 			{
-				$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d'", $type_id));
+				if($obj_form->form_option_exists)
+				{
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d'", $type_id));
+				}
+
 				//$wpdb->query(wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d'", $type_id));
 
 				$json_output['success'] = true;
