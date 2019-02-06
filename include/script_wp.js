@@ -80,24 +80,26 @@ jQuery(function($)
 
 	function add_option()
 	{
-		var dom_content = $(".select_rows .option:last-child").html();
-
-		$(".select_rows").append("<div class='option'>" + dom_content + "</div>");
-
-		var dom_parent = $(".select_rows .option:last-child");
-
-		/*var dom_obj = dom_parent.find("input[name=strFormTypeSelect_id]"),
-			dom_value = dom_obj.attr('value');
-
-		if(parseInt(dom_value) == dom_value)
+		if($(".select_rows .option").length > 0)
 		{
-			dom_obj.attr(
-			{
-				'value': parseInt(dom_value) + 1
-			});
-		}*/
+			var dom_parent = $(".select_rows .option:last-child");
 
-		dom_parent.find("input").val('').attr({'value': ''}).removeAttr('readonly')
+			if(dom_parent.find(".option_value input").val() != '')
+			{
+				var dom_value = dom_parent.find(".option_key input").attr('value');
+
+				$(".select_rows").append("<div class='option'>" + dom_parent.html() + "</div>");
+
+				var dom_parent_new = $(".select_rows .option:last-child");
+
+				dom_parent_new.find("input").val('').attr({'value': ''}).removeAttr('readonly');
+
+				if(parseInt(dom_value) == dom_value)
+				{
+					dom_parent_new.find(".option_key input").attr({'value': parseInt(dom_value) + 1});
+				}
+			}
+		}
 	}
 
 	/*function update_select()
@@ -107,12 +109,12 @@ jQuery(function($)
 		$(".select_rows .option").each(function()
 		{
 			var dom_obj = $(this),
-				temp_value = dom_obj.find("input[name=strFormTypeSelect_value]").val() + "";
+				temp_value = dom_obj.find("input[name=arrFormTypeSelect_value]").val() + "";
 
 			if(temp_value != "")
 			{
-				var temp_id = dom_obj.find("input[name=strFormTypeSelect_id]").val() + "",
-					temp_limit = dom_obj.find("input[name=intFormTypeSelect_limit]").val() + "";
+				var temp_id = dom_obj.find("input[name=arrFormTypeSelect_id]").val() + "",
+					temp_limit = dom_obj.find("input[name=arrFormTypeSelect_limit]").val() + "";
 
 				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value + "|" + temp_limit;
 			}
@@ -211,14 +213,9 @@ jQuery(function($)
 
 	$(document).on('blur', ".select_rows input", function()
 	{
-		//update_select();
+		/*update_select();*/
 
-		var dom_parent = $(this).parents(".option");
-
-		if(dom_parent.is(":last-child") && dom_parent.find("input[name=strFormTypeSelect_value]").val() != '')
-		{
-			add_option();
-		}
+		add_option();
 	});
 
 	$(document).on('click', ".show_checkbox li", function()

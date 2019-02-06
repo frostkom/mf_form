@@ -356,8 +356,10 @@ class mf_form
 			{
 				if($page == 'mf_form/create/index.php')
 				{
+					$plugin_base_include_url = plugins_url()."/mf_base/include/";
+
 					wp_enqueue_script('jquery-ui-sortable');
-					mf_enqueue_script('script_touch', $plugin_include_url."jquery.ui.touch-punch.min.js", $plugin_version);
+					mf_enqueue_script('script_touch', $plugin_base_include_url."jquery.ui.touch-punch.min.js", $plugin_version);
 				}
 
 				if($page == 'mf_form/create/index.php' || $page == 'mf_form/answer/index.php')
@@ -805,6 +807,82 @@ class mf_form
 		}
 	}
 
+	function save_options($intForm2TypeID, $arrFormTypeSelect_id, $arrFormTypeSelect_key, $arrFormTypeSelect_value, $arrFormTypeSelect_limit)
+	{
+		global $wpdb;
+
+		$count_temp = count($arrFormTypeSelect_value);
+
+		for($i = 0; $i < $count_temp; $i++)
+		{
+			if($arrFormTypeSelect_id[$i] > 0)
+			{
+				$wpdb->get_results($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND formOptionID = '%d'", $intForm2TypeID, $arrFormTypeSelect_id[$i]));
+				$rows = $wpdb->num_rows;
+
+				if($rows == 1)
+				{
+					if($arrFormTypeSelect_value[$i] != '')
+					{
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], $intForm2TypeID, $arrFormTypeSelect_id[$i]));
+
+						if($wpdb->rows_affected == 1)
+						{
+							//$updated = true;
+						}
+
+						else
+						{
+							do_log("I could not update the option (".var_export($wpdb->last_query, true).")");
+						}
+					}
+
+					else
+					{
+						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND formOptionID = '%d'", $intForm2TypeID, $arrFormTypeSelect_id[$i]));
+
+						if($wpdb->rows_affected == 1)
+						{
+							//$reload = $updated = true;
+						}
+
+						else
+						{
+							do_log("I could not remove the option (".$wpdb->last_query.")");
+						}
+					}
+				}
+
+				/*else
+				{
+					do_log("I could not find just one (".$wpdb->last_query." -> ".$rows.")");
+				}*/
+			}
+
+			else
+			{
+				if($arrFormTypeSelect_value[$i] != '')
+				{
+					$intFormOptionOrder_temp = $wpdb->get_var($wpdb->prepare("SELECT formOptionOrder FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder DESC LIMIT 0, 1", $intForm2TypeID));
+
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], ($intFormOptionOrder_temp + 1)));
+
+					if($wpdb->rows_affected == 1)
+					{
+						//$reload = $updated = true;
+					}
+
+					else
+					{
+						do_log("I could not save the option (".$wpdb->last_query.")");
+					}
+				}
+			}
+		}
+
+		//$strFormTypeText = str_replace(":", "", $strFormTypeText);
+	}
+
 	function validate_select_array()
 	{
 		$i = 0;
@@ -1094,7 +1172,7 @@ class mf_form
 
 	function get_payment_amount_for_select()
 	{
-		list($result, $rows) = $this->get_form_type_info(array('query_type_id' => array(10, 12))); //'select', 'hidden_field'
+		list($result, $rows) = $this->get_form_type_info(array('query_type_code' => array('select', 'hidden_field'))); //'query_type_id' => array(10, 12)
 
 		return $this->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
 	}
@@ -1105,7 +1183,7 @@ class mf_form
 
 		$out = false;
 
-		if($data['form2type_id'] > 0 && $data['option_id'] != 0 && $data['option_id'] != '')
+		if($data['form2type_id'] > 0 && $data['option_id'] > 0) // && $data['option_id'] != ''
 		{
 			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerText = %s LIMIT 0, 1", $data['form2type_id'], $data['option_id']));
 
@@ -1836,6 +1914,7 @@ class mf_form
 
 		if(!isset($data['form_id'])){			$data['form_id'] = 0;}
 		if(!isset($data['query_type_id'])){		$data['query_type_id'] = array();}
+		if(!isset($data['query_type_code'])){	$data['query_type_code'] = array();}
 		if(!isset($data['query_exclude_id'])){	$data['query_exclude_id'] = 0;}
 
 		if($data['form_id'] > 0)
@@ -1847,18 +1926,12 @@ class mf_form
 
 		if(count($data['query_type_id']) > 0)
 		{
-			$i = 0;
+			$query_where .= " AND formTypeID IN ('".implode("','", $data['query_type_id'])."')";
+		}
 
-			$query_where .= " AND (";
-
-				foreach($data['query_type_id'] as $query_type_id)
-				{
-					$query_where .= ($i > 0 ? " OR " : "")."formTypeID = '".$query_type_id."'";
-
-					$i++;
-				}
-
-			$query_where .= ")";
+		if(count($data['query_type_code']) > 0)
+		{
+			$query_where .= " AND formTypeCode IN ('".implode("','", $data['query_type_code'])."')";
 		}
 
 		if($data['query_exclude_id'] > 0)
@@ -1866,7 +1939,7 @@ class mf_form
 			$query_where .= " AND form2TypeID != '".$data['query_exclude_id']."'";
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, form2TypeOrder FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'".$query_where." ORDER BY form2TypeOrder ASC", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d'".$query_where." ORDER BY form2TypeOrder ASC", $this->id));
 		$rows = $wpdb->num_rows;
 
 		return array($result, $rows);
@@ -2036,7 +2109,7 @@ class mf_form
 				$this->mail_data['subject'] = $r->post_title;
 				$mail_template = apply_filters('the_content', $r->post_content);
 
-				$mail_content = $this->render_mail_content(array('mail_to' => $this->page_content_data['mail_to'], 'template' => $mail_template)); //, 'array' => $this->page_content_data['content']
+				$mail_content = $this->render_mail_content(array('mail_to' => $this->page_content_data['mail_to'], 'template' => $mail_template));
 			}
 		}
 
@@ -2047,7 +2120,7 @@ class mf_form
 
 		if($mail_content == '')
 		{
-			$mail_content = $this->render_mail_content(); //array('array' => $this->page_content_data['content'])
+			$mail_content = $this->render_mail_content();
 		}
 
 		return $mail_content;
@@ -2089,12 +2162,14 @@ class mf_form
 
 		foreach($data['result'] as $r)
 		{
-			if(in_array($r->formTypeID, array(10, 11, 16, 17))) //'select', 'select_multiple', 'checkbox_multiple', 'radio_multiple'
+			if(in_array($r->formTypeID, array(10, 11, 16, 17)))
+			//if(in_array($r->formTypeCode, array('select', 'select_multiple', 'checkbox_multiple', 'radio_multiple')))
 			{
-				list($strFormTypeText, $str_select) = explode(":", $r->formTypeText);
+				@list($strFormTypeText, $str_select) = explode(":", $r->formTypeText);
 			}
 
 			else if(in_array($r->formTypeID, array(13))) //'custom_tag'
+			//else if(in_array($r->formTypeCode, array('custom_tag')))
 			{
 				$strFormTypeText = "(".__("Custom Tag", 'lang_form').")";
 			}
@@ -2914,8 +2989,6 @@ class mf_form
 
 					if($this->check_if_has_payment())
 					{
-						//do_log("Payment Check: ".$dblQueryPaymentAmount_value." == ".$this->page_content_data['content']['fields'][$this->payment_amount]['value']);
-
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
 						$test_payment = (isset($_POST[$this->prefix.'test_payment']) && (IS_ADMIN || isset($_GET['make_test_payment'])));
@@ -2947,7 +3020,7 @@ class mf_form
 		$out = "";
 
 		$this->id = $data['form_id'];
-		list($result, $rows) = $this->get_form_type_info(array('query_type_id' => array(5, 8))); //'text', 'radio_button'
+		list($result, $rows) = $this->get_form_type_info(array('query_type_code' => array('text', 'radio_button'))); //'query_type_id' => array(5, 8)
 
 		foreach($result as $r)
 		{
@@ -3193,11 +3266,11 @@ class mf_form
 
 		if(!isset($_GET['answerSpam']) || $_GET['answerSpam'] == 0)
 		{
-			$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND (formTypeID = '1' OR formTypeID = '8' OR formTypeID = '10')", $this->id));
+			/*$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND (formTypeID = '1' OR formTypeID = '8' OR formTypeID = '10')", $this->id));
 
 			if($query_answers > 1)
-			{
-				list($resultPie, $rowsPie) = $this->get_form_type_info(array('query_type_id' => array(1, 8, 10))); //'checkbox', 'radio_button', 'select'
+			{*/
+				list($resultPie, $rowsPie) = $this->get_form_type_info(array('query_type_code' => array('checkbox', 'radio_button', 'select')));
 
 				if($rowsPie > 0)
 				{
@@ -3213,29 +3286,27 @@ class mf_form
 					{
 						$intForm2TypeID = $r->form2TypeID;
 						$intFormTypeID = $r->formTypeID;
+						$strFormTypeCode = $r->formTypeCode;
 						$strFormTypeText = $r->formTypeText;
 						$strForm2TypeOrder = $r->form2TypeOrder;
 
-						switch($intFormTypeID)
+						switch($strFormTypeCode)
 						{
-							case 1:
-							//case 'checkbox':
+							case 'checkbox':
 								if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
 								{
 									$i++;
 								}
 							break;
 
-							case 8:
-							//case 'radio_button':
+							case 'radio_button':
 								if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
 								{
 									$i++;
 								}
 							break;
 
-							case 10:
-							//case 'select':
+							case 'select':
 								$i++;
 							break;
 						}
@@ -3249,38 +3320,53 @@ class mf_form
 
 						$order_temp = $strForm2TypeOrder;
 
-						switch($intFormTypeID)
+						switch($strFormTypeCode)
 						{
-							case 1:
-							//case 'checkbox':
+							case 'checkbox':
 								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
 
 								$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
 
-							case 8:
-							//case 'radio_button':
+							case 'radio_button':
 								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
 
 								$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
 							break;
 
-							case 10:
-							//case 'select':
-								@list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
-								$arr_options = explode(",", $strFormTypeSelect);
-
-								foreach($arr_options as $str_option)
+							case 'select':
+								if($this->form_option_exists)
 								{
-									$arr_option = explode("|", $str_option);
+									$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
 
-									if($arr_option[0] > 0 && $arr_option[1] != '')
+									foreach($result as $r)
 									{
-										$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $arr_option[0]));
+										$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $r->formOptionID));
 
 										if($intAnswerCount > 0)
 										{
-											$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_option[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
+											$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $r->formOptionValue, 'limit' => 20))."', data: ".$intAnswerCount."}";
+										}
+									}
+								}
+
+								else
+								{
+									list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
+									$arr_options = explode(",", $strFormTypeSelect);
+
+									foreach($arr_options as $str_option)
+									{
+										$arr_option = explode("|", $str_option);
+
+										if($arr_option[0] > 0 && $arr_option[1] != '')
+										{
+											$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $arr_option[0]));
+
+											if($intAnswerCount > 0)
+											{
+												$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_option[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
+											}
 										}
 									}
 								}
@@ -3337,7 +3423,7 @@ class mf_form
 						."});
 					</script>";
 				}
-			}
+			//}
 		}
 
 		return $out;
@@ -3523,11 +3609,6 @@ class mf_form_payment
 				do_log(sprintf(__("Function %s does not exist", 'lang_form'), $this->payment_callback));
 			}
 		}
-
-		/*else
-		{
-			do_log("No callback");
-		}*/
 	}
 
 	function confirm_cancel()
@@ -3561,11 +3642,6 @@ class mf_form_payment
 				{
 					$this->run_confirm_callback();
 				}
-
-				/*else
-				{
-					do_log("Already Run");
-				}*/
 			}
 
 			else
@@ -3763,18 +3839,13 @@ class mf_form_answer_export extends mf_export
 
 			switch($strFormTypeCode)
 			{
-				//case 2:
 				case 'range':
 					$obj_form->parse_range_label();
 				break;
 
-				//case 10:
 				case 'select':
-				//case 11:
 				case 'select_multiple':
-				//case 16:
 				case 'checkbox_multiple':
-				//case 17:
 				case 'radio_multiple':
 					list($obj_form->label, $str_select) = explode(":", $obj_form->label);
 				break;
@@ -3787,14 +3858,13 @@ class mf_form_answer_export extends mf_export
 
 		$this->data[] = $this_row;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formID, answerCreated FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type)); //, answerIP
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formID, answerCreated FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
 
 		foreach($result as $r)
 		{
 			$intAnswerID = $r->answerID;
 			$intFormID = $r->formID;
 			$strAnswerCreated = $r->answerCreated;
-			//$strAnswerIP = $r->answerIP;
 
 			$this_row = array();
 
@@ -3869,9 +3939,6 @@ class mf_form_table extends mf_list_table
 
 		$this->orderby_default = "post_modified";
 		$this->orderby_default_order = "DESC";
-
-		/*$this->arr_settings['has_autocomplete'] = true;
-		$this->arr_settings['plugin_name'] = 'mf_form';*/
 	}
 
 	function init_fetch()
@@ -4321,11 +4388,6 @@ class mf_answer_table extends mf_list_table
 					$actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
 				}
 
-				/*else
-				{
-					$out .= "<i class='fa fa-check fa-lg green'></i>";
-				}*/
-
 				$out .= $this->row_actions($actions);
 			break;
 
@@ -4709,7 +4771,7 @@ class mf_form_output
 
 		if($this->obj_form->form_option_exists)
 		{
-			list($this->label, $str_select) = explode(":", $string);
+			@list($this->label, $str_select) = explode(":", $string);
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $this->row->form2TypeID));
 
@@ -5090,7 +5152,8 @@ class mf_form_output
 			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "").($this->row->formTypeDisplay == 0 ? " hide_publicly" : "")."'>"
 				.$this->output;
 
-				if($this->row->formTypeID != 14) //custom_tag_end
+				if($this->row->formTypeID != 14)
+				//if($this->row->formTypeCode != 'custom_tag_end')
 				{
 					$out .= "<div class='row_icons'>";
 
