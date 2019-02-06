@@ -1551,16 +1551,14 @@ class mf_form
 			'' => "-- ".__("Choose Here", 'lang_form')." --"
 		);
 
-		$result = $wpdb->get_results("SELECT formID, formName FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".(IS_ADMIN && $data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY formCreated DESC");
+		$result = $wpdb->get_results("SELECT formID, formName FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".(IS_SUPER_ADMIN && $data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY formCreated DESC");
 
 		foreach($result as $r)
 		{
 			$intFormID = $r->formID;
 			$strFormName = $r->formName;
 
-			$result2 = get_pages_from_shortcode("[mf_form id=".$intFormID."]");
-
-			if(count($result2) > 0 || $data['force_has_page'] == false)
+			if($data['force_has_page'] == false || count(get_pages_from_shortcode("[mf_form id=".$intFormID."]")) > 0)
 			{
 				$arr_data[$intFormID] = $strFormName;
 			}
