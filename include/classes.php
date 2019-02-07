@@ -126,7 +126,7 @@ class mf_form
 			$arr_settings['setting_replacement_form_text'] = __("Text to replace all e-mail links", 'lang_form');
 		}
 
-		if($this->has_template() && is_plugin_active("mf_webshop/index.php"))
+		if($this->has_confirm_template() && is_plugin_active("mf_webshop/index.php"))
 		{
 			$arr_settings['setting_link_yes_text'] = __("Text to send as positive response", 'lang_form');
 
@@ -1556,7 +1556,7 @@ class mf_form
 		return true;
 	}
 
-	function has_template()
+	function has_confirm_template()
 	{
 		global $wpdb;
 
@@ -2915,7 +2915,15 @@ class mf_form
 				{
 					if($this->check_if_has_payment() && $this->payment_amount == $intForm2TypeID2)
 					{
-						$dblQueryPaymentAmount_value = $strAnswerText;
+						if($this->form_option_exists)
+						{
+							$dblQueryPaymentAmount_value = $wpdb->get_var($wpdb->prepare("SELECT formOptionKey FROM ".$wpdb->base_prefix."form_option WHERE formOptionID = '%d'", $strAnswerText));
+						}
+
+						else
+						{
+							$dblQueryPaymentAmount_value = $strAnswerText;
+						}
 					}
 
 					$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '[answer_id]', form2TypeID = '%d', answerText = %s", $intForm2TypeID2, $strAnswerText);
