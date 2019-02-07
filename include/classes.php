@@ -137,9 +137,14 @@ class mf_form
 			}
 		}
 
-		if(IS_ADMIN)
+		if(IS_ADMIN && !$this->form_option_exists)
 		{
 			$arr_settings['setting_convert_form_options'] = __("Convert form options", 'lang_form');
+		}
+
+		else
+		{
+			delete_site_option('setting_convert_form_options');
 		}
 
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
@@ -2440,6 +2445,18 @@ class mf_form
 		return $out;
 	}
 
+	function get_option_key_from_id($id)
+	{
+		global $wpdb;
+
+		if($this->form_option_exists)
+		{
+			$id = $wpdb->get_var($wpdb->prepare("SELECT formOptionKey FROM ".$wpdb->base_prefix."form_option WHERE formOptionID = '%d'", $id));
+		}
+
+		return $id;
+	}
+
 	function process_transactional_emails()
 	{
 		global $wpdb;
@@ -2466,15 +2483,17 @@ class mf_form
 		{
 			foreach(explode("\n", $this->email_conditions) as $arr_condition)
 			{
-				list($key, $value, $email) = explode("|", $arr_condition, 3);
+				list($field_id, $option_id, $email) = explode("|", $arr_condition, 3);
 
-				if(substr($key, 0, strlen($this->prefix)) == $this->prefix)
+				if(substr($field_id, 0, strlen($this->prefix)) == $this->prefix)
 				{
-					$key = str_replace($this->prefix, "", $key);
+					$field_id = str_replace($this->prefix, "", $field_id);
 				}
 
-				if(isset($_REQUEST[$this->prefix.$key]) && check_var($this->prefix.$key) == $value)
-				//if($this->page_content_data['content']['fields'][$key]['value'] == $value)
+				$option_id = $this->get_option_key_from_id($option_id);
+
+				if(isset($_REQUEST[$this->prefix.$field_id]) && check_var($this->prefix.$field_id) == $option_id)
+				//if($this->page_content_data['content']['fields'][$field_id]['value'] == $option_id)
 				{
 					$this->email_admin = $email;
 				}
@@ -2637,7 +2656,7 @@ class mf_form
 
 		$arr_data = array();
 
-		list($str_label, $str_select) = explode(":", $data['string']);
+		@list($str_label, $str_select) = explode(":", $data['string']);
 		$arr_options = explode(",", $str_select);
 
 		foreach($arr_options as $str_option)
@@ -2915,15 +2934,7 @@ class mf_form
 				{
 					if($this->check_if_has_payment() && $this->payment_amount == $intForm2TypeID2)
 					{
-						if($this->form_option_exists)
-						{
-							$dblQueryPaymentAmount_value = $wpdb->get_var($wpdb->prepare("SELECT formOptionKey FROM ".$wpdb->base_prefix."form_option WHERE formOptionID = '%d'", $strAnswerText));
-						}
-
-						else
-						{
-							$dblQueryPaymentAmount_value = $strAnswerText;
-						}
+						$dblQueryPaymentAmount_value = $this->get_option_key_from_id($strAnswerText);
 					}
 
 					$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '[answer_id]', form2TypeID = '%d', answerText = %s", $intForm2TypeID2, $strAnswerText);
