@@ -387,8 +387,6 @@ if($obj_form->check_allow_edit())
 
 						else
 						{
-							echo "Test: ".$strFormTypeText;
-
 							list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
 
 							$arrFormTypeSelect_id = $arrFormTypeSelect_value = $arrFormTypeSelect_limit = array();

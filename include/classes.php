@@ -3457,9 +3457,30 @@ class mf_form_payment
 	{
 		global $wpdb;
 
+		$site_url = get_home_url();
+		$site_url_clean = remove_protocol(array('url' => $site_url, 'clean' => true, 'trim' => true));
+
+		/*$has_www = "www." == substr($site_url_clean, 0, 4);
+
+		if($has_www)
+		{
+			$site_url_clean = substr($site_url_clean, 4);
+			$has_www = false;
+		}
+
+		$is_subdomain = substr_count($site_url_clean, '.') > ($has_www ? 2 : 1);*/
+		$is_subfolder = substr_count($site_url_clean, '/') > 0;
+
+		if($is_subfolder)
+		{
+			$arr_domain_parts = explode("/", $site_url_clean);
+
+			$site_url = str_replace("/".$arr_domain_parts[1], "", $site_url);
+		}
+
 		$this->form_id = $id;
-		$this->base_form_url = get_site_url().$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
-		$this->base_callback_url = get_site_url().$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
+		$this->base_form_url = $site_url.$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
+		$this->base_callback_url = $site_url.$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
 
 		if($this->form_id > 0)
 		{
