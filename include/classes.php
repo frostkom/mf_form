@@ -3193,9 +3193,11 @@ class mf_form
 
 						if($this->answer_id > 0)
 						{
-							$out .= show_button(array('name' => 'btnFormUpdate', 'text' => __("Update", 'lang_form')))
-							.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
-							.input_hidden(array('name' => 'intAnswerID', 'value' => $this->answer_id));
+							$out .= "<div class='form_button'>"
+								.show_button(array('name' => 'btnFormUpdate', 'text' => __("Update", 'lang_form')))
+								.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
+								.input_hidden(array('name' => 'intAnswerID', 'value' => $this->answer_id))
+							."</div>";
 						}
 
 						else if($this->edit_mode == false)

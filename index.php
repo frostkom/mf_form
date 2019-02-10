@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.0.7
+Version: 1.0.0.8
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -267,7 +267,7 @@ function activate_form()
 		1 => array('name' => __("Number", 'lang_form'),				'code' => 'int',		'pattern' => '[0-9]*'),
 		2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip',		'pattern' => '[0-9]{5}'),
 		5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email',		'pattern' => ''),
-		6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno',		'pattern' => ''),
+		6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno',		'pattern' => '\d*'),
 		7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
 		8 => array('name' => __("URL", 'lang_form'),				'code' => 'url',		'pattern' => ''),
 		9 => array('name' => __("Name", 'lang_form'),				'code' => 'name',		'pattern' => ''),

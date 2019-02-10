@@ -187,7 +187,7 @@ if($obj_form->check_allow_edit())
 						}
 
 						$obj_form->validate_select_array();
-						
+
 						$strFormTypeText = str_replace(":", "", $strFormTypeText).":".str_replace(":", "", $obj_form->formTypeSelect);
 					}
 				}
@@ -466,7 +466,7 @@ if($obj_form->check_allow_edit())
 										."<div class='show_select'>
 											<label>".__("Value", 'lang_form')." <i class='fa fa-info-circle' title='".__("Enter ID, Name and Limit (optional)", 'lang_form')."'></i></label>
 											<div class='select_rows'>";
-											
+
 												$count_temp = count($arrFormTypeSelect_value);
 
 												if($count_temp == 0)
@@ -485,7 +485,7 @@ if($obj_form->check_allow_edit())
 														$arrFormTypeSelect_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
 														$arrFormTypeSelect_limit = array('', '', '');
 													}
-													
+
 													$count_temp = count($arrFormTypeSelect_value);
 												}
 
