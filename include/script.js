@@ -259,15 +259,7 @@ jQuery(function($)
 
 						if(data.redirect)
 						{
-							if(typeof process_url == 'function')
-							{
-								process_url(data.redirect);
-							}
-
-							else
-							{
-								location.href = data.redirect;
-							}
+							location.href = data.redirect;
 						}
 					}
 
