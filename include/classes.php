@@ -574,7 +574,7 @@ class mf_form
 			'select' => "answerID, answerCreated",
 			'limit' => (($page - 1) * $number),
 			'amount' => $number,
-			//'debug' => true,
+			'debug' => ($_SERVER['REMOTE_ADDR'] == ""),
 		));
 
 		foreach($tbl_group->data as $r)
@@ -625,7 +625,7 @@ class mf_form
 			'select' => "answerID, answerCreated",
 			//'limit' => (($page - 1) * $number),
 			//'amount' => $number,
-			//'debug' => true,
+			'debug' => ($_SERVER['REMOTE_ADDR'] == ""),
 		));
 
 		foreach($tbl_group->data as $r)
@@ -670,7 +670,7 @@ class mf_form
 
 		$tbl_group->select_data(array(
 			//'select' => "*",
-			//'debug' => true,
+			'debug' => ($_SERVER['REMOTE_ADDR'] == ""),
 		));
 
 		if(count($tbl_group->data) > 0)
@@ -3462,15 +3462,6 @@ class mf_form_payment
 		$site_url = get_home_url();
 		$site_url_clean = remove_protocol(array('url' => $site_url, 'clean' => true, 'trim' => true));
 
-		/*$has_www = "www." == substr($site_url_clean, 0, 4);
-
-		if($has_www)
-		{
-			$site_url_clean = substr($site_url_clean, 4);
-			$has_www = false;
-		}
-
-		$is_subdomain = substr_count($site_url_clean, '.') > ($has_www ? 2 : 1);*/
 		$is_subfolder = substr_count($site_url_clean, '/') > 0;
 
 		if($is_subfolder)
@@ -3992,6 +3983,8 @@ class mf_form_table extends mf_list_table
 		$this->query_join .= " INNER JOIN ".$wpdb->base_prefix."form ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."form.postID";
 		$this->query_where .= ($this->query_where != '' ? " AND " : "")."blogID = '".$wpdb->blogid."'";
 
+		$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form2answer USING (formID)";
+
 		if($this->search != '')
 		{
 			$this->query_where .= ($this->query_where != '' ? " AND " : "").get_form_xtra("", $this->search, "", "post_title");
@@ -4013,12 +4006,13 @@ class mf_form_table extends mf_list_table
 			'content' => __("Content", 'lang_form'),
 			'answers' => __("Answers", 'lang_form'),
 			'spam' => __("Spam", 'lang_form'),
-			'latest_answer' => __("Latest Answer", 'lang_form'),
+			'answerCreated' => __("Latest Answer", 'lang_form'),
 			'post_modified' => __("Modified", 'lang_form'),
 		));
 
 		$this->set_sortable_columns(array(
 			'post_title',
+			'answerCreated',
 			'post_modified',
 		));
 	}
@@ -4038,7 +4032,7 @@ class mf_form_table extends mf_list_table
 		switch($column_name)
 		{
 			case 'post_title':
-				$strFormName = $item[$column_name];
+				$strFormName = $item['post_title'];
 
 				if($obj_form->check_allow_edit())
 				{
@@ -4280,14 +4274,18 @@ class mf_form_table extends mf_list_table
 				}
 			break;
 
-			case 'latest_answer':
-				$latest_answer = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' ORDER BY answerCreated DESC", $obj_form->id));
+			case 'answerCreated':
+				$dteAnswerCreated = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' ORDER BY answerCreated DESC", $obj_form->id));
+				//$dteAnswerCreated = $item['answerCreated']; // This does not result in the latest answer
 
-				$out .= format_date($latest_answer);
+				if($dteAnswerCreated > DEFAULT_DATE)
+				{
+					$out .= format_date($dteAnswerCreated);
+				}
 			break;
 
 			case 'post_modified':
-				$out .= format_date($item[$column_name]);
+				$out .= format_date($item['post_modified']);
 			break;
 
 			default:
