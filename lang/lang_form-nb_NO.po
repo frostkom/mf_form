@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-03 12:10+0100\n"
+"POT-Creation-Date: 2019-02-21 07:22+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -17,15 +17,6 @@ msgstr ""
 
 msgid "Answers"
 msgstr "Svar"
-
-msgid "Choose Here"
-msgstr "Velg Her"
-
-msgid "No"
-msgstr "Nei"
-
-msgid "Yes"
-msgstr "Ja"
 
 msgid "Please, enter all required fields"
 msgstr "Vennligst skriv inn alle obligatoriske felt"
@@ -45,8 +36,17 @@ msgstr "Tekst"
 msgid "Value"
 msgstr "Verdi"
 
-msgid "Enter option here"
-msgstr "Skriv inn alternativ her"
+msgid "Choose Here"
+msgstr "Velg Her"
+
+msgid "No"
+msgstr "Nei"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "Key"
+msgstr "Nøkkel"
 
 msgid "Add"
 msgstr "Legg til"
@@ -62,6 +62,12 @@ msgstr "Namn"
 
 msgid "Publish"
 msgstr "Publisere"
+
+msgid "Add New Post"
+msgstr "Legg Til Nytt Innlegg"
+
+msgid "Add New Page"
+msgstr "Legg Til Ny Side"
 
 msgid "Settings"
 msgstr "Innstillinger"
@@ -96,6 +102,9 @@ msgstr "Måneder"
 msgid "Are you sure?"
 msgstr "Er du sikker?"
 
+msgid "List"
+msgstr "Listen"
+
 msgid "File"
 msgstr "Fil"
 
@@ -113,12 +122,6 @@ msgstr "Redigera"
 
 msgid "Delete"
 msgstr "Ta bort"
-
-msgid "Add New Post"
-msgstr "Legg Til Nytt Innlegg"
-
-msgid "Add New Page"
-msgstr "Legg Til Ny Side"
 
 msgid "Hidden"
 msgstr "Skjult"

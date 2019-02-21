@@ -34,7 +34,8 @@ if(is_admin())
 	add_action('admin_init', array($obj_form, 'admin_init'), 0);
 	add_action('admin_menu', array($obj_form, 'admin_menu'));
 
-	add_action('delete_post', array($obj_form, 'delete_post'));
+	add_action('wp_trash_post', array($obj_form, 'wp_trash_post'));
+	add_action('delete_post', array($obj_form, 'wp_trash_post')); // Needs to be here until trash is emptied
 	add_action('deleted_user', array($obj_form, 'deleted_user'));
 
 	add_filter('wp_get_default_privacy_policy_content', array($obj_form, 'add_policy'));

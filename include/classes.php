@@ -502,11 +502,11 @@ class mf_form
 		}
 	}
 
-	function delete_post($post_id)
+	function wp_trash_post($post_id)
 	{
-		global $post_type;
+		global $wpdb;
 
-		if($post_type == 'mf_form')
+		if(get_post_type($post_id) == $this->post_type)
 		{
 			do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form");
 
