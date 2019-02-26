@@ -88,7 +88,7 @@
 						.mf_form .fontawesome input[type='radio']:checked + label
 						{
 							background: #fff7cf;
-							border-color: #ffd324;
+							border-color: #ffdf7f;
 						}
 
 					.mf_form .fontawesome li .description
@@ -130,8 +130,8 @@
 
 		mf-form-row.active
 		{
-			background: #fff6bf;
-			border-color: #ffd324;
+			background: #fff8df;
+			border-color: #ffdf7f;
 		}
 
 		mf-form-row.hide_publicly:before
@@ -177,8 +177,8 @@
 
 				mf-form-row.active .row_icons
 				{
-					background: #fff6bf;
-					border-color: #ffd324;
+					background: #fff8df;
+					border-color: #ffdf7f;
 				}
 
 			mf-form-row > .row_icons > a

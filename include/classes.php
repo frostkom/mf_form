@@ -298,16 +298,19 @@ class mf_form
 
 	function preg_email_concat($matches)
 	{
-		$setting_replacement_form = get_option('setting_replacement_form');
-		$setting_replacement_form_text = get_option_or_default('setting_replacement_form_text', __("Click here to send e-mail", 'lang_form'));
-
 		$email = $matches[1];
+		$title = $matches[2];
 
-		$this->id = $setting_replacement_form;
+		if($title == $email)
+		{
+			$title = get_option_or_default('setting_replacement_form_text', __("Click here to send e-mail", 'lang_form'));
+		}
+
+		$this->id = get_option('setting_replacement_form');
 
 		$form_md5 = md5("form_link_".$email."_".mt_rand(1, 1000));
 
-		$out = "<a href='#' class='form_link' rel='".$form_md5."'>".$setting_replacement_form_text."</a>
+		$out = "<a href='#' class='form_link' rel='".$form_md5."'>".$title."</a>
 		<div id='inline_form_".$form_md5."' class='form_inline hide'>"
 			.$this->process_form(array('send_to' => $email))
 		."</div>";
@@ -324,7 +327,7 @@ class mf_form
 			$char_after = "?=\s|$|\)|\'|\!|(\?)|\.|\]|\<|\[|;";
 
 			$html = preg_replace("/(".$char_before.")(".$chars.")(".$char_after.")/", "<a href='mailto:$1'>$1</a>", $html);
-			$html = preg_replace_callback("/<a.*?href=['\"]mailto:(.*?)['\"]>.*?<\/a>/i", array($this, 'preg_email_concat'), $html);
+			$html = preg_replace_callback("/<a.*?href=['\"]mailto:(.*?)['\"]>(.*?)<\/a>/si", array($this, 'preg_email_concat'), $html);
 		}
 
 		return $html;
