@@ -293,15 +293,13 @@ jQuery(function($)
 	{
 		var dom_obj = $(this);
 
-		if(dom_obj.hasClass('disabled'))
+		if(dom_obj.hasClass('loading'))
 		{
 			return false;
 		}
 
 		else
 		{
-			/*var dom_obj_label = dom_obj.html();*/
-
 			var dom_empty_required = dom_obj.parents("form").find("[required]:visible").filter(function()
 			{
 				return !this.value;
@@ -311,11 +309,11 @@ jQuery(function($)
 
 			else
 			{
-				dom_obj.addClass('disabled'); /*.html("<i class='fa fa-spinner fa-spin'></i> " + script_form.please_wait + "&hellip;")*/
+				dom_obj.addClass('loading');
 
 				setTimeout(function()
 				{
-					dom_obj.removeClass('disabled'); /*.html(dom_obj_label)*/
+					dom_obj.removeClass('loading');
 				}, 5000);
 			}
 		}
