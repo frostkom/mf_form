@@ -3606,7 +3606,7 @@ class mf_form_payment
 
 		if($this->provider > 0 && $out == '')
 		{
-			do_log(sprintf(__("A provider was set (%s) to passthru but there seams to be no provider extensions installed", 'lang_form'), $this->provider));
+			do_log(sprintf("A provider was set (%s) to passthru but there seams to be no provider extensions installed", $this->provider));
 		}
 
 		return $out;
@@ -3632,19 +3632,19 @@ class mf_form_payment
 
 					else
 					{
-						do_log(sprintf(__("The Field for Payment Amount was not set on the form with ID %d so the function %s could not be triggered", 'lang_form'), $this->form_id, $this->payment_callback));
+						do_log(sprintf("The Field for Payment Amount was not set on the form with ID %d so the function %s could not be triggered", $this->form_id, $this->payment_callback));
 					}
 				}
 
 				else
 				{
-					do_log(sprintf(__("Function %s not callable", 'lang_form'), $this->payment_callback));
+					do_log(sprintf("Function %s not callable", $this->payment_callback));
 				}
 			}
 
 			else
 			{
-				do_log(sprintf(__("Function %s does not exist", 'lang_form'), $this->payment_callback));
+				do_log(sprintf("Function %s does not exist", $this->payment_callback));
 			}
 		}
 	}
@@ -5143,7 +5143,7 @@ class mf_form_output
 			break;
 
 			default:
-				do_log(__("There was no code for this type", 'lang_form')." (".$this->row->formTypeCode.")");
+				do_log("There was no code for this type (".$this->row->formTypeCode.")");
 			break;
 		}
 

@@ -635,7 +635,7 @@ if($obj_form->check_allow_edit())
 								<h3 class='hndle'><span>".__("Save", 'lang_form')."</span></h3>
 								<div class='inside'>"
 									.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
-									.show_textfield(array('name' => 'strFormURL', 'text' => __("Permalink", 'lang_form'), 'value' => $strFormURL, 'maxlength' => 100));
+									.show_textfield(array('name' => 'strFormURL', 'text' => __("URL", 'lang_form'), 'value' => $strFormURL, 'maxlength' => 100));
 
 									if($form_output != '')
 									{
@@ -805,7 +805,7 @@ if($obj_form->check_allow_edit())
 
 							else if($intFormPaymentProvider > 0)
 							{
-								do_log(sprintf(__("There are no installed provider extension even though it seams like a provider has been set (%s)", 'lang_form'), $intFormPaymentProvider));
+								do_log(sprintf("There are no installed provider extension even though it seams like a provider has been set (%s)", $intFormPaymentProvider));
 							}
 
 						echo "</form>
