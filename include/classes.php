@@ -852,10 +852,10 @@ class mf_form
 							//$updated = true;
 						}
 
-						else
+						/*else // If nothing has changed, don't log about it
 						{
 							do_log("I could not update the option (".var_export($wpdb->last_query, true).")");
-						}
+						}*/
 					}
 
 					else
