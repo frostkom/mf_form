@@ -845,7 +845,7 @@ class mf_form
 				{
 					if($arrFormTypeSelect_value[$i] != '')
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], $intForm2TypeID, $arrFormTypeSelect_id[$i]));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], $i, $intForm2TypeID, $arrFormTypeSelect_id[$i]));
 
 						if($wpdb->rows_affected == 1)
 						{
@@ -988,7 +988,7 @@ class mf_form
 		$arr_answer_text = explode(",", str_replace($this->prefix, "", $strAnswerText));
 		$strAnswerText = "";
 
-		if($return_value == true && count($arr_answer_text) > 0)
+		if($return_value && count($arr_answer_text) > 0)
 		{
 			if($this->form_option_exists)
 			{

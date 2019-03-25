@@ -755,7 +755,7 @@ if($obj_form->check_allow_edit())
 
 										if(in_array('password', $arr_fields))
 										{
-											echo show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password", 'lang_form'), 'value' => $strFormPaymentPassword, 'maxlength' => 100));
+											echo show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password"), 'value' => $strFormPaymentPassword, 'maxlength' => 100));
 										}
 
 										if(in_array('secret_key', $arr_fields))

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-21 07:22+0100\n"
+"POT-Creation-Date: 2019-03-22 09:52+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -33,6 +33,12 @@ msgstr "Innhold"
 msgid "Text"
 msgstr "Tekst"
 
+msgid "Examples"
+msgstr "Eksempler"
+
+msgid "Validate as"
+msgstr "Validere som"
+
 msgid "Value"
 msgstr "Verdi"
 
@@ -48,8 +54,17 @@ msgstr "Ja"
 msgid "Key"
 msgstr "Nøkkel"
 
+msgid "Advanced"
+msgstr "Avansert"
+
+msgid "or"
+msgstr "eller"
+
 msgid "Add"
 msgstr "Legg til"
+
+msgid "Cancel"
+msgstr "Avbryt"
 
 msgid "Overview"
 msgstr "Oversikt"
@@ -63,6 +78,15 @@ msgstr "Namn"
 msgid "Publish"
 msgstr "Publisere"
 
+msgid "Save Draft"
+msgstr "Lagre Utkast"
+
+msgid "Edit Page"
+msgstr "Rediger Side"
+
+msgid "View"
+msgstr "Vise"
+
 msgid "Add New Post"
 msgstr "Legg Til Nytt Innlegg"
 
@@ -72,8 +96,17 @@ msgstr "Legg Til Ny Side"
 msgid "Settings"
 msgstr "Innstillinger"
 
+msgid "Confirmation Page"
+msgstr "Bekreftelsessiden"
+
+msgid "Show Answers"
+msgstr "Vis Svar"
+
 msgid "Submit"
 msgstr "Sende inn"
+
+msgid "Save IP"
+msgstr "Lagre IP"
 
 msgid "E-mail"
 msgstr "E-post"
@@ -87,11 +120,32 @@ msgstr "Mal"
 msgid "Conditions"
 msgstr "Forhold"
 
+msgid "Payment"
+msgstr "Betaling"
+
 msgid "Username"
 msgstr "Brukernavn"
 
 msgid "Password"
 msgstr "Passord"
+
+msgid "Signature"
+msgstr "Signatur"
+
+msgid "Terms"
+msgstr "Vilkår"
+
+msgid "Currency"
+msgstr "Valuta"
+
+msgid "Tax"
+msgstr "Skatt"
+
+msgid "View All"
+msgstr "Vis Alle"
+
+msgid "Edit All"
+msgstr "Redigere Alle"
 
 msgid "Click here to send e-mail"
 msgstr "Klikk her for å sende e-post"
@@ -117,12 +171,30 @@ msgstr "Opprettet"
 msgid "All"
 msgstr "Alle"
 
+msgid "Public"
+msgstr "Offentlig"
+
 msgid "Edit"
 msgstr "Redigera"
 
 msgid "Delete"
 msgstr "Ta bort"
 
+msgid "Recover"
+msgstr "Gjenopprette"
+
 msgid "Hidden"
 msgstr "Skjult"
+
+msgid "Required"
+msgstr "Påkrevd"
+
+msgid "Heading"
+msgstr "Overskriften"
+
+msgid "Number"
+msgstr "Nummer"
+
+msgid "Country"
+msgstr "Land"
 

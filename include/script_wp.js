@@ -2,127 +2,6 @@ document.createElement("mf-form-row");
 
 jQuery(function($)
 {
-	function show_query_settings(this_val)
-	{
-		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_actions").addClass('hide');
-
-		if(this_val > 0)
-		{
-			if(this_val == 1) /* checkbox */
-			{
-				$(".show_checkbox").removeClass('hide');
-			}
-
-			else if(this_val == 2) /* range */
-			{
-				$(".show_range").removeClass('hide');
-			}
-
-			else if(this_val == 3) /* input_field */
-			{
-				$(".show_validate_as").removeClass('hide');
-			}
-
-			else if(this_val == 5) /* text */
-			{
-				$(".show_custom_text_tag").removeClass('hide');
-			}
-
-			else if(this_val == 10) /* select */
-			{
-				$(".show_actions").removeClass('hide');
-			}
-
-			if(this_val == 3 || this_val == 4 || this_val == 7) /* input_field, textarea, datepicker */
-			{
-				$(".show_placeholder").removeClass('hide');
-			}
-
-			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 11 || this_val == 12 || this_val == 16 || this_val == 17) /* range, input_field, textarea, datepicker, select, select_multiple, hidden_field, checkbox_multiple, radio_multiple */
-			{
-				$(".show_fetch_from").removeClass('hide');
-			}
-
-			if(this_val == 10 || this_val == 11 || this_val == 16 || this_val == 17) /* select, select_multiple, checkbox_multiple, radio_multiple */
-			{
-				$(".show_select").removeClass('hide');
-			}
-
-			if(this_val == 13 || this_val == 14) /* custom_tag, custom_tag_end */
-			{
-				$(".show_custom_tag").removeClass('hide');
-			}
-
-			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 13 || this_val == 15) /* input_field, textarea, text, custom_tag, file */
-			{
-				$(".show_custom_class").removeClass('hide');
-			}
-
-			if(this_val != 6 && this_val != 9) /* space, referer_url */
-			{
-				if($(".toggle_container").children("div:not(.hide)").length == 0)
-				{
-					$(".toggler").addClass('hide');
-				}
-
-				else
-				{
-					$(".toggler").removeClass('hide');
-				}
-			}
-
-			if(this_val != 6 && this_val != 13 && this_val != 14) /* space, custom_tag, custom_tag_end */
-			{
-				$(".show_textarea").removeClass('hide');
-			}
-		}
-	}
-
-	function add_option()
-	{
-		if($(".select_rows .option").length > 0)
-		{
-			var dom_parent = $(".select_rows .option:last-child");
-
-			if(dom_parent.find(".option_value input").val() != '')
-			{
-				var dom_value = dom_parent.find(".option_key input").attr('value');
-
-				$(".select_rows").append("<div class='option'>" + dom_parent.html() + "</div>");
-
-				var dom_parent_new = $(".select_rows .option:last-child");
-
-				dom_parent_new.find("input").val('').attr({'value': ''}).removeAttr('readonly');
-
-				if(parseInt(dom_value) == dom_value)
-				{
-					dom_parent_new.find(".option_key input").attr({'value': parseInt(dom_value) + 1});
-				}
-			}
-		}
-	}
-
-	/*function update_select()
-	{
-		var select_value = "";
-
-		$(".select_rows .option").each(function()
-		{
-			var dom_obj = $(this),
-				temp_value = dom_obj.find("input[name=arrFormTypeSelect_value]").val() + "";
-
-			if(temp_value != "")
-			{
-				var temp_id = dom_obj.find("input[name=arrFormTypeSelect_id]").val() + "",
-					temp_limit = dom_obj.find("input[name=arrFormTypeSelect_limit]").val() + "";
-
-				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value + "|" + temp_limit;
-			}
-		});
-
-		$(".show_select input[name=strFormTypeSelect]").val(select_value);
-	}*/
-
 	$(document).on('click', ".ajax_link", function()
 	{
 		var self = $(this),
@@ -202,19 +81,138 @@ jQuery(function($)
 		});
 	});
 
-	show_query_settings($("input[name=intFormTypeID]:checked").val());
+	function show_query_settings(this_val)
+	{
+		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_actions").addClass('hide');
+
+		if(this_val > 0)
+		{
+			if(this_val == 1) /* checkbox */
+			{
+				$(".show_checkbox").removeClass('hide');
+			}
+
+			else if(this_val == 2) /* range */
+			{
+				$(".show_range").removeClass('hide');
+			}
+
+			else if(this_val == 3) /* input_field */
+			{
+				$(".show_validate_as").removeClass('hide');
+			}
+
+			else if(this_val == 5) /* text */
+			{
+				$(".show_custom_text_tag").removeClass('hide');
+			}
+
+			else if(this_val == 10) /* select */
+			{
+				$(".show_actions").removeClass('hide');
+			}
+
+			if(this_val == 3 || this_val == 4 || this_val == 7) /* input_field, textarea, datepicker */
+			{
+				$(".show_placeholder").removeClass('hide');
+			}
+
+			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 11 || this_val == 12 || this_val == 16 || this_val == 17) /* range, input_field, textarea, datepicker, select, select_multiple, hidden_field, checkbox_multiple, radio_multiple */
+			{
+				$(".show_fetch_from").removeClass('hide');
+			}
+
+			if(this_val == 10 || this_val == 11 || this_val == 16 || this_val == 17) /* select, select_multiple, checkbox_multiple, radio_multiple */
+			{
+				$(".show_select").removeClass('hide');
+			}
+
+			if(this_val == 13 || this_val == 14) /* custom_tag, custom_tag_end */
+			{
+				$(".show_custom_tag").removeClass('hide');
+			}
+
+			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 13 || this_val == 15) /* input_field, textarea, text, custom_tag, file */
+			{
+				$(".show_custom_class").removeClass('hide');
+			}
+
+			if(this_val != 6 && this_val != 9) /* space, referer_url */
+			{
+				if($(".toggle_container").children("div:not(.hide)").length == 0)
+				{
+					$(".toggler").addClass('hide');
+				}
+
+				else
+				{
+					$(".toggler").removeClass('hide');
+				}
+			}
+
+			if(this_val != 6 && this_val != 13 && this_val != 14) /* space, custom_tag, custom_tag_end */
+			{
+				$(".show_textarea").removeClass('hide');
+			}
+		}
+	}
+
+	show_query_settings($("input[name='intFormTypeID']:checked").val());
 
 	$(document).on('change', "input[name=intFormTypeID]", function()
 	{
 		show_query_settings($(this).val());
 	});
 
+	function make_options_sortable()
+	{
+		$(".select_rows").sortable(
+		{
+			opacity: .7,
+			update: function(){}
+		});
+	}
+
+	function add_option()
+	{
+		if($(".select_rows .option").length > 0)
+		{
+			var dom_parent = $(".select_rows .option:last-child");
+
+			if(dom_parent.find(".option_value input").val() != '')
+			{
+				var dom_key = dom_parent.find(".option_key input").attr('value');
+
+				$(".select_rows .option").each(function()
+				{
+					var dom_option_key = $(this).find(".option_key input").attr('value');
+
+					if(dom_option_key > dom_key)
+					{
+						dom_key = dom_option_key;
+					}
+				});
+
+				$(".select_rows").append("<div class='option'>" + dom_parent.html() + "</div>");
+
+				var dom_option_last = $(".select_rows .option:last-child");
+
+				dom_option_last.find("input").val('').attr({'value': ''}).removeAttr('readonly');
+
+				if(parseInt(dom_key) == dom_key)
+				{
+					dom_option_last.find(".option_key input").attr({'value': parseInt(dom_key) + 1});
+				}
+
+				make_options_sortable();
+			}
+		}
+	}
+
 	add_option();
 
 	$(document).on('blur', ".select_rows input", function()
 	{
-		/*update_select();*/
-
 		add_option();
 	});
 
