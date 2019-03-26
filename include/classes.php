@@ -178,9 +178,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		$arr_data = get_roles_for_select(array('add_choose_here' => true));
-
-		echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
+		echo show_select(array('data' => get_roles_for_select(array('add_choose_here' => true)), 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_form_permission_edit_all_callback()
@@ -188,9 +186,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		$arr_data = get_roles_for_select(array('add_choose_here' => true));
-
-		echo show_select(array('data' => $arr_data, 'name' => $setting_key, 'value' => $option));
+		echo show_select(array('data' => get_roles_for_select(array('add_choose_here' => true)), 'name' => $setting_key, 'value' => $option));
 	}
 
 	function setting_form_spam_callback()
