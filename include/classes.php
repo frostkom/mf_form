@@ -1189,7 +1189,7 @@ class mf_form
 
 	function get_payment_amount_for_select()
 	{
-		list($result, $rows) = $this->get_form_type_info(array('query_type_code' => array('select', 'hidden_field'))); //'query_type_id' => array(10, 12)
+		list($result, $rows) = $this->get_form_type_info(array('query_type_code' => array('select', 'hidden_field')));
 
 		return $this->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
 	}
@@ -3899,6 +3899,11 @@ class mf_form_answer_export extends mf_export
 			$this_row[] = stripslashes(strip_tags($obj_form->label));
 		}
 
+		if($obj_form->check_if_has_payment())
+		{
+			$this_row[] = __("Payment", 'lang_form');
+		}
+
 		$this_row[] = __("Created", 'lang_form');
 
 		$this->data[] = $this_row;
@@ -3967,6 +3972,13 @@ class mf_form_answer_export extends mf_export
 				{
 					$this_row[] = "";
 				}
+			}
+
+			if($obj_form->check_if_has_payment())
+			{
+				$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
+
+				$this_row[] = $strAnswerText_temp;
 			}
 
 			$this_row[] = $strAnswerCreated;
@@ -4423,7 +4435,7 @@ class mf_answer_table extends mf_list_table
 			case 'answerSpam':
 				$actions = array();
 
-				if($item[$column_name] == true)
+				if($item['answerSpam'] == true)
 				{
 					$out .= "<i class='fa fa-times fa-lg red'></i>";
 
@@ -4786,9 +4798,9 @@ class mf_form_output
 				}
 			}
 
-			else if(isset($field_data['value']) && $field_data['value'] == '')
+			else if(!isset($field_data['value']) || $field_data['value'] == '')
 			{
-				$field_data['value'] = check_var($this->row->formTypeFetchFrom);
+				$field_data['value'] = $this->row->formTypeFetchFrom;
 			}
 		}
 	}
@@ -5099,16 +5111,18 @@ class mf_form_output
 			break;
 
 			case 'hidden_field':
+				//$field_data['value'] = ($this->answer_text != '' ? $this->answer_text : $this->row->formTypeText);
+				$field_data['value'] = "";
+
+				$this->filter_form_fields($field_data);
+
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->query_prefix.$this->row->form2TypeID.": ".$this->row->formTypeText.")</p>";
+					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->query_prefix.$this->row->form2TypeID.": ".$field_data['value'].")</p>";
 				}
 
 				else
 				{
-					$field_data['value'] = ($this->answer_text != '' ? $this->answer_text : $this->row->formTypeText);
-
-					$this->filter_form_fields($field_data);
 					$this->output .= input_hidden($field_data);
 
 					$this->show_copy = $this->show_template_info = true;
