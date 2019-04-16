@@ -195,9 +195,9 @@ class mf_form
 		$option = get_option($setting_key, array('email', 'filter', 'honeypot'));
 
 		$arr_data = array(
-			'honeypot' => __("Honeypot", 'lang_form'),
+			'honeypot' => "Honeypot",
 			'email' => __("Recurring E-mail", 'lang_form'),
-			'filter' => __("HTML & Links", 'lang_form'),
+			'filter' => sprintf(__("%s and Links", 'lang_form'), "HTML"),
 			//'urls' => "URLs",
 			//'emails' => "Emails",
 		);
@@ -2341,13 +2341,13 @@ class mf_form
 		if(!isset($data['type'])){		$data['type'] = '';}
 
 		$arr_data = array(
-			1 => array('exclude' => 'select_multiple',	'text' => 'contains_html',					'explain' => __("Contains HTML", 'lang_form')),
-			2 => array('exclude' => 'referer_url',		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => __("Link including http", 'lang_form')),
+			1 => array('exclude' => 'select_multiple',	'text' => 'contains_html',					'explain' => sprintf(__("Contains %s", 'lang_form'), "HTML")),
+			2 => array('exclude' => 'referer_url',		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => sprintf(__("Link including %s", 'lang_form'), "http")),
 			3 => array('exclude' => '',					'text' => "/([qm]){5}/",					'explain' => __("Question marks", 'lang_form')),
 			4 => array('exclude' => '',					'text' => "/(bit\.ly)/",					'explain' => __("Shortening links", 'lang_form')),
 			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("URL shortcodes", 'lang_form')),
 			6 => array('exclude' => '',					'text' => "",								'explain' => __("Recurring E-mail", 'lang_form')),
-			7 => array('exclude' => '',					'text' => "",								'explain' => __("Honeypot", 'lang_form')),
+			7 => array('exclude' => '',					'text' => "",								'explain' => "Honeypot"),
 			//8 => array('exclude' => '',					'text' => array($this, 'contains_urls'),	'explain' => "URLs"),
 			//9 => array('exclude' => '',					'text' => array($this, 'contains_emails'),	'explain' => "Emails"),
 		);
@@ -4270,12 +4270,12 @@ class mf_form_table extends mf_list_table
 
 						$actions = array(
 							'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>",
-							'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("CSV", 'lang_form')."</a>",
+							'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>CSV</a>",
 						);
 
 						if(is_plugin_active("mf_phpexcel/index.php"))
 						{
-							$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run', '_wpnonce_export_run')."'>".__("XLS", 'lang_form')."</a>";
+							$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run', '_wpnonce_export_run')."'>XLS</a>";
 						}
 
 						$out .= $query_answers.$count_message
