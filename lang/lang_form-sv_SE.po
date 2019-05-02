@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-16 07:11+0100\n"
+"POT-Creation-Date: 2019-04-29 14:40+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,11 +15,14 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-msgid "Answers"
-msgstr "Svar"
+msgid "Edit"
+msgstr "Redigera"
 
-msgid "I could not find a form with the ID '%d'"
-msgstr "Jag kunde inte hitta formuläret med ID '%d'"
+msgid "Forms"
+msgstr "Formulär"
+
+msgid "Add New"
+msgstr "Skapa ny"
 
 msgid "Please, enter all required fields"
 msgstr "Var vänlig fyll i alla obligatoriska fält"
@@ -44,9 +47,6 @@ msgstr "Jag kunde inte hitta formuläret som du sökte efter. Om problemet kvars
 
 msgid "Update"
 msgstr "Uppdatera"
-
-msgid "Add New"
-msgstr "Skapa ny"
 
 msgid "Title Example | Ticket: %s | %s: %s"
 msgstr "Exempel på titel | Ticket: %s | %s: %s"
@@ -264,14 +264,38 @@ msgstr "Importera formulärfält"
 msgid "You don't have permission to edit this form"
 msgstr "Du har inte behörighet att redigera detta formulär"
 
+msgid "Number"
+msgstr "Nummer"
+
+msgid "Zip Code"
+msgstr "Postnummer"
+
+msgid "Phone no"
+msgstr "Telefonnummer"
+
+msgid "Decimal number"
+msgstr "Decimaltal"
+
+msgid "Street Address"
+msgstr "Gatuadress"
+
+msgid "City"
+msgstr "Ort"
+
+msgid "Country"
+msgstr "Land"
+
+msgid "Social security no"
+msgstr "Personnummer"
+
+msgid "I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this."
+msgstr "Jag är på väg att radera tabellen %s. Gå till %sFormulär%s och se till så att formulären fungerar som de ska innan jag gör detta."
+
 msgid "It looks like the form already has been deleted"
 msgstr "Det verkar som att formuläret redan har blivit raderat"
 
 msgid "You don't have permission to delete this form"
 msgstr "Du har inte behörighet att radera formuläret"
-
-msgid "Forms"
-msgstr "Formulär"
 
 msgid "Form"
 msgstr "Formulär"
@@ -354,6 +378,9 @@ msgstr "Det finns inga svar sedan %s"
 msgid "List"
 msgstr "Lista"
 
+msgid "Answers"
+msgstr "Svar"
+
 msgid "Edit Answer"
 msgstr "Redigera svar"
 
@@ -391,7 +418,7 @@ msgid "To enter a short text"
 msgstr "För att kunna skriva i en kort text"
 
 msgid "Textarea"
-msgstr "Textruta"
+msgstr "Textområde"
 
 msgid "To enter a longer text on multiple rows"
 msgstr "För att kunna skriva en längre text med flera rader"
@@ -606,9 +633,6 @@ msgstr "Senaste svar"
 msgid "Modified"
 msgstr "Uppdaterad"
 
-msgid "Edit"
-msgstr "Redigera"
-
 msgid "Delete"
 msgstr "Radera"
 
@@ -705,30 +729,6 @@ msgstr "Visa ett formulär som du har skapat"
 msgid "Heading"
 msgstr "Rubrik"
 
-msgid "Number"
-msgstr "Nummer"
-
-msgid "Zip Code"
-msgstr "Postnummer"
-
-msgid "Phone no"
-msgstr "Telefonnummer"
-
-msgid "Decimal number"
-msgstr "Decimaltal"
-
-msgid "Street Address"
-msgstr "Gatuadress"
-
-msgid "City"
-msgstr "Ort"
-
-msgid "Country"
-msgstr "Land"
-
-msgid "Social security no"
-msgstr "Personnummer"
-
-msgid "I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this."
-msgstr "Jag är på väg att radera tabellen %s. Gå till %sFormulär%s och se till så att formulären fungerar som de ska innan jag gör detta."
+msgid "I could not find a form with the ID '%d'"
+msgstr "Jag kunde inte hitta formuläret med ID '%d'"
 
