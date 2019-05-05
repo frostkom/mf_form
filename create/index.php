@@ -19,6 +19,7 @@ if($obj_form->check_allow_edit())
 	$strFormSaveIP = check_var('strFormSaveIP');
 	$strFormAnswerURL = check_var('strFormAnswerURL');
 	$strFormEmail = check_var('strFormEmail', 'email');
+	$strFormFromName = check_var('strFormFromName');
 	$strFormEmailConditions = check_var('strFormEmailConditions');
 	$intFormEmailNotify = check_var('intFormEmailNotify');
 	$intFormEmailNotifyPage = check_var('intFormEmailNotifyPage');
@@ -88,7 +89,7 @@ if($obj_form->check_allow_edit())
 
 				$obj_form->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $dteFormDeadline));
 
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormSaveIP, $strFormAnswerURL, $strFormEmail, $strFormEmailConditions, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $intFormTermsPage, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentCost, $intFormPaymentAmount, $intFormPaymentTax, $strFormPaymentCallback, $obj_form->id));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormSaveIP, $strFormAnswerURL, $strFormEmail, $strFormFromName, $strFormEmailConditions, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $intFormTermsPage, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentCost, $intFormPaymentAmount, $intFormPaymentTax, $strFormPaymentCallback, $obj_form->id));
 
 				do_action('update_form_fields', $obj_form);
 
@@ -294,7 +295,7 @@ if($obj_form->check_allow_edit())
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $obj_form->id));
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -306,6 +307,7 @@ if($obj_form->check_allow_edit())
 				$strFormSaveIP = $r->formSaveIP;
 				$strFormAnswerURL = $r->formAnswerURL;
 				$strFormEmail = $r->formEmail;
+				$strFormFromName = $r->formFromName;
 				$strFormEmailConditions = $r->formEmailConditions;
 				$intFormEmailNotify = $r->formEmailNotify;
 				$intFormEmailNotifyPage = $r->formEmailNotifyPage;
@@ -722,8 +724,14 @@ if($obj_form->check_allow_edit())
 										.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 									}
 
-									echo show_textfield(array('name' => 'strFormEmail', 'text' => __("Send From/To", 'lang_form'), 'value' => $strFormEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')))
-									.show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $strFormEmailConditions, 'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email')))
+									echo show_textfield(array('name' => 'strFormEmail', 'text' => __("Send From/To", 'lang_form'), 'value' => $strFormEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
+
+									if($strFormEmail != '' && strpos($strFormEmail, "<") == false && strpos($strFormEmail, ",") == false)
+									{
+										echo show_textfield(array('name' => 'strFormFromName', 'text' => __("Send From/To", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $strFormFromName, 'maxlength' => 100, 'placeholder' => get_bloginfo('name')));
+									}
+
+									echo show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $strFormEmailConditions, 'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email')))
 								."</div>
 							</div>";
 

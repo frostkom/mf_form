@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.0.22
+Version: 1.0.1.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -88,6 +88,7 @@ function activate_form()
 		formSaveIP ENUM('no', 'yes') NOT NULL DEFAULT 'no',
 		formAnswerURL VARCHAR(20) DEFAULT NULL,
 		formEmail VARCHAR(100) DEFAULT NULL,
+		formFromName VARCHAR(100) DEFAULT NULL,
 		formEmailConditions TEXT DEFAULT NULL,
 		formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
 		formEmailNotifyPage INT UNSIGNED NOT NULL DEFAULT '0',
@@ -126,6 +127,7 @@ function activate_form()
 		'formSaveIP' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'no' AFTER formName",
 		'formPaymentCost' => "ALTER TABLE [table] ADD [column] SMALLINT UNSIGNED DEFAULT NULL AFTER formPaymentCheck",
 		'formEmailConditions' => "ALTER TABLE [table] ADD [column] TEXT DEFAULT NULL AFTER formEmail",
+		'formFromName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmail",
 	);
 
 	$arr_update_column[$wpdb->base_prefix."form"] = array(

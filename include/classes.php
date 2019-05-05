@@ -1229,7 +1229,7 @@ class mf_form
 
 			if($wpdb->num_rows > 0)
 			{
-				$copy_fields = ", blogID, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formEmailConditions, formPaymentAmount (field IDs are not the same in this copied form)
+				$copy_fields = ", blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formEmailConditions, formPaymentAmount (field IDs are not the same in this copied form)
 
 				$strFormName = $this->get_form_name($this->id);
 
@@ -1366,19 +1366,6 @@ class mf_form
 				$this->prefix = $this->get_post_info()."_";
 
 				$this->answer_data = array();
-
-				/*$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //, formEmailConfirm, formEmailConfirmPage, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName
-
-				foreach($result as $r)
-				{
-					//$this->email_confirm = $r->formEmailConfirm;
-					//$this->email_confirm_page = $r->formEmailConfirmPage;
-					$this->email_admin = $r->formEmail;
-					//$this->email_conditions = $r->formEmailConditions;
-					//$this->email_notify = $r->formEmailNotify;
-					//$this->email_notify_page = $r->formEmailNotifyPage;
-					//$this->email_subject = ($r->formEmailName != "" ? $r->formEmailName : $this->form_name);
-				}*/
 
 				$this->arr_email_content = array(
 					'fields' => array(),
@@ -2471,13 +2458,14 @@ class mf_form
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
 			$this->email_confirm = $r->formEmailConfirm;
 			$this->email_confirm_page = $r->formEmailConfirmPage;
 			$this->email_admin = $r->formEmail;
+			$this->email_admin_name = $r->formFromName;
 			$this->email_conditions = $r->formEmailConditions;
 			$this->email_notify = $r->formEmailNotify;
 			$this->email_notify_page = $r->formEmailNotifyPage;
@@ -2615,7 +2603,7 @@ class mf_form
 
 				else
 				{
-					$this->mail_data['headers'] = "From: ".$this->email_admin." <".$this->email_admin.">\r\n";
+					$this->mail_data['headers'] = "From: ".($this->email_admin_name != '' ? $this->email_admin_name : $this->email_admin)." <".$this->email_admin.">\r\n";
 				}
 			}
 
