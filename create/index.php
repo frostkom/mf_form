@@ -1,433 +1,27 @@
 <?php
 
-$obj_form = new mf_form();
+$obj_form = new mf_form(array('type' => 'create'));
 
 if($obj_form->check_allow_edit())
 {
-	$strFormName = check_var('strFormName');
-	$strFormImport = check_var('strFormImport');
-
-	$strFormURL = check_var('strFormURL');
-	$dteFormDeadline = check_var('dteFormDeadline');
-
-	$intForm2TypeID = check_var('intForm2TypeID');
-	$intForm2TypeOrder = check_var('intForm2TypeOrder');
-
-	$intFormEmailConfirm = isset($_POST['intFormEmailConfirm']) ? 1 : 0;
-	$intFormEmailConfirmPage = check_var('intFormEmailConfirmPage');
-	$intFormShowAnswers = isset($_POST['intFormShowAnswers']) ? 1 : 0;
-	$strFormSaveIP = check_var('strFormSaveIP');
-	$strFormAnswerURL = check_var('strFormAnswerURL');
-	$strFormEmail = check_var('strFormEmail', 'email');
-	$strFormFromName = check_var('strFormFromName');
-	$strFormEmailConditions = check_var('strFormEmailConditions');
-	$intFormEmailNotify = check_var('intFormEmailNotify');
-	$intFormEmailNotifyPage = check_var('intFormEmailNotifyPage');
-	$strFormEmailName = check_var('strFormEmailName');
-	$strFormMandatoryText = check_var('strFormMandatoryText');
-	$strFormButtonText = check_var('strFormButtonText');
-	$strFormButtonSymbol = check_var('strFormButtonSymbol');
-
-	// Payments
-	$intFormPaymentProvider = check_var('intFormPaymentProvider');
-	$strFormPaymentHmac = check_var('strFormPaymentHmac');
-	$intFormTermsPage = check_var('intFormTermsPage');
-	$strFormPaymentMerchant = check_var('strFormPaymentMerchant');
-	$strFormPaymentPassword = check_var('strFormPaymentPassword');
-	$strFormPaymentCurrency = check_var('strFormPaymentCurrency');
-	$intFormPaymentCost = check_var('intFormPaymentCost');
-	$intFormPaymentAmount = check_var('intFormPaymentAmount');
-	$intFormPaymentTax = check_var('intFormPaymentTax');
-	$strFormPaymentCallback = check_var('strFormPaymentCallback');
-
-	$intFormTypeID = check_var('intFormTypeID');
-	$strFormTypeText = isset($_POST['strFormTypeText']) ? $_POST['strFormTypeText'] : ""; //Allow HTML here
-	$strFormTypeText2 = check_var('strFormTypeText2');
-	$intCheckID = check_var('intCheckID');
-	$strFormTypePlaceholder = check_var('strFormTypePlaceholder');
-	$strFormTypeTag = check_var('strFormTypeTag');
-	$strFormTypeClass = check_var('strFormTypeClass');
-	$strFormTypeFetchFrom = check_var('strFormTypeFetchFrom');
-	$strFormTypeActionEquals = check_var('strFormTypeActionEquals');
-	$intFormTypeActionShow = check_var('intFormTypeActionShow');
-
-	// Select
-	$arrFormTypeSelect_id = check_var('arrFormTypeSelect_id');
-	$arrFormTypeSelect_key = check_var('arrFormTypeSelect_key');
-	$arrFormTypeSelect_value = check_var('arrFormTypeSelect_value');
-	$arrFormTypeSelect_limit = check_var('arrFormTypeSelect_limit');
-
-	// Range
-	$strFormTypeMin = check_var('strFormTypeMin', '', true, "0");
-	$strFormTypeMax = check_var('strFormTypeMax', '', true, 100);
-	$strFormTypeDefault = check_var('strFormTypeDefault', '', true, 1);
+	$obj_form->fetch_request();
 
 	do_action('fetch_form_request');
 
-	$error_text = $done_text = '';
-
-	if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce_form_update'], 'form_update_'.$obj_form->id))
-	{
-		if($strFormName == '')
-		{
-			$error_text = __("Please, enter all required fields", 'lang_form');
-		}
-
-		else
-		{
-			if($obj_form->id > 0)
-			{
-				$post_data = array(
-					'ID' => $obj_form->post_id,
-					//'post_type' => 'mf_form',
-					'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
-					'post_title' => $strFormName,
-					'post_name' => $strFormURL,
-				);
-
-				wp_update_post($post_data);
-
-				$obj_form->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $dteFormDeadline));
-
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $intFormEmailConfirm, $intFormEmailConfirmPage, $intFormShowAnswers, $strFormName, $strFormSaveIP, $strFormAnswerURL, $strFormEmail, $strFormFromName, $strFormEmailConditions, $intFormEmailNotify, $intFormEmailNotifyPage, $strFormEmailName, $strFormMandatoryText, $strFormButtonText, $strFormButtonSymbol, $intFormPaymentProvider, $strFormPaymentHmac, $intFormTermsPage, $strFormPaymentMerchant, $strFormPaymentPassword, $strFormPaymentCurrency, $intFormPaymentCost, $intFormPaymentAmount, $intFormPaymentTax, $strFormPaymentCallback, $obj_form->id));
-
-				do_action('update_form_fields', $obj_form);
-
-				$done_text = __("I have updated the form for you", 'lang_form');
-			}
-
-			else
-			{
-				$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form' AND post_title = '%d' LIMIT 0, 1", $strFormName));
-
-				if($wpdb->num_rows > 0)
-				{
-					$error_text = __("There is already a form with that name. Try with another one.", 'lang_form');
-				}
-
-				else
-				{
-					$post_data = array(
-						'post_type' => 'mf_form',
-						'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
-						'post_title' => $strFormName,
-					);
-
-					$obj_form->post_id = wp_insert_post($post_data);
-
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formName = %s, formCreated = NOW(), userID = '%d'", $wpdb->blogid, $obj_form->post_id, $strFormName, get_current_user_id()));
-					$obj_form->id = $wpdb->insert_id;
-
-					if($strFormImport != '')
-					{
-						$arr_import_rows = explode("\n", $strFormImport);
-
-						foreach($arr_import_rows as $import_row)
-						{
-							list($intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $intForm2TypeOrder) = explode(",", $import_row); //, $strFormTypeCode
-
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d', userID = '%d'", $obj_form->id, $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $intForm2TypeOrder, get_current_user_id()));
-						}
-					}
-
-					$done_text = __("I have created the form for you", 'lang_form');
-				}
-			}
-
-			/*if($wpdb->rows_affected > 0)
-			{
-				echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."'</script>";
-			}*/
-		}
-	}
-
-	else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce_form_add'], 'form_add_'.$obj_form->id))
-	{
-		switch($intFormTypeID)
-		{
-			case 2:
-			//case 'range':
-				$strFormTypeText = str_replace("|", "", $strFormTypeText)."|".str_replace("|", "", $strFormTypeMin)."|".str_replace("|", "", $strFormTypeMax)."|".str_replace("|", "", $strFormTypeDefault);
-			break;
-
-			case 10:
-			//case 'select':
-			case 11:
-			//case 'select_multiple':
-			case 16:
-			//case 'checkbox_multiple':
-			case 17:
-			//case 'radio_multiple':
-				if(count($arrFormTypeSelect_value) == 0 || $arrFormTypeSelect_value[0] == '')
-				{
-					$error_text = __("Please, enter all required fields", 'lang_form');
-				}
-
-				else
-				{
-					if($obj_form->form_option_exists)
-					{
-						if($intForm2TypeID > 0)
-						{
-							$obj_form->save_options($intForm2TypeID, $arrFormTypeSelect_id, $arrFormTypeSelect_key, $arrFormTypeSelect_value, $arrFormTypeSelect_limit);
-						}
-					}
-
-					else
-					{
-						$count_temp = count($arrFormTypeSelect_value);
-
-						$obj_form->formTypeSelect = "";
-
-						for($i = 0; $i < $count_temp; $i++)
-						{
-							if($arrFormTypeSelect_value[$i] != '')
-							{
-								$obj_form->formTypeSelect .= ($i > 0 ? "," : "").$arrFormTypeSelect_id[$i]."|".$arrFormTypeSelect_value[$i]."|".$arrFormTypeSelect_limit[$i];
-							}
-						}
-
-						$obj_form->validate_select_array();
-
-						$strFormTypeText = str_replace(":", "", $strFormTypeText).":".str_replace(":", "", $obj_form->formTypeSelect);
-					}
-				}
-			break;
-
-			case 13:
-			//case 'custom_tag':
-			case 14:
-			//case 'custom_tag_end':
-				$strFormTypeText = $strFormTypeText2;
-			break;
-		}
-
-		if($error_text == '')
-		{
-			if($intForm2TypeID > 0)
-			{
-				if($intFormTypeID > 0 && ($intFormTypeID == 6 || $intFormTypeID == 9 || $strFormTypeText != '')) //'space', 'referer_url'
-				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeActionEquals = %s, formTypeActionShow = %s, userID = '%d' WHERE form2TypeID = '%d'", $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $strFormTypeActionEquals, $intFormTypeActionShow, get_current_user_id(), $intForm2TypeID));
-
-					switch($intFormTypeID)
-					{
-						case 13:
-						//case 'custom_tag':
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s, userID = '%d' WHERE form2TypeID2 = '%d'", $strFormTypeText, get_current_user_id(), $intForm2TypeID));
-						break;
-					}
-
-					$intForm2TypeID = $intFormTypeID = $strFormTypeText = $strFormTypePlaceholder = $intCheckID = $strFormTypeTag = $strFormTypeClass = $strFormTypeFetchFrom = $strFormTypeActionEquals = $intFormTypeActionShow = "";
-				}
-
-				else
-				{
-					$error_text = __("Couldn't update the field", 'lang_form');
-				}
-			}
-
-			else
-			{
-				if($obj_form->id > 0 && $intFormTypeID > 0 && ($intFormTypeID == 6 || $intFormTypeID == 9 || $strFormTypeText != '')) //'space', 'referer_url'
-				{
-					$intForm2TypeOrder = $wpdb->get_var($wpdb->prepare("SELECT form2TypeOrder + 1 FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder DESC", $obj_form->id));
-
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeActionEquals = %s, formTypeActionShow = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $obj_form->id, $intFormTypeID, $strFormTypeText, $strFormTypePlaceholder, $intCheckID, $strFormTypeTag, $strFormTypeClass, $strFormTypeFetchFrom, $strFormTypeActionEquals, $intFormTypeActionShow, $intForm2TypeOrder, get_current_user_id()));
-
-					$intForm2TypeID = $wpdb->insert_id;
-
-					switch($intFormTypeID)
-					{
-						case 13:
-						//case 'custom_tag':
-							$intFormTypeID = 14;
-							$intForm2TypeOrder++;
-
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET form2TypeID2 = '%d', formID = '%d', formTypeID = '%d', formTypeText = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $intForm2TypeID, $obj_form->id, $intFormTypeID, $strFormTypeText, $intForm2TypeOrder, get_current_user_id()));
-						break;
-
-						case 10:
-						//case 'select':
-						case 11:
-						//case 'select_multiple':
-						case 16:
-						//case 'checkbox_multiple':
-						case 17:
-						//case 'radio_multiple':
-							if($obj_form->form_option_exists)
-							{
-								$obj_form->save_options($intForm2TypeID, $arrFormTypeSelect_id, $arrFormTypeSelect_key, $arrFormTypeSelect_value, $arrFormTypeSelect_limit);
-							}
-						break;
-					}
-
-					if($wpdb->rows_affected > 0)
-					{
-						$intForm2TypeID = $intFormTypeID = $strFormTypeText = $strFormTypePlaceholder = $intCheckID = $strFormTypeTag = $strFormTypeClass = $strFormTypeFetchFrom = $strFormTypeActionEquals = $intFormTypeActionShow = "";
-
-						if($obj_form->form_option_exists == false)
-						{
-							list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
-						}
-					}
-				}
-
-				else
-				{
-					$error_text = __("I could not insert the new field for you", 'lang_form');
-				}
-			}
-		}
-
-		if($intFormTypeID == 0)
-		{
-			echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."'</script>";
-		}
-	}
-
-	if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $obj_form->id > 0)
-	{
-		if(isset($_GET['recover']))
-		{
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $obj_form->id));
-		}
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $obj_form->id));
-
-		if($wpdb->num_rows > 0)
-		{
-			foreach($result as $r)
-			{
-				$intFormEmailConfirm = $r->formEmailConfirm;
-				$intFormEmailConfirmPage = $r->formEmailConfirmPage;
-				$intFormShowAnswers = $r->formShowAnswers;
-				$strFormSaveIP = $r->formSaveIP;
-				$strFormAnswerURL = $r->formAnswerURL;
-				$strFormEmail = $r->formEmail;
-				$strFormFromName = $r->formFromName;
-				$strFormEmailConditions = $r->formEmailConditions;
-				$intFormEmailNotify = $r->formEmailNotify;
-				$intFormEmailNotifyPage = $r->formEmailNotifyPage;
-				$strFormEmailName = $r->formEmailName;
-				$strFormMandatoryText = $r->formMandatoryText;
-				$strFormButtonText = $r->formButtonText;
-				$strFormButtonSymbol = $r->formButtonSymbol;
-				$intFormPaymentProvider = $r->formPaymentProvider;
-				$strFormPaymentHmac = $r->formPaymentHmac;
-				$intFormTermsPage = $r->formTermsPage;
-				$strFormPaymentMerchant = $r->formPaymentMerchant;
-				$strFormPaymentPassword = $r->formPaymentPassword;
-				$strFormPaymentCurrency = $r->formPaymentCurrency;
-				$intFormPaymentCost = $r->formPaymentCost;
-				$intFormPaymentAmount = $r->formPaymentAmount;
-				$intFormPaymentTax = $r->formPaymentTax;
-				$strFormPaymentCallback = $r->formPaymentCallback;
-				$strFormCreated = $r->formCreated;
-			}
-
-			$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
-			$strFormURL = $obj_form->get_post_info();
-			$dteFormDeadline = $obj_form->meta(array('action' => 'get', 'key' => 'deadline'));
-		}
-
-		else
-		{
-			$error_text = __("I could not find the form you were looking for. If the problem persists, please contact an admin", 'lang_form');
-		}
-	}
-
-	if(!isset($_POST['btnFormAdd']) && $intForm2TypeID > 0)
-	{
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $intForm2TypeID));
-
-		if($wpdb->num_rows > 0)
-		{
-			foreach($result as $r)
-			{
-				$intFormTypeID = $r->formTypeID;
-				$strFormTypeText = $r->formTypeText;
-				$strFormTypePlaceholder = $r->formTypePlaceholder;
-				$intCheckID = $r->checkID;
-				$strFormTypeTag = $r->formTypeTag;
-				$strFormTypeClass = $r->formTypeClass;
-				$strFormTypeFetchFrom = $r->formTypeFetchFrom;
-				$strFormTypeActionEquals = $r->formTypeActionEquals;
-				$intFormTypeActionShow = $r->formTypeActionShow;
-
-				switch($intFormTypeID)
-				{
-					case 2:
-					//case 'range':
-						list($strFormTypeText, $strFormTypeMin, $strFormTypeMax, $strFormTypeDefault) = explode("|", $strFormTypeText);
-					break;
-
-					case 10:
-					//case 'select':
-					case 11:
-					//case 'select_multiple':
-					case 16:
-					//case 'checkbox_multiple':
-					case 17:
-					//case 'radio_multiple':
-						if($obj_form->form_option_exists)
-						{
-							$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
-
-							$arrFormTypeSelect_id = $arrFormTypeSelect_key = $arrFormTypeSelect_value = $arrFormTypeSelect_limit = array();
-
-							foreach($result as $r)
-							{
-								$arrFormTypeSelect_id[] = $r->formOptionID;
-								$arrFormTypeSelect_key[] = $r->formOptionKey;
-								$arrFormTypeSelect_value[] = $r->formOptionValue;
-								$arrFormTypeSelect_limit[] = $r->formOptionLimit;
-							}
-						}
-
-						else
-						{
-							list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
-
-							$arrFormTypeSelect_id = $arrFormTypeSelect_value = $arrFormTypeSelect_limit = array();
-
-							foreach(explode(",", $strFormTypeSelect) as $option_temp)
-							{
-								list($option_id, $option_value, $option_limit) = explode("|", $option_temp);
-
-								$arrFormTypeSelect_id[] = $option_id;
-								$arrFormTypeSelect_value[] = $option_value;
-								$arrFormTypeSelect_limit[] = $option_limit;
-							}
-						}
-					break;
-				}
-
-				if(isset($_GET['btnFieldCopy']))
-				{
-					$intForm2TypeID = "";
-				}
-			}
-		}
-
-		else
-		{
-			do_log("No results from btnFormAdd (".$obj_form->id.", ".$wpdb->last_query.")");
-		}
-	}
+	echo $obj_form->save_data();
 
 	$form_status = $obj_form->get_form_status();
 
 	echo "<div class='wrap'>
-		<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." (".$strFormName.")" : __("Add New", 'lang_form'))."</h2>"
+		<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." (".$obj_form->name.")" : __("Add New", 'lang_form'))."</h2>"
 		.get_notification()
 		."<div id='poststuff'>";
 
 			if($obj_form->id > 0)
 			{
-				$intForm2TypeID_example = $intForm2TypeID > 0 ? $intForm2TypeID : 123;
+				$obj_form->form2type_id_example = $obj_form->form2type_id > 0 ? $obj_form->form2type_id : 123;
 
-				$form_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_form'), "[answer_id]", "[label_".$intForm2TypeID_example."]", "[answer_".$intForm2TypeID_example."]")
+				$form_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_form'), "[answer_id]", "[label_".$obj_form->form2type_id_example."]", "[answer_".$obj_form->form2type_id_example."]")
 					."&content=".sprintf(__("Ticket: %s, Answers: %s", 'lang_form'), "[answer_id]", "[form_fields]");
 
 				if(is_plugin_active("mf_webshop/index.php"))
@@ -439,15 +33,15 @@ if($obj_form->check_allow_edit())
 
 				echo "<div id='post-body' class='columns-2'>
 					<div id='post-body-content'>
-						<div class='postbox".($intForm2TypeID > 0 ? " active" : "")."'>
+						<div class='postbox".($obj_form->form2type_id > 0 ? " active" : "")."'>
 							<h3 class='hndle'><span>".__("Content", 'lang_form')."</span></h3>
 							<form method='post' action='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."' class='mf_form mf_settings inside'>
 								<div class='flex_flow'>
 									<div>"
-										.show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(array('form_type_id' => $intFormTypeID)), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'class' => "fontawesome"))
+										.show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(array('form_type_id' => $obj_form->type_id)), 'name' => 'intFormTypeID', 'value' => $obj_form->type_id, 'class' => "fontawesome"))
 									."</div>
 									<div>"
-										.show_textarea(array('name' => 'strFormTypeText', 'value' => $strFormTypeText, 'class' => "show_textarea hide", 'placeholder' => __("Text", 'lang_form')))
+										.show_textarea(array('name' => 'strFormTypeText', 'value' => $obj_form->type_text, 'class' => "show_textarea hide", 'placeholder' => __("Text", 'lang_form')))
 										."<div class='show_checkbox hide'>
 											<h4>".__("Examples", 'lang_form')."</h4>
 											<ol class='pointer'>
@@ -455,56 +49,56 @@ if($obj_form->check_allow_edit())
 												<li>".__("By submitting this form I am aware that I will be sent to another website for payment", 'lang_form')."</li>
 											</ol>
 										</div>"
-										.show_select(array('data' => $obj_form->get_form_checks_for_select(), 'name' => 'intCheckID', 'value' => $intCheckID, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"))
-										.show_textfield(array('name' => 'strFormTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $strFormTypePlaceholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"))
-										.show_select(array('data' => array('div' => "div", 'fieldset' => "fieldset"), 'name' => 'strFormTypeText2', 'value' => $strFormTypeText, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
+										.show_select(array('data' => $obj_form->get_form_checks_for_select(), 'name' => 'intCheckID', 'value' => $obj_form->check_id, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"))
+										.show_textfield(array('name' => 'strFormTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $obj_form->type_placeholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"))
+										.show_select(array('data' => array('div' => "div", 'fieldset' => "fieldset"), 'name' => 'strFormTypeText2', 'value' => $obj_form->type_text, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
 										."<div class='show_range flex_flow hide'>"
-											.show_textfield(array('name' => 'strFormTypeMin', 'text' => __("Min value", 'lang_form'), 'value' => $strFormTypeMin, 'maxlength' => 3, 'size' => 5))
-											.show_textfield(array('name' => 'strFormTypeMax', 'text' => __("Max value", 'lang_form'), 'value' => $strFormTypeMax, 'maxlength' => 3, 'size' => 5))
-											.show_textfield(array('name' => 'strFormTypeDefault', 'text' => __("Default value", 'lang_form'), 'value' => $strFormTypeDefault, 'maxlength' => 3, 'size' => 5))
+											.show_textfield(array('name' => 'strFormTypeMin', 'text' => __("Min value", 'lang_form'), 'value' => $obj_form->type_min, 'maxlength' => 3, 'size' => 5))
+											.show_textfield(array('name' => 'strFormTypeMax', 'text' => __("Max value", 'lang_form'), 'value' => $obj_form->type_max, 'maxlength' => 3, 'size' => 5))
+											.show_textfield(array('name' => 'strFormTypeDefault', 'text' => __("Default value", 'lang_form'), 'value' => $obj_form->type_default, 'maxlength' => 3, 'size' => 5))
 										."</div>"
 										."<div class='show_select'>
 											<label>".__("Value", 'lang_form')." <i class='fa fa-info-circle' title='".__("Enter ID, Name and Limit (optional)", 'lang_form')."'></i></label>
 											<div class='select_rows'>";
 
-												$count_temp = count($arrFormTypeSelect_value);
+												$count_temp = count($obj_form->arr_type_select_value);
 
 												if($count_temp == 0)
 												{
 													if($obj_form->form_option_exists)
 													{
-														$arrFormTypeSelect_id = array('', '', '');
-														$arrFormTypeSelect_key = array('0', '1', '2');
-														$arrFormTypeSelect_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
-														$arrFormTypeSelect_limit = array('', '', '');
+														$obj_form->arr_type_select_id = array('', '', '');
+														$obj_form->arr_type_select_key = array('0', '1', '2');
+														$obj_form->arr_type_select_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
+														$obj_form->arr_type_select_limit = array('', '', '');
 													}
 
 													else
 													{
-														$arrFormTypeSelect_id = array('0', '1', '2');
-														$arrFormTypeSelect_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
-														$arrFormTypeSelect_limit = array('', '', '');
+														$obj_form->arr_type_select_id = array('0', '1', '2');
+														$obj_form->arr_type_select_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
+														$obj_form->arr_type_select_limit = array('', '', '');
 													}
 
-													$count_temp = count($arrFormTypeSelect_value);
+													$count_temp = count($obj_form->arr_type_select_value);
 												}
 
-												/*echo "ID: ".var_export($arrFormTypeSelect_id, true)."<br>"
-												."Key: ".var_export($arrFormTypeSelect_key, true)."<br>"
-												."Value: ".var_export($arrFormTypeSelect_value, true)."<br>"
-												."Limit: ".var_export($arrFormTypeSelect_limit, true)."<br>";*/
+												/*echo "ID: ".var_export($obj_form->arr_type_select_id, true)."<br>"
+												."Key: ".var_export($obj_form->arr_type_select_key, true)."<br>"
+												."Value: ".var_export($obj_form->arr_type_select_value, true)."<br>"
+												."Limit: ".var_export($obj_form->arr_type_select_limit, true)."<br>";*/
 
 												if($obj_form->form_option_exists)
 												{
 													for($i = 0; $i < $count_temp; $i++)
 													{
-														$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $intForm2TypeID, 'option_id' => $arrFormTypeSelect_id[$i]));
+														$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $obj_form->form2type_id, 'option_id' => $obj_form->arr_type_select_id[$i]));
 
 														echo "<div class='option'>"
-															.show_textfield(array('name' => 'arrFormTypeSelect_key[]', 'value' => $arrFormTypeSelect_key[$i], 'placeholder' => __("Key", 'lang_form'), 'xtra_class' => "option_key")) //, 'readonly' => $is_select_value_used //input text is needed when using payment price as ID
-															.show_textfield(array('name' => 'arrFormTypeSelect_value[]', 'value' => $arrFormTypeSelect_value[$i], 'placeholder' => __("Enter Option Here", 'lang_form'), 'xtra_class' => "option_value", 'readonly' => $is_select_value_used))
-															.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_limit[]', 'value' => $arrFormTypeSelect_limit[$i], 'xtra_class' => "option_limit"))
-															.input_hidden(array('name' => 'arrFormTypeSelect_id[]', 'value' => $arrFormTypeSelect_id[$i]))
+															.show_textfield(array('name' => 'arrFormTypeSelect_key[]', 'value' => $obj_form->arr_type_select_key[$i], 'placeholder' => __("Key", 'lang_form'), 'xtra_class' => "option_key")) //, 'readonly' => $is_select_value_used //input text is needed when using payment price as ID
+															.show_textfield(array('name' => 'arrFormTypeSelect_value[]', 'value' => $obj_form->arr_type_select_value[$i], 'placeholder' => __("Enter Option Here", 'lang_form'), 'xtra_class' => "option_value", 'readonly' => $is_select_value_used))
+															.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_limit[]', 'value' => $obj_form->arr_type_select_limit[$i], 'xtra_class' => "option_limit"))
+															.input_hidden(array('name' => 'arrFormTypeSelect_id[]', 'value' => $obj_form->arr_type_select_id[$i]))
 														."</div>";
 													}
 												}
@@ -513,12 +107,12 @@ if($obj_form->check_allow_edit())
 												{
 													for($i = 0; $i < $count_temp; $i++)
 													{
-														$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $intForm2TypeID, 'option_id' => $arrFormTypeSelect_id[$i]));
+														$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $obj_form->form2type_id, 'option_id' => $obj_form->arr_type_select_id[$i]));
 
 														echo "<div class='option'>"
-															.show_textfield(array('name' => 'arrFormTypeSelect_id[]', 'value' => $arrFormTypeSelect_id[$i], 'placeholder' => __("Key", 'lang_form'), 'xtra_class' => "option_key", 'readonly' => $is_select_value_used)) //input text is needed when using payment price as ID
-															.show_textfield(array('name' => 'arrFormTypeSelect_value[]', 'value' => $arrFormTypeSelect_value[$i], 'placeholder' => __("Enter Option Here", 'lang_form'), 'xtra_class' => "option_value")) //, 'readonly' => $is_select_value_used
-															.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_limit[]', 'value' => $arrFormTypeSelect_limit[$i], 'xtra_class' => "option_limit"))
+															.show_textfield(array('name' => 'arrFormTypeSelect_id[]', 'value' => $obj_form->arr_type_select_id[$i], 'placeholder' => __("Key", 'lang_form'), 'xtra_class' => "option_key", 'readonly' => $is_select_value_used)) //input text is needed when using payment price as ID
+															.show_textfield(array('name' => 'arrFormTypeSelect_value[]', 'value' => $obj_form->arr_type_select_value[$i], 'placeholder' => __("Enter Option Here", 'lang_form'), 'xtra_class' => "option_value")) //, 'readonly' => $is_select_value_used
+															.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_limit[]', 'value' => $obj_form->arr_type_select_limit[$i], 'xtra_class' => "option_limit"))
 														."</div>";
 													}
 												}
@@ -529,68 +123,74 @@ if($obj_form->check_allow_edit())
 										//Advanced
 										#################
 										echo get_toggler_container(array('type' => 'start', 'text' => __("Advanced", 'lang_form'), 'rel' => $obj_form->id))
-											.show_select(array('data' => $obj_form->get_tags_for_select(), 'name' => 'strFormTypeTag', 'value' => $strFormTypeTag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
-											.show_textfield(array('name' => 'strFormTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $strFormTypeClass, 'placeholder' => "bold italic aligncenter alignleft alignright", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"));
+											.show_select(array('data' => $obj_form->get_tags_for_select(), 'name' => 'strFormTypeTag', 'value' => $obj_form->type_tag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
+											.show_textfield(array('name' => 'strFormTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $obj_form->type_class, 'placeholder' => "bold italic aligncenter alignleft alignright", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"));
 
-											if($intForm2TypeID > 0)
+											if($obj_form->form2type_id > 0)
 											{
-												$handle_temp = $obj_form->get_post_info()."_".$intForm2TypeID;
+												$handle_temp = $obj_form->get_post_info()."_".$obj_form->form2type_id;
 
 												$description_temp = '';
 
-												if(substr($strFormTypeFetchFrom, 0, 1) == "[")
+												if(substr($obj_form->type_fetch_from, 0, 1) == "[")
 												{
 													$description_temp .= sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."'>", "</a>");
 												}
 
 												else
 												{
-													$description_temp .= sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."?".($strFormTypeFetchFrom != '' ? $strFormTypeFetchFrom : $handle_temp)."=2'>", "</a>");
+													$description_temp .= sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."?".($obj_form->type_fetch_from != '' ? $obj_form->type_fetch_from : $handle_temp)."=2'>", "</a>");
 												}
 
-												echo show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Change Default Value", 'lang_form')." <i class='fa fa-info-circle' title='custom_handle_that_you_can_name_whatever, [user_display_name], [user_email] ".__("or", 'lang_form')." [user_address]'></i>", 'value' => $strFormTypeFetchFrom, 'maxlength' => 50, 'placeholder' => sprintf(__("Assign handle or shortcode", 'lang_form'), $handle_temp), 'xtra_class' => "show_fetch_from hide", 'description' => $description_temp));
+												echo show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Change Default Value", 'lang_form')." <i class='fa fa-info-circle' title='custom_handle_that_you_can_name_whatever, [user_display_name], [user_email] ".__("or", 'lang_form')." [user_address]'></i>", 'value' => $obj_form->type_fetch_from, 'maxlength' => 50, 'placeholder' => sprintf(__("Assign handle or shortcode", 'lang_form'), $handle_temp), 'xtra_class' => "show_fetch_from hide", 'description' => $description_temp));
 
 												$arr_data_equals = array();
 
 												if($obj_form->form_option_exists)
 												{
-													if($intForm2TypeID > 0)
+													if($obj_form->form2type_id > 0)
 													{
-														$count_temp = count($arrFormTypeSelect_value);
-
-														for($i = 0; $i < $count_temp; $i++)
+														switch($obj_form->type_id)
 														{
-															$arr_data_equals[$arrFormTypeSelect_id[$i]] = $arrFormTypeSelect_value[$i];
+															case 1:
+															//case 'checkbox':
+																$arr_data_equals[0] = __("No", 'lang_form');
+																$arr_data_equals[1] = __("Yes", 'lang_form');
+															break;
+
+															default:
+																$count_temp = count($obj_form->arr_type_select_value);
+
+																for($i = 0; $i < $count_temp; $i++)
+																{
+																	$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
+																}
+															break;
 														}
-
-														/*foreach($result_select as $r)
-														{
-															$arr_data_equals[$r->formOptionID] = $r->formOptionValue;
-														}*/
 													}
 												}
 
 												else
 												{
-													$count_temp = count($arrFormTypeSelect_value);
+													$count_temp = count($obj_form->arr_type_select_value);
 
 													for($i = 0; $i < $count_temp; $i++)
 													{
-														$arr_data_equals[$arrFormTypeSelect_id[$i]] = $arrFormTypeSelect_value[$i];
+														$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
 													}
 												}
 
 												if(count($arr_data_equals) > 1)
 												{
-													list($result, $rows) = $obj_form->get_form_type_info(array('query_type_code' => array('checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'custom_tag', 'checkbox_multiple', 'radio_multiple'), 'query_exclude_id' => $intForm2TypeID)); //'query_type_id' => array(1, 2, 3, 4, 5, 7, 8, 10, 11, 13, 16, 17)
+													list($result, $rows) = $obj_form->get_form_type_info(array('query_type_code' => array('checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'custom_tag', 'checkbox_multiple', 'radio_multiple'), 'query_exclude_id' => $obj_form->form2type_id));
 
 													if($rows > 0)
 													{
 														$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
 
 														echo "<div class='show_actions'>"
-															.show_select(array('data' => $arr_data_equals, 'name' => 'strFormTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'value' => $strFormTypeActionEquals))
-															.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeActionShow', 'text' => __("...show this...", 'lang_form'), 'value' => $intFormTypeActionShow))
+															.show_select(array('data' => $arr_data_equals, 'name' => 'strFormTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'value' => $obj_form->type_action_equals))
+															.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeActionShow', 'text' => __("...show this...", 'lang_form'), 'value' => $obj_form->type_action_show))
 														."</div>";
 													}
 												}
@@ -601,14 +201,14 @@ if($obj_form->check_allow_edit())
 
 									echo "</div>
 								</div>"
-								.show_button(array('name' => 'btnFormAdd', 'text' => ($intForm2TypeID > 0 ? __("Update", 'lang_form') : __("Add", 'lang_form'))));
+								.show_button(array('name' => 'btnFormAdd', 'text' => ($obj_form->form2type_id > 0 ? __("Update", 'lang_form') : __("Add", 'lang_form'))));
 
-								if($intForm2TypeID > 0)
+								if($obj_form->form2type_id > 0)
 								{
 									echo "&nbsp;<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."'>"
 										.show_button(array('type' => 'button', 'text' => __("Cancel", 'lang_form'), 'class' => "button"))
 									."</a>"
-									.input_hidden(array('name' => 'intForm2TypeID', 'value' => $intForm2TypeID));
+									.input_hidden(array('name' => 'intForm2TypeID', 'value' => $obj_form->form2type_id));
 								}
 
 								echo input_hidden(array('name' => 'intFormID', 'value' => $obj_form->id))
@@ -616,7 +216,7 @@ if($obj_form->check_allow_edit())
 							."</form>
 						</div>";
 
-						$form_output = $obj_form->process_form(array('edit' => true, 'form2type_id' => $intForm2TypeID));
+						$form_output = $obj_form->process_form(array('edit' => true, 'form2type_id' => $obj_form->form2type_id));
 
 						if($form_output != '')
 						{
@@ -634,8 +234,8 @@ if($obj_form->check_allow_edit())
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Save", 'lang_form')."</span></h3>
 								<div class='inside'>"
-									.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
-									.show_textfield(array('name' => 'strFormURL', 'text' => __("URL", 'lang_form'), 'value' => $strFormURL, 'maxlength' => 100));
+									.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => 1, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
+									.show_textfield(array('name' => 'strFormURL', 'text' => __("URL", 'lang_form'), 'value' => $obj_form->url, 'maxlength' => 100));
 
 									if($form_output != '')
 									{
@@ -679,8 +279,8 @@ if($obj_form->check_allow_edit())
 												}
 											}
 
-											echo " <a href='".admin_url("post-new.php?post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
-											echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
+											echo " <a href='".admin_url("post-new.php?post_title=".$obj_form->name."&content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
+											echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$obj_form->name."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 										}
 									}
 
@@ -689,47 +289,47 @@ if($obj_form->check_allow_edit())
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
 								<div class='inside'>"
-									.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $strFormAnswerURL, 'text' => __("Confirmation Page", 'lang_form'), 'suffix' => get_option_page_suffix(array('value' => $strFormAnswerURL)))); //get_option_page_suffix(array('value' => $option))." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-plus-circle fa-lg'></i></a>"
+									.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $obj_form->answer_url, 'text' => __("Confirmation Page", 'lang_form'), 'suffix' => get_option_page_suffix(array('value' => $obj_form->answer_url)))); //get_option_page_suffix(array('value' => $option))." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-plus-circle fa-lg'></i></a>"
 
 									if($obj_form->is_poll())
 									{
-										echo show_checkbox(array('name' => 'intFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => 1, 'compare' => $intFormShowAnswers));
+										echo show_checkbox(array('name' => 'intFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => 1, 'compare' => $obj_form->show_answers));
 									}
 
 									echo "<div class='flex_flow'>"
-										.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $strFormButtonSymbol, 'text' => __("Button Symbol", 'lang_form')))
-										.show_textfield(array('name' => 'strFormButtonText', 'text' => __("Text", 'lang_form'), 'value' => $strFormButtonText, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
+										.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $obj_form->button_symbol, 'text' => __("Button Symbol", 'lang_form')))
+										.show_textfield(array('name' => 'strFormButtonText', 'text' => __("Text", 'lang_form'), 'value' => $obj_form->button_text, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
 									."</div>"
-									.show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $dteFormDeadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"))
-									.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $strFormSaveIP, 'text' => __("Save IP", 'lang_form')))
+									.show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $obj_form->deadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"))
+									.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $obj_form->save_ip, 'text' => __("Save IP", 'lang_form')))
 								."</div>
 							</div>
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("E-mail", 'lang_form')."</span></h3>
 								<div class='inside'>";
 
-									if($strFormEmailName != '')
+									if($obj_form->email_name != '')
 									{
-										echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $strFormEmailName, 'maxlength' => 100));
+										echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $obj_form->email_name, 'maxlength' => 100));
 									}
 
-									echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailNotify))
-									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $intFormEmailNotifyPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+									echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 1, 'compare' => $obj_form->email_notify))
+									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $obj_form->email_notify_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 
 									if($obj_form->has_email_field() > 0)
 									{
-										echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 1, 'compare' => $intFormEmailConfirm))
-										.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $intFormEmailConfirmPage, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+										echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 1, 'compare' => $obj_form->email_confirm))
+										.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $obj_form->email_confirm_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 									}
 
-									echo show_textfield(array('name' => 'strFormEmail', 'text' => __("Send From/To", 'lang_form'), 'value' => $strFormEmail, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
+									echo show_textfield(array('name' => 'strFormEmail', 'text' => __("Send From/To", 'lang_form'), 'value' => $obj_form->email, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
 
-									if($strFormEmail != '' && strpos($strFormEmail, "<") == false && strpos($strFormEmail, ",") == false)
+									if($obj_form->email != '' && strpos($obj_form->email, "<") == false && strpos($obj_form->email, ",") == false)
 									{
-										echo show_textfield(array('name' => 'strFormFromName', 'text' => __("Send From/To", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $strFormFromName, 'maxlength' => 100, 'placeholder' => get_bloginfo('name')));
+										echo show_textfield(array('name' => 'strFormFromName', 'text' => __("Send From/To", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $obj_form->from_name, 'maxlength' => 100, 'placeholder' => get_bloginfo('name')));
 									}
 
-									echo show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $strFormEmailConditions, 'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email')))
+									echo show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $obj_form->email_conditions, 'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email')))
 								."</div>
 							</div>";
 
@@ -740,33 +340,33 @@ if($obj_form->check_allow_edit())
 								echo "<div class='postbox'>
 									<h3 class='hndle'><span>".__("Payment", 'lang_form')."</span></h3>
 									<div class='inside'>"
-										.show_select(array('data' => $arr_data_providers, 'name' => 'intFormPaymentProvider', 'value' => $intFormPaymentProvider, 'text' => __("Provider", 'lang_form')));
+										.show_select(array('data' => $arr_data_providers, 'name' => 'intFormPaymentProvider', 'value' => $obj_form->payment_provider, 'text' => __("Provider", 'lang_form')));
 
-										$arr_fields = apply_filters('form_payment_fields', array(), $intFormPaymentProvider);
+										$arr_fields = apply_filters('form_payment_fields', array(), $obj_form->payment_provider);
 
 										if(in_array('merchant_id', $arr_fields))
 										{
-											echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID", 'lang_form')." / ".__("E-mail", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100));
+											echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID", 'lang_form')." / ".__("E-mail", 'lang_form'), 'value' => $obj_form->payment_merchant, 'maxlength' => 100));
 										}
 
 										if(in_array('merchant_username', $arr_fields))
 										{
-											echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Username", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100));
+											echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Username", 'lang_form'), 'value' => $obj_form->payment_merchant, 'maxlength' => 100));
 										}
 
 										if(in_array('merchant_store', $arr_fields))
 										{
-											echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Store ID", 'lang_form'), 'value' => $strFormPaymentMerchant, 'maxlength' => 100));
+											echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Store ID", 'lang_form'), 'value' => $obj_form->payment_merchant, 'maxlength' => 100));
 										}
 
 										if(in_array('password', $arr_fields))
 										{
-											echo show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password"), 'value' => $strFormPaymentPassword, 'maxlength' => 100));
+											echo show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password"), 'value' => $obj_form->payment_password, 'maxlength' => 100));
 										}
 
 										if(in_array('secret_key', $arr_fields))
 										{
-											echo show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key", 'lang_form')." / ".__("Signature", 'lang_form'), 'value' => $strFormPaymentHmac, 'maxlength' => 200));
+											echo show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key", 'lang_form')." / ".__("Signature", 'lang_form'), 'value' => $obj_form->payment_hmac, 'maxlength' => 200));
 										}
 
 										if(in_array('terms_page', $arr_fields))
@@ -776,42 +376,42 @@ if($obj_form->check_allow_edit())
 
 											$post_title = __("Terms", 'lang_form');
 
-											echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $intFormTermsPage, 'required' => true, 'suffix' => get_option_page_suffix(array('value' => $intFormTermsPage, 'title' => $post_title))));
+											echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $obj_form->terms_page, 'required' => true, 'suffix' => get_option_page_suffix(array('value' => $obj_form->terms_page, 'title' => $post_title))));
 										}
 
 										do_action('display_form_fields', $obj_form);
 
-										if($intFormPaymentProvider > 0 && ($strFormPaymentMerchant != '' || $strFormPaymentHmac != ''))
+										if($obj_form->payment_provider > 0 && ($obj_form->payment_merchant != '' || $obj_form->payment_hmac != ''))
 										{
-											echo show_select(array('data' => $obj_form->get_payment_currency_for_select($intFormPaymentProvider), 'name' => 'strFormPaymentCurrency', 'value' => $strFormPaymentCurrency, 'text' => __("Currency", 'lang_form')))
-											.show_textfield(array('type' => 'number', 'name' => 'intFormPaymentCost', 'value' => $intFormPaymentCost, 'text' => __("Payment Cost", 'lang_form')));
+											echo show_select(array('data' => $obj_form->get_payment_currency_for_select($obj_form->payment_provider), 'name' => 'strFormPaymentCurrency', 'value' => $obj_form->payment_currency, 'text' => __("Currency", 'lang_form')))
+											.show_textfield(array('type' => 'number', 'name' => 'intFormPaymentCost', 'value' => $obj_form->payment_cost, 'text' => __("Payment Cost", 'lang_form')));
 
 											$arr_data_amount = $obj_form->get_payment_amount_for_select();
 
 											if(count($arr_data_amount) > 1)
 											{
-												echo show_select(array('data' => $arr_data_amount, 'name' => 'intFormPaymentAmount', 'value' => $intFormPaymentAmount, 'text' => __("Field for Payment Amount", 'lang_form')));
+												echo show_select(array('data' => $arr_data_amount, 'name' => 'intFormPaymentAmount', 'value' => $obj_form->payment_amount, 'text' => __("Field for Payment Amount", 'lang_form')));
 											}
 
-											echo show_textfield(array('type' => 'number', 'name' => 'intFormPaymentTax', 'value' => $intFormPaymentTax, 'text' => __("Tax", 'lang_form'), 'xtra' => " min='0' max='25'"));
+											echo show_textfield(array('type' => 'number', 'name' => 'intFormPaymentTax', 'value' => $obj_form->payment_tax, 'text' => __("Tax", 'lang_form'), 'xtra' => " min='0' max='25'"));
 
 											$description = "";
 
-											if($strFormPaymentCallback != '' && !function_exists($strFormPaymentCallback))
+											if($obj_form->payment_callback != '' && !function_exists($obj_form->payment_callback))
 											{
 												$description = "<i class='fa fa-exclamation-triangle yellow'></i> ".__("The action that you have entered either does not exist or is not accessible when the success is triggered", 'lang_form');
 											}
 
-											echo show_textfield(array('name' => 'strFormPaymentCallback', 'text' => __("Action on Successful Payment", 'lang_form'), 'value' => $strFormPaymentCallback, 'maxlength' => 100, 'description' => $description));
+											echo show_textfield(array('name' => 'strFormPaymentCallback', 'text' => __("Action on Successful Payment", 'lang_form'), 'value' => $obj_form->payment_callback, 'maxlength' => 100, 'description' => $description));
 										}
 
 									echo "</div>
 								</div>";
 							}
 
-							else if($intFormPaymentProvider > 0)
+							else if($obj_form->payment_provider > 0)
 							{
-								do_log(sprintf("There are no installed provider extension even though it seams like a provider has been set (%s)", $intFormPaymentProvider));
+								do_log(sprintf("There are no installed provider extension even though it seams like a provider has been set (%s)", $obj_form->payment_provider));
 							}
 
 						echo "</form>
@@ -824,8 +424,8 @@ if($obj_form->check_allow_edit())
 				echo "<form method='post' action='' class='mf_form mf_settings'>
 					<div class='postbox'>
 						<div class='inside'>"
-							.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $strFormName, 'maxlength' => 100, 'required' => 1, 'xtra' => ($intForm2TypeID > 0 ? "" : "autofocus")))
-							.show_textarea(array('name' => 'strFormImport', 'text' => __("Import Form Fields", 'lang_form'), 'value' => $strFormImport, 'placeholder' => "3,".__("Name", 'lang_form').","))
+							.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => 1, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
+							.show_textarea(array('name' => 'strFormImport', 'text' => __("Import Form Fields", 'lang_form'), 'value' => $obj_form->import, 'placeholder' => "3,".__("Name", 'lang_form').","))
 							.show_button(array('name' => 'btnFormPublish', 'text' => __("Add", 'lang_form')))
 							.input_hidden(array('name' => 'intFormID', 'value' => $obj_form->id))
 							.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false)

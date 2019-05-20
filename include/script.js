@@ -28,8 +28,31 @@ jQuery(function($)
 
 		if(show_obj_parent !== false)
 		{
-			if(dom_obj.val() == equals){	show_obj_parent.removeClass('hide');}
-			else{							show_obj_parent.addClass('hide');}
+			if(dom_obj.is("select"))
+			{
+				if(dom_obj.val() == equals)
+				{
+					show_obj_parent.removeClass('hide');
+				}
+				
+				else
+				{
+					show_obj_parent.addClass('hide');
+				}
+			}
+
+			else if(dom_obj.is("input[type='checkbox']"))
+			{
+				if(dom_obj.is(":checked"))
+				{
+					show_obj_parent.removeClass('hide');
+				}
+
+				else
+				{
+					show_obj_parent.addClass('hide');
+				}
+			}
 		}
 	}
 
@@ -166,7 +189,7 @@ jQuery(function($)
 		$(this).after("<span></span>");
 	});
 
-	$(".form_action select").each(function()
+	$(".form_action select, .form_action input").each(function()
 	{
 		do_form_type_action($(this));
 	});
@@ -284,7 +307,7 @@ jQuery(function($)
 		check_zip_code($(this));
 	});
 
-	$(document).on('change', ".form_action select", function()
+	$(document).on('change', ".form_action select, .form_action input", function()
 	{
 		do_form_type_action($(this));
 	});

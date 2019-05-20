@@ -87,54 +87,60 @@ jQuery(function($)
 
 		if(this_val > 0)
 		{
-			if(this_val == 1) /* checkbox */
+			switch(this_val)
 			{
-				$(".show_checkbox").removeClass('hide');
-			}
+				case '1': /* checkbox */
+					$(".show_checkbox, .show_actions").removeClass('hide');
+				break;
 
-			else if(this_val == 2) /* range */
-			{
-				$(".show_range").removeClass('hide');
-			}
+				case '2': /* range */
+					$(".show_range, .show_fetch_from").removeClass('hide');
+				break;
 
-			else if(this_val == 3) /* input_field */
-			{
-				$(".show_validate_as").removeClass('hide');
-			}
+				case '3': /* input_field */
+					$(".show_validate_as, .show_custom_class, .show_placeholder, .show_fetch_from").removeClass('hide');
+				break;
 
-			else if(this_val == 5) /* text */
-			{
-				$(".show_custom_text_tag").removeClass('hide');
-			}
+				case '4': /* textarea */
+					$(".show_placeholder, .show_custom_class, .show_fetch_from").removeClass('hide');
+				break;
 
-			else if(this_val == 10) /* select */
-			{
-				$(".show_actions").removeClass('hide');
-			}
+				case '5': /* text */
+					$(".show_custom_class, .show_custom_text_tag").removeClass('hide');
+				break;
 
-			if(this_val == 3 || this_val == 4 || this_val == 7) /* input_field, textarea, datepicker */
-			{
-				$(".show_placeholder").removeClass('hide');
-			}
+				case '7': /* datepicker */
+					$(".show_placeholder, .show_fetch_from").removeClass('hide');
+				break;
 
-			if(this_val == 2 || this_val == 3 || this_val == 4 || this_val == 7 || this_val == 10 || this_val == 11 || this_val == 12 || this_val == 16 || this_val == 17) /* range, input_field, textarea, datepicker, select, select_multiple, hidden_field, checkbox_multiple, radio_multiple */
-			{
-				$(".show_fetch_from").removeClass('hide');
-			}
+				case '10': /* select */
+					$(".show_select, .show_fetch_from, .show_actions").removeClass('hide');
+				break;
 
-			if(this_val == 10 || this_val == 11 || this_val == 16 || this_val == 17) /* select, select_multiple, checkbox_multiple, radio_multiple */
-			{
-				$(".show_select").removeClass('hide');
-			}
+				case '11': /* select_multiple */
+					$(".show_select, .show_fetch_from").removeClass('hide');
+				break;
 
-			if(this_val == 13 || this_val == 14) /* custom_tag, custom_tag_end */
-			{
-				$(".show_custom_tag").removeClass('hide');
-			}
+				case '12': /* hidden_field */
+					$(".show_fetch_from").removeClass('hide');
+				break;
 
-			if(this_val == 3 || this_val == 4 || this_val == 5 || this_val == 13 || this_val == 15) /* input_field, textarea, text, custom_tag, file */
-			{
-				$(".show_custom_class").removeClass('hide');
+				case '13': /* custom_tag */
+					$(".show_custom_tag, .show_custom_class").removeClass('hide');
+				break;
+
+				case '14': /* custom_tag_end */
+					$(".show_custom_tag").removeClass('hide');
+				break;
+
+				case '15': /* file */
+					$(".show_custom_class").removeClass('hide');
+				break;
+
+				case '16': /* checkbox_multiple */
+				case '17': /* radio_multiple */
+					$(".show_fetch_from, .show_select").removeClass('hide');
+				break;
 			}
 
 			if(this_val != 6 && this_val != 9) /* space, referer_url */

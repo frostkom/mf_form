@@ -2,11 +2,11 @@
 
 class mf_form
 {
-	function __construct($id = 0)
+	function __construct($data = array()) //$id = 0
 	{
 		global $wpdb;
 
-		$this->id = $id > 0 ? $id : check_var('intFormID');
+		$this->id = isset($data['id']) && $data['id'] > 0 ? $data['id'] : check_var('intFormID');
 
 		$this->post_status = "";
 		$this->form2type_id = $this->post_id = 0;
@@ -22,6 +22,8 @@ class mf_form
 		}
 
 		$this->form_option_exists = does_table_exist($wpdb->base_prefix."form_option");
+
+		$this->type = isset($data['type']) ? $data['type'] : '';
 	}
 
 	function check_allow_edit()
@@ -1212,7 +1214,72 @@ class mf_form
 
 	function fetch_request()
 	{
-		$this->answer_id = check_var('intAnswerID');
+		switch($this->type)
+		{
+			case 'create':
+				$this->name = check_var('strFormName');
+				$this->import = check_var('strFormImport');
+
+				$this->url = check_var('strFormURL');
+				$this->deadline = check_var('dteFormDeadline');
+
+				$this->form2type_id = check_var('intForm2TypeID');
+				$this->form2type_order = check_var('intForm2TypeOrder');
+
+				$this->email_confirm = isset($_POST['intFormEmailConfirm']) ? 1 : 0;
+				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
+				$this->show_answers = isset($_POST['intFormShowAnswers']) ? 1 : 0;
+				$this->save_ip = check_var('strFormSaveIP');
+				$this->answer_url = check_var('strFormAnswerURL');
+				$this->email = check_var('strFormEmail', 'email');
+				$this->from_name = check_var('strFormFromName');
+				$this->email_conditions = check_var('strFormEmailConditions');
+				$this->email_notify = check_var('intFormEmailNotify');
+				$this->email_notify_page = check_var('intFormEmailNotifyPage');
+				$this->email_name = check_var('strFormEmailName');
+				$this->mandatory_text = check_var('strFormMandatoryText');
+				$this->button_text = check_var('strFormButtonText');
+				$this->button_symbol = check_var('strFormButtonSymbol');
+
+				// Payments
+				$this->payment_provider = check_var('intFormPaymentProvider');
+				$this->payment_hmac = check_var('strFormPaymentHmac');
+				$this->terms_page = check_var('intFormTermsPage');
+				$this->payment_merchant = check_var('strFormPaymentMerchant');
+				$this->payment_password = check_var('strFormPaymentPassword');
+				$this->payment_currency = check_var('strFormPaymentCurrency');
+				$this->payment_cost = check_var('intFormPaymentCost');
+				$this->payment_amount = check_var('intFormPaymentAmount');
+				$this->payment_tax = check_var('intFormPaymentTax');
+				$this->payment_callback = check_var('strFormPaymentCallback');
+
+				$this->type_id = check_var('intFormTypeID');
+				$this->type_text = isset($_POST['strFormTypeText']) ? $_POST['strFormTypeText'] : ""; //Allow HTML here
+				$this->type_text2 = check_var('strFormTypeText2');
+				$this->check_id = check_var('intCheckID');
+				$this->type_placeholder = check_var('strFormTypePlaceholder');
+				$this->type_tag = check_var('strFormTypeTag');
+				$this->type_class = check_var('strFormTypeClass');
+				$this->type_fetch_from = check_var('strFormTypeFetchFrom');
+				$this->type_action_equals = check_var('strFormTypeActionEquals');
+				$this->type_action_show = check_var('intFormTypeActionShow');
+
+				// Select
+				$this->arr_type_select_id = check_var('arrFormTypeSelect_id');
+				$this->arr_type_select_key = check_var('arrFormTypeSelect_key');
+				$this->arr_type_select_value = check_var('arrFormTypeSelect_value');
+				$this->arr_type_select_limit = check_var('arrFormTypeSelect_limit');
+
+				// Range
+				$this->type_min = check_var('strFormTypeMin', '', true, "0");
+				$this->type_max = check_var('strFormTypeMax', '', true, 100);
+				$this->type_default = check_var('strFormTypeDefault', '', true, 1);
+			break;
+
+			default:
+				$this->answer_id = check_var('intAnswerID');
+			break;
+		}
 	}
 
 	function save_data()
@@ -1221,286 +1288,643 @@ class mf_form
 
 		$out = "";
 
-		if(isset($_GET['btnFormCopy']) && wp_verify_nonce($_REQUEST['_wpnonce_form_copy'], 'form_copy_'.$this->id))
+		switch($this->type)
 		{
-			$inserted = true;
-
-			$result_temp = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
-
-			if($wpdb->num_rows > 0)
-			{
-				$copy_fields = ", blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formEmailConditions, formPaymentAmount (field IDs are not the same in this copied form)
-
-				$strFormName = $this->get_form_name($this->id);
-
-				$post_data = array(
-					'post_type' => 'mf_form',
-					'post_status' => 'publish',
-					'post_title' => $strFormName." (".__("copy", 'lang_form').")",
-				);
-
-				$intPostID = wp_insert_post($post_data);
-
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formName, postID".$copy_fields.", formCreated, userID) (SELECT CONCAT(formName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '%d' FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", $intPostID, get_current_user_id(), $this->id));
-				$intFormID_new = $wpdb->insert_id;
-
-				if($intFormID_new > 0)
+			case 'create':
+				if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce_form_update'], 'form_update_'.$this->id))
 				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeID DESC", $this->id));
-
-					foreach($result as $r)
+					if($this->name == '')
 					{
-						$intForm2TypeID = $r->form2TypeID;
+						$error_text = __("Please, enter all required fields", 'lang_form');
+					}
 
-						$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
-
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, ".$copy_fields.", form2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
-
-						if(!($wpdb->insert_id > 0))
+					else
+					{
+						if($this->id > 0)
 						{
-							$inserted = false;
+							$post_data = array(
+								'ID' => $this->post_id,
+								//'post_type' => 'mf_form',
+								'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
+								'post_title' => $this->name,
+								'post_name' => $this->url,
+							);
+
+							wp_update_post($post_data);
+
+							$this->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $this->deadline));
+
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_page, $this->show_answers, $this->name, $this->save_ip, $this->answer_url, $this->email, $this->from_name, $this->email_conditions, $this->email_notify, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
+
+							do_action('update_form_fields', $this);
+
+							$done_text = __("I have updated the form for you", 'lang_form');
 						}
+
+						else
+						{
+							$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form' AND post_title = '%d' LIMIT 0, 1", $this->name));
+
+							if($wpdb->num_rows > 0)
+							{
+								$error_text = __("There is already a form with that name. Try with another one.", 'lang_form');
+							}
+
+							else
+							{
+								$post_data = array(
+									'post_type' => 'mf_form',
+									'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
+									'post_title' => $this->name,
+								);
+
+								$this->post_id = wp_insert_post($post_data);
+
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formName = %s, formCreated = NOW(), userID = '%d'", $wpdb->blogid, $this->post_id, $this->name, get_current_user_id()));
+								$this->id = $wpdb->insert_id;
+
+								if($this->import != '')
+								{
+									$arr_import_rows = explode("\n", $this->import);
+
+									foreach($arr_import_rows as $import_row)
+									{
+										list($this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order) = explode(",", $import_row); //, $strFormTypeCode
+
+										$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d', userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, get_current_user_id()));
+									}
+								}
+
+								$done_text = __("I have created the form for you", 'lang_form');
+							}
+						}
+
+						/*if($wpdb->rows_affected > 0)
+						{
+							echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'</script>";
+						}*/
 					}
 				}
 
-				else
+				else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce_form_add'], 'form_add_'.$this->id))
 				{
-					$inserted = false;
+					switch($this->type_id)
+					{
+						case 2:
+						//case 'range':
+							$this->type_text = str_replace("|", "", $this->type_text)."|".str_replace("|", "", $this->type_min)."|".str_replace("|", "", $this->type_max)."|".str_replace("|", "", $this->type_default);
+						break;
+
+						case 10:
+						//case 'select':
+						case 11:
+						//case 'select_multiple':
+						case 16:
+						//case 'checkbox_multiple':
+						case 17:
+						//case 'radio_multiple':
+							if(count($this->arr_type_select_value) == 0 || $this->arr_type_select_value[0] == '')
+							{
+								$error_text = __("Please, enter all required fields", 'lang_form');
+							}
+
+							else
+							{
+								if($this->form_option_exists)
+								{
+									if($this->form2type_id > 0)
+									{
+										$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit);
+									}
+								}
+
+								else
+								{
+									$count_temp = count($this->arr_type_select_value);
+
+									$this->formTypeSelect = "";
+
+									for($i = 0; $i < $count_temp; $i++)
+									{
+										if($this->arr_type_select_value[$i] != '')
+										{
+											$this->formTypeSelect .= ($i > 0 ? "," : "").$this->arr_type_select_id[$i]."|".$this->arr_type_select_value[$i]."|".$this->arr_type_select_limit[$i];
+										}
+									}
+
+									$this->validate_select_array();
+
+									$this->type_text = str_replace(":", "", $this->type_text).":".str_replace(":", "", $this->formTypeSelect);
+								}
+							}
+						break;
+
+						case 13:
+						//case 'custom_tag':
+						case 14:
+						//case 'custom_tag_end':
+							$this->type_text = $this->type_text2;
+						break;
+					}
+
+					if($error_text == '')
+					{
+						if($this->form2type_id > 0)
+						{
+							if($this->type_id > 0 && ($this->type_id == 6 || $this->type_id == 9 || $this->type_text != '')) //'space', 'referer_url'
+							{
+								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeActionEquals = %s, formTypeActionShow = %s, userID = '%d' WHERE form2TypeID = '%d'", $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_action_equals, $this->type_action_show, get_current_user_id(), $this->form2type_id));
+
+								switch($this->type_id)
+								{
+									case 13:
+									//case 'custom_tag':
+										$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s, userID = '%d' WHERE form2TypeID2 = '%d'", $this->type_text, get_current_user_id(), $this->form2type_id));
+									break;
+								}
+
+								$this->form2type_id = $this->type_id = $this->type_text = $this->type_placeholder = $this->check_id = $this->type_tag = $this->type_class = $this->type_fetch_from = $this->type_action_equals = $this->type_action_show = "";
+							}
+
+							else
+							{
+								$error_text = __("Couldn't update the field", 'lang_form');
+							}
+						}
+
+						else
+						{
+							if($this->id > 0 && $this->type_id > 0 && ($this->type_id == 6 || $this->type_id == 9 || $this->type_text != '')) //'space', 'referer_url'
+							{
+								$this->form2type_order = $wpdb->get_var($wpdb->prepare("SELECT form2TypeOrder + 1 FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder DESC", $this->id));
+
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeActionEquals = %s, formTypeActionShow = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_action_equals, $this->type_action_show, $this->form2type_order, get_current_user_id()));
+
+								$this->form2type_id = $wpdb->insert_id;
+
+								switch($this->type_id)
+								{
+									case 13:
+									//case 'custom_tag':
+										$this->type_id = 14;
+										$this->form2type_order++;
+
+										$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET form2TypeID2 = '%d', formID = '%d', formTypeID = '%d', formTypeText = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $this->form2type_id, $this->id, $this->type_id, $this->type_text, $this->form2type_order, get_current_user_id()));
+									break;
+
+									case 10:
+									//case 'select':
+									case 11:
+									//case 'select_multiple':
+									case 16:
+									//case 'checkbox_multiple':
+									case 17:
+									//case 'radio_multiple':
+										if($this->form_option_exists)
+										{
+											$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit);
+										}
+									break;
+								}
+
+								if($wpdb->rows_affected > 0)
+								{
+									$this->form2type_id = $this->type_id = $this->type_text = $this->type_placeholder = $this->check_id = $this->type_tag = $this->type_class = $this->type_fetch_from = $this->type_action_equals = $this->type_action_show = "";
+
+									if($this->form_option_exists == false)
+									{
+										list($this->type_text, $strFormTypeSelect) = explode(":", $this->type_text);
+									}
+								}
+							}
+
+							else
+							{
+								$error_text = __("I could not insert the new field for you", 'lang_form');
+							}
+						}
+					}
+
+					if($this->type_id == 0)
+					{
+						echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'</script>";
+					}
 				}
-			}
 
-			if($inserted == false)
-			{
-				$error_text = __("Something went wrong. Contact your admin and add this URL as reference", 'lang_form');
-			}
-
-			else
-			{
-				$done_text = __("The form was succesfully copied", 'lang_form');
-			}
-		}
-
-		else if(isset($_POST['btnFormUpdate']))
-		{
-			$this->prefix = $this->get_post_info()."_";
-
-			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeID != '13' ORDER BY form2TypeOrder ASC", $this->id));
-
-			foreach($result as $r)
-			{
-				$intForm2TypeID2 = $r->form2TypeID;
-				$strFormTypeCode = $r->formTypeCode;
-				$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
-				$intFormTypeRequired = $r->formTypeRequired;
-
-				$strAnswerText = check_var($this->prefix.$intForm2TypeID2, $strCheckCode, true, '', true, 'post');
-
-				if($strAnswerText != '')
+				if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $this->id > 0)
 				{
-					$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $this->answer_id, $intForm2TypeID2));
+					if(isset($_GET['recover']))
+					{
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $this->id));
+					}
+
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 					if($wpdb->num_rows > 0)
 					{
-						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' AND answerText = %s LIMIT 0, 1", $this->answer_id, $intForm2TypeID2, $strAnswerText));
-
-						if($wpdb->num_rows == 0)
+						foreach($result as $r)
 						{
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '%d'", $strAnswerText, $this->answer_id, $intForm2TypeID2));
+							$this->email_confirm = $r->formEmailConfirm;
+							$this->email_confirm_page = $r->formEmailConfirmPage;
+							$this->show_answers = $r->formShowAnswers;
+							$this->save_ip = $r->formSaveIP;
+							$this->answer_url = $r->formAnswerURL;
+							$this->email = $r->formEmail;
+							$this->from_name = $r->formFromName;
+							$this->email_conditions = $r->formEmailConditions;
+							$this->email_notify = $r->formEmailNotify;
+							$this->email_notify_page = $r->formEmailNotifyPage;
+							$this->email_name = $r->formEmailName;
+							$this->mandatory_text = $r->formMandatoryText;
+							$this->button_text = $r->formButtonText;
+							$this->button_symbol = $r->formButtonSymbol;
+							$this->payment_provider = $r->formPaymentProvider;
+							$this->payment_hmac = $r->formPaymentHmac;
+							$this->terms_page = $r->formTermsPage;
+							$this->payment_merchant = $r->formPaymentMerchant;
+							$this->payment_password = $r->formPaymentPassword;
+							$this->payment_currency = $r->formPaymentCurrency;
+							$this->payment_cost = $r->formPaymentCost;
+							$this->payment_amount = $r->formPaymentAmount;
+							$this->payment_tax = $r->formPaymentTax;
+							$this->payment_callback = $r->formPaymentCallback;
+							$strFormCreated = $r->formCreated;
+						}
+
+						$this->name = $this->get_post_info(array('select' => "post_title"));
+						$this->url = $this->get_post_info();
+						$this->deadline = $this->meta(array('action' => 'get', 'key' => 'deadline'));
+					}
+
+					else
+					{
+						$error_text = __("I could not find the form you were looking for. If the problem persists, please contact an admin", 'lang_form');
+					}
+				}
+
+				if(!isset($_POST['btnFormAdd']) && $this->form2type_id > 0)
+				{
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $this->form2type_id));
+
+					if($wpdb->num_rows > 0)
+					{
+						foreach($result as $r)
+						{
+							$this->type_id = $r->formTypeID;
+							$this->type_text = $r->formTypeText;
+							$this->type_placeholder = $r->formTypePlaceholder;
+							$this->check_id = $r->checkID;
+							$this->type_tag = $r->formTypeTag;
+							$this->type_class = $r->formTypeClass;
+							$this->type_fetch_from = $r->formTypeFetchFrom;
+							$this->type_action_equals = $r->formTypeActionEquals;
+							$this->type_action_show = $r->formTypeActionShow;
+
+							switch($this->type_id)
+							{
+								case 2:
+								//case 'range':
+									list($this->type_text, $this->type_min, $this->type_max, $this->type_default) = explode("|", $this->type_text);
+								break;
+
+								case 10:
+								//case 'select':
+								case 11:
+								//case 'select_multiple':
+								case 16:
+								//case 'checkbox_multiple':
+								case 17:
+								//case 'radio_multiple':
+									if($this->form_option_exists)
+									{
+										$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $this->form2type_id));
+
+										$this->arr_type_select_id = $this->arr_type_select_key = $this->arr_type_select_value = $this->arr_type_select_limit = array();
+
+										foreach($result as $r)
+										{
+											$this->arr_type_select_id[] = $r->formOptionID;
+											$this->arr_type_select_key[] = $r->formOptionKey;
+											$this->arr_type_select_value[] = $r->formOptionValue;
+											$this->arr_type_select_limit[] = $r->formOptionLimit;
+										}
+									}
+
+									else
+									{
+										list($this->type_text, $strFormTypeSelect) = explode(":", $this->type_text);
+
+										$this->arr_type_select_id = $this->arr_type_select_value = $this->arr_type_select_limit = array();
+
+										foreach(explode(",", $strFormTypeSelect) as $option_temp)
+										{
+											list($option_id, $option_value, $option_limit) = explode("|", $option_temp);
+
+											$this->arr_type_select_id[] = $option_id;
+											$this->arr_type_select_value[] = $option_value;
+											$this->arr_type_select_limit[] = $option_limit;
+										}
+									}
+								break;
+							}
+
+							if(isset($_GET['btnFieldCopy']))
+							{
+								$this->form2type_id = "";
+							}
 						}
 					}
 
 					else
 					{
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s", $this->answer_id, $intForm2TypeID2, $strAnswerText));
+						do_log("No results from btnFormAdd (".$this->id.", ".$wpdb->last_query.")");
 					}
 				}
+			break;
 
-				else if($strFormTypeCode == 'radio_button')
+			default:
+				if(isset($_GET['btnFormCopy']) && wp_verify_nonce($_REQUEST['_wpnonce_form_copy'], 'form_copy_'.$this->id))
 				{
-					$strAnswerText_radio = isset($_POST["radio_".$intForm2TypeID2]) ? check_var($_POST["radio_".$intForm2TypeID2], 'int', false) : '';
+					$inserted = true;
 
-					if($strAnswerText_radio != '')
+					$result_temp = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+
+					if($wpdb->num_rows > 0)
 					{
-						$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $this->answer_id, $strAnswerText_radio));
+						$copy_fields = ", blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formEmailConditions, formPaymentAmount (field IDs are not the same in this copied form)
 
-						if($wpdb->num_rows == 0)
+						$strFormName = $this->get_form_name($this->id);
+
+						$post_data = array(
+							'post_type' => 'mf_form',
+							'post_status' => 'publish',
+							'post_title' => $strFormName." (".__("copy", 'lang_form').")",
+						);
+
+						$intPostID = wp_insert_post($post_data);
+
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formName, postID".$copy_fields.", formCreated, userID) (SELECT CONCAT(formName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '%d' FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", $intPostID, get_current_user_id(), $this->id));
+						$intFormID_new = $wpdb->insert_id;
+
+						if($intFormID_new > 0)
 						{
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = ''", $this->answer_id, $strAnswerText_radio));
+							$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeID DESC", $this->id));
+
+							foreach($result as $r)
+							{
+								$intForm2TypeID = $r->form2TypeID;
+
+								$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
+
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, ".$copy_fields.", form2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
+
+								if(!($wpdb->insert_id > 0))
+								{
+									$inserted = false;
+								}
+							}
+						}
+
+						else
+						{
+							$inserted = false;
 						}
 					}
-				}
 
-				else if($intFormTypeRequired == 0 && in_array($strFormTypeCode, array('range', 'input_field', 'textarea', 'text', 'datepicker')))
-				{
-					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intForm2TypeID2));
-				}
-			}
-
-			if(!isset($error_text) || $error_text == '')
-			{
-				mf_redirect(admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$this->id));
-			}
-		}
-
-		else if(isset($_GET['btnAnswerSpam']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_spam'], 'answer_spam_'.$this->answer_id))
-		{
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d'", $this->answer_id));
-
-			$done_text = __("I have marked the email as spam for you", 'lang_form');
-		}
-
-		else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_approve'], 'answer_approve_'.$this->answer_id))
-		{
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
-
-			$done_text = __("I have approved the answer for you", 'lang_form');
-		}
-
-		else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
-		{
-			$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
-
-			if($wpdb->num_rows > 0)
-			{
-				$this->form_name = $this->get_post_info(array('select' => "post_title"));
-				$this->prefix = $this->get_post_info()."_";
-
-				$this->answer_data = array();
-
-				$this->arr_email_content = array(
-					'fields' => array(),
-				);
-
-				$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE answerID = '%d' = '1' ORDER BY form2TypeOrder ASC", $this->answer_id));
-
-				foreach($result as $r)
-				{
-					$intForm2TypeID2 = $r->form2TypeID;
-					$strFormTypeCode = $r->formTypeCode;
-					$this->label = $r->formTypeText;
-					$strCheckCode = $r->checkCode;
-					$strAnswerText = $r->answerText;
-
-					$this->arr_email_content['fields'][$intForm2TypeID2] = array();
-
-					switch($strFormTypeCode)
+					if($inserted == false)
 					{
-						case 'checkbox':
-							$strAnswerText = "x";
-						break;
+						$error_text = __("Something went wrong. Contact your admin and add this URL as reference", 'lang_form');
+					}
 
-						case 'range':
-							$this->parse_range_label();
-						break;
+					else
+					{
+						$done_text = __("The form was succesfully copied", 'lang_form');
+					}
+				}
 
-						case 'datepicker':
-							$strAnswerText = format_date($strAnswerText);
-						break;
+				else if(isset($_POST['btnFormUpdate']))
+				{
+					$this->prefix = $this->get_post_info()."_";
 
-						case 'radio_button':
-							$strAnswerText = "x";
-						break;
+					$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeID != '13' ORDER BY form2TypeOrder ASC", $this->id));
 
-						case 'select':
-						case 'radio_multiple':
-							$strAnswerText = $this->parse_select_info($strAnswerText);
-						break;
+					foreach($result as $r)
+					{
+						$intForm2TypeID2 = $r->form2TypeID;
+						$strFormTypeCode = $r->formTypeCode;
+						$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
+						$intFormTypeRequired = $r->formTypeRequired;
 
-						case 'select_multiple':
-						case 'checkbox_multiple':
-							$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
-						break;
+						$strAnswerText = check_var($this->prefix.$intForm2TypeID2, $strCheckCode, true, '', true, 'post');
 
-						default:
-							switch($strCheckCode)
+						if($strAnswerText != '')
+						{
+							$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $this->answer_id, $intForm2TypeID2));
+
+							if($wpdb->num_rows > 0)
 							{
-								case 'zip':
-									if(get_bloginfo('language') == "sv-SE")
+								$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' AND answerText = %s LIMIT 0, 1", $this->answer_id, $intForm2TypeID2, $strAnswerText));
+
+								if($wpdb->num_rows == 0)
+								{
+									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '%d'", $strAnswerText, $this->answer_id, $intForm2TypeID2));
+								}
+							}
+
+							else
+							{
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s", $this->answer_id, $intForm2TypeID2, $strAnswerText));
+							}
+						}
+
+						else if($strFormTypeCode == 'radio_button')
+						{
+							$strAnswerText_radio = isset($_POST["radio_".$intForm2TypeID2]) ? check_var($_POST["radio_".$intForm2TypeID2], 'int', false) : '';
+
+							if($strAnswerText_radio != '')
+							{
+								$result_temp = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $this->answer_id, $strAnswerText_radio));
+
+								if($wpdb->num_rows == 0)
+								{
+									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = ''", $this->answer_id, $strAnswerText_radio));
+								}
+							}
+						}
+
+						else if($intFormTypeRequired == 0 && in_array($strFormTypeCode, array('range', 'input_field', 'textarea', 'text', 'datepicker')))
+						{
+							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intForm2TypeID2));
+						}
+					}
+
+					if(!isset($error_text) || $error_text == '')
+					{
+						mf_redirect(admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$this->id));
+					}
+				}
+
+				else if(isset($_GET['btnAnswerSpam']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_spam'], 'answer_spam_'.$this->answer_id))
+				{
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d'", $this->answer_id));
+
+					$done_text = __("I have marked the email as spam for you", 'lang_form');
+				}
+
+				else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_approve'], 'answer_approve_'.$this->answer_id))
+				{
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
+
+					$done_text = __("I have approved the answer for you", 'lang_form');
+				}
+
+				else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
+				{
+					$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
+
+					if($wpdb->num_rows > 0)
+					{
+						$this->form_name = $this->get_post_info(array('select' => "post_title"));
+						$this->prefix = $this->get_post_info()."_";
+
+						$this->answer_data = array();
+
+						$this->arr_email_content = array(
+							'fields' => array(),
+						);
+
+						$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE answerID = '%d' = '1' ORDER BY form2TypeOrder ASC", $this->answer_id));
+
+						foreach($result as $r)
+						{
+							$intForm2TypeID2 = $r->form2TypeID;
+							$strFormTypeCode = $r->formTypeCode;
+							$this->label = $r->formTypeText;
+							$strCheckCode = $r->checkCode;
+							$strAnswerText = $r->answerText;
+
+							$this->arr_email_content['fields'][$intForm2TypeID2] = array();
+
+							switch($strFormTypeCode)
+							{
+								case 'checkbox':
+									$strAnswerText = "x";
+								break;
+
+								case 'range':
+									$this->parse_range_label();
+								break;
+
+								case 'datepicker':
+									$strAnswerText = format_date($strAnswerText);
+								break;
+
+								case 'radio_button':
+									$strAnswerText = "x";
+								break;
+
+								case 'select':
+								case 'radio_multiple':
+									$strAnswerText = $this->parse_select_info($strAnswerText);
+								break;
+
+								case 'select_multiple':
+								case 'checkbox_multiple':
+									$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
+								break;
+
+								default:
+									switch($strCheckCode)
 									{
-										include_once("class_zipcode.php");
-										$obj_zipcode = new mf_zipcode();
+										case 'zip':
+											if(get_bloginfo('language') == "sv-SE")
+											{
+												include_once("class_zipcode.php");
+												$obj_zipcode = new mf_zipcode();
 
-										$city_name = $obj_zipcode->get_city($strAnswerText);
+												$city_name = $obj_zipcode->get_city($strAnswerText);
 
-										if($city_name != '')
-										{
-											$strAnswerText .= ", ".$city_name;
-										}
+												if($city_name != '')
+												{
+													$strAnswerText .= ", ".$city_name;
+												}
+											}
+										break;
 									}
 								break;
 							}
-						break;
-					}
 
-					if($this->label != '')
-					{
-						$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $this->label;
-					}
-
-					if($strAnswerText != '')
-					{
-						$this->arr_email_content['fields'][$intForm2TypeID2]['value'] = $strAnswerText;
-					}
-
-					if($strFormTypeCode == 'input_field')
-					{
-						switch($strCheckCode)
-						{
-							case 'address':
-							case 'city':
-							case 'country':
-							case 'email':
-							case 'name':
-							case 'telno':
-							case 'zip':
-								$this->answer_data[$strCheckCode] = $strAnswerText;
-							break;
-						}
-					}
-				}
-
-				foreach($resultAnswerEmail as $r)
-				{
-					$strAnswerEmail = $r->answerEmail;
-					$strAnswerType = $r->answerType;
-
-					switch($strAnswerType)
-					{
-						/*case 'link_yes':	break;
-						case 'link_no':		break;*/
-
-						case 'replace_link':
-							$this->send_to = $strAnswerEmail;
-						break;
-
-						/*case 'notify':	break;
-						case 'confirm':		break;*/
-
-						case 'product':
-							$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
-
-							if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
+							if($this->label != '')
 							{
-								$this->arr_email_content = $email_content_temp['arr_mail_content'];
+								$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $this->label;
 							}
-						break;
+
+							if($strAnswerText != '')
+							{
+								$this->arr_email_content['fields'][$intForm2TypeID2]['value'] = $strAnswerText;
+							}
+
+							if($strFormTypeCode == 'input_field')
+							{
+								switch($strCheckCode)
+								{
+									case 'address':
+									case 'city':
+									case 'country':
+									case 'email':
+									case 'name':
+									case 'telno':
+									case 'zip':
+										$this->answer_data[$strCheckCode] = $strAnswerText;
+									break;
+								}
+							}
+						}
+
+						foreach($resultAnswerEmail as $r)
+						{
+							$strAnswerEmail = $r->answerEmail;
+							$strAnswerType = $r->answerType;
+
+							switch($strAnswerType)
+							{
+								/*case 'link_yes':	break;
+								case 'link_no':		break;*/
+
+								case 'replace_link':
+									$this->send_to = $strAnswerEmail;
+								break;
+
+								/*case 'notify':	break;
+								case 'confirm':		break;*/
+
+								case 'product':
+									$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
+
+									if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
+									{
+										$this->arr_email_content = $email_content_temp['arr_mail_content'];
+									}
+								break;
+							}
+						}
+
+						$this->process_transactional_emails();
 					}
+
+					$done_text = __("I have resent the messages for you", 'lang_form');
 				}
 
-				$this->process_transactional_emails();
-			}
+				else if(isset($_GET['btnFormExport']))
+				{
+					new mf_form_export();
+				}
 
-			$done_text = __("I have resent the messages for you", 'lang_form');
-		}
-
-		else if(isset($_GET['btnFormExport']))
-		{
-			new mf_form_export();
-		}
-
-		else if(isset($_GET['btnFormAnswerExport']))
-		{
-			new mf_form_answer_export();
+				else if(isset($_GET['btnFormAnswerExport']))
+				{
+					new mf_form_answer_export();
+				}
+			break;
 		}
 
 		return $out;
@@ -3492,7 +3916,7 @@ class mf_form_payment
 				$this->payment_tax_rate = $r->formPaymentTax != '' ? $r->formPaymentTax : 25;
 				$this->payment_callback = $r->formPaymentCallback;
 
-				$obj_form = new mf_form($this->form_id);
+				$obj_form = new mf_form(array('id' => $this->form_id));
 
 				$this->prefix = $obj_form->get_post_info()."_";
 
@@ -3819,7 +4243,7 @@ class mf_form_export extends mf_export
 	{
 		global $wpdb;
 
-		$obj_form = new mf_form($this->type);
+		$obj_form = new mf_form(array('id' => $this->type));
 		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type)); //, formTypeCode // AND formTypeResult = '1'
@@ -3856,7 +4280,7 @@ class mf_form_answer_export extends mf_export
 	{
 		global $wpdb;
 
-		$obj_form = new mf_form($this->type);
+		$obj_form = new mf_form(array('id' => $this->type));
 		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->type));
@@ -4887,6 +5311,12 @@ class mf_form_output
 					$is_first_checkbox = true;
 				}
 
+				if($this->row->formTypeActionShow > 0)
+				{
+					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
+					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-show='".$this->query_prefix.$this->row->formTypeActionShow."'";
+				}
+
 				$field_data['text'] = $this->row->formTypeText;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['value'] = 1;
@@ -5270,7 +5700,7 @@ class widget_form extends WP_Widget
 					.$after_title;
 				}
 
-				$obj_form = new mf_form($instance['form_id']);
+				$obj_form = new mf_form(array('id' => $instance['form_id']));
 
 				echo $obj_form->process_form()
 			.$after_widget;
