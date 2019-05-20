@@ -244,9 +244,9 @@ jQuery(function($)
 
 			$.ajax(
 			{
-				type: "post",
-				dataType: "json",
 				url: script_form.ajax_url,
+				type: 'post',
+				dataType: 'json',
 				data: form_data,
 				success: function(data)
 				{

@@ -266,9 +266,7 @@ if($obj_form->check_allow_edit())
 					{
 						$intForm2TypeID = $intFormTypeID = $strFormTypeText = $strFormTypePlaceholder = $intCheckID = $strFormTypeTag = $strFormTypeClass = $strFormTypeFetchFrom = $strFormTypeActionEquals = $intFormTypeActionShow = "";
 
-						if($obj_form->form_option_exists){}
-
-						else
+						if($obj_form->form_option_exists == false)
 						{
 							list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
 						}
@@ -443,7 +441,7 @@ if($obj_form->check_allow_edit())
 					<div id='post-body-content'>
 						<div class='postbox".($intForm2TypeID > 0 ? " active" : "")."'>
 							<h3 class='hndle'><span>".__("Content", 'lang_form')."</span></h3>
-							<form method='post' action='".admin_url("admin.php?page=mf_form%2Fcreate%2Findex.php&intFormID=".$obj_form->id)."' class='mf_form mf_settings inside'>
+							<form method='post' action='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."' class='mf_form mf_settings inside'>
 								<div class='flex_flow'>
 									<div>"
 										.show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(array('form_type_id' => $intFormTypeID)), 'name' => 'intFormTypeID', 'value' => $intFormTypeID, 'class' => "fontawesome"))

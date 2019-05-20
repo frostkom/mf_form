@@ -5257,7 +5257,6 @@ class widget_form extends WP_Widget
 	function widget($args, $instance)
 	{
 		extract($args);
-
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		if($instance['form_id'] > 0)
@@ -5281,7 +5280,6 @@ class widget_form extends WP_Widget
 	function update($new_instance, $old_instance)
 	{
 		$instance = $old_instance;
-
 		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
 
 		$instance['form_heading'] = sanitize_text_field($new_instance['form_heading']);

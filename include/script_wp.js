@@ -243,8 +243,8 @@ jQuery(function($)
 				{
 					url: script_forms_wp.plugins_url + '/mf_form/include/api/?type=sortOrder',
 					type: 'post',
-					data: 'strOrder=' + post_data,
 					dataType: 'json',
+					data: 'strOrder=' + post_data,
 					success: function(data)
 					{
 						if(data.success){}
