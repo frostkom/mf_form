@@ -34,7 +34,7 @@ jQuery(function($)
 				{
 					show_obj_parent.removeClass('hide');
 				}
-				
+
 				else
 				{
 					show_obj_parent.addClass('hide');
