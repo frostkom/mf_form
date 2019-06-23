@@ -1941,28 +1941,36 @@ class mf_form
 	{
 		global $wpdb;
 
-		$not_poll_content_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(form2TypeID) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID != '5' AND formTypeID != '8' LIMIT 0, 1", $this->id));
+		$not_poll_content_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(form2TypeID) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID NOT IN('5', '8', '10', '11', '16', '17') LIMIT 0, 1", $this->id));
 
 		return ($not_poll_content_amount == 0);
 	}
 
-	function check_if_duplicate()
+	function is_duplicate()
 	{
 		global $wpdb;
 
-		$dup_ip = false;
-
 		if($this->is_poll())
 		{
-			$rowsIP = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerIP = %s LIMIT 0, 1", $this->id, $_SERVER['REMOTE_ADDR']));
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerIP = %s LIMIT 0, 1", $this->id, $_SERVER['REMOTE_ADDR']));
 
-			if($rowsIP > 0)
+			if($wpdb->num_rows > 0)
 			{
-				$dup_ip = true;
+				return true;
+			}
+
+			else if(get_current_user_id() > 0)
+			{
+				$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer_meta USING (answerID) WHERE formID = '%d' AND metaKey = %s AND metaValue = %s LIMIT 0, 1", $this->id, 'user_id', get_current_user_id()));
+
+				if($wpdb->num_rows > 0)
+				{
+					return true;
+				}
 			}
 		}
 
-		return $dup_ip;
+		return false;
 	}
 
 	function is_correct_form($data)
@@ -3142,7 +3150,7 @@ class mf_form
 
 		$dblQueryPaymentAmount_value = 0;
 
-		if($this->dup_ip == true)
+		if($this->is_duplicate())
 		{
 			$this->is_sent = true;
 		}
@@ -3462,36 +3470,111 @@ class mf_form
 
 		$out = "";
 
-		$this->id = $data['form_id'];
-		list($result, $rows) = $this->get_form_type_info(array('query_type_code' => array('text', 'radio_button'))); //'query_type_id' => array(5, 8)
+		list($result, $rows) = $this->get_form_type_info(array('query_type_code' => array('text', 'radio_button', 'radio_multiple'))); //, 'select'
 
 		foreach($result as $r)
 		{
-			$intForm2TypeID2 = $r->form2TypeID;
-			$intFormTypeID2 = $r->formTypeID;
-			$strFormTypeText2 = $r->formTypeText;
+			$intForm2TypeID = $r->form2TypeID;
+			$intFormTypeID = $r->formTypeID;
+			$strFormTypeCode = $r->formTypeCode;
+			$strFormTypeText = $r->formTypeText;
 
-			$out .= "<div".($intFormTypeID2 == 8 ? " class='form_radio'" : "").">";
+			$intAnswerCount = 0;
 
-				if($intFormTypeID2 == 8)
-				{
-					$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID = '8' AND form2TypeID = '".$intForm2TypeID2."'", $this->id));
+			switch($strFormTypeCode)
+			{
+				//case 'checkbox':
+				case 'radio_button':
+					$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
 
 					$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
 
-					$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
-				}
+					$out .= "<div class='form_radio'>";
 
-				$out .= "<p>"
-					.$strFormTypeText2;
+						if($intAnswerPercent > 0)
+						{
+							$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
+						}
 
-					if($intFormTypeID2 == 8)
+						$out .= "<p>"
+							.$strFormTypeText
+							."<span>".$intAnswerPercent."%</span>
+						</p>
+					</div>";
+				break;
+
+				//case 'select':
+				case 'radio_multiple':
+					list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
+
+					$out .= "<p>".$strFormTypeText."</p>";
+
+					if($this->form_option_exists)
 					{
-						$out .= "<span>".$intAnswerPercent."%</span>";
+						$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
+
+						foreach($result as $r)
+						{
+							$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $r->formOptionID));
+
+							$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
+
+							$out .= "<div class='form_radio'>";
+
+								if($intAnswerPercent > 0)
+								{
+									$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
+								}
+
+								$out .= "<p>"
+									.$r->formOptionValue
+									."<span>".$intAnswerPercent."%</span>
+								</p>
+							</div>";
+						}
 					}
 
-				$out .= "</p>
-			</div>";
+					else
+					{
+						$arr_options = explode(",", $strFormTypeSelect);
+
+						foreach($arr_options as $str_option)
+						{
+							$arr_option = explode("|", $str_option);
+
+							if($arr_option[0] > 0 && $arr_option[1] != '')
+							{
+								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $arr_option[0]));
+
+								$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
+
+								$out .= "<div class='form_radio'>";
+
+									if($intAnswerPercent > 0)
+									{
+										$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
+									}
+
+									$out .= "<p>"
+										.$arr_option[1]
+										."<span>".$intAnswerPercent."%</span>
+									</p>
+								</div>";
+							}
+						}
+					}
+				break;
+
+				default:
+					$out .= "<div>
+						<p>"
+							.$strFormTypeText
+						."</p>
+					</div>";
+				break;
+			}
+
+			$out .= "</div>";
 		}
 
 		return $out;
@@ -3530,11 +3613,11 @@ class mf_form
 
 			$dteFormDeadline = $this->meta(array('action' => 'get', 'key' => 'deadline'));
 
-			if($this->edit_mode == false && ($this->is_sent == true || $this->dup_ip == true))
+			if($this->edit_mode == false && ($this->is_sent == true || $this->is_duplicate()))
 			{
 				$out .= "<div class='mf_form mf_form_results'>";
 
-					$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID = '8'", $this->id));
+					$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID IN('5', '8', '17')", $this->id));
 
 					if($intFormShowAnswers == 1 && $data['total_answers'] > 0)
 					{
@@ -3688,7 +3771,6 @@ class mf_form
 		else
 		{
 			$this->prefix = $this->get_post_info()."_";
-			$this->dup_ip = $this->check_if_duplicate();
 
 			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data))
 			{
@@ -3711,11 +3793,11 @@ class mf_form
 
 		if(!isset($_GET['answerSpam']) || $_GET['answerSpam'] == 0)
 		{
-			/*$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND (formTypeID = '1' OR formTypeID = '8' OR formTypeID = '10')", $this->id));
+			/*$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND IN('1', '8', '10')", $this->id));
 
 			if($query_answers > 1)
 			{*/
-				list($resultPie, $rowsPie) = $this->get_form_type_info(array('query_type_code' => array('checkbox', 'radio_button', 'select')));
+				list($resultPie, $rowsPie) = $this->get_form_type_info(array('query_type_code' => array('checkbox', 'radio_button', 'select', 'radio_multiple')));
 
 				if($rowsPie > 0)
 				{
@@ -3768,11 +3850,6 @@ class mf_form
 						switch($strFormTypeCode)
 						{
 							case 'checkbox':
-								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
-
-								$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
-							break;
-
 							case 'radio_button':
 								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
 
@@ -3780,6 +3857,7 @@ class mf_form
 							break;
 
 							case 'select':
+							case 'radio_multiple':
 								if($this->form_option_exists)
 								{
 									$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));

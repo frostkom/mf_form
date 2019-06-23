@@ -86,6 +86,37 @@
 			margin-bottom: .4em;
 		}
 
+	.mf_form_results .form_radio
+	{
+		padding: .3em 0;
+		position: relative;
+	}
+
+		.mf_form_results .form_radio > div
+		{
+			background: rgba(200, 200, 200, .4);
+			position: absolute;
+			top: 0;
+			bottom: 0;
+		}
+
+		.mf_form_results .form_radio p
+		{
+			margin: 0;
+			position: relative;
+		}
+
+			.mf_form_results .form_radio div + p
+			{
+				padding-left: .3em;
+			}
+
+		.mf_form_results .form_radio p span
+		{
+			position: absolute;
+			right: .3em;
+		}
+
 	#overlay_form
 	{
 		background: #000;
