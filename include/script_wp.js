@@ -83,14 +83,14 @@ jQuery(function($)
 
 	function show_query_settings(this_val)
 	{
-		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_actions").addClass('hide');
+		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_custom_text_tag, .show_custom_tag, .show_custom_class").addClass('hide'); /*, .show_actions*/
 
 		if(this_val > 0)
 		{
 			switch(this_val)
 			{
 				case '1': /* checkbox */
-					$(".show_checkbox, .show_actions").removeClass('hide');
+					$(".show_checkbox").removeClass('hide'); /*, .show_actions*/
 				break;
 
 				case '2': /* range */
@@ -114,7 +114,7 @@ jQuery(function($)
 				break;
 
 				case '10': /* select */
-					$(".show_select, .show_fetch_from, .show_actions").removeClass('hide');
+					$(".show_select, .show_fetch_from").removeClass('hide'); /*, .show_actions*/
 				break;
 
 				case '11': /* select_multiple */

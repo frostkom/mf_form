@@ -1941,9 +1941,13 @@ class mf_form
 	{
 		global $wpdb;
 
-		$not_poll_content_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(form2TypeID) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID NOT IN('5', '8', '10', '11', '16', '17') LIMIT 0, 1", $this->id));
+		/*$not_poll_content_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(form2TypeID) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID NOT IN('5', '8', '10', '11', '16', '17') LIMIT 0, 1", $this->id));
 
-		return ($not_poll_content_amount == 0);
+		return ($not_poll_content_amount == 0);*/
+
+		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('1', '8', '10', '11', '16', '17') LIMIT 0, 1", $this->id));
+
+		return ($wpdb->num_rows > 0);
 	}
 
 	function is_duplicate()
@@ -3507,7 +3511,7 @@ class mf_form
 				case 'radio_multiple':
 					list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
 
-					$out .= "<p>".$strFormTypeText."</p>";
+					$out .= "<h4>".$strFormTypeText."</h4>";
 
 					if($this->form_option_exists)
 					{
@@ -3621,7 +3625,16 @@ class mf_form
 
 					if($intFormShowAnswers == 1 && $data['total_answers'] > 0)
 					{
-						$out .= $this->get_poll_results($data);
+						// jQuery needs to be called earlier for this to work
+						/*if($_SERVER['REMOTE_ADDR'] == "176.64.169.244")
+						{
+							$out .= $this->get_pie_chart(array('heading_size' => 4));
+						}
+
+						else
+						{*/
+							$out .= $this->get_poll_results($data);
+						//}
 					}
 
 					else if($intFormAnswerURL > 0)
@@ -3785,168 +3798,165 @@ class mf_form
 		return $out;
 	}
 
-	function get_pie_chart()
+	function get_pie_chart($data = array())
 	{
 		global $wpdb;
+
+		if(!isset($data['heading_size'])){		$data['heading_size'] = 3;}
 
 		$out = "";
 
 		if(!isset($_GET['answerSpam']) || $_GET['answerSpam'] == 0)
 		{
-			/*$query_answers = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND IN('1', '8', '10')", $this->id));
+			list($resultPie, $rowsPie) = $this->get_form_type_info(array('query_type_code' => array('checkbox', 'radio_button', 'select', 'radio_multiple')));
 
-			if($query_answers > 1)
-			{*/
-				list($resultPie, $rowsPie) = $this->get_form_type_info(array('query_type_code' => array('checkbox', 'radio_button', 'select', 'radio_multiple')));
+			if($rowsPie > 0)
+			{
+				mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js", '0.7'); //Should be placed in admin_init
+				mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js", '1.1');
 
-				if($rowsPie > 0)
+				$js_out = $order_temp = "";
+				$arr_data_pie = array();
+
+				$i = 0;
+
+				foreach($resultPie as $r)
 				{
-					mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js", '0.7'); //Should be placed in admin_init
-					mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js", '1.1');
+					$intForm2TypeID = $r->form2TypeID;
+					$intFormTypeID = $r->formTypeID;
+					$strFormTypeCode = $r->formTypeCode;
+					$strFormTypeText = $r->formTypeText;
+					$strForm2TypeOrder = $r->form2TypeOrder;
 
-					$js_out = $order_temp = "";
-					$arr_data_pie = array();
-
-					$i = 0;
-
-					foreach($resultPie as $r)
+					switch($strFormTypeCode)
 					{
-						$intForm2TypeID = $r->form2TypeID;
-						$intFormTypeID = $r->formTypeID;
-						$strFormTypeCode = $r->formTypeCode;
-						$strFormTypeText = $r->formTypeText;
-						$strForm2TypeOrder = $r->form2TypeOrder;
-
-						switch($strFormTypeCode)
-						{
-							case 'checkbox':
-								if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
-								{
-									$i++;
-								}
-							break;
-
-							case 'radio_button':
-								if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
-								{
-									$i++;
-								}
-							break;
-
-							case 'select':
+						case 'checkbox':
+							if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
+							{
 								$i++;
-							break;
-						}
+							}
+						break;
 
-						if(!isset($arr_data_pie[$i]))
-						{
-							$arr_data_pie[$i] = array(
-								'data' => '',
-							);
-						}
+						case 'radio_button':
+							if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
+							{
+								$i++;
+							}
+						break;
 
-						$order_temp = $strForm2TypeOrder;
+						case 'select':
+							$i++;
+						break;
+					}
 
-						switch($strFormTypeCode)
-						{
-							case 'checkbox':
-							case 'radio_button':
-								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
+					if(!isset($arr_data_pie[$i]))
+					{
+						$arr_data_pie[$i] = array(
+							'data' => '',
+						);
+					}
 
-								$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
-							break;
+					$order_temp = $strForm2TypeOrder;
 
-							case 'select':
-							case 'radio_multiple':
-								if($this->form_option_exists)
+					switch($strFormTypeCode)
+					{
+						case 'checkbox':
+						case 'radio_button':
+							$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
+
+							$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
+						break;
+
+						case 'select':
+						case 'radio_multiple':
+							if($this->form_option_exists)
+							{
+								$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
+
+								foreach($result as $r)
 								{
-									$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
+									$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $r->formOptionID));
 
-									foreach($result as $r)
+									if($intAnswerCount > 0)
 									{
-										$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $r->formOptionID));
+										$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $r->formOptionValue, 'limit' => 20))."', data: ".$intAnswerCount."}";
+									}
+								}
+							}
+
+							else
+							{
+								list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
+								$arr_options = explode(",", $strFormTypeSelect);
+
+								foreach($arr_options as $str_option)
+								{
+									$arr_option = explode("|", $str_option);
+
+									if($arr_option[0] > 0 && $arr_option[1] != '')
+									{
+										$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $arr_option[0]));
 
 										if($intAnswerCount > 0)
 										{
-											$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $r->formOptionValue, 'limit' => 20))."', data: ".$intAnswerCount."}";
+											$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_option[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
 										}
 									}
 								}
-
-								else
-								{
-									list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
-									$arr_options = explode(",", $strFormTypeSelect);
-
-									foreach($arr_options as $str_option)
-									{
-										$arr_option = explode("|", $str_option);
-
-										if($arr_option[0] > 0 && $arr_option[1] != '')
-										{
-											$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $arr_option[0]));
-
-											if($intAnswerCount > 0)
-											{
-												$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_option[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
-											}
-										}
-									}
-								}
-							break;
-						}
-
-						$arr_data_pie[$i]['label'] = $strFormTypeText;
+							}
+						break;
 					}
 
-					$out .= "<div class='flot_wrapper'>";
+					$arr_data_pie[$i]['label'] = $strFormTypeText;
+				}
 
-						foreach($arr_data_pie as $key => $arr_value)
+				$out .= "<div class='flot_wrapper'>";
+
+					foreach($arr_data_pie as $key => $arr_value)
+					{
+						$out .= "<div>"
+							."<h".$data['heading_size'].">".$arr_value['label']."</h".$data['heading_size'].">"
+							."<div id='flot_pie_".$key."' class='flot_pie'></div>
+						</div>";
+
+						$js_out .= "$.plot($('#flot_pie_".$key."'), [".$arr_value['data']."],
 						{
-							$out .= "<div>"
-								."<h3>".$arr_value['label']."</h3>"
-								."<div id='flot_pie_".$key."' class='flot_pie'></div>
-							</div>";
-
-							$js_out .= "$.plot($('#flot_pie_".$key."'), [".$arr_value['data']."],
+							series:
 							{
-								series:
+								pie:
 								{
-									pie:
+									innerRadius: 0.3,
+									show: true,
+									radius: 1,
+									label:
 									{
-										innerRadius: 0.3,
 										show: true,
-										radius: 1,
-										label:
+										radius: 3/5,
+										formatter: function(label, series)
 										{
-											show: true,
-											radius: 3/5,
-											formatter: function(label, series)
-											{
-												return series.data[0][1];
-											},
-											background:
-											{
-												opacity: 0.5
-											}
+											return series.data[0][1];
+										},
+										background:
+										{
+											opacity: 0.5
 										}
 									}
-								},
-								legend: {
-									show: true
 								}
-							});";
-						}
+							},
+							legend: {
+								show: true
+							}
+						});";
+					}
 
-					$out .= "</div>
-					<script>
-						jQuery(function($)
-						{"
-							.$js_out
-						."});
-					</script>";
-				}
-			//}
+				$out .= "</div>
+				<script>
+					jQuery(function($)
+					{"
+						.$js_out
+					."});
+				</script>";
+			}
 		}
 
 		return $out;
@@ -5474,6 +5484,12 @@ class mf_form_output
 			break;
 
 			case 'radio_multiple':
+				if($this->row->formTypeActionShow > 0)
+				{
+					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
+					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-show='".$this->query_prefix.$this->row->formTypeActionShow."'";
+				}
+
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
 				$field_data['text'] = $this->label;
 				$field_data['value'] = $this->answer_text;

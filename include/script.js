@@ -53,6 +53,19 @@ jQuery(function($)
 					show_obj_parent.addClass('hide');
 				}
 			}
+
+			else if(dom_obj.is("input[type='radio']"))
+			{
+				if(dom_obj.val() == equals && dom_obj.is(":checked"))
+				{
+					show_obj_parent.removeClass('hide');
+				}
+
+				else
+				{
+					show_obj_parent.addClass('hide');
+				}
+			}
 		}
 	}
 
@@ -307,7 +320,7 @@ jQuery(function($)
 		check_zip_code($(this));
 	});
 
-	$(document).on('change', ".form_action select, .form_action input", function()
+	$(document).on('change, click', ".form_action select, .form_action input", function()
 	{
 		do_form_type_action($(this));
 	});

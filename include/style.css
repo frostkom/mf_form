@@ -88,6 +88,7 @@
 
 	.mf_form_results .form_radio
 	{
+		margin-bottom: .1em;
 		padding: .3em 0;
 		position: relative;
 	}

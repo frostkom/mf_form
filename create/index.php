@@ -148,25 +148,22 @@ if($obj_form->check_allow_edit())
 
 												if($obj_form->form_option_exists)
 												{
-													if($obj_form->form2type_id > 0)
+													switch($obj_form->type_id)
 													{
-														switch($obj_form->type_id)
-														{
-															case 1:
-															//case 'checkbox':
-																$arr_data_equals[0] = __("No", 'lang_form');
-																$arr_data_equals[1] = __("Yes", 'lang_form');
-															break;
+														case 1:
+														//case 'checkbox':
+															$arr_data_equals[0] = __("No", 'lang_form');
+															$arr_data_equals[1] = __("Yes", 'lang_form');
+														break;
 
-															default:
-																$count_temp = count($obj_form->arr_type_select_value);
+														default:
+															$count_temp = count($obj_form->arr_type_select_value);
 
-																for($i = 0; $i < $count_temp; $i++)
-																{
-																	$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
-																}
-															break;
-														}
+															for($i = 0; $i < $count_temp; $i++)
+															{
+																$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
+															}
+														break;
 													}
 												}
 
@@ -192,6 +189,11 @@ if($obj_form->check_allow_edit())
 															.show_select(array('data' => $arr_data_equals, 'name' => 'strFormTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'value' => $obj_form->type_action_equals))
 															.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeActionShow', 'text' => __("...show this...", 'lang_form'), 'value' => $obj_form->type_action_show))
 														."</div>";
+													}
+
+													else
+													{
+														echo "Nope: ".$wpdb->last_query;
 													}
 												}
 											}
@@ -289,19 +291,21 @@ if($obj_form->check_allow_edit())
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
 								<div class='inside'>"
-									.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $obj_form->answer_url, 'text' => __("Confirmation Page", 'lang_form'), 'suffix' => get_option_page_suffix(array('value' => $obj_form->answer_url)))); //get_option_page_suffix(array('value' => $option))." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-plus-circle fa-lg'></i></a>"
-
-									if($obj_form->is_poll())
-									{
-										echo show_checkbox(array('name' => 'intFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => 1, 'compare' => $obj_form->show_answers));
-									}
-
-									echo "<div class='flex_flow'>"
+									.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $obj_form->answer_url, 'text' => __("Confirmation Page", 'lang_form'), 'suffix' => get_option_page_suffix(array('value' => $obj_form->answer_url)))) //get_option_page_suffix(array('value' => $option))." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-plus-circle fa-lg'></i></a>"
+									."<div class='flex_flow'>"
 										.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $obj_form->button_symbol, 'text' => __("Button Symbol", 'lang_form')))
 										.show_textfield(array('name' => 'strFormButtonText', 'text' => __("Text", 'lang_form'), 'value' => $obj_form->button_text, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
 									."</div>"
 									.show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $obj_form->deadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"))
-									.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $obj_form->save_ip, 'text' => __("Save IP", 'lang_form')))
+									."<div class='flex_flow'>";
+
+										if($obj_form->is_poll())
+										{
+											echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'intFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => $obj_form->show_answers));
+										}
+
+										echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $obj_form->save_ip, 'text' => __("Save IP", 'lang_form')))
+									."</div>"
 								."</div>
 							</div>
 							<div class='postbox'>
