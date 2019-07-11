@@ -3509,7 +3509,7 @@ class mf_form
 
 				//case 'select':
 				case 'radio_multiple':
-					list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
+					@list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
 
 					$out .= "<h4>".$strFormTypeText."</h4>";
 
