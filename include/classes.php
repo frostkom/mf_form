@@ -5789,6 +5789,8 @@ class widget_form extends WP_Widget
 
 				if($instance['form_heading'] != '')
 				{
+					$instance['form_heading'] = apply_filters('widget_title', $instance['form_heading'], $instance, $this->id_base);
+
 					echo $before_title
 						.$instance['form_heading']
 					.$after_title;
