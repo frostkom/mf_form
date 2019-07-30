@@ -1228,7 +1228,7 @@ class mf_form
 
 				$this->email_confirm = isset($_POST['intFormEmailConfirm']) ? 1 : 0;
 				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
-				$this->show_answers = isset($_POST['intFormShowAnswers']) ? 1 : 0;
+				$this->show_answers = isset($_POST['intFormShowAnswers']) && $_POST['intFormShowAnswers'] == 'yes' ? 1 : 0;
 				$this->save_ip = check_var('strFormSaveIP');
 				$this->answer_url = check_var('strFormAnswerURL');
 				$this->email = check_var('strFormEmail', 'email');
@@ -1946,8 +1946,12 @@ class mf_form
 		return ($not_poll_content_amount == 0);*/
 
 		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('1', '8', '10', '11', '16', '17') LIMIT 0, 1", $this->id));
+		$rows_poll_fields = $wpdb->num_rows;
 
-		return ($wpdb->num_rows > 0);
+		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('2', '3', '4', '7', '9', '12', '15') LIMIT 0, 1", $this->id));
+		$rows_input_fields = $wpdb->num_rows;
+
+		return ($rows_poll_fields > 0 && $rows_input_fields == 0);
 	}
 
 	function is_duplicate()
@@ -3626,7 +3630,7 @@ class mf_form
 					if($intFormShowAnswers == 1 && $data['total_answers'] > 0)
 					{
 						// jQuery needs to be called earlier for this to work
-						/*if($_SERVER['REMOTE_ADDR'] == "176.64.169.244")
+						/*if($_SERVER['REMOTE_ADDR'] == "")
 						{
 							$out .= $this->get_pie_chart(array('heading_size' => 4));
 						}
