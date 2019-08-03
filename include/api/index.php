@@ -33,7 +33,19 @@ if(get_current_user_id() > 0)
 		{
 			$obj_form->id = $type_id;
 
-			if($obj_form->get_answer_amount(array('form_id' => $obj_form->id)) == 0)
+			$obj_form->get_post_id();
+
+			if(!($obj_form->post_id > 0))
+			{
+				$json_output['error'] = __("The form can not be deleted because I could not find the post ID", 'lang_form');
+			}
+
+			else if($obj_form->get_answer_amount(array('form_id' => $obj_form->id)) > 0)
+			{
+				$json_output['error'] = __("The form can not be deleted because there are answers", 'lang_form');
+			}
+
+			else
 			{
 				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW(), formDeletedID = '".get_current_user_id()."' WHERE formID = '%d' AND formDeleted = '0'", $type_id));
 
@@ -58,11 +70,6 @@ if(get_current_user_id() > 0)
 				{
 					$json_output['error'] = __("It looks like the form already has been deleted", 'lang_form');
 				}
-			}
-
-			else
-			{
-				$json_output['error'] = __("You don't have permission to delete this form", 'lang_form');
 			}
 		}
 
