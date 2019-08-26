@@ -763,7 +763,7 @@ class mf_form
 
 	function phpmailer_init($phpmailer)
 	{
-		if(is_user_logged_in() && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
+		if(is_user_logged_in() && defined('IS_ADMIN') && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
 		{
 			$user_data = get_userdata(get_current_user_id());
 
