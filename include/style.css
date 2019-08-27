@@ -118,7 +118,7 @@
 			right: .3em;
 		}
 
-	#overlay_form
+	/*#overlay_form
 	{
 		background: #000;
 		background: rgba(0, 0, 0, .5);
@@ -144,12 +144,22 @@
 			transform: translate(-50%, -50%);
 			width: 400px;
 			max-width: 90%;
+		}*/
+
+	#overlay_form
+	{
+		display: none;
+	}
+
+		#overlay_form > div
+		{
+			width: 400px;
 		}
 
-			#overlay_form > div .fa-times
+			/*#overlay_form > div .fa-times
 			{
 				position: absolute;
 				right: .2em;
 				top: .1em;
-			}
+			}*/
 }

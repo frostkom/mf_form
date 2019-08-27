@@ -227,7 +227,7 @@ jQuery(function($)
 		{
 			if(dom_overlay.length == 0)
 			{
-				$("#wrapper").append("<div id='overlay_form'><div></div></div>");
+				$("#wrapper").append("<div id='overlay_form' class='overlay_container modal'><div></div></div>");
 
 				dom_overlay = $("#overlay_form > div");
 			}
@@ -264,7 +264,7 @@ jQuery(function($)
 		}
 	});
 
-	$(document).on('click', "#overlay_form .fa-times", function(e)
+	$(document).on('click', "#overlay_form .fa-times", function()
 	{
 		hide_form_overlay();
 	});
