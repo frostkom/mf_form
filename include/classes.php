@@ -2886,9 +2886,25 @@ class mf_form
 	{
 		global $wpdb;
 
+		$key = false;
+
 		if($this->form_option_exists)
 		{
-			$id = $wpdb->get_var($wpdb->prepare("SELECT formOptionKey FROM ".$wpdb->base_prefix."form_option WHERE formOptionID = '%d'", $id));
+			$key = $wpdb->get_var($wpdb->prepare("SELECT formOptionKey FROM ".$wpdb->base_prefix."form_option WHERE formOptionID = '%d'", $id));
+		}
+
+		return $key;
+	}
+
+	function get_option_id_from_key($key)
+	{
+		global $wpdb;
+
+		$id = false;
+
+		if($this->form_option_exists)
+		{
+			$id = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE formOptionKey = '%d'", $key));
 		}
 
 		return $id;
