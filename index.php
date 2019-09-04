@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.2.9
+Version: 1.0.2.10
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -133,10 +133,6 @@ function activate_form()
 	$arr_update_column[$wpdb->base_prefix."form"] = array(
 		'formPaymentFunction' => "ALTER TABLE [table] CHANGE [column] formPaymentCallback VARCHAR(100) DEFAULT NULL",
 	);
-
-	/*$arr_add_index[$wpdb->base_prefix."form"] = array(
-		'' => "ALTER TABLE [table] ADD INDEX [column] ([column])",
-	);*/
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (
 		checkID INT UNSIGNED NOT NULL AUTO_INCREMENT,
