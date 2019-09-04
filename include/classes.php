@@ -3704,9 +3704,8 @@ class mf_form
 			else if($out == '')
 			{
 				$result = $this->get_form_type_result();
-				$intTotalRows = $wpdb->num_rows;
 
-				if($intTotalRows > 0)
+				if($wpdb->num_rows > 0)
 				{
 					$out .= "<form method='post' action='' id='form_".$this->id."' class='mf_form mf_form_submit".($this->edit_mode == true ? " mf_sortable" : "").apply_filters('filter_form_class', '', $this)."' enctype='multipart/form-data'>";
 
@@ -5357,13 +5356,13 @@ class mf_form_output
 		{
 			@list($this->label, $str_select) = explode(":", $string);
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $this->row->form2TypeID));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $this->row->form2TypeID));
 
 			$arr_data = array();
 
 			foreach($result as $r)
 			{
-				$arr_option = $this->check_limit(array('array' => array($r->formOptionID, $r->formOptionValue), 'form2TypeID' => $this->row->form2TypeID));
+				$arr_option = $this->check_limit(array('array' => array($r->formOptionID, $r->formOptionValue, $r->formOptionLimit), 'form2TypeID' => $this->row->form2TypeID));
 
 				$arr_data[($r->formOptionKey == 0 ? '' : $arr_option[0])] = $arr_option[1]; //$r->formOptionKey == '' || 
 			}
