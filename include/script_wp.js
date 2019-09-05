@@ -222,6 +222,11 @@ jQuery(function($)
 		add_option();
 	});
 
+	$(document).on('dblclick', ".select_rows .option_value input", function(e)
+	{
+		$(this).removeAttr('readonly');
+	});
+
 	$(document).on('click', ".show_checkbox li", function()
 	{
 		$("#strFormTypeText").val($(this).text());
