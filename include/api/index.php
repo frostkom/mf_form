@@ -193,12 +193,13 @@ if(get_current_user_id() > 0)
 
 if($type_action == 'zipcode')
 {
-	if(is_plugin_active('mf_cache/index.php'))
+	/*if(is_plugin_active('mf_cache/index.php'))
 	{
 		$obj_cache = new mf_cache();
 		$obj_cache->fetch_request();
 		$obj_cache->get_or_set_file_content(array('suffix' => 'json'));
-	}
+	}*/
+	do_action('run_cache', array('suffix' => 'json'));
 
 	$search = str_replace(" ", "", $type_id);
 	$city_name = "";
