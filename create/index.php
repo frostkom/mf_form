@@ -444,5 +444,5 @@ if($obj_form->check_allow_edit())
 
 else
 {
-	wp_die(__("You don't have permission to edit this form", 'lang_form'));
+	wp_die(__("You do not have permission to edit this form", 'lang_form'));
 }

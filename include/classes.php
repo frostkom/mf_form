@@ -559,7 +559,7 @@ class mf_form
 			if($this->has_remember_fields())
 			{
 				$content .= "<p>"
-					.__("When a visitor enters personal information in a form it is also saved in the so called 'localStorage' which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", 'lang_form')
+					.sprintf(__("When a visitor enters personal information in a form it is also saved in the so called %s which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", 'lang_form'), "'localStorage'")
 				."</p>";
 			}
 		}
@@ -1442,7 +1442,7 @@ class mf_form
 
 							else
 							{
-								$error_text = __("Couldn't update the field", 'lang_form');
+								$error_text = __("I could not update the field", 'lang_form');
 							}
 						}
 
@@ -2698,19 +2698,19 @@ class mf_form
 			{
 				if(isset($_GET['btnFormLinkYes']))
 				{
-					$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as positive response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
+					$error_text = sprintf(__("There was no content to send. You have to enter text into the field Text to send as positive response in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
 				}
 
 				else
 				{
-					$error_text = sprintf(__("There was no content to send. You have to enter text into the field 'Text to send as negative response' in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
+					$error_text = sprintf(__("There was no content to send. You have to enter text into the field Text to send as negative response in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
 				}
 			}
 		}
 
 		else
 		{
-			$error_text = __("Oops! You don't seam to have the correct link or it has expired", 'lang_form');
+			$error_text = __("Oops! You do not seam to have the correct link or it has expired", 'lang_form');
 		}
 
 		return $out;
@@ -4189,7 +4189,7 @@ class mf_form_payment
 		{
 			if($is_verified)
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid & Verified", 'lang_form'), $this->answer_id, '116:%'));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid and Verified", 'lang_form'), $this->answer_id, '116:%'));
 
 				if($wpdb->rows_affected > 0)
 				{
@@ -5776,7 +5776,7 @@ class widget_form extends WP_Widget
 	{
 		$widget_ops = array(
 			'classname' => 'form',
-			'description' => __("Display a form that you've previously created", 'lang_form')
+			'description' => __("Display a form that you have previously created", 'lang_form')
 		);
 
 		$this->arr_default = array(

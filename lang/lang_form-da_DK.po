@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-16 08:39+0100\n"
+"POT-Creation-Date: 2019-09-17 09:44+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -90,6 +90,9 @@ msgstr "Tilføj"
 msgid "Save"
 msgstr "Gem"
 
+msgid "Name"
+msgstr "Navn"
+
 msgid "View"
 msgstr "Vis"
 
@@ -99,8 +102,17 @@ msgstr "Indstillinger"
 msgid "E-mail"
 msgstr "E-mail adresse"
 
+msgid "Forms"
+msgstr "Formularer"
+
 msgid "Click here to send e-mail"
 msgstr "Klik her for at sende e-mail"
+
+msgid "months"
+msgstr "måneder"
+
+msgid "Are you sure?"
+msgstr "Er du sikker?"
 
 msgid "List"
 msgstr "Liste"
@@ -111,8 +123,14 @@ msgstr "Afkrydsningsfelt"
 msgid "File"
 msgstr "Fil"
 
+msgid "Created"
+msgstr "Oprettet"
+
 msgid "All"
 msgstr "Alle"
+
+msgid "Latest Answer"
+msgstr "Senest svar"
 
 msgid "Edit"
 msgstr "Rediger"
@@ -122,6 +140,9 @@ msgstr "Slet"
 
 msgid "Full"
 msgstr "Fuld"
+
+msgid "Required"
+msgstr "Påkrævet"
 
 msgid "Heading"
 msgstr "Overskrift"

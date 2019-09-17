@@ -29,6 +29,6 @@ else
 {
 	echo "<div class='wrap'>
 		<h2>".__("Answers", 'lang_form')."</h2>
-		<p><em>".sprintf(__("I could not find a form with the ID '%d'", 'lang_form'), $obj_form->id)."</em></p>
+		<p><em>".sprintf(__("I could not find a form with the ID %s", 'lang_form'), "'".$obj_form->id."'")."</em></p>
 	</div>";
 }
