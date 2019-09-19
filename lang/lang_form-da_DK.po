@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-17 09:44+0100\n"
+"POT-Creation-Date: 2019-09-18 09:41+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -17,6 +17,9 @@ msgstr ""
 
 msgid "Answers"
 msgstr "Svar"
+
+msgid "I could not find a form with the ID %s"
+msgstr "Kunne ikke finde formular med ID %s"
 
 msgid "Update"
 msgstr "Opdater"
@@ -87,6 +90,9 @@ msgstr "Indtast mulighed her"
 msgid "Add"
 msgstr "Tilføj"
 
+msgid "Cancel"
+msgstr "Afslut"
+
 msgid "Save"
 msgstr "Gem"
 
@@ -102,8 +108,14 @@ msgstr "Indstillinger"
 msgid "E-mail"
 msgstr "E-mail adresse"
 
+msgid "Terms Page"
+msgstr "Vilkårsside"
+
 msgid "Forms"
 msgstr "Formularer"
+
+msgid "Form"
+msgstr "Formular"
 
 msgid "Click here to send e-mail"
 msgstr "Klik her for at sende e-mail"
@@ -120,14 +132,29 @@ msgstr "Liste"
 msgid "Checkbox"
 msgstr "Afkrydsningsfelt"
 
+msgid "Textarea"
+msgstr "Tekst område"
+
 msgid "File"
 msgstr "Fil"
+
+msgid "Clear"
+msgstr "Ryd"
+
+msgid "Paid and Verified"
+msgstr "Betalt og bekræftet"
 
 msgid "Created"
 msgstr "Oprettet"
 
 msgid "All"
 msgstr "Alle"
+
+msgid "Public"
+msgstr "Offentlig"
+
+msgid "Trash"
+msgstr "Affald"
 
 msgid "Latest Answer"
 msgstr "Senest svar"
@@ -138,8 +165,17 @@ msgstr "Rediger"
 msgid "Delete"
 msgstr "Slet"
 
+msgid "Export"
+msgstr "Exportere"
+
 msgid "Full"
 msgstr "Fuld"
+
+msgid "left"
+msgstr "Venstre"
+
+msgid "Hidden"
+msgstr "Skjult"
 
 msgid "Required"
 msgstr "Påkrævet"

@@ -1343,9 +1343,65 @@ class mf_form
 
 									foreach($arr_import_rows as $import_row)
 									{
-										list($this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order) = explode(",", $import_row); //, $strFormTypeCode
+										list($this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order) = explode(",", $import_row);
+
+										switch($this->type_id)
+										{
+											case 10:
+											case 11:
+											case 16:
+											case 17:
+												list($this->type_text, $strFormOptions) = explode(":", $this->type_text, 2);
+											break;
+										}
 
 										$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d', userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, get_current_user_id()));
+
+										switch($this->type_id)
+										{
+											case 10:
+											case 11:
+											case 16:
+											case 17:
+												$intForm2TypeID = $wpdb->insert_id;
+
+												$arr_options = explode(";", $strFormOptions);
+
+												$success = true;
+												$i = 0;
+
+												foreach($arr_options as $str_option)
+												{
+													@list($option_key, $option_value, $option_limit) = explode("|", $str_option, 3);
+
+													if($option_value != '')
+													{
+														$intFormOptionID = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE (form2TypeID = '%d' OR form2TypeID = '0') AND (formOptionKey = %s OR formOptionValue = %s)", $intForm2TypeID, $option_key, $option_value));
+
+														if($intFormOptionID > 0)
+														{
+															$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d' WHERE formOptionID = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i, $intFormOptionID));
+														}
+
+														else
+														{
+															$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i));
+
+															$intFormOptionID = $wpdb->insert_id;
+														}
+
+														$i++;
+													}
+
+													else
+													{
+														$success = false;
+
+														do_log("There was no value for the option (".$this->id.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
+													}
+												}
+											break;
+										}
 									}
 								}
 
@@ -4342,10 +4398,39 @@ class mf_form_export extends mf_export
 		$obj_form = new mf_form(array('id' => $this->type));
 		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
 
 		foreach($result as $r)
 		{
+			switch($r->formTypeID)
+			{
+				case 10:
+				case 11:
+				case 16:
+				case 17:
+					$i = 0;
+
+					$result2 = $wpdb->get_results($wpdb->prepare("SELECT formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $r->form2TypeID));
+
+					foreach($result2 as $r2)
+					{
+						if($i == 0)
+						{
+							$r->formTypeText .= ":";
+						}
+
+						else
+						{
+							$r->formTypeText .= ";";
+						}
+
+						$r->formTypeText .= $r2->formOptionKey."|".$r2->formOptionValue."|".$r2->formOptionLimit;
+
+						$i++;
+					}
+				break;
+			}
+
 			$this->data[] = array(
 				$r->formTypeID,
 				//$r->formTypeCode,
