@@ -1223,7 +1223,7 @@ class mf_form
 
 				$this->email_confirm = isset($_POST['intFormEmailConfirm']) ? 1 : 0;
 				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
-				$this->show_answers = isset($_POST['intFormShowAnswers']) && $_POST['intFormShowAnswers'] == 'yes' ? 1 : 0;
+				$this->show_answers = check_var('intFormShowAnswers');
 				$this->accept_duplicates = check_var('strFormAcceptDuplicates', 'char', true, 'yes');
 				$this->save_ip = check_var('strFormSaveIP');
 				$this->answer_url = check_var('strFormAnswerURL');
@@ -3688,9 +3688,9 @@ class mf_form
 
 			if($this->edit_mode == false && ($this->is_sent == true || $this->is_duplicate()))
 			{
-				$out .= "<div class='mf_form mf_form_results'>";
+				$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID IN('5', '8', '17')", $this->id));
 
-					$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID IN('5', '8', '17')", $this->id));
+				$out .= "<div class='mf_form mf_form_results' rel='".$intFormShowAnswers.", ".$data['total_answers']."'>";
 
 					if($intFormShowAnswers == 1 && $data['total_answers'] > 0)
 					{

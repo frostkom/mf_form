@@ -302,7 +302,7 @@ if($obj_form->check_allow_edit())
 
 										if($obj_form->is_poll())
 										{
-											echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'intFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => $obj_form->show_answers));
+											echo show_select(array('data' => get_yes_no_for_select(array('return_integer' => true)), 'name' => 'intFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => $obj_form->show_answers));
 										}
 
 										echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $obj_form->save_ip, 'text' => __("Save IP", 'lang_form')))
