@@ -297,7 +297,8 @@ if($obj_form->check_allow_edit())
 										.show_textfield(array('name' => 'strFormButtonText', 'text' => __("Text", 'lang_form'), 'value' => $obj_form->button_text, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
 									."</div>"
 									.show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $obj_form->deadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"))
-									."<div class='flex_flow'>";
+									."<div class='flex_flow'>"
+										.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormAcceptDuplicates', 'value' => $obj_form->accept_duplicates, 'text' => __("Accept Duplicates", 'lang_form')));
 
 										if($obj_form->is_poll())
 										{

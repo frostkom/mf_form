@@ -1224,6 +1224,7 @@ class mf_form
 				$this->email_confirm = isset($_POST['intFormEmailConfirm']) ? 1 : 0;
 				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
 				$this->show_answers = isset($_POST['intFormShowAnswers']) && $_POST['intFormShowAnswers'] == 'yes' ? 1 : 0;
+				$this->accept_duplicates = check_var('strFormAcceptDuplicates', 'char', true, 'yes');
 				$this->save_ip = check_var('strFormSaveIP');
 				$this->answer_url = check_var('strFormAnswerURL');
 				$this->email = check_var('strFormEmail', 'email');
@@ -1308,7 +1309,7 @@ class mf_form
 
 							$this->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $this->deadline));
 
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_page, $this->show_answers, $this->name, $this->save_ip, $this->answer_url, $this->email, $this->from_name, $this->email_conditions, $this->email_notify, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email, $this->from_name, $this->email_conditions, $this->email_notify, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
 
 							do_action('update_form_fields', $this);
 
@@ -1568,7 +1569,7 @@ class mf_form
 						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $this->id));
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmPage, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 					if($wpdb->num_rows > 0)
 					{
@@ -1577,6 +1578,7 @@ class mf_form
 							$this->email_confirm = $r->formEmailConfirm;
 							$this->email_confirm_page = $r->formEmailConfirmPage;
 							$this->show_answers = $r->formShowAnswers;
+							$this->accept_duplicates = $r->formAcceptDuplicates;
 							$this->save_ip = $r->formSaveIP;
 							$this->answer_url = $r->formAnswerURL;
 							$this->email = $r->formEmail;
@@ -1991,9 +1993,10 @@ class mf_form
 	{
 		global $wpdb;
 
-		/*$not_poll_content_amount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(form2TypeID) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID NOT IN('5', '8', '10', '11', '16', '17') LIMIT 0, 1", $this->id));
-
-		return ($not_poll_content_amount == 0);*/
+		if(!isset($this->accept_duplicates))
+		{
+			$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $this->id));
+		}
 
 		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('1', '8', '10', '11', '16', '17') LIMIT 0, 1", $this->id));
 		$rows_poll_fields = $wpdb->num_rows;
@@ -2001,7 +2004,7 @@ class mf_form
 		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('2', '3', '4', '7', '9', '12', '15') LIMIT 0, 1", $this->id));
 		$rows_input_fields = $wpdb->num_rows;
 
-		return ($rows_poll_fields > 0 && $rows_input_fields == 0);
+		return $this->accept_duplicates == 'no' || ($rows_poll_fields > 0 && $rows_input_fields == 0);
 	}
 
 	function is_duplicate()
@@ -3659,10 +3662,11 @@ class mf_form
 
 		$obj_font_icons = new mf_font_icons();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formShowAnswers, formAnswerURL, formButtonText, formButtonSymbol, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formAcceptDuplicates, formShowAnswers, formAnswerURL, formButtonText, formButtonSymbol, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
+			$this->accept_duplicates = $r->formAcceptDuplicates;
 			$intFormShowAnswers = $r->formShowAnswers;
 			$strFormAnswerURL = $r->formAnswerURL;
 			$strFormButtonText = $r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form');
