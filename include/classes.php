@@ -4943,7 +4943,7 @@ class mf_answer_table extends mf_list_table
 		if($this->search != '')
 		{
 			$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
-			$this->query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%')";
+			$this->query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%' OR SOUNDEX(answerText) = SOUNDEX('".$this->search."') OR SOUNDEX(answerEmail) = SOUNDEX('".$this->search."'))";
 		}
 
 		$this->set_views(array(
