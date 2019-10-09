@@ -3662,7 +3662,7 @@ class mf_form
 
 		$obj_font_icons = new mf_font_icons();
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formAcceptDuplicates, formShowAnswers, formAnswerURL, formButtonText, formButtonSymbol, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formAcceptDuplicates, formShowAnswers, formAnswerURL, formButtonText, formButtonSymbol, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND blogID = '%d' AND formDeleted = '0'", $this->id, $wpdb->blogid));
 
 		foreach($result as $r)
 		{
