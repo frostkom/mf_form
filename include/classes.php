@@ -1544,7 +1544,7 @@ class mf_form
 
 									if($this->form_option_exists == false)
 									{
-										list($this->type_text, $strFormTypeSelect) = explode(":", $this->type_text);
+										@list($this->type_text, $strFormTypeSelect) = explode(":", $this->type_text);
 									}
 								}
 							}
@@ -2992,12 +2992,11 @@ class mf_form
 					$field_id = str_replace($this->prefix, "", $field_id);
 				}
 
-				$option_id = $this->get_option_key_from_id($option_id);
-
 				if(isset($_REQUEST[$this->prefix.$field_id]) && check_var($this->prefix.$field_id) == $option_id)
-				//if($this->page_content_data['content']['fields'][$field_id]['value'] == $option_id)
 				{
 					$this->email_admin = $email;
+
+					break;
 				}
 			}
 		}

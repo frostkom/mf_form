@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-22 09:52+0100\n"
+"POT-Creation-Date: 2019-10-10 08:45+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -18,14 +18,20 @@ msgstr ""
 msgid "Answers"
 msgstr "Svar"
 
-msgid "Please, enter all required fields"
-msgstr "Vennligst skriv inn alle obligatoriske felt"
-
 msgid "Update"
 msgstr "Oppdater"
 
 msgid "Add New"
 msgstr "Legg Til Ny"
+
+msgid "Title Example | Ticket: %s | %s: %s"
+msgstr "Tittel Eksempel | Billett: %s | %s: %s"
+
+msgid "Ticket: %s, Answers: %s"
+msgstr "Billett: %s, Svar: %s"
+
+msgid "Document Types: %s, Products: %s, Product Name: %s, Yes Link: %s, No Link: %s"
+msgstr "Dokumenttyper: %s, Produkter: %s, Produkt Navn: %s, Ja Link: %s, Ingen Link: %s"
 
 msgid "Content"
 msgstr "Innhold"
@@ -36,11 +42,35 @@ msgstr "Tekst"
 msgid "Examples"
 msgstr "Eksempler"
 
+msgid "I consent to having this website store my submitted information, so that they can respond to my inquiry"
+msgstr "Jeg samtykker i at denne nettsiden butikken min innsendte opplysninger, slik at de kan svare på min henvendelse"
+
+msgid "By submitting this form I am aware that I will be sent to another website for payment"
+msgstr "Ved å sende inn dette skjemaet, jeg er klar over at jeg vil bli sendt til et annet nettsted for betaling"
+
 msgid "Validate as"
 msgstr "Validere som"
 
+msgid "Placeholder Text"
+msgstr "Plassholderteksten"
+
+msgid "Feel free to write anything you like here"
+msgstr "Føl deg fri til å skrive hva du vil her"
+
+msgid "Min value"
+msgstr "Min verdi"
+
+msgid "Max value"
+msgstr "Maks verdi"
+
+msgid "Default value"
+msgstr "Standard verdi"
+
 msgid "Value"
 msgstr "Verdi"
+
+msgid "Enter ID, Name and Limit (optional)"
+msgstr "Angi ID, Navn og Limit (valgfritt)"
 
 msgid "Choose Here"
 msgstr "Velg Her"
@@ -54,11 +84,32 @@ msgstr "Ja"
 msgid "Key"
 msgstr "Nøkkel"
 
+msgid "Enter Option Here"
+msgstr "Angi Alternativet Her"
+
 msgid "Advanced"
 msgstr "Avansert"
 
+msgid "Custom HTML Tag"
+msgstr "Egendefinert HTML-kode"
+
+msgid "Custom CSS class"
+msgstr "Egendefinert CSS-klasse"
+
+msgid "Change Default Value"
+msgstr "Endre Standardverdien"
+
 msgid "or"
 msgstr "eller"
+
+msgid "Assign handle or shortcode"
+msgstr "Tilordne håndtere eller kortnummer"
+
+msgid "If this equals..."
+msgstr "Hvis denne er lik..."
+
+msgid "...show this..."
+msgstr "...vis denne..."
 
 msgid "Add"
 msgstr "Legg til"
@@ -75,11 +126,17 @@ msgstr "Spare"
 msgid "Name"
 msgstr "Namn"
 
+msgid "URL"
+msgstr "Nettadresse"
+
 msgid "Publish"
 msgstr "Publisere"
 
 msgid "Save Draft"
 msgstr "Lagre Utkast"
+
+msgid "Shortcode"
+msgstr "Kortnummer"
 
 msgid "Edit Page"
 msgstr "Rediger Side"
@@ -99,11 +156,14 @@ msgstr "Innstillinger"
 msgid "Confirmation Page"
 msgstr "Bekreftelsessiden"
 
-msgid "Show Answers"
-msgstr "Vis Svar"
-
 msgid "Submit"
 msgstr "Sende inn"
+
+msgid "Deadline"
+msgstr "Frist"
+
+msgid "Show Answers"
+msgstr "Vis Svar"
 
 msgid "Save IP"
 msgstr "Lagre IP"
@@ -114,8 +174,17 @@ msgstr "E-post"
 msgid "Subject"
 msgstr "Emne"
 
+msgid "Send to Admin"
+msgstr "Send til Admin"
+
 msgid "Template"
 msgstr "Mal"
+
+msgid "Send to Visitor"
+msgstr "Send til Besøkende"
+
+msgid "Send From/To"
+msgstr "Send Fra/Til"
 
 msgid "Conditions"
 msgstr "Forhold"
@@ -123,11 +192,17 @@ msgstr "Forhold"
 msgid "Payment"
 msgstr "Betaling"
 
+msgid "Provider"
+msgstr "Leverandør"
+
 msgid "Username"
 msgstr "Brukernavn"
 
-msgid "Password"
-msgstr "Passord"
+msgid "Store ID"
+msgstr "Lagre ID-en"
+
+msgid "Secret Key"
+msgstr "Hemmelig Nøkkel"
 
 msgid "Signature"
 msgstr "Signatur"
@@ -135,17 +210,65 @@ msgstr "Signatur"
 msgid "Terms"
 msgstr "Vilkår"
 
+msgid "Terms Page"
+msgstr "Vilkårene Side"
+
 msgid "Currency"
 msgstr "Valuta"
 
+msgid "Payment Cost"
+msgstr "Betaling Kostnad"
+
+msgid "Field for Payment Amount"
+msgstr "Feltet for Betaling"
+
 msgid "Tax"
 msgstr "Skatt"
+
+msgid "The action that you have entered either does not exist or is not accessible when the success is triggered"
+msgstr "Den handlingen som du har skrevet enten ikke eksisterer eller er ikke tilgjengelig når suksessen er utløst"
+
+msgid "Action on Successful Payment"
+msgstr "Action på Vellykket Betaling"
+
+msgid "Import Form Fields"
+msgstr "Import Feltene"
+
+msgid "It looks like the form already has been deleted"
+msgstr "Det ser ut som form allerede har blitt slettet"
+
+msgid "Forms"
+msgstr "Former"
+
+msgid "Redirect all e-mails"
+msgstr "Omdirigere alle e-poster"
+
+msgid "Redirect test e-mails"
+msgstr "Omdirigere test-e-post"
 
 msgid "View All"
 msgstr "Vis Alle"
 
 msgid "Edit All"
 msgstr "Redigere Alle"
+
+msgid "Spam Filter"
+msgstr "Spam-Filter"
+
+msgid "Clear Spam"
+msgstr "Fjerne Spam"
+
+msgid "Form to replace all e-mail links"
+msgstr "Form til å erstatte all e-post lenker"
+
+msgid "Text to replace all e-mail links"
+msgstr "Tekst for å erstatte all e-post lenker"
+
+msgid "Text to send as positive response"
+msgstr "Tekst for å sende som positiv respons"
+
+msgid "Text to send as negative response"
+msgstr "Tekst for å sende som negative svar"
 
 msgid "Click here to send e-mail"
 msgstr "Klikk her for å sende e-post"
@@ -159,11 +282,38 @@ msgstr "Er du sikker?"
 msgid "List"
 msgstr "Listen"
 
+msgid "Checkbox"
+msgstr "Avsjekkingsboks"
+
+msgid "Textarea"
+msgstr "Tekstområde"
+
 msgid "File"
 msgstr "Fil"
 
+msgid "Please, enter all required fields"
+msgstr "Vennligst skriv inn alle obligatoriske felt"
+
+msgid "I have updated the form for you"
+msgstr "Jeg har oppdatert skjema for deg"
+
+msgid "There is already a form with that name. Try with another one."
+msgstr "Det er allerede en form med det navnet. Prøv med et annet."
+
+msgid "I have created the form for you"
+msgstr "Jeg har laget et form for deg"
+
+msgid "I could not insert the new field for you"
+msgstr "Jeg kan ikke sette inn det nye feltet for deg"
+
+msgid "I could not find the form you were looking for. If the problem persists, please contact an admin"
+msgstr "Jeg kunne ikke finne formet du leter etter. Hvis problemet vedvarer, må du ta kontakt med en admin"
+
 msgid "Thank You!"
 msgstr "Takk!"
+
+msgid "Clear"
+msgstr "Visk ut"
 
 msgid "Created"
 msgstr "Opprettet"
@@ -173,6 +323,9 @@ msgstr "Alle"
 
 msgid "Public"
 msgstr "Offentlig"
+
+msgid "Trash"
+msgstr "Søppel"
 
 msgid "Edit"
 msgstr "Redigera"
@@ -194,6 +347,9 @@ msgstr "Overskriften"
 
 msgid "Number"
 msgstr "Nummer"
+
+msgid "Zip Code"
+msgstr "Postnummer"
 
 msgid "Country"
 msgstr "Land"
