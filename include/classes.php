@@ -297,7 +297,7 @@ class mf_form
 		$attributes = $matches[2];
 		$title = $matches[3];
 
-		if($title == $email)
+		if($title == $email || strpos($title, $email))
 		{
 			$title = get_option_or_default('setting_replacement_form_text', __("Click here to send e-mail", 'lang_form'));
 		}
@@ -425,7 +425,7 @@ class mf_form
 			}
 		}
 
-		else if(!($data['form_id'] > 0) && IS_SUPER_ADMIN)
+		else if(!($data['form_id'] > 0)) // && IS_SUPER_ADMIN
 		{
 			$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) ORDER BY answerCreated DESC LIMIT 0, 2");
 
@@ -2123,7 +2123,7 @@ class mf_form
 			'' => "-- ".__("Choose Here", 'lang_form')." --"
 		);
 
-		$result = $wpdb->get_results("SELECT formID, formName FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".(IS_SUPER_ADMIN && $data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY formCreated DESC");
+		$result = $wpdb->get_results("SELECT formID, formName FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".($data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY formCreated DESC"); //IS_SUPER_ADMIN && 
 
 		foreach($result as $r)
 		{
