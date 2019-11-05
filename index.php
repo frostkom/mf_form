@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.3.5
+Version: 1.0.3.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -456,9 +456,6 @@ function activate_form()
 		}
 	}
 	#################################
-
-	replace_user_meta(array('old' => 'answer_viewed', 'new' => 'meta_answer_viewed'));
-	replace_user_meta(array('old' => 'mf_forms_viewed', 'new' => 'meta_forms_viewed'));
 }
 
 function deactivate_form()
