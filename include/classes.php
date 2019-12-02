@@ -500,7 +500,7 @@ class mf_form
 
 		if($count_forms > 0)
 		{
-			$menu_title = __("Add New", 'lang_form');
+			$menu_title = " - ".__("Add New", 'lang_form');
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'create/index.php');
 
 			$menu_title = __("Answers", 'lang_form');
@@ -4172,8 +4172,8 @@ class mf_form_payment
 
 		if($this->payment_tax_rate > 0)
 		{
-			$this->tax = ($this->cost / ($this->payment_tax_rate / 100));
-			$this->tax_total = ($this->cost_total / ($this->payment_tax_rate / 100));
+			$this->tax = ($this->cost * ($this->payment_tax_rate / 100));
+			$this->tax_total = ($this->cost_total * ($this->payment_tax_rate / 100));
 		}
 
 		$out = apply_filters('form_process_passthru', '', $this);
@@ -4614,7 +4614,7 @@ class mf_form_table extends mf_list_table
 				'all' => __("All", 'lang_form'),
 				'publish' => __("Public", 'lang_form'),
 				'draft' => __("Draft"),
-				'trash' => __("Trash", 'lang_form')
+				'trash' => __("Trash", 'lang_form'),
 			),
 		));
 
