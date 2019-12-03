@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.3.7
+Version: 1.0.3.8
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -106,7 +106,7 @@ function activate_form()
 		formPaymentPassword VARCHAR(100) DEFAULT NULL,
 		formPaymentCurrency VARCHAR(3),
 		formPaymentCheck INT DEFAULT NULL,
-		formPaymentCost SMALLINT UNSIGNED DEFAULT NULL,
+		formPaymentCost DOUBLE UNSIGNED DEFAULT NULL,
 		formPaymentAmount INT UNSIGNED DEFAULT NULL,
 		formPaymentTax TINYINT UNSIGNED DEFAULT NULL,
 		formPaymentCallback VARCHAR(100) DEFAULT NULL,
@@ -125,7 +125,7 @@ function activate_form()
 		'formPaymentCallback' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formPaymentAmount",
 		'formPaymentTax' => "ALTER TABLE [table] ADD [column] TINYINT UNSIGNED DEFAULT NULL AFTER formPaymentAmount",
 		'formSaveIP' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'no' AFTER formName",
-		'formPaymentCost' => "ALTER TABLE [table] ADD [column] SMALLINT UNSIGNED DEFAULT NULL AFTER formPaymentCheck",
+		'formPaymentCost' => "ALTER TABLE [table] ADD [column] DOUBLE UNSIGNED DEFAULT NULL AFTER formPaymentCheck",
 		'formEmailConditions' => "ALTER TABLE [table] ADD [column] TEXT DEFAULT NULL AFTER formEmail",
 		'formFromName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmail",
 		'formAcceptDuplicates' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER formName",
@@ -133,6 +133,7 @@ function activate_form()
 
 	$arr_update_column[$wpdb->base_prefix."form"] = array(
 		'formPaymentFunction' => "ALTER TABLE [table] CHANGE [column] formPaymentCallback VARCHAR(100) DEFAULT NULL",
+		'formPaymentCost' => "ALTER TABLE [table] CHANGE [column] [column] DOUBLE UNSIGNED DEFAULT NULL",
 	);
 
 	$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (

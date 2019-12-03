@@ -389,7 +389,7 @@ if($obj_form->check_allow_edit())
 										if($obj_form->payment_provider > 0 && ($obj_form->payment_merchant != '' || $obj_form->payment_hmac != ''))
 										{
 											echo show_select(array('data' => $obj_form->get_payment_currency_for_select($obj_form->payment_provider), 'name' => 'strFormPaymentCurrency', 'value' => $obj_form->payment_currency, 'text' => __("Currency", 'lang_form')))
-											.show_textfield(array('type' => 'number', 'name' => 'intFormPaymentCost', 'value' => $obj_form->payment_cost, 'text' => __("Payment Cost", 'lang_form')));
+											.show_textfield(array('type' => 'number', 'name' => 'dblFormPaymentCost', 'value' => $obj_form->payment_cost, 'text' => __("Payment Cost", 'lang_form')." (".__("excl. taxes", 'lang_form').")", 'xtra' => "min='0' step='0.1'"));
 
 											$arr_data_amount = $obj_form->get_payment_amount_for_select();
 

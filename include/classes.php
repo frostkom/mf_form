@@ -1244,7 +1244,7 @@ class mf_form
 				$this->payment_merchant = check_var('strFormPaymentMerchant');
 				$this->payment_password = check_var('strFormPaymentPassword');
 				$this->payment_currency = check_var('strFormPaymentCurrency');
-				$this->payment_cost = check_var('intFormPaymentCost');
+				$this->payment_cost = check_var('dblFormPaymentCost');
 				$this->payment_amount = check_var('intFormPaymentAmount');
 				$this->payment_tax = check_var('intFormPaymentTax');
 				$this->payment_callback = check_var('strFormPaymentCallback');
@@ -1309,7 +1309,7 @@ class mf_form
 
 							$this->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $this->deadline));
 
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%d', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email, $this->from_name, $this->email_conditions, $this->email_notify, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email, $this->from_name, $this->email_conditions, $this->email_notify, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
 
 							do_action('update_form_fields', $this);
 
@@ -4151,7 +4151,7 @@ class mf_form_payment
 	function process_passthru($data)
 	{
 		$this->cost = $data['cost'];
-		$this->cost_total = $this->amount = intval($data['amount']) > 0 ? $data['amount'] : 1;
+		$this->amount = intval($data['amount']) > 0 ? $data['amount'] : 1;
 
 		$this->orderid = $data['orderid'];
 		$this->test = $data['test'];
@@ -4159,21 +4159,24 @@ class mf_form_payment
 
 		if($this->cost > 0)
 		{
-			$this->cost_total *= $this->cost;
+			$this->cost_total = $this->cost * $this->amount;
 		}
 
 		else
 		{
-			$this->cost = $this->amount;
+			$this->cost_total = $this->cost = $this->amount;
 			$this->amount = 1;
 		}
-
-		$this->tax = $this->tax_total = 0;
 
 		if($this->payment_tax_rate > 0)
 		{
 			$this->tax = ($this->cost * ($this->payment_tax_rate / 100));
 			$this->tax_total = ($this->cost_total * ($this->payment_tax_rate / 100));
+		}
+
+		else
+		{
+			$this->tax = $this->tax_total = 0;
 		}
 
 		$out = apply_filters('form_process_passthru', '', $this);
