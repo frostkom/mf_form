@@ -2118,12 +2118,29 @@ class mf_form
 
 		if(!isset($data['local_only'])){		$data['local_only'] = false;}
 		if(!isset($data['force_has_page'])){	$data['force_has_page'] = true;}
+		if(!isset($data['is_payment'])){		$data['is_payment'] = false;}
+		if(!isset($data['where'])){				$data['where'] = "";}
 
 		$arr_data = array(
 			'' => "-- ".__("Choose Here", 'lang_form')." --"
 		);
 
-		$result = $wpdb->get_results("SELECT formID, formName FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".($data['local_only'] == false ? "" : " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)")." ORDER BY formCreated DESC"); //IS_SUPER_ADMIN && 
+		if($data['local_only'] == true)
+		{
+			$data['where'] .= " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)";
+		}
+
+		if($data['is_payment'] == true)
+		{
+			$data['where'] .= " AND formPaymentProvider > 0";
+		}
+
+		else
+		{
+			$data['where'] .= " AND (formPaymentProvider = 0 OR formPaymentProvider IS null OR formPaymentProvider = '')";
+		}
+
+		$result = $wpdb->get_results("SELECT formID, formName FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".$data['where']." ORDER BY formCreated DESC");
 
 		foreach($result as $r)
 		{
