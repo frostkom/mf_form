@@ -4761,15 +4761,15 @@ class mf_form_table extends mf_list_table
 
 				foreach($result as $r)
 				{
-					$strFormEmail = $r->formEmail;
+					$strFormEmail = ($r->formEmail != '' ? $r->formEmail : get_bloginfo('admin_email'));
 					$strFormEmailConditions = $r->formEmailConditions;
 					$intFormEmailNotifyPage = $r->formEmailNotifyPage;
 					$intFormEmailConfirm = $r->formEmailConfirm;
 					$intFormEmailConfirmPage = $r->formEmailConfirmPage;
 					$intFormPaymentProvider = $r->formPaymentProvider;
 
-					if($strFormEmail != '')
-					{
+					/*if($strFormEmail != '')
+					{*/
 						if($intFormEmailNotifyPage > 0)
 						{
 							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
@@ -4779,7 +4779,7 @@ class mf_form_table extends mf_list_table
 						{
 							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
 						}
-					}
+					//}
 
 					if($strFormEmailConditions != '')
 					{

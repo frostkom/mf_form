@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.3.9
+Version: 1.0.3.10
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -71,9 +71,12 @@ load_plugin_textdomain('lang_form', false, dirname(plugin_basename(__FILE__)).'/
 
 function activate_form()
 {
-	global $wpdb;
+	global $wpdb, $obj_form;
 
-	$obj_form = new mf_form();
+	if(!isset($obj_form))
+	{
+		$obj_form = new mf_form();
+	}
 
 	$default_charset = DB_CHARSET != '' ? DB_CHARSET : "utf8";
 
@@ -294,20 +297,70 @@ function activate_form()
 
 	// Convert wp_query to wp_posts
 	#################################
-	/*$result = $wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix."form WHERE post_type = 'mf_form' AND queryConverted = '0'");
+	/*$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d') AND formDeleted = '0' AND formConverted = '0'", $wpdb->blogid));
 
 	foreach($result as $r)
 	{
 		$intFormID = $r->formID;
 		//...
 
-		//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET queryConverted = '1' WHERE formID = '%d'", $intFormID));
+		//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formConverted = '1' WHERE formID = '%d'", $intFormID));
 	}*/
+	#################################
+
+	// Make sure that forms exists both in wp_form and wp_posts[post_type=mf_form]
+	#################################
+	$result = $wpdb->get_results($wpdb->prepare("SELECT formID, blogID, postID, formName, formDeleted FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d')", $wpdb->blogid));
+
+	foreach($result as $r)
+	{
+		if($r->formName != '')
+		{
+			$post_title = get_post_title($r->postID);
+
+			if($r->postID > 0 && $post_title == $r->formName)
+			{
+				//do_log("Same ID and Name (".$r->formName." == ".$post_title.", blogID:".$r->blogID.", postID:".$r->postID.")");
+
+				if($wpdb->blogid > 0 && $r->blogID != $wpdb->blogid)
+				{
+					do_log("Update blogID (".$r->formName." == ".$post_title.", blogID:".$r->blogID.", postID:".$r->postID.")");
+
+					//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formDeleted = '0', formDeletedDate = null WHERE formID = '%d'", $wpdb->blogid, $r->formID));
+				}
+			}
+
+			else
+			{
+				$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = %s", $obj_form->post_type, $r->formName));
+
+				if($post_id > 0)
+				{
+					if($wpdb->blogid != $r->blogID && $post_id != $r->postID)
+					{
+						do_log("Same Name (".$r->formName.", blogID:".$r->blogID.", ".$wpdb->base_prefix."form.postID:".$r->postID.", ".$wpdb->posts.".ID:".$post_id.")");
+
+						//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formDeleted = '0', formDeletedDate = null WHERE formID = '%d'", $wpdb->blogid, $post_id, $r->formID));
+					}
+				}
+
+				else
+				{
+					//do_log("NOT same Name (".$r->formName.", blogID:".$r->blogID.", ".$wpdb->base_prefix."form.postID:".$r->postID.")");
+
+					if($r->formDeleted == '0')
+					{
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW() WHERE formID = '%d'", $r->formID));
+					}
+				}
+			}
+		}
+	}
 	#################################
 
 	// Move data from old tables to new ones
 	#################################
-	$arr_copy = array();
+	/*$arr_copy = array();
 
 	$arr_copy[] = array(
 		'table_from' => "query",
@@ -387,7 +440,7 @@ function activate_form()
 		{
 			do_log($log_message, 'trash');
 		}
-	}
+	}*/
 	#################################
 
 	// Start using form_option
