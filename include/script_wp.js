@@ -126,6 +126,11 @@ jQuery(function($)
 				break;
 
 				case '13': /* custom_tag */
+					if($("#strFormTypeText2").val() == 'fieldset')
+					{
+						$(".show_placeholder").removeClass('hide');
+					}
+
 					$(".show_custom_tag, .show_custom_class").removeClass('hide');
 				break;
 
@@ -168,6 +173,11 @@ jQuery(function($)
 	$(document).on('change', "input[name=intFormTypeID]", function()
 	{
 		show_query_settings($(this).val());
+	});
+
+	$(document).on('change', "#strFormTypeText2", function()
+	{
+		show_query_settings('13');
 	});
 
 	function make_options_sortable()

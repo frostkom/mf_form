@@ -51,7 +51,7 @@ if($obj_form->check_allow_edit())
 										</div>"
 										.show_select(array('data' => $obj_form->get_form_checks_for_select(), 'name' => 'intCheckID', 'value' => $obj_form->check_id, 'text' => __("Validate as", 'lang_form'), 'class' => "show_validate_as hide"))
 										.show_textfield(array('name' => 'strFormTypePlaceholder', 'text' => __("Placeholder Text", 'lang_form'), 'value' => $obj_form->type_placeholder, 'placeholder' => __("Feel free to write anything you like here", 'lang_form'), 'maxlength' => 100, 'xtra_class' => "show_placeholder"))
-										.show_select(array('data' => array('div' => "div", 'fieldset' => "fieldset"), 'name' => 'strFormTypeText2', 'value' => $obj_form->type_text, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
+										.show_select(array('data' => $obj_form->get_form_tag_types_for_select(), 'name' => 'strFormTypeText2', 'value' => $obj_form->type_text, 'text' => __("Type", 'lang_form'), 'class' => "show_custom_tag hide"))
 										."<div class='show_range flex_flow hide'>"
 											.show_textfield(array('name' => 'strFormTypeMin', 'text' => __("Min value", 'lang_form'), 'value' => $obj_form->type_min, 'maxlength' => 3, 'size' => 5))
 											.show_textfield(array('name' => 'strFormTypeMax', 'text' => __("Max value", 'lang_form'), 'value' => $obj_form->type_max, 'maxlength' => 3, 'size' => 5))

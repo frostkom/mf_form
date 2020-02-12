@@ -1107,6 +1107,14 @@ class mf_form
 		return $arr_data;
 	}
 
+	function get_form_tag_types_for_select()
+	{
+		return array(
+			'div' => "div",
+			'fieldset' => "fieldset",
+		);
+	}
+
 	function get_tags_for_select()
 	{
 		return array(
@@ -5762,11 +5770,21 @@ class mf_form_output
 				if($this->in_edit_mode == true)
 				{
 					$this->output .= "<p class='grey'>&lt;".$this->row->formTypeText.$class_output."&gt;</p>";
+
+					if($this->row->formTypeText == 'fieldset')
+					{
+						$this->output .= "<p class='grey'>&lt;legend&gt; (".$this->row->formTypePlaceholder.")</p>";
+					}
 				}
 
 				else
 				{
 					$this->output .= "<".$this->row->formTypeText.$class_output." id='".$field_data['name']."'>";
+
+					if($this->row->formTypeText == 'fieldset')
+					{
+						$this->output .= "<legend>".$this->row->formTypePlaceholder."</legend>";
+					}
 				}
 			break;
 
