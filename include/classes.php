@@ -326,6 +326,8 @@ class mf_form
 
 	function the_content($html)
 	{
+		global $wpdb;
+
 		if(get_option('setting_replacement_form') > 0)
 		{
 			$char_before = "?<=^|\s|\(|\[";
@@ -334,6 +336,61 @@ class mf_form
 
 			$html = preg_replace("/(".$char_before.")(".$chars.")(".$char_after.")/", "<a href='mailto:$1'>$1</a>", $html);
 			$html = preg_replace_callback("/<a.*?href=['\"]mailto:(.*?)['\"](.*?)>(.*?)<\/a>/si", array($this, 'preg_email_concat'), $html);
+		}
+
+		$intAnswerID = check_var('answer_id', 'int');
+
+		if($intAnswerID > 0)
+		{
+			$value = $wpdb->get_var($wpdb->prepare("SELECT SUM(formOptionKey) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form_option ON ".$wpdb->base_prefix."form_answer.answerText = ".$wpdb->base_prefix."form_option.formOptionID WHERE answerID = %d AND formTypeID IN('8', '17')", $intAnswerID));
+
+			$if_statement = get_match("/\[if (.*?)\]/i", $html, false);
+			$if_parts = explode(" ", $if_statement);
+
+			switch($if_parts[0])
+			{
+				case 'value':
+					switch($if_parts[1])
+					{
+						case '>':
+							if($value > $if_parts[2])
+							{
+								$html = preg_replace(array("/\[if ".$if_statement."\](\<br\>)?/i", "/\[end_if\](\<br\>)?/i", "/\[else\](.*?)?\[end_else\](\<br\>)?/is"), "", $html);
+							}
+
+							else
+							{
+								$html = preg_replace(array("/\[if ".$if_statement."\](.*?)\[end_if\](\<br\>)?/is", "/\[else\](\<br\>)?/i", "/\[end_else\](\<br\>)?/i"), "", $html);
+							}
+						break;
+
+						case '<':
+							if($value < $if_parts[2])
+							{
+								$html = preg_replace(array("/\[if ".$if_statement."\](\<br\>)?/i", "/\[end_if\](\<br\>)?/i", "/\[else\](.*?)?\[end_else\](\<br\>)?/is"), "", $html);
+							}
+
+							else
+							{
+								$html = preg_replace(array("/\[if ".$if_statement."\](.*?)?\[end_if\](\<br\>)?/is", "/\[else\](\<br\>)?/i", "/\[end_else\](\<br\>)?/i"), "", $html);
+							}
+						break;
+
+						default:
+							do_log("Unknown if statement (2/".count($if_parts)."): ".$if_statement);
+						break;
+					}
+				break;
+
+				default:
+					do_log("Unknown if statement (1/".count($if_parts)."): ".$if_statement);
+				break;
+			}
+		}
+
+		else
+		{
+			$html = preg_replace(array("/\[if(.*?)\](.*?)?\[end_if\](\<br\>)?/is", "/\[else\](\<br\>)?/i", "/\[end_else\](\<br\>)?/i"), "", $html);
 		}
 
 		return $html;
@@ -1738,7 +1795,16 @@ class mf_form
 
 								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, ".$copy_fields.", form2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
 
-								if(!($wpdb->insert_id > 0))
+								$intForm2TypeID_new = $wpdb->insert_id;
+
+								if($intForm2TypeID_new > 0)
+								{
+									$copy_fields = "formOptionKey, formOptionValue, formOptionLimit, formOptionOrder";
+
+									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option (form2TypeID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d')", $intForm2TypeID_new, $intForm2TypeID));
+								}
+
+								else
 								{
 									$inserted = false;
 								}
@@ -3710,11 +3776,11 @@ class mf_form
 
 			$dteFormDeadline = $this->meta(array('action' => 'get', 'key' => 'deadline'));
 
-			if($this->edit_mode == false && ($this->is_sent == true || $this->is_duplicate()))
+			if($this->edit_mode == false && ($this->is_sent == true || $this->is_duplicate() && $this->accept_duplicates == 'no'))
 			{
 				$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID IN('5', '8', '17')", $this->id));
 
-				$out .= "<div class='mf_form mf_form_results' rel='".$intFormShowAnswers.", ".$data['total_answers']."'>";
+				$out .= "<div class='mf_form mf_form_results'>"; // rel='".$intFormShowAnswers.", ".$data['total_answers']."' rel='".$this->edit_mode.", ".$this->is_sent.", ".$this->is_duplicate()."'
 
 					if($intFormShowAnswers == 1 && $data['total_answers'] > 0)
 					{
@@ -4309,9 +4375,11 @@ class mf_form_payment
 
 				if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 				{
-					echo "<i class='fa fa-spinner fa-spin fa-3x' rel='test3_".$intFormAnswerURL."'></i>";
+					echo "<i class='fa fa-spinner fa-spin fa-3x'></i>"; // rel='test3_".$intFormAnswerURL."'
 
 					$strFormAnswerURL = get_permalink($intFormAnswerURL);
+
+					$strFormAnswerURL .= (preg_match("/\?/", $strFormAnswerURL) ? "&" : "?")."answer_id=".$this->answer_id;
 
 					mf_redirect($strFormAnswerURL);
 				}
@@ -5083,7 +5151,22 @@ class mf_answer_table extends mf_list_table
 			case 'payment':
 				$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
 
-				$out .= $strAnswerText_temp;
+				$test_payment_value = $obj_form->get_meta(array('id' => $intAnswerID, 'meta_key' => 'test_payment'));
+
+				if($test_payment_value > 0)
+				{
+					$actions = array(
+						'status' => $strAnswerText_temp,
+					);
+
+					 $out .= __("Test Payment", 'lang_form')
+					 .$this->row_actions($actions);
+				}
+
+				else
+				{
+					$out .= $strAnswerText_temp;
+				}
 
 				if($strAnswerText_temp != '')
 				{
@@ -5470,7 +5553,8 @@ class mf_form_output
 			{
 				$arr_option = $this->check_limit(array('array' => array($r->formOptionID, $r->formOptionValue, $r->formOptionLimit), 'form2TypeID' => $this->row->form2TypeID));
 
-				$arr_data[($r->formOptionKey == 0 ? '' : $arr_option[0])] = $arr_option[1]; //$r->formOptionKey == '' || 
+				//$arr_data[($r->formOptionKey == 0 ? '' : $arr_option[0])] = $arr_option[1]; // This will not display the first option that has 0 as value
+				$arr_data[$arr_option[0]] = $arr_option[1];
 			}
 		}
 
