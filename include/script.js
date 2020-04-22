@@ -10,6 +10,16 @@ jQuery(function($)
 		selector.siblings("label").children("span").text(selector.val());
 	}
 
+	$(".mf_form input[type=range]").each(function()
+	{
+		update_range_text($(this));
+	});
+
+	$(document).on('change', ".mf_form input[type=range]", function()
+	{
+		update_range_text($(this));
+	});
+
 	function do_form_type_action(dom_obj)
 	{
 		var equals = dom_obj.attr('data-equals'),
@@ -68,6 +78,16 @@ jQuery(function($)
 			}
 		}
 	}
+
+	$(".form_action select, .form_action input").each(function()
+	{
+		do_form_type_action($(this));
+	});
+
+	$(document).on('change, click', ".form_action select, .form_action input", function()
+	{
+		do_form_type_action($(this));
+	});
 
 	function check_remember_fields()
 	{
@@ -160,6 +180,11 @@ jQuery(function($)
 		});
 	}
 
+	if($(".mf_form .remember").length > 0)
+	{
+		check_remember_fields();
+	}
+
 	function check_zip_code(selector)
 	{
 		var search = selector.val();
@@ -187,10 +212,55 @@ jQuery(function($)
 		}
 	}
 
-	$(".mf_form input[type=range]").each(function()
+	$(".mf_form .form_zipcode input").each(function()
 	{
-		update_range_text($(this));
+		check_zip_code($(this));
 	});
+
+	$(document).on('keyup, focusout', ".mf_form .form_zipcode input", function()
+	{
+		check_zip_code($(this));
+	});
+
+	var dom_radio_multiple = $(".mf_form .form_radio_multiple + .form_radio_multiple");
+
+	if(dom_radio_multiple.length > 0)
+	{
+		var i = 0,
+			selected = 0;
+
+		dom_radio_multiple.each(function()
+		{
+			if($(this).find(".form_radio:selected").length > 0)
+			{
+				selected++;
+			}
+
+			else
+			{
+				$(this).addClass('inactive');
+			}
+
+			i++;
+		});
+
+		if(i > 0 && selected > 0)
+		{
+			$(".mf_form .form_radio_multiple:first-of-type").addClass('inactive');
+		}
+
+		$(document).on('click', ".mf_form .form_radio_multiple input", function(e)
+		{
+			var dom_obj_next = $(e.currentTarget).parents(".form_radio_multiple").next(".form_radio_multiple");
+
+			if(dom_obj_next.length > 0)
+			{
+				dom_obj_next.removeClass('inactive').siblings(".form_radio_multiple").addClass('inactive');
+
+				$("html, body").animate({scrollTop: dom_obj_next.offset().top}, 800);
+			}
+		});
+	}
 
 	$(".form_inline .error, .form_inline h2").each(function()
 	{
@@ -200,21 +270,6 @@ jQuery(function($)
 	$(".mf_form .form_zipcode input").each(function()
 	{
 		$(this).after("<span></span>");
-	});
-
-	$(".form_action select, .form_action input").each(function()
-	{
-		do_form_type_action($(this));
-	});
-
-	if($(".mf_form .remember").length > 0)
-	{
-		check_remember_fields();
-	}
-
-	$(".mf_form .form_zipcode input").each(function()
-	{
-		check_zip_code($(this));
 	});
 
 	$(document).on('click', ".form_link", function(event)
@@ -309,21 +364,6 @@ jQuery(function($)
 			return false;
 		});
 	}*/
-
-	$(document).on('change', ".mf_form input[type=range]", function()
-	{
-		update_range_text($(this));
-	});
-
-	$(document).on('keyup, focusout', ".mf_form .form_zipcode input", function()
-	{
-		check_zip_code($(this));
-	});
-
-	$(document).on('change, click', ".form_action select, .form_action input", function()
-	{
-		do_form_type_action($(this));
-	});
 
 	$(document).on('click', ".mf_form_submit button.button-primary", function()
 	{

@@ -58,6 +58,16 @@
 		display: none;
 	}
 
+	.mf_form .form_radio_multiple.inactive
+	{
+		opacity: .5;
+	}
+	
+		.mf_form .form_radio_multiple.inactive:hover
+		{
+			opacity: 1;
+		}
+
 	/* Inline forms */
 	.form_inline
 	{
