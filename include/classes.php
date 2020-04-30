@@ -61,20 +61,28 @@ class mf_form
 	{
 		global $wpdb;
 
-		$setting_form_clear_spam = get_option_or_default('setting_form_clear_spam', 6);
+		$obj_cron = new mf_cron();
+		$obj_cron->start(__CLASS__);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' AND answerCreated < DATE_SUB(NOW(), INTERVAL %d MONTH)", $setting_form_clear_spam));
-
-		if($wpdb->num_rows > 0)
+		if($obj_cron->is_running == false)
 		{
-			foreach($result as $r)
-			{
-				$intAnswerID = $r->answerID;
+			$setting_form_clear_spam = get_option_or_default('setting_form_clear_spam', 6);
 
-				$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = %d", $intAnswerID));
-				$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = %d", $intAnswerID));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' AND answerCreated < DATE_SUB(NOW(), INTERVAL %d MONTH)", $setting_form_clear_spam));
+
+			if($wpdb->num_rows > 0)
+			{
+				foreach($result as $r)
+				{
+					$intAnswerID = $r->answerID;
+
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = %d", $intAnswerID));
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = %d", $intAnswerID));
+				}
 			}
 		}
+
+		$obj_cron->end();
 	}
 
 	function init()
