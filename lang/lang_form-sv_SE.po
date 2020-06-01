@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-15 14:43+0100\n"
+"POT-Creation-Date: 2020-05-28 07:48+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -692,6 +692,9 @@ msgstr "Godkänn"
 
 msgid "Test Payment"
 msgstr "Testbetalning"
+
+msgid "Token"
+msgstr "Behörighetsnyckel"
 
 msgid "Meta Data"
 msgstr "Metadata"
