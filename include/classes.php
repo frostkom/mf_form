@@ -2343,7 +2343,7 @@ class mf_form
 		}
 	}
 
-	function get_form_if_from_answer($intAnswerID)
+	function get_form_id_from_answer($intAnswerID)
 	{
 		global $wpdb;
 
@@ -2363,7 +2363,7 @@ class mf_form
 
 		if(!($this->id > 0))
 		{
-			$this->get_form_if_from_answer($intAnswerID);
+			$this->get_form_id_from_answer($intAnswerID);
 		}
 
 		$intForm2TypeID = $this->get_form_email_field();
@@ -5516,7 +5516,15 @@ class mf_form_output
 
 			else if(!isset($field_data['value']) || $field_data['value'] == '')
 			{
-				$field_data['value'] = $this->row->formTypeFetchFrom;
+				if(isset($_GET[$this->row->formTypeFetchFrom]) && $_GET[$this->row->formTypeFetchFrom] != '')
+				{
+					$field_data['value'] = check_var($this->row->formTypeFetchFrom);
+				}
+
+				else
+				{
+					$field_data['value'] = $this->row->formTypeFetchFrom;
+				}
 			}
 		}
 	}
@@ -5920,21 +5928,21 @@ class mf_form_output
 
 		if($this->in_edit_mode == true)
 		{
-			$row_settings = show_checkbox(array('name' => "display_".$this->row->form2TypeID, 'text' => __("Display", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeDisplay, 'xtra' => "class='ajax_checkbox' rel='display/type/".$this->row->form2TypeID."'"));
+			$row_settings = show_checkbox(array('name' => 'display_'.$this->row->form2TypeID, 'text' => __("Display", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeDisplay, 'xtra' => "class='ajax_checkbox' rel='display/type/".$this->row->form2TypeID."'"));
 
 			if($this->show_required == true)
 			{
-				$row_settings .= show_checkbox(array('name' => "require_".$this->row->form2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->form2TypeID."'"));
+				$row_settings .= show_checkbox(array('name' => 'require_'.$this->row->form2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->form2TypeID."'"));
 			}
 
 			if($this->show_autofocus == true)
 			{
-				$row_settings .= show_checkbox(array('name' => "autofocus_".$this->row->form2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->form2TypeID."'"));
+				$row_settings .= show_checkbox(array('name' => 'autofocus_'.$this->row->form2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->form2TypeID."'"));
 			}
 
 			if($this->show_remember == true)
 			{
-				$row_settings .= show_checkbox(array('name' => "remember_".$this->row->form2TypeID, 'text' => __("Remember Answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
+				$row_settings .= show_checkbox(array('name' => 'remember_'.$this->row->form2TypeID, 'text' => __("Remember Answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
 			}
 
 			if($this->show_copy == true)
