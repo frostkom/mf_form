@@ -551,11 +551,11 @@ class mf_form
 		$count_forms = $this->count_forms();
 
 		$menu_root = 'mf_form/';
-		$menu_start = $count_forms > 0 ? $menu_root."list/index.php" : $menu_root."create/index.php";
+		$menu_start = ($count_forms > 0 ? $menu_root."list/index.php" : $menu_root."create/index.php");
 
 		$menu_capability = 'edit_pages';
 
-		$count_message = $count_forms > 0 ? $this->get_count_answer_message() : "";
+		$count_message = ($count_forms > 0 ? $this->get_count_answer_message() : "");
 
 		$menu_title = __("Forms", 'lang_form');
 		add_menu_page("", $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms', 21);
@@ -820,7 +820,10 @@ class mf_form
 
 	function widgets_init()
 	{
-		register_widget('widget_form');
+		if(count($this->get_for_select(array('local_only' => true, 'force_has_page' => false))) > 1)
+		{
+			register_widget('widget_form');
+		}
 	}
 
 	function phpmailer_init($phpmailer)
@@ -6057,7 +6060,7 @@ class widget_form extends WP_Widget
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='form-title'"))
-			.show_select(array('data' => $obj_form->get_for_select(array('force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
+			.show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
 		."</div>";
 	}
 }
