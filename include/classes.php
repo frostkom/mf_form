@@ -515,29 +515,32 @@ class mf_form
 					$i++;
 				}
 
-				$date_diff_old = time_between_dates(array('start' => $dteAnswerOld, 'end' => $dteAnswerNew, 'type' => 'round', 'return' => 'minutes'));
-				$date_diff_new = time_between_dates(array('start' => $dteAnswerNew, 'end' => date("Y-m-d H:i:s"), 'type' => 'round', 'return' => 'minutes'));
-
-				if($date_diff_new > ($date_diff_old * 2) && $date_diff_new > (60 * 24 * 2) && $last_viewed < date("Y-m-d H:i:s", strtotime("-".$date_diff_new." minute")))
+				if($dteAnswerNew > DEFAULT_DATE && $dteAnswerOld > DEFAULT_DATE)
 				{
-					$message_temp = sprintf(__("There are no answers since %s", 'lang_form'), format_date($dteAnswerNew));
+					$date_diff_old = time_between_dates(array('start' => $dteAnswerOld, 'end' => $dteAnswerNew, 'type' => 'round', 'return' => 'minutes'));
+					$date_diff_new = time_between_dates(array('start' => $dteAnswerNew, 'end' => date("Y-m-d H:i:s"), 'type' => 'round', 'return' => 'minutes'));
 
-					switch($data['return_type'])
+					if($date_diff_new > ($date_diff_old * 2) && $date_diff_new > (60 * 24 * 2) && $last_viewed < date("Y-m-d H:i:s", strtotime("-".$date_diff_new." minute")))
 					{
-						default:
-						case 'html':
-							$out = "&nbsp;<span title='".$message_temp."'>
-								<i class='fa fa-exclamation-triangle yellow'></i>
-							</span>";
-						break;
+						$message_temp = sprintf(__("There are no answers since %s", 'lang_form'), format_date($dteAnswerNew));
 
-						case 'array':
-							$out = array(
-								'title' => $message_temp,
-								'tag' => 'form',
-								'link' => admin_url("admin.php?page=mf_form/list/index.php"),
-							);
-						break;
+						switch($data['return_type'])
+						{
+							default:
+							case 'html':
+								$out = "&nbsp;<span title='".$message_temp."'>
+									<i class='fa fa-exclamation-triangle yellow'></i>
+								</span>";
+							break;
+
+							case 'array':
+								$out = array(
+									'title' => $message_temp,
+									'tag' => 'form',
+									'link' => admin_url("admin.php?page=mf_form/list/index.php"),
+								);
+							break;
+						}
 					}
 				}
 			}
