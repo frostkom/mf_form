@@ -21,13 +21,15 @@ if($obj_form->check_allow_edit())
 			{
 				$obj_form->form2type_id_example = $obj_form->form2type_id > 0 ? $obj_form->form2type_id : 123;
 
-				$form_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_form'), "[answer_id]", "[label_".$obj_form->form2type_id_example."]", "[answer_".$obj_form->form2type_id_example."]")
+				$form_email_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_form'), "[answer_id]", "[label_".$obj_form->form2type_id_example."]", "[answer_".$obj_form->form2type_id_example."]")
 					."&content=".sprintf(__("Ticket: %s, Answers: %s", 'lang_form'), "[answer_id]", "[form_fields]");
 
 				if(is_plugin_active("mf_webshop/index.php"))
 				{
-					$form_page_shortcodes .= ($form_page_shortcodes != '' ? ", " : "").sprintf(__("Document Types: %s, Products: %s, Product Name: %s, Yes Link: %s, No Link: %s", 'lang_form'), "[doc_types]", "[products]", "[product]", "[link_yes]", "[link_no]");
+					$form_email_page_shortcodes .= ($form_email_page_shortcodes != '' ? ", " : "").sprintf(__("Document Types: %s, Products: %s, Product Name: %s, Yes Link: %s, No Link: %s", 'lang_form'), "[doc_types]", "[products]", "[product]", "[link_yes]", "[link_no]");
 				}
+
+				$form_answer_page_shortcodes = "&content=".sprintf(__("%sDisplay this...%s%s...or this%s", 'lang_form'), "[if id > 1]", "[end_if]", "[else]", "[end_else]");
 
 				$arr_data_pages = $obj_form->get_pages_for_select();
 
@@ -290,8 +292,8 @@ if($obj_form->check_allow_edit())
 							</div>
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
-								<div class='inside'>"
-									.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $obj_form->answer_url, 'text' => __("Confirmation Page", 'lang_form'), 'suffix' => get_option_page_suffix(array('value' => $obj_form->answer_url)))) //get_option_page_suffix(array('value' => $option))." <a href='".admin_url("post-new.php?post_type=page")."'><i class='fa fa-plus-circle fa-lg'></i></a>"
+								<div class='inside'>".
+									show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $obj_form->answer_url, 'text' => __("Confirmation Page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_answer_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>")) //, 'suffix' => get_option_page_suffix(array('value' => $obj_form->answer_url))
 									.show_textfield(array('name' => 'strFormMandatoryText', 'text' => __("Text when mandatory fields have not been entered", 'lang_form'), 'value' => $obj_form->mandatory_text, 'placeholder' => __("Please, enter all required fields", 'lang_form'), 'maxlength' => 100))
 									."<div class='flex_flow'>"
 										.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $obj_form->button_symbol, 'text' => __("Button Symbol", 'lang_form')))
@@ -320,12 +322,12 @@ if($obj_form->check_allow_edit())
 									}
 
 									echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 1, 'compare' => $obj_form->email_notify))
-									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $obj_form->email_notify_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $obj_form->email_notify_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_email_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 
 									if($obj_form->has_email_field() > 0)
 									{
 										echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 1, 'compare' => $obj_form->email_confirm))
-										.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $obj_form->email_confirm_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+										.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $obj_form->email_confirm_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_email_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 									}
 
 									echo show_textfield(array('name' => 'strFormEmail', 'text' => __("Send From/To", 'lang_form'), 'value' => $obj_form->email, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
