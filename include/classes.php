@@ -6006,7 +6006,7 @@ class widget_form extends WP_Widget
 {
 	function __construct()
 	{
-		$widget_ops = array(
+		$this->widget_ops = array(
 			'classname' => 'form',
 			'description' => __("Display a form that you have previously created", 'lang_form')
 		);
@@ -6016,7 +6016,7 @@ class widget_form extends WP_Widget
 			'form_id' => "",
 		);
 
-		parent::__construct($widget_ops['classname'].'-widget', __("Form", 'lang_form'), $widget_ops);
+		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Form", 'lang_form'), $this->widget_ops);
 	}
 
 	function widget($args, $instance)
@@ -6062,7 +6062,7 @@ class widget_form extends WP_Widget
 		$obj_form = new mf_form();
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='form-title'"))
+			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
 		."</div>";
 	}
