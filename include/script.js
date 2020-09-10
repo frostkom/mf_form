@@ -272,10 +272,9 @@ jQuery(function($)
 		$(this).after("<span></span>");
 	});
 
-	$(document).on('click', ".form_link", function(event)
+	$(document).on('click', ".form_link", function()
 	{
-		var dom_obj_link = $(this),
-			dom_obj_inline = $("#inline_form_" + dom_obj_link.attr('rel')),
+		var dom_obj = $("#inline_form_" + $(this).attr('rel')),
 			dom_overlay = $("#overlay_form > div");
 
 		if($("#wrapper").length > 0)
@@ -294,13 +293,13 @@ jQuery(function($)
 
 			else
 			{
-				dom_overlay.html("<i class='fa fa-times fa-2x'></i>" + dom_obj_inline.html()).parent("#overlay_form").fadeIn();
+				dom_overlay.html("<i class='fa fa-times fa-2x'></i>" + dom_obj.html()).parent("#overlay_form").fadeIn();
 			}
 		}
 
 		else
 		{
-			dom_obj_inline.toggleClass('hide');
+			dom_obj.toggleClass('hide');
 		}
 
 		return false;
