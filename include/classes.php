@@ -205,11 +205,12 @@ class mf_form
 		$option = get_option($setting_key, array('email', 'filter', 'honeypot'));
 
 		$arr_data = array(
-			'honeypot' => "Honeypot",
+			'honeypot' => __("Honeypot", 'lang_form'),
 			'email' => __("Recurring E-mail", 'lang_form'),
 			'filter' => sprintf(__("%s and Links", 'lang_form'), "HTML"),
-			//'urls' => "URLs",
-			//'emails' => "Emails",
+			'contains_urls' => __("Contains URLs", 'lang_form'),
+			'contains_emails' => __("Contains E-mails", 'lang_form'),
+			'contains_phone_numbers' => __("Contains Phone Numbers", 'lang_form'),
 		);
 
 		echo show_select(array('data' => $arr_data, 'name' => $setting_key."[]", 'value' => $option));
@@ -2914,8 +2915,32 @@ class mf_form
 		}
 	}
 
+	function contains_urls($string)
+	{
+		return preg_match('/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6}/', $string);
+	}
+
+	function contains_emails($string)
+	{
+		return preg_match('/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}/', $string);
+	}
+
+	function contains_phone_numbers($string)
+	{
+		$string = str_replace(array(" ", "(", ")", "-", ".", ","), "", $string);
+
+		return preg_match('/\d{8,}/', $string); // (^(([\+]\d{1,3})?[ \.-]?[\(]?\d{3}[\)]?)?[ \.-]?\d{3}[ \.-]?\d{4}$) or ([0-9]{3}\s*\([0-9]{3}\)\s*[0-9]{4}) or (\[[0-9]{2}\.[0-9]{1},[0-9]{2}-[0-9]{1}-[0-9]{2}\.[0-9]{2}\])
+	}
+
 	function get_spam_rules($data = array())
 	{
+		global $post, $obj_theme_core;
+		
+		if(!isset($obj_theme_core))
+		{
+			$obj_theme_core = new mf_theme_core();
+		}
+
 		if(!isset($data['id'])){		$data['id'] = 0;}
 		if(!isset($data['exclude'])){	$data['exclude'] = '';}
 		if(!isset($data['type'])){		$data['type'] = '';}
@@ -2923,14 +2948,24 @@ class mf_form
 		$arr_data = array(
 			1 => array('exclude' => 'select_multiple',	'text' => 'contains_html',					'explain' => sprintf(__("Contains %s", 'lang_form'), "HTML")),
 			2 => array('exclude' => 'referer_url',		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => sprintf(__("Link including %s", 'lang_form'), "http")),
-			3 => array('exclude' => '',					'text' => "/([qm]){5}/",					'explain' => __("Question marks", 'lang_form')),
-			4 => array('exclude' => '',					'text' => "/(bit\.ly)/",					'explain' => __("Shortening links", 'lang_form')),
-			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("URL shortcodes", 'lang_form')),
+			3 => array('exclude' => '',					'text' => "/([qm]){5}/",					'explain' => __("Question Marks", 'lang_form')),
+			4 => array('exclude' => '',					'text' => "/(bit\.ly)/",					'explain' => __("Shortening Links", 'lang_form')),
+			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("URL Shortcodes", 'lang_form')),
 			6 => array('exclude' => '',					'text' => "",								'explain' => __("Recurring E-mail", 'lang_form')),
-			7 => array('exclude' => '',					'text' => "",								'explain' => "Honeypot"),
-			//8 => array('exclude' => '',					'text' => array($this, 'contains_urls'),	'explain' => "URLs"),
-			//9 => array('exclude' => '',					'text' => array($this, 'contains_emails'),	'explain' => "Emails"),
+			7 => array('exclude' => '',					'text' => "",								'explain' => __("Honeypot", 'lang_form')),
 		);
+
+		if($data['type'] == 'explain')
+		{
+			$arr_data[8] = array('exclude' => '',		'text' => array($this, 'contains_urls'),			'explain' => __("Contains URLs", 'lang_form'));
+			$arr_data[9] = array('exclude' => '',		'text' => array($this, 'contains_emails'),			'explain' => __("Contains E-mails", 'lang_form'));
+			$arr_data[11] = array('exclude' => '',		'text' => array($this, 'contains_phone_numbers'),	'explain' => __("Contains Phone Numbers", 'lang_form'));
+		}
+
+		if($obj_theme_core->is_theme_active())
+		{
+			$arr_data[10] = array('exclude' => '',		'text' => "/(".$obj_theme_core->get_wp_title().")/",	'explain' => __("Page Title", 'lang_form'));
+		}
 
 		if($data['exclude'] != '')
 		{
@@ -3362,27 +3397,32 @@ class mf_form
 								$this->check_spam_rules(array('code' => $strFormTypeCode, 'text' => $strAnswerText));
 							}
 
-							/*if(in_array('urls', $setting_form_spam))
+							if(in_array('contains_urls', $setting_form_spam))
 							{
-								$this->check_spam_rules(array('code' => $strFormTypeCode, 'text' => $strAnswerText));
-
-								if()
+								if($this->contains_urls($strAnswerText))
 								{
 									$this->is_spam = true;
 									$this->is_spam_id = 8;
 								}
 							}
 
-							if(in_array('emails', $setting_form_spam))
+							if(in_array('contains_emails', $setting_form_spam))
 							{
-								$this->check_spam_rules(array('code' => $strFormTypeCode, 'text' => $strAnswerText));
-
-								if()
+								if($this->contains_emails($strAnswerText))
 								{
 									$this->is_spam = true;
 									$this->is_spam_id = 9;
 								}
-							}*/
+							}
+
+							if(in_array('contains_phone_numbers', $setting_form_spam))
+							{
+								if($this->contains_phone_numbers($strAnswerText))
+								{
+									$this->is_spam = true;
+									$this->is_spam_id = 11;
+								}
+							}
 						break;
 
 						case 'email':
@@ -3892,7 +3932,7 @@ class mf_form
 
 						else if($this->edit_mode == false)
 						{
-							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"))
+							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"))
 							.apply_filters('filter_form_after_fields', '')
 							."<div class='form_button'>"
 								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => $strFormButtonSymbol.$strFormButtonText))
