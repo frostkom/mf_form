@@ -416,9 +416,14 @@ class mf_form
 
 	function admin_init()
 	{
-		$this->combined_head();
-
 		global $pagenow;
+
+		if(!is_plugin_active("mf_base/index.php"))
+		{
+			deactivate_plugins(str_replace("include/classes.php", "index.php", plugin_basename(__FILE__)));
+		}
+
+		$this->combined_head();
 
 		if($pagenow == 'admin.php')
 		{
