@@ -1497,7 +1497,8 @@ class mf_form
 
 						/*if($wpdb->rows_affected > 0)
 						{
-							echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'</script>";
+							mf_redirect(admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id));
+							//echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'</script>";
 						}*/
 					}
 				}
@@ -1643,7 +1644,8 @@ class mf_form
 
 					if($this->type_id == 0)
 					{
-						echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'</script>";
+						mf_redirect(admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id));
+						//echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'</script>";
 					}
 				}
 
@@ -4167,7 +4169,7 @@ class mf_form
 					}
 
 				$out .= "</div>
-				<script>
+				<script defer>
 					jQuery(function($)
 					{"
 						.$js_out
