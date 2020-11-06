@@ -254,8 +254,6 @@ if($obj_form->check_allow_edit())
 									{
 										$shortcode = "[mf_form id=".$obj_form->id."]";
 
-										echo show_textfield(array('text' => __("Shortcode", 'lang_form'), 'value' => $shortcode, 'xtra' => "readonly onclick='this.select()'"));
-
 										$result = get_pages_from_shortcode($shortcode);
 
 										if(count($result) > 0)
@@ -286,6 +284,8 @@ if($obj_form->check_allow_edit())
 											echo " <a href='".admin_url("post-new.php?post_title=".$obj_form->name."&content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
 											echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$obj_form->name."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 										}
+										
+										echo show_textfield(array('text' => __("Shortcode", 'lang_form'), 'value' => $shortcode, 'xtra_class' => "display_on_hover", 'xtra' => "readonly onclick='this.select()'"));
 									}
 
 								echo "</div>

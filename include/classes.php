@@ -2942,7 +2942,7 @@ class mf_form
 	function get_spam_rules($data = array())
 	{
 		global $post, $obj_theme_core;
-		
+
 		if(!isset($obj_theme_core))
 		{
 			$obj_theme_core = new mf_theme_core();
@@ -4544,943 +4544,949 @@ class mf_form_payment
 	}
 }
 
-class mf_form_export extends mf_export
+if(class_exists('mf_export'))
 {
-	function get_defaults()
+	class mf_form_export extends mf_export
 	{
-		$this->plugin = "mf_form";
-	}
-
-	function get_export_data()
-	{
-		global $wpdb;
-
-		$obj_form = new mf_form(array('id' => $this->type));
-		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
-
-		foreach($result as $r)
+		function get_defaults()
 		{
-			switch($r->formTypeID)
+			$this->plugin = "mf_form";
+		}
+
+		function get_export_data()
+		{
+			global $wpdb;
+
+			$obj_form = new mf_form(array('id' => $this->type));
+			$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
+
+			foreach($result as $r)
 			{
-				case 10:
-				case 11:
-				case 16:
-				case 17:
-					$i = 0;
+				switch($r->formTypeID)
+				{
+					case 10:
+					case 11:
+					case 16:
+					case 17:
+						$i = 0;
 
-					$result2 = $wpdb->get_results($wpdb->prepare("SELECT formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $r->form2TypeID));
+						$result2 = $wpdb->get_results($wpdb->prepare("SELECT formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $r->form2TypeID));
 
-					foreach($result2 as $r2)
-					{
-						if($i == 0)
+						foreach($result2 as $r2)
 						{
-							$r->formTypeText .= ":";
+							if($i == 0)
+							{
+								$r->formTypeText .= ":";
+							}
+
+							else
+							{
+								$r->formTypeText .= ";";
+							}
+
+							$r->formTypeText .= $r2->formOptionKey."|".$r2->formOptionValue."|".$r2->formOptionLimit;
+
+							$i++;
 						}
+					break;
+				}
 
-						else
-						{
-							$r->formTypeText .= ";";
-						}
-
-						$r->formTypeText .= $r2->formOptionKey."|".$r2->formOptionValue."|".$r2->formOptionLimit;
-
-						$i++;
-					}
-				break;
+				$this->data[] = array(
+					$r->formTypeID,
+					//$r->formTypeCode,
+					$r->formTypeText,
+					$r->formTypePlaceholder,
+					$r->checkID,
+					$r->formTypeTag,
+					$r->formTypeClass,
+					$r->formTypeFetchFrom,
+					$r->formTypeDisplay,
+					$r->formTypeRequired,
+					$r->formTypeAutofocus,
+					$r->formTypeRemember,
+					$r->form2TypeOrder,
+				);
 			}
-
-			$this->data[] = array(
-				$r->formTypeID,
-				//$r->formTypeCode,
-				$r->formTypeText,
-				$r->formTypePlaceholder,
-				$r->checkID,
-				$r->formTypeTag,
-				$r->formTypeClass,
-				$r->formTypeFetchFrom,
-				$r->formTypeDisplay,
-				$r->formTypeRequired,
-				$r->formTypeAutofocus,
-				$r->formTypeRemember,
-				$r->form2TypeOrder,
-			);
 		}
 	}
-}
 
-class mf_form_answer_export extends mf_export
-{
-	function get_defaults()
+	class mf_form_answer_export extends mf_export
 	{
-		$this->plugin = "mf_form";
-	}
-
-	function get_export_data()
-	{
-		global $wpdb;
-
-		$obj_form = new mf_form(array('id' => $this->type));
-		$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->type));
-
-		$this_row = array();
-
-		foreach($result as $r)
+		function get_defaults()
 		{
-			$intForm2TypeID = $r->form2TypeID;
-			$intFormTypeID = $r->formTypeID;
-			$strFormTypeCode = $r->formTypeCode;
-			$obj_form->label = $r->formTypeText;
-
-			switch($strFormTypeCode)
-			{
-				case 'range':
-					$obj_form->parse_range_label();
-				break;
-
-				case 'select':
-				case 'select_multiple':
-				case 'checkbox_multiple':
-				case 'radio_multiple':
-					list($obj_form->label, $str_select) = explode(":", $obj_form->label);
-				break;
-			}
-
-			$this_row[] = stripslashes(strip_tags($obj_form->label));
+			$this->plugin = "mf_form";
 		}
 
-		if($obj_form->check_if_has_payment())
+		function get_export_data()
 		{
-			$this_row[] = __("Payment", 'lang_form');
-		}
+			global $wpdb;
 
-		$this_row[] = __("Created", 'lang_form');
+			$obj_form = new mf_form(array('id' => $this->type));
+			$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
-		$this->data[] = $this_row;
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formID, answerCreated FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
-
-		foreach($result as $r)
-		{
-			$intAnswerID = $r->answerID;
-			$intFormID = $r->formID;
-			$strAnswerCreated = $r->answerCreated;
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->type));
 
 			$this_row = array();
 
-			$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $intFormID));
-
-			foreach($resultText as $r)
+			foreach($result as $r)
 			{
 				$intForm2TypeID = $r->form2TypeID;
 				$intFormTypeID = $r->formTypeID;
 				$strFormTypeCode = $r->formTypeCode;
 				$obj_form->label = $r->formTypeText;
 
-				$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
-				$rowsAnswer = $wpdb->num_rows;
-
-				if($rowsAnswer > 0)
+				switch($strFormTypeCode)
 				{
-					$r = $resultAnswer[0];
-					$strAnswerText = $r->answerText;
+					case 'range':
+						$obj_form->parse_range_label();
+					break;
 
-					switch($strFormTypeCode)
-					{
-						case 'radio_button':
-							$strAnswerText = 1;
-						break;
-
-						case 'datepicker':
-							$strAnswerText = format_date($strAnswerText);
-						break;
-
-						case 'select':
-						case 'radio_multiple':
-							$strAnswerText = $obj_form->parse_select_info($strAnswerText);
-						break;
-
-						case 'select_multiple':
-						case 'checkbox_multiple':
-							$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
-						break;
-
-						case 'file':
-							$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
-
-							foreach($result as $r)
-							{
-								$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
-							}
-						break;
-					}
-
-					$this_row[] = $strAnswerText;
+					case 'select':
+					case 'select_multiple':
+					case 'checkbox_multiple':
+					case 'radio_multiple':
+						list($obj_form->label, $str_select) = explode(":", $obj_form->label);
+					break;
 				}
 
-				else
-				{
-					$this_row[] = "";
-				}
+				$this_row[] = stripslashes(strip_tags($obj_form->label));
 			}
 
 			if($obj_form->check_if_has_payment())
 			{
-				$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
-
-				$this_row[] = $strAnswerText_temp;
+				$this_row[] = __("Payment", 'lang_form');
 			}
 
-			$this_row[] = $strAnswerCreated;
+			$this_row[] = __("Created", 'lang_form');
 
 			$this->data[] = $this_row;
-		}
-	}
-}
 
-class mf_form_table extends mf_list_table
-{
-	function set_default()
-	{
-		$this->post_type = 'mf_form';
+			$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formID, answerCreated FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
 
-		$this->orderby_default = "post_modified";
-		$this->orderby_default_order = "DESC";
-	}
-
-	function init_fetch()
-	{
-		global $wpdb;
-
-		$this->query_join .= " INNER JOIN ".$wpdb->base_prefix."form ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."form.postID";
-		$this->query_where .= ($this->query_where != '' ? " AND " : "")."blogID = '".$wpdb->blogid."'";
-
-		$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form2answer USING (formID)";
-
-		if($this->search != '')
-		{
-			$this->query_where .= ($this->query_where != '' ? " AND " : "").get_form_xtra("", $this->search, "", "post_title");
-		}
-
-		$this->set_views(array(
-			'db_field' => 'post_status',
-			'types' => array(
-				'all' => __("All", 'lang_form'),
-				'publish' => __("Public", 'lang_form'),
-				'draft' => __("Draft"),
-				'trash' => __("Trash", 'lang_form'),
-			),
-		));
-
-		$this->set_columns(array(
-			'post_title' => __("Name", 'lang_form'),
-			'content' => __("Content", 'lang_form'),
-			'answers' => __("Answers", 'lang_form'),
-			'spam' => __("Spam", 'lang_form'),
-			'answerCreated' => __("Latest Answer", 'lang_form'),
-			'post_modified' => __("Modified", 'lang_form'),
-		));
-
-		$this->set_sortable_columns(array(
-			'post_title',
-			'answerCreated',
-			'post_modified',
-		));
-	}
-
-	function column_default($item, $column_name)
-	{
-		global $wpdb;
-
-		$out = "";
-
-		$post_id = $item['ID'];
-		$post_status = $item['post_status'];
-
-		$obj_form = new mf_form();
-		$obj_form->get_form_id($post_id);
-
-		switch($column_name)
-		{
-			case 'post_title':
-				$strFormName = $item['post_title'];
-
-				if($obj_form->check_allow_edit())
-				{
-					$post_edit_url = admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id);
-				}
-
-				$actions = array();
-
-				if($post_status != 'trash')
-				{
-					if($obj_form->check_allow_edit())
-					{
-						$actions['edit'] = "<a href='".$post_edit_url."'>".__("Edit", 'lang_form')."</a>";
-
-						$query_answers = $obj_form->get_answer_amount(array('form_id' => $obj_form->id));
-
-						if($query_answers == 0)
-						{
-							$actions['delete'] = "<a href='#delete/form/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
-						}
-					}
-
-					$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id), 'form_copy_'.$obj_form->id, '_wpnonce_form_copy')."'>".__("Copy", 'lang_form')."</a>";
-
-					$actions['export'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("Export", 'lang_form')."</a>";
-
-					if($post_status == 'publish' && $obj_form->id > 0)
-					{
-						$shortcode = "[mf_form id=".$obj_form->id."]";
-
-						$result = get_pages_from_shortcode($shortcode);
-
-						if(count($result) > 0)
-						{
-							foreach($result as $post_id_temp)
-							{
-								if($obj_form->check_allow_edit())
-								{
-									$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
-								}
-
-								$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View", 'lang_form')."</a>";
-							}
-						}
-
-						else
-						{
-							if($obj_form->get_form_status() == 'publish')
-							{
-								$post_url = get_permalink($post_id);
-
-								if($post_url != '')
-								{
-									$actions['view'] = "<a href='".$post_url."'>".__("View", 'lang_form')."</a>";
-								}
-							}
-
-							//$actions['add_post'] = "<a href='".admin_url("post-new.php?post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
-							$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
-						}
-					}
-				}
-
-				else if($obj_form->check_allow_edit())
-				{
-					$actions['recover'] = "<a href='".$post_edit_url."&recover'>".__("Recover", 'lang_form')."</a>";
-				}
-
-				if($obj_form->check_allow_edit())
-				{
-					$out .= "<a href='".$post_edit_url."'>".$strFormName."</a>";
-				}
-
-				else
-				{
-					$out .= $strFormName;
-				}
-
-				$out .= $this->row_actions($actions);
-			break;
-
-			case 'content':
-				if($post_status == 'publish')
-				{
-					$out .= "<i class='fa fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
-				}
-
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailConditions, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
-
-				foreach($result as $r)
-				{
-					$strFormEmail = ($r->formEmail != '' ? $r->formEmail : get_bloginfo('admin_email'));
-					$strFormEmailConditions = $r->formEmailConditions;
-					$intFormEmailNotifyPage = $r->formEmailNotifyPage;
-					$intFormEmailConfirm = $r->formEmailConfirm;
-					$intFormEmailConfirmPage = $r->formEmailConfirmPage;
-					$intFormPaymentProvider = $r->formPaymentProvider;
-
-					/*if($strFormEmail != '')
-					{*/
-						if($intFormEmailNotifyPage > 0)
-						{
-							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
-						}
-
-						else
-						{
-							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
-						}
-					//}
-
-					if($strFormEmailConditions != '')
-					{
-						$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
-					}
-
-					if($intFormEmailConfirm > 0)
-					{
-						if($intFormEmailConfirmPage > 0)
-						{
-							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
-						}
-
-						else
-						{
-							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
-						}
-					}
-
-					if($intFormPaymentProvider > 0)
-					{
-						switch($intFormPaymentProvider)
-						{
-							case 3:
-								$icon = "fab fa-paypal";
-							break;
-
-							default:
-								$icon = "fa fa-shopping-cart";
-							break;
-						}
-
-						$out .= "<i class='".$icon." fa-lg grey' title='".__("Provider", 'lang_form')."'></i> ";
-					}
-				}
-
-				if($obj_form->is_form_field_type_used(array('display' => '0')))
-				{
-					$out .= "<i class='fa fa-eye-slash fa-lg grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('required' => true)))
-				{
-					$out .= "<i class='fa fa-asterisk fa-lg grey' title='".__("There are required fields", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('autofocus' => true)))
-				{
-					$out .= "<i class='fa fa-i-cursor fa-lg grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('remember' => true)))
-				{
-					$out .= "<i class='fa fa-sync fa-lg grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
-				}
-
-				$out .= "<br>";
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
-				{
-					$out .= "<i class='fa fa-at fa-lg grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => array(10, 11))))
-				{
-					$out .= "<i class='fa fa-list-alt fa-lg grey' title='".__("Dropdown", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => array(1, 16))))
-				{
-					$out .= "<i class='fa fa-check-square fa-lg grey' title='".__("Checkbox", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 2)))
-				{
-					$out .= "<i class='fa fa-sliders-h fa-lg grey' title='".__("Range", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
-				{
-					$out .= "<i class='fa fa-calendar-alt fa-lg grey' title='".__("Datepicker", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => array(8, 17))))
-				{
-					$out .= "<i class='far fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
-				}
-
-				if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
-				{
-					$out .= "<i class='fa fa-file fa-lg grey' title='".__("File", 'lang_form')."'></i> ";
-				}
-			break;
-
-			case 'answers':
-				if($post_status != 'trash')
-				{
-					$query_answers = $obj_form->get_answer_amount(array('form_id' => $obj_form->id));
-
-					if($query_answers > 0)
-					{
-						$count_message = $obj_form->get_count_answer_message(array('form_id' => $obj_form->id));
-
-						$actions = array(
-							'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>",
-							'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>CSV</a>",
-						);
-
-						if(is_plugin_active("mf_phpexcel/index.php"))
-						{
-							$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run', '_wpnonce_export_run')."'>XLS</a>";
-						}
-
-						$out .= $query_answers.$count_message
-						.$this->row_actions($actions);
-					}
-				}
-			break;
-
-			case 'spam':
-				if($post_status != 'trash')
-				{
-					$query_spam = $obj_form->get_answer_amount(array('form_id' => $obj_form->id, 'is_spam' => 1));
-
-					if($query_spam > 0)
-					{
-						$out .= $query_spam;
-					}
-				}
-			break;
-
-			case 'answerCreated':
-				$dteAnswerCreated = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' ORDER BY answerCreated DESC", $obj_form->id));
-
-				if($dteAnswerCreated > DEFAULT_DATE)
-				{
-					$out .= format_date($dteAnswerCreated);
-				}
-			break;
-
-			case 'post_modified':
-				$out .= format_date($item['post_modified']);
-			break;
-
-			default:
-				if(isset($item[$column_name]))
-				{
-					$out .= $item[$column_name];
-				}
-			break;
-		}
-
-		return $out;
-	}
-}
-
-class mf_answer_table extends mf_list_table
-{
-	function set_default()
-	{
-		global $wpdb, $obj_form;
-
-		$this->arr_settings['query_from'] = $wpdb->base_prefix."form2answer";
-
-		$this->arr_settings['query_select_id'] = "answerID";
-		$this->arr_settings['query_all_id'] = "0";
-		$this->arr_settings['query_trash_id'] = "1";
-		$this->orderby_default = "answerCreated";
-		$this->orderby_default_order = "DESC";
-
-		$this->arr_settings['page_vars'] = array('intFormID' => $obj_form->id);
-	}
-
-	function init_fetch()
-	{
-		global $wpdb, $obj_form;
-
-		$this->query_where .= ($this->query_where != '' ? " AND " : "")."formID = '".$obj_form->id."'";
-
-		if($this->search != '')
-		{
-			$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
-			$this->query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%' OR SOUNDEX(answerText) = SOUNDEX('".$this->search."') OR SOUNDEX(answerEmail) = SOUNDEX('".$this->search."'))";
-		}
-
-		$this->set_views(array(
-			'db_field' => 'answerSpam',
-			'types' => array(
-				'0' => __("All", 'lang_form'),
-				'1' => __("Spam", 'lang_form')
-			),
-		));
-
-		$arr_columns = array();
-
-		if(isset($_GET['answerSpam']) && $_GET['answerSpam'] == 1)
-		{
-			$arr_columns['answerSpam'] = __("Spam", 'lang_form');
-		}
-
-		$obj_form->answer_column = 0;
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id));
-
-		foreach($result as $r)
-		{
-			$strFormTypeCode = $r->formTypeCode;
-			$obj_form->label = $r->formTypeText;
-			$intForm2TypeID2 = $r->form2TypeID;
-
-			switch($strFormTypeCode)
+			foreach($result as $r)
 			{
-				case 'checkbox':
-				case 'radio_button':
-					$label_limit = 10;
-				break;
+				$intAnswerID = $r->answerID;
+				$intFormID = $r->formID;
+				$strAnswerCreated = $r->answerCreated;
 
-				case 'range':
-					$obj_form->parse_range_label();
+				$this_row = array();
 
-					$label_limit = 10;
-				break;
+				$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $intFormID));
 
-				case 'datepicker':
-					$label_limit = 15;
-				break;
+				foreach($resultText as $r)
+				{
+					$intForm2TypeID = $r->form2TypeID;
+					$intFormTypeID = $r->formTypeID;
+					$strFormTypeCode = $r->formTypeCode;
+					$obj_form->label = $r->formTypeText;
 
-				case 'select':
-				case 'select_multiple':
-				case 'checkbox_multiple':
-				case 'radio_multiple':
-					@list($obj_form->label, $str_select) = explode(":", $obj_form->label);
+					$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
+					$rowsAnswer = $wpdb->num_rows;
 
-					$label_limit = 10;
-				break;
+					if($rowsAnswer > 0)
+					{
+						$r = $resultAnswer[0];
+						$strAnswerText = $r->answerText;
 
-				default:
-					$label_limit = 20;
-				break;
+						switch($strFormTypeCode)
+						{
+							case 'radio_button':
+								$strAnswerText = 1;
+							break;
+
+							case 'datepicker':
+								$strAnswerText = format_date($strAnswerText);
+							break;
+
+							case 'select':
+							case 'radio_multiple':
+								$strAnswerText = $obj_form->parse_select_info($strAnswerText);
+							break;
+
+							case 'select_multiple':
+							case 'checkbox_multiple':
+								$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
+							break;
+
+							case 'file':
+								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+								foreach($result as $r)
+								{
+									$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
+								}
+							break;
+						}
+
+						$this_row[] = $strAnswerText;
+					}
+
+					else
+					{
+						$this_row[] = "";
+					}
+				}
+
+				if($obj_form->check_if_has_payment())
+				{
+					$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
+
+					$this_row[] = $strAnswerText_temp;
+				}
+
+				$this_row[] = $strAnswerCreated;
+
+				$this->data[] = $this_row;
+			}
+		}
+	}
+}
+
+if(class_exists('mf_list_table'))
+{
+	class mf_form_table extends mf_list_table
+	{
+		function set_default()
+		{
+			$this->post_type = 'mf_form';
+
+			$this->orderby_default = "post_modified";
+			$this->orderby_default_order = "DESC";
+		}
+
+		function init_fetch()
+		{
+			global $wpdb;
+
+			$this->query_join .= " INNER JOIN ".$wpdb->base_prefix."form ON ".$wpdb->posts.".ID = ".$wpdb->base_prefix."form.postID";
+			$this->query_where .= ($this->query_where != '' ? " AND " : "")."blogID = '".$wpdb->blogid."'";
+
+			$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form2answer USING (formID)";
+
+			if($this->search != '')
+			{
+				$this->query_where .= ($this->query_where != '' ? " AND " : "").get_form_xtra("", $this->search, "", "post_title");
 			}
 
-			$arr_columns[$intForm2TypeID2] = shorten_text(array('string' => $obj_form->label, 'limit' => $label_limit));
+			$this->set_views(array(
+				'db_field' => 'post_status',
+				'types' => array(
+					'all' => __("All", 'lang_form'),
+					'publish' => __("Public", 'lang_form'),
+					'draft' => __("Draft"),
+					'trash' => __("Trash", 'lang_form'),
+				),
+			));
+
+			$this->set_columns(array(
+				'post_title' => __("Name", 'lang_form'),
+				'content' => __("Content", 'lang_form'),
+				'answers' => __("Answers", 'lang_form'),
+				'spam' => __("Spam", 'lang_form'),
+				'answerCreated' => __("Latest Answer", 'lang_form'),
+				'post_modified' => __("Modified", 'lang_form'),
+			));
+
+			$this->set_sortable_columns(array(
+				'post_title',
+				'answerCreated',
+				'post_modified',
+			));
 		}
 
-		if($obj_form->check_if_has_payment())
+		function column_default($item, $column_name)
 		{
-			$arr_columns['payment'] = __("Payment", 'lang_form');
-		}
+			global $wpdb;
 
-		$arr_columns['answerCreated'] = __("Created", 'lang_form');
-		$arr_columns['sent'] = __("Sent", 'lang_form');
+			$out = "";
 
-		$this->set_columns($arr_columns);
+			$post_id = $item['ID'];
+			$post_status = $item['post_status'];
 
-		$this->set_sortable_columns(array(
-			'answerCreated',
-		));
-	}
+			$obj_form = new mf_form();
+			$obj_form->get_form_id($post_id);
 
-	function column_default($item, $column_name)
-	{
-		global $wpdb, $obj_form;
+			switch($column_name)
+			{
+				case 'post_title':
+					$strFormName = $item['post_title'];
 
-		$out = "";
-
-		$intAnswerID = $item['answerID'];
-
-		switch($column_name)
-		{
-			case 'answerSpam':
-				$actions = array();
-
-				if($item['answerSpam'] == true)
-				{
-					$out .= "<i class='fa fa-times fa-lg red'></i>";
-
-					if($item['spamID'] > 0)
+					if($obj_form->check_allow_edit())
 					{
-						$strSpamExplain = $obj_form->get_spam_rules(array('id' => $item['spamID'], 'type' => 'explain'));
+						$post_edit_url = admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id);
+					}
 
-						if($strSpamExplain != '')
+					$actions = array();
+
+					if($post_status != 'trash')
+					{
+						if($obj_form->check_allow_edit())
 						{
-							$out .= "&nbsp;".$strSpamExplain;
+							$actions['edit'] = "<a href='".$post_edit_url."'>".__("Edit", 'lang_form')."</a>";
+
+							$query_answers = $obj_form->get_answer_amount(array('form_id' => $obj_form->id));
+
+							if($query_answers == 0)
+							{
+								$actions['delete'] = "<a href='#delete/form/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+							}
+						}
+
+						$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id), 'form_copy_'.$obj_form->id, '_wpnonce_form_copy')."'>".__("Copy", 'lang_form')."</a>";
+
+						$actions['export'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("Export", 'lang_form')."</a>";
+
+						if($post_status == 'publish' && $obj_form->id > 0)
+						{
+							$shortcode = "[mf_form id=".$obj_form->id."]";
+
+							$result = get_pages_from_shortcode($shortcode);
+
+							if(count($result) > 0)
+							{
+								foreach($result as $post_id_temp)
+								{
+									if($obj_form->check_allow_edit())
+									{
+										$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
+									}
+
+									$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View", 'lang_form')."</a>";
+								}
+							}
+
+							else
+							{
+								if($obj_form->get_form_status() == 'publish')
+								{
+									$post_url = get_permalink($post_id);
+
+									if($post_url != '')
+									{
+										$actions['view'] = "<a href='".$post_url."'>".__("View", 'lang_form')."</a>";
+									}
+								}
+
+								//$actions['add_post'] = "<a href='".admin_url("post-new.php?post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Post", 'lang_form')."</a>";
+								$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
+							}
 						}
 					}
 
-					$actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
-				}
-
-				$out .= $this->row_actions($actions);
-			break;
-
-			case 'payment':
-				$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
-
-				$test_payment_value = $obj_form->get_meta(array('id' => $intAnswerID, 'meta_key' => 'test_payment'));
-
-				if($test_payment_value > 0)
-				{
-					$actions = array(
-						'status' => $strAnswerText_temp,
-					);
-
-					 $out .= __("Test Payment", 'lang_form')
-					 .$this->row_actions($actions);
-				}
-
-				else
-				{
-					$out .= $strAnswerText_temp;
-				}
-
-				if($strAnswerText_temp != '')
-				{
-					list($payment_number, $rest) = explode(":", $strAnswerText_temp);
-
-					switch($payment_number)
+					else if($obj_form->check_allow_edit())
 					{
-						case 101:
-						case 102:
-							$out .= "<i class='set_tr_color' rel='yellow'></i>";
-						break;
-
-						case 103:
-						case 115:
-							$out .= "<i class='set_tr_color' rel='red'></i>";
-						break;
-
-						case 104:
-						case 105:
-						case 116:
-							$out .= "<i class='set_tr_color' rel='green'></i>";
-						break;
+						$actions['recover'] = "<a href='".$post_edit_url."&recover'>".__("Recover", 'lang_form')."</a>";
 					}
-				}
-			break;
 
-			case 'answerCreated':
-				$obj_form->answer_column = 0;
+					if($obj_form->check_allow_edit())
+					{
+						$out .= "<a href='".$post_edit_url."'>".$strFormName."</a>";
+					}
 
-				$actions = array(
-					'id' => __("ID", 'lang_form').": ".$intAnswerID,
-				);
+					else
+					{
+						$out .= $strFormName;
+					}
 
-				if($item['answerIP'] != '')
-				{
-					$actions['ip'] = __("IP", 'lang_form').": ".$item['answerIP'];
-				}
+					$out .= $this->row_actions($actions);
+				break;
 
-				if($item['answerToken'] != '')
-				{
-					$actions['token'] = __("Token", 'lang_form').": ".$item['answerToken'];
-				}
+				case 'content':
+					if($post_status == 'publish')
+					{
+						$out .= "<i class='fa fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
+					}
 
-				$result = $obj_form->get_meta(array('id' => $intAnswerID));
-
-				if($wpdb->num_rows > 0)
-				{
-					$actions['meta_data'] = "<br><strong>".__("Meta Data", 'lang_form')."</strong><br>";
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailConditions, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
 
 					foreach($result as $r)
 					{
-						switch($r->metaKey)
-						{
-							case 'test_payment':
-							case 'user_id':
-								$actions['meta_data'] .= $r->metaKey.": ".get_user_info(array('id' => $r->metaValue))."<br>";
-							break;
+						$strFormEmail = ($r->formEmail != '' ? $r->formEmail : get_bloginfo('admin_email'));
+						$strFormEmailConditions = $r->formEmailConditions;
+						$intFormEmailNotifyPage = $r->formEmailNotifyPage;
+						$intFormEmailConfirm = $r->formEmailConfirm;
+						$intFormEmailConfirmPage = $r->formEmailConfirmPage;
+						$intFormPaymentProvider = $r->formPaymentProvider;
 
-							default:
-								$actions['meta_data'] .= $r->metaKey.": ".$r->metaValue."<br>";
-							break;
-						}
-					}
-				}
-
-				if($obj_form->check_if_has_payment() == false)
-				{
-					$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
-
-					$strSentTo = trim(trim($strSentTo), ', ');
-					$strSentTo = str_replace(", ", "<br>", $strSentTo);
-
-					if($strSentTo != '' && strlen($strSentTo) > 4)
-					{
-						$actions['sent_to'] = "<br><strong>".__("Sent To", 'lang_form')."</strong><br>".$strSentTo;
-					}
-				}
-
-				$out .= format_date($item['answerCreated'])
-				.$this->row_actions($actions);
-			break;
-
-			case 'sent':
-				$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
-				$count_temp = $wpdb->num_rows;
-
-				if($count_temp > 0)
-				{
-					$li_out = $strAnswerEmail_temp = "";
-					$sent_successfully = $sent_failed = $sent_failed_w_type = 0;
-
-					foreach($result_emails as $r)
-					{
-						$strAnswerEmail = $r->answerEmail;
-						$intAnswerSent = $r->answerSent;
-						$strAnswerType = $r->answerType;
-
-						if($intAnswerSent == 1)
-						{
-							$fa_class = "fa fa-check green";
-
-							$sent_successfully++;
-						}
-
-						else
-						{
-							$fa_class = "fa fa-times red";
-
-							$sent_failed++;
-
-							if($strAnswerType != '')
+						/*if($strFormEmail != '')
+						{*/
+							if($intFormEmailNotifyPage > 0)
 							{
-								$sent_failed_w_type++;
+								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
+							}
+
+							else
+							{
+								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
+							}
+						//}
+
+						if($strFormEmailConditions != '')
+						{
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
+						}
+
+						if($intFormEmailConfirm > 0)
+						{
+							if($intFormEmailConfirmPage > 0)
+							{
+								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
+							}
+
+							else
+							{
+								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
 							}
 						}
 
-						if($strAnswerEmail != $strAnswerEmail_temp)
+						if($intFormPaymentProvider > 0)
 						{
-							$li_out .= "<li>
-								<i class='".$fa_class."'></i> ".$strAnswerEmail
-							."</li>";
-
-							$strAnswerEmail_temp = $strAnswerEmail;
-						}
-					}
-
-					$out .= ($sent_failed > 0 ? $sent_successfully."/" : "").$count_temp
-					."<div class='row-actions'>
-						<ul>".$li_out."</ul>";
-
-						if($sent_failed_w_type > 0)
-						{
-							$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
-						}
-
-					$out .= "</div>";
-				}
-			break;
-
-			default:
-				if(isset($item[$column_name]))
-				{
-					$out .= $item[$column_name];
-				}
-
-				else
-				{
-					$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
-
-					$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
-
-					foreach($resultText as $r)
-					{
-						$intForm2TypeID = $r->form2TypeID;
-						$strFormTypeCode = $r->formTypeCode;
-						$obj_form->label = $r->formTypeText;
-						$strCheckCode = $r->checkCode;
-
-						$strAnswerText = "";
-						$actions = array();
-
-						$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
-						$rowsAnswer = $wpdb->num_rows;
-
-						if($rowsAnswer > 0)
-						{
-							$r = $resultAnswer[0];
-							$strAnswerText = $r->answerText;
-
-							switch($strFormTypeCode)
+							switch($intFormPaymentProvider)
 							{
-								case 'radio_button':
-									$strAnswerText = 1;
-								break;
-
-								case 'datepicker':
-									$strAnswerText = $obj_form->pre_format_date($strAnswerText);
-								break;
-
-								case 'select':
-								case 'radio_multiple':
-									$strAnswerText = $obj_form->parse_select_info($strAnswerText);
-								break;
-
-								case 'select_multiple':
-								case 'checkbox_multiple':
-									$obj_form->prefix = $obj_form->get_post_info()."_";
-
-									$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
-								break;
-
-								case 'file':
-									$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
-
-									foreach($result as $r)
-									{
-										$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
-									}
+								case 3:
+									$icon = "fab fa-paypal";
 								break;
 
 								default:
-									if($strCheckCode != '')
-									{
-										switch($strCheckCode)
-										{
-											case 'url':
-												$strAnswerText = "<a href='".$strAnswerText."'>".$strAnswerText."</a>";
-											break;
-
-											case 'email':
-												$strAnswerText = "<a href='mailto:".$strAnswerText."?subject=".__("Re", 'lang_form').": ".$strFormName."'>".$strAnswerText."</a>";
-
-												if($item['answerSpam'] == false)
-												{
-													$actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID, '_wpnonce_answer_spam')."' rel='confirm'>".__("Mark as Spam", 'lang_form')."</a>";
-												}
-											break;
-
-											case 'zip':
-												if(get_bloginfo('language') == "sv-SE")
-												{
-													include_once("class_zipcode.php");
-													$obj_zipcode = new mf_zipcode();
-
-													$actions['zip'] = $obj_zipcode->get_city($strAnswerText);
-												}
-											break;
-										}
-									}
+									$icon = "fa fa-shopping-cart";
 								break;
+							}
+
+							$out .= "<i class='".$icon." fa-lg grey' title='".__("Provider", 'lang_form')."'></i> ";
+						}
+					}
+
+					if($obj_form->is_form_field_type_used(array('display' => '0')))
+					{
+						$out .= "<i class='fa fa-eye-slash fa-lg grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
+					}
+
+					if($obj_form->is_form_field_type_used(array('required' => true)))
+					{
+						$out .= "<i class='fa fa-asterisk fa-lg grey' title='".__("There are required fields", 'lang_form')."'></i> ";
+					}
+
+					if($obj_form->is_form_field_type_used(array('autofocus' => true)))
+					{
+						$out .= "<i class='fa fa-i-cursor fa-lg grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
+					}
+
+					if($obj_form->is_form_field_type_used(array('remember' => true)))
+					{
+						$out .= "<i class='fa fa-sync fa-lg grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
+					}
+
+					$out .= "<br>";
+
+					if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
+					{
+						$out .= "<i class='fa fa-at fa-lg grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
+					}
+
+					if($obj_form->is_form_field_type_used(array('query_type_id' => array(10, 11))))
+					{
+						$out .= "<i class='fa fa-list-alt fa-lg grey' title='".__("Dropdown", 'lang_form')."'></i> ";
+					}
+
+					if($obj_form->is_form_field_type_used(array('query_type_id' => array(1, 16))))
+					{
+						$out .= "<i class='fa fa-check-square fa-lg grey' title='".__("Checkbox", 'lang_form')."'></i> ";
+					}
+
+					if($obj_form->is_form_field_type_used(array('query_type_id' => 2)))
+					{
+						$out .= "<i class='fa fa-sliders-h fa-lg grey' title='".__("Range", 'lang_form')."'></i> ";
+					}
+
+					if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
+					{
+						$out .= "<i class='fa fa-calendar-alt fa-lg grey' title='".__("Datepicker", 'lang_form')."'></i> ";
+					}
+
+					if($obj_form->is_form_field_type_used(array('query_type_id' => array(8, 17))))
+					{
+						$out .= "<i class='far fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
+					}
+
+					if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
+					{
+						$out .= "<i class='fa fa-file fa-lg grey' title='".__("File", 'lang_form')."'></i> ";
+					}
+				break;
+
+				case 'answers':
+					if($post_status != 'trash')
+					{
+						$query_answers = $obj_form->get_answer_amount(array('form_id' => $obj_form->id));
+
+						if($query_answers > 0)
+						{
+							$count_message = $obj_form->get_count_answer_message(array('form_id' => $obj_form->id));
+
+							$actions = array(
+								'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>",
+								'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>CSV</a>",
+							);
+
+							if(is_plugin_active("mf_phpexcel/index.php"))
+							{
+								$actions['export_xls'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=xls"), 'export_run', '_wpnonce_export_run')."'>XLS</a>";
+							}
+
+							$out .= $query_answers.$count_message
+							.$this->row_actions($actions);
+						}
+					}
+				break;
+
+				case 'spam':
+					if($post_status != 'trash')
+					{
+						$query_spam = $obj_form->get_answer_amount(array('form_id' => $obj_form->id, 'is_spam' => 1));
+
+						if($query_spam > 0)
+						{
+							$out .= $query_spam;
+						}
+					}
+				break;
+
+				case 'answerCreated':
+					$dteAnswerCreated = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' ORDER BY answerCreated DESC", $obj_form->id));
+
+					if($dteAnswerCreated > DEFAULT_DATE)
+					{
+						$out .= format_date($dteAnswerCreated);
+					}
+				break;
+
+				case 'post_modified':
+					$out .= format_date($item['post_modified']);
+				break;
+
+				default:
+					if(isset($item[$column_name]))
+					{
+						$out .= $item[$column_name];
+					}
+				break;
+			}
+
+			return $out;
+		}
+	}
+
+	class mf_answer_table extends mf_list_table
+	{
+		function set_default()
+		{
+			global $wpdb, $obj_form;
+
+			$this->arr_settings['query_from'] = $wpdb->base_prefix."form2answer";
+
+			$this->arr_settings['query_select_id'] = "answerID";
+			$this->arr_settings['query_all_id'] = "0";
+			$this->arr_settings['query_trash_id'] = "1";
+			$this->orderby_default = "answerCreated";
+			$this->orderby_default_order = "DESC";
+
+			$this->arr_settings['page_vars'] = array('intFormID' => $obj_form->id);
+		}
+
+		function init_fetch()
+		{
+			global $wpdb, $obj_form;
+
+			$this->query_where .= ($this->query_where != '' ? " AND " : "")."formID = '".$obj_form->id."'";
+
+			if($this->search != '')
+			{
+				$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
+				$this->query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%' OR SOUNDEX(answerText) = SOUNDEX('".$this->search."') OR SOUNDEX(answerEmail) = SOUNDEX('".$this->search."'))";
+			}
+
+			$this->set_views(array(
+				'db_field' => 'answerSpam',
+				'types' => array(
+					'0' => __("All", 'lang_form'),
+					'1' => __("Spam", 'lang_form')
+				),
+			));
+
+			$arr_columns = array();
+
+			if(isset($_GET['answerSpam']) && $_GET['answerSpam'] == 1)
+			{
+				$arr_columns['answerSpam'] = __("Spam", 'lang_form');
+			}
+
+			$obj_form->answer_column = 0;
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id));
+
+			foreach($result as $r)
+			{
+				$strFormTypeCode = $r->formTypeCode;
+				$obj_form->label = $r->formTypeText;
+				$intForm2TypeID2 = $r->form2TypeID;
+
+				switch($strFormTypeCode)
+				{
+					case 'checkbox':
+					case 'radio_button':
+						$label_limit = 10;
+					break;
+
+					case 'range':
+						$obj_form->parse_range_label();
+
+						$label_limit = 10;
+					break;
+
+					case 'datepicker':
+						$label_limit = 15;
+					break;
+
+					case 'select':
+					case 'select_multiple':
+					case 'checkbox_multiple':
+					case 'radio_multiple':
+						@list($obj_form->label, $str_select) = explode(":", $obj_form->label);
+
+						$label_limit = 10;
+					break;
+
+					default:
+						$label_limit = 20;
+					break;
+				}
+
+				$arr_columns[$intForm2TypeID2] = shorten_text(array('string' => $obj_form->label, 'limit' => $label_limit));
+			}
+
+			if($obj_form->check_if_has_payment())
+			{
+				$arr_columns['payment'] = __("Payment", 'lang_form');
+			}
+
+			$arr_columns['answerCreated'] = __("Created", 'lang_form');
+			$arr_columns['sent'] = __("Sent", 'lang_form');
+
+			$this->set_columns($arr_columns);
+
+			$this->set_sortable_columns(array(
+				'answerCreated',
+			));
+		}
+
+		function column_default($item, $column_name)
+		{
+			global $wpdb, $obj_form;
+
+			$out = "";
+
+			$intAnswerID = $item['answerID'];
+
+			switch($column_name)
+			{
+				case 'answerSpam':
+					$actions = array();
+
+					if($item['answerSpam'] == true)
+					{
+						$out .= "<i class='fa fa-times fa-lg red'></i>";
+
+						if($item['spamID'] > 0)
+						{
+							$strSpamExplain = $obj_form->get_spam_rules(array('id' => $item['spamID'], 'type' => 'explain'));
+
+							if($strSpamExplain != '')
+							{
+								$out .= "&nbsp;".$strSpamExplain;
 							}
 						}
 
-						if($strAnswerText != '')
-						{
-							$out .= stripslashes(stripslashes($strAnswerText));
-						}
-
-						if($obj_form->answer_column == 0)
-						{
-							$actions['edit'] = "<a href='".admin_url("admin.php?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID)."'>".__("Edit", 'lang_form')."</a>";
-							$actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
-
-							$obj_form->answer_column++;
-						}
-
-						$out .= $this->row_actions($actions);
+						$actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
 					}
-				}
-			break;
-		}
 
-		return $out;
+					$out .= $this->row_actions($actions);
+				break;
+
+				case 'payment':
+					$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
+
+					$test_payment_value = $obj_form->get_meta(array('id' => $intAnswerID, 'meta_key' => 'test_payment'));
+
+					if($test_payment_value > 0)
+					{
+						$actions = array(
+							'status' => $strAnswerText_temp,
+						);
+
+						 $out .= __("Test Payment", 'lang_form')
+						 .$this->row_actions($actions);
+					}
+
+					else
+					{
+						$out .= $strAnswerText_temp;
+					}
+
+					if($strAnswerText_temp != '')
+					{
+						list($payment_number, $rest) = explode(":", $strAnswerText_temp);
+
+						switch($payment_number)
+						{
+							case 101:
+							case 102:
+								$out .= "<i class='set_tr_color' rel='yellow'></i>";
+							break;
+
+							case 103:
+							case 115:
+								$out .= "<i class='set_tr_color' rel='red'></i>";
+							break;
+
+							case 104:
+							case 105:
+							case 116:
+								$out .= "<i class='set_tr_color' rel='green'></i>";
+							break;
+						}
+					}
+				break;
+
+				case 'answerCreated':
+					$obj_form->answer_column = 0;
+
+					$actions = array(
+						'id' => __("ID", 'lang_form').": ".$intAnswerID,
+					);
+
+					if($item['answerIP'] != '')
+					{
+						$actions['ip'] = __("IP", 'lang_form').": ".$item['answerIP'];
+					}
+
+					if($item['answerToken'] != '')
+					{
+						$actions['token'] = __("Token", 'lang_form').": ".$item['answerToken'];
+					}
+
+					$result = $obj_form->get_meta(array('id' => $intAnswerID));
+
+					if($wpdb->num_rows > 0)
+					{
+						$actions['meta_data'] = "<br><strong>".__("Meta Data", 'lang_form')."</strong><br>";
+
+						foreach($result as $r)
+						{
+							switch($r->metaKey)
+							{
+								case 'test_payment':
+								case 'user_id':
+									$actions['meta_data'] .= $r->metaKey.": ".get_user_info(array('id' => $r->metaValue))."<br>";
+								break;
+
+								default:
+									$actions['meta_data'] .= $r->metaKey.": ".$r->metaValue."<br>";
+								break;
+							}
+						}
+					}
+
+					if($obj_form->check_if_has_payment() == false)
+					{
+						$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
+
+						$strSentTo = trim(trim($strSentTo), ', ');
+						$strSentTo = str_replace(", ", "<br>", $strSentTo);
+
+						if($strSentTo != '' && strlen($strSentTo) > 4)
+						{
+							$actions['sent_to'] = "<br><strong>".__("Sent To", 'lang_form')."</strong><br>".$strSentTo;
+						}
+					}
+
+					$out .= format_date($item['answerCreated'])
+					.$this->row_actions($actions);
+				break;
+
+				case 'sent':
+					$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
+					$count_temp = $wpdb->num_rows;
+
+					if($count_temp > 0)
+					{
+						$li_out = $strAnswerEmail_temp = "";
+						$sent_successfully = $sent_failed = $sent_failed_w_type = 0;
+
+						foreach($result_emails as $r)
+						{
+							$strAnswerEmail = $r->answerEmail;
+							$intAnswerSent = $r->answerSent;
+							$strAnswerType = $r->answerType;
+
+							if($intAnswerSent == 1)
+							{
+								$fa_class = "fa fa-check green";
+
+								$sent_successfully++;
+							}
+
+							else
+							{
+								$fa_class = "fa fa-times red";
+
+								$sent_failed++;
+
+								if($strAnswerType != '')
+								{
+									$sent_failed_w_type++;
+								}
+							}
+
+							if($strAnswerEmail != $strAnswerEmail_temp)
+							{
+								$li_out .= "<li>
+									<i class='".$fa_class."'></i> ".$strAnswerEmail
+								."</li>";
+
+								$strAnswerEmail_temp = $strAnswerEmail;
+							}
+						}
+
+						$out .= ($sent_failed > 0 ? $sent_successfully."/" : "").$count_temp
+						."<div class='row-actions'>
+							<ul>".$li_out."</ul>";
+
+							if($sent_failed_w_type > 0)
+							{
+								$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
+							}
+
+						$out .= "</div>";
+					}
+				break;
+
+				default:
+					if(isset($item[$column_name]))
+					{
+						$out .= $item[$column_name];
+					}
+
+					else
+					{
+						$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+
+						$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
+
+						foreach($resultText as $r)
+						{
+							$intForm2TypeID = $r->form2TypeID;
+							$strFormTypeCode = $r->formTypeCode;
+							$obj_form->label = $r->formTypeText;
+							$strCheckCode = $r->checkCode;
+
+							$strAnswerText = "";
+							$actions = array();
+
+							$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
+							$rowsAnswer = $wpdb->num_rows;
+
+							if($rowsAnswer > 0)
+							{
+								$r = $resultAnswer[0];
+								$strAnswerText = $r->answerText;
+
+								switch($strFormTypeCode)
+								{
+									case 'radio_button':
+										$strAnswerText = 1;
+									break;
+
+									case 'datepicker':
+										$strAnswerText = $obj_form->pre_format_date($strAnswerText);
+									break;
+
+									case 'select':
+									case 'radio_multiple':
+										$strAnswerText = $obj_form->parse_select_info($strAnswerText);
+									break;
+
+									case 'select_multiple':
+									case 'checkbox_multiple':
+										$obj_form->prefix = $obj_form->get_post_info()."_";
+
+										$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
+									break;
+
+									case 'file':
+										$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+										foreach($result as $r)
+										{
+											$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
+										}
+									break;
+
+									default:
+										if($strCheckCode != '')
+										{
+											switch($strCheckCode)
+											{
+												case 'url':
+													$strAnswerText = "<a href='".$strAnswerText."'>".$strAnswerText."</a>";
+												break;
+
+												case 'email':
+													$strAnswerText = "<a href='mailto:".$strAnswerText."?subject=".__("Re", 'lang_form').": ".$strFormName."'>".$strAnswerText."</a>";
+
+													if($item['answerSpam'] == false)
+													{
+														$actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID, '_wpnonce_answer_spam')."' rel='confirm'>".__("Mark as Spam", 'lang_form')."</a>";
+													}
+												break;
+
+												case 'zip':
+													if(get_bloginfo('language') == "sv-SE")
+													{
+														include_once("class_zipcode.php");
+														$obj_zipcode = new mf_zipcode();
+
+														$actions['zip'] = $obj_zipcode->get_city($strAnswerText);
+													}
+												break;
+											}
+										}
+									break;
+								}
+							}
+
+							if($strAnswerText != '')
+							{
+								$out .= stripslashes(stripslashes($strAnswerText));
+							}
+
+							if($obj_form->answer_column == 0)
+							{
+								$actions['edit'] = "<a href='".admin_url("admin.php?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID)."'>".__("Edit", 'lang_form')."</a>";
+								$actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+
+								$obj_form->answer_column++;
+							}
+
+							$out .= $this->row_actions($actions);
+						}
+					}
+				break;
+			}
+
+			return $out;
+		}
 	}
 }
 
