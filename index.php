@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.5.4
+Version: 1.0.5.5
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -50,6 +50,8 @@ if(is_admin())
 
 else
 {
+	add_filter('wp_sitemaps_post_types', array($obj_form, 'wp_sitemaps_post_types'));
+
 	add_action('wp_head', array($obj_form, 'wp_head'), 0);
 	add_action('login_init', array($obj_form, 'login_init'), 0);
 

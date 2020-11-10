@@ -95,7 +95,8 @@ class mf_form
 
 		$args = array(
 			'labels' => $labels,
-			'public' => true,
+			'public' => is_user_logged_in(), // Previously true but changed to hide publicly in sitemap.xml
+			'show_ui' => true,
 			'show_in_menu' => false,
 			'exclude_from_search' => true,
 			'rewrite' => array(
@@ -801,6 +802,13 @@ class mf_form
 		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $answer_id));
 
 		return $wpdb->rows_affected;
+	}
+
+	function wp_sitemaps_post_types($post_types)
+	{
+		unset($post_types[$this->post_type]);
+
+		return $post_types;
 	}
 
 	function wp_head()
