@@ -25,7 +25,7 @@ $type_table = isset($arr_input[1]) ? $arr_input[1] : "";
 $type_id = isset($arr_input[2]) ? $arr_input[2] : "";
 $state_id = isset($arr_input[3]) ? $arr_input[3] : "";
 
-if(get_current_user_id() > 0)
+if(is_user_logged_in())
 {
 	switch($type_action)
 	{

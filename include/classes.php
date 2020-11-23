@@ -2124,7 +2124,7 @@ class mf_form
 				return true;
 			}
 
-			else if(get_current_user_id() > 0)
+			else if(is_user_logged_in())
 			{
 				$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer_meta USING (answerID) WHERE formID = '%d' AND metaKey = %s AND metaValue = %s LIMIT 0, 1", $this->id, 'user_id', get_current_user_id()));
 
@@ -2949,12 +2949,7 @@ class mf_form
 
 	function get_spam_rules($data = array())
 	{
-		global $post, $obj_theme_core;
-
-		if(!isset($obj_theme_core))
-		{
-			$obj_theme_core = new mf_theme_core();
-		}
+		global $post;
 
 		if(!isset($data['id'])){		$data['id'] = 0;}
 		if(!isset($data['exclude'])){	$data['exclude'] = '';}
@@ -2977,9 +2972,19 @@ class mf_form
 			$arr_data[11] = array('exclude' => '',		'text' => array($this, 'contains_phone_numbers'),	'explain' => __("Contains Phone Numbers", 'lang_form'));
 		}
 
-		if($obj_theme_core->is_theme_active())
+		if(class_exists('mf_theme_core'))
 		{
-			$arr_data[10] = array('exclude' => '',		'text' => "/(".$obj_theme_core->get_wp_title().")/",	'explain' => __("Page Title", 'lang_form'));
+			global $obj_theme_core;
+
+			if(!isset($obj_theme_core))
+			{
+				$obj_theme_core = new mf_theme_core();
+			}
+
+			if($obj_theme_core->is_theme_active())
+			{
+				$arr_data[10] = array('exclude' => '',		'text' => "/(".$obj_theme_core->get_wp_title().")/",	'explain' => __("Page Title", 'lang_form'));
+			}
 		}
 
 		if($data['exclude'] != '')
@@ -3664,7 +3669,7 @@ class mf_form
 
 					$this->process_transactional_emails();
 
-					if(get_current_user_id() > 0)
+					if(is_user_logged_in())
 					{
 						$this->set_meta(array('id' => $this->answer_id, 'key' => 'user_id', 'value' => get_current_user_id()));
 					}
@@ -5557,7 +5562,7 @@ class mf_form_output
 	{
 		if($this->row->formTypeFetchFrom != '')
 		{
-			if(substr($this->row->formTypeFetchFrom, 0, 1) == "[" && get_current_user_id() > 0)
+			if(substr($this->row->formTypeFetchFrom, 0, 1) == "[" && is_user_logged_in())
 			{
 				$user_data = get_userdata(get_current_user_id());
 
