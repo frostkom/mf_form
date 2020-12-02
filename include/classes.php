@@ -1949,7 +1949,7 @@ class mf_form
 							'fields' => array(),
 						);
 
-						$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE answerID = '%d' = '1' ORDER BY form2TypeOrder ASC", $this->answer_id));
+						$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->base_prefix."form2type.form2TypeID, formTypeCode, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) INNER JOIN ".$wpdb->base_prefix."form_answer ON ".$wpdb->base_prefix."form2type.form2TypeID = ".$wpdb->base_prefix."form_answer.form2TypeID WHERE answerID = '%d' ORDER BY form2TypeOrder ASC", $this->answer_id));
 
 						foreach($result as $r)
 						{
