@@ -2898,7 +2898,7 @@ class mf_form
 
 	function check_if_spam($data)
 	{
-		if($data['text'] != '' && $data['rule'] != '')
+		if($this->is_spam == false && $data['text'] != '' && $data['rule'] != '')
 		{
 			if(function_exists($data['rule']))
 			{
@@ -3407,46 +3407,40 @@ class mf_form
 
 				$strAnswerText = $strAnswerText_send = check_var($handle2fetch, $strCheckCode, true, '', true, 'post');
 
-				if($strAnswerText != '')
+				if($this->is_spam == false && $strAnswerText != '')
 				{
 					switch($strCheckCode)
 					{
 						case 'char':
-							if(in_array('filter', $setting_form_spam))
+							if($this->is_spam == false && in_array('filter', $setting_form_spam))
 							{
 								$this->check_spam_rules(array('code' => $strFormTypeCode, 'text' => $strAnswerText));
 							}
 
-							if(in_array('contains_urls', $setting_form_spam))
+							if($this->is_spam == false && $strFormTypeCode != 'hidden_field') // Hidden Fields can contain [user_email] which should be allowed
 							{
-								if($this->contains_urls($strAnswerText))
+								if(in_array('contains_emails', $setting_form_spam) && $this->contains_emails($strAnswerText))
+								{
+									$this->is_spam = true;
+									$this->is_spam_id = 9;
+								}
+
+								else if(in_array('contains_urls', $setting_form_spam) && $this->contains_urls($strAnswerText))
 								{
 									$this->is_spam = true;
 									$this->is_spam_id = 8;
 								}
 							}
 
-							if(in_array('contains_emails', $setting_form_spam))
+							if($this->is_spam == false && in_array('contains_phone_numbers', $setting_form_spam) && $this->contains_phone_numbers($strAnswerText))
 							{
-								if($this->contains_emails($strAnswerText))
-								{
-									$this->is_spam = true;
-									$this->is_spam_id = 9;
-								}
-							}
-
-							if(in_array('contains_phone_numbers', $setting_form_spam))
-							{
-								if($this->contains_phone_numbers($strAnswerText))
-								{
-									$this->is_spam = true;
-									$this->is_spam_id = 11;
-								}
+								$this->is_spam = true;
+								$this->is_spam_id = 11;
 							}
 						break;
 
 						case 'email':
-							if(in_array('email', $setting_form_spam))
+							if($this->is_spam == false && in_array('email', $setting_form_spam))
 							{
 								$this->check_spam_email(array('text' => $strAnswerText));
 							}
@@ -3907,7 +3901,7 @@ class mf_form
 				$out .= "</div>";
 			}
 
-			else if($dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
+			else if($this->edit_mode == false && $dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
 			{
 				$error_text = __("This form is not open for submissions anymore", 'lang_form');
 
@@ -4199,7 +4193,7 @@ class mf_form_payment
 {
 	function __construct($id = 0)
 	{
-		global $wpdb;
+		global $wpdb, $obj_form;
 
 		$site_url = get_home_url();
 		$site_url_clean = remove_protocol(array('url' => $site_url, 'clean' => true, 'trim' => true));
@@ -4219,6 +4213,11 @@ class mf_form_payment
 
 		if($this->form_id > 0)
 		{
+			if(!isset($obj_form))
+			{
+				$obj_form = new mf_form();
+			}
+
 			$result = $wpdb->get_results($wpdb->prepare("SELECT formName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
 			foreach($result as $r)
@@ -4236,7 +4235,7 @@ class mf_form_payment
 				$this->payment_tax_rate = $r->formPaymentTax != '' ? $r->formPaymentTax : 25;
 				$this->payment_callback = $r->formPaymentCallback;
 
-				$obj_form = new mf_form(array('id' => $this->form_id));
+				$obj_form->id = $this->form_id;
 
 				$this->prefix = $obj_form->get_post_info()."_";
 
@@ -4568,9 +4567,14 @@ if(class_exists('mf_export'))
 
 		function get_export_data()
 		{
-			global $wpdb;
+			global $wpdb, $obj_form;
 
-			$obj_form = new mf_form(array('id' => $this->type));
+			if(!isset($obj_form))
+			{
+				$obj_form = new mf_form();
+			}
+
+			$obj_form->id = $this->type;
 			$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
@@ -4634,9 +4638,14 @@ if(class_exists('mf_export'))
 
 		function get_export_data()
 		{
-			global $wpdb;
+			global $wpdb, $obj_form;
 
-			$obj_form = new mf_form(array('id' => $this->type));
+			if(!isset($obj_form))
+			{
+				$obj_form = new mf_form();
+			}
+
+			$obj_form->id = $this->type;
 			$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->type));
@@ -4811,14 +4820,18 @@ if(class_exists('mf_list_table'))
 
 		function column_default($item, $column_name)
 		{
-			global $wpdb;
+			global $wpdb, $obj_form;
+
+			if(!isset($obj_form))
+			{
+				$obj_form = new mf_form();
+			}
 
 			$out = "";
 
 			$post_id = $item['ID'];
 			$post_status = $item['post_status'];
 
-			$obj_form = new mf_form();
 			$obj_form->get_form_id($post_id);
 
 			switch($column_name)
@@ -5525,7 +5538,7 @@ class mf_form_output
 
 	function calculate_value($intAnswerID)
 	{
-		global $wpdb;
+		global $wpdb, $obj_form;
 
 		if($intAnswerID > 0)
 		{
@@ -5540,7 +5553,10 @@ class mf_form_output
 					break;
 
 					case 'datepicker':
-						$obj_form = new mf_form();
+						if(!isset($obj_form))
+						{
+							$obj_form = new mf_form();
+						}
 
 						$this->answer_text = $obj_form->pre_format_date($r->answerText);
 					break;
@@ -6087,6 +6103,13 @@ class widget_form extends WP_Widget
 
 	function widget($args, $instance)
 	{
+		global $obj_form;
+
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
 		extract($args);
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
@@ -6103,7 +6126,7 @@ class widget_form extends WP_Widget
 					.$after_title;
 				}
 
-				$obj_form = new mf_form(array('id' => $instance['form_id']));
+				$obj_form->id = $instance['form_id'];
 
 				echo $obj_form->process_form()
 			.$after_widget;
@@ -6123,9 +6146,14 @@ class widget_form extends WP_Widget
 
 	function form($instance)
 	{
-		$instance = wp_parse_args((array)$instance, $this->arr_default);
+		global $obj_form;
 
-		$obj_form = new mf_form();
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
