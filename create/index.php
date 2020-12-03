@@ -374,7 +374,7 @@ if($obj_form->check_allow_edit())
 
 										if(in_array('secret_key', $arr_fields))
 										{
-											echo show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key", 'lang_form')." / ".__("Signature", 'lang_form'), 'value' => $obj_form->payment_hmac, 'maxlength' => 200));
+											echo show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key", 'lang_form')." / ".__("Signature", 'lang_form'), 'value' => $obj_form->payment_hmac, 'xtra' => " autocomplete='new-password'", 'maxlength' => 200));
 										}
 
 										if(in_array('terms_page', $arr_fields))
