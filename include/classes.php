@@ -5306,22 +5306,29 @@ if(class_exists('mf_list_table'))
 
 					if($wpdb->num_rows > 0)
 					{
-						$actions['meta_data'] = "<br><strong>".__("Meta Data", 'lang_form')."</strong><br>";
+						$meta_data_title = "";
 
 						foreach($result as $r)
 						{
+							$meta_data_title .= ($meta_data_title != '' ? "\n" : "");
+
 							switch($r->metaKey)
 							{
 								case 'test_payment':
+									$meta_data_title .= __("Test Payment", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
+								break;
+
 								case 'user_id':
-									$actions['meta_data'] .= $r->metaKey.": ".get_user_info(array('id' => $r->metaValue))."<br>";
+									$meta_data_title .= __("User", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
 								break;
 
 								default:
-									$actions['meta_data'] .= $r->metaKey.": ".$r->metaValue."<br>";
+									$meta_data_title .= $r->metaKey.": ".$r->metaValue;
 								break;
 							}
 						}
+
+						$actions['meta_data'] = "<span title='".$meta_data_title."'>".__("Meta Data", 'lang_form')." (".count($result).")</span>";
 					}
 
 					if($obj_form->check_if_has_payment() == false)
