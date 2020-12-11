@@ -1233,6 +1233,8 @@ class mf_form
 
 	function get_payment_currency_for_select($intFormPaymentProvider)
 	{
+		global $obj_base;
+
 		$arr_data = array(
 			'' => "-- ".__("Choose Here", 'lang_form')." --"
 		);
@@ -1272,9 +1274,12 @@ class mf_form
 			break;
 		}
 
-		$arr_data = array_sort(array('array' => $arr_data, 'on' => 1, 'keep_index' => true));
+		if(!isset($obj_base))
+		{
+			$obj_base = new mf_base();
+		}
 
-		return $arr_data;
+		return $obj_base->array_sort(array('array' => $arr_data, 'on' => 1, 'keep_index' => true));
 	}
 
 	function get_payment_amount_for_select()
