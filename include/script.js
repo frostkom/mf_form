@@ -23,7 +23,7 @@ jQuery(function($)
 	function do_form_type_action(dom_obj)
 	{
 		var equals = dom_obj.attr('data-equals'),
-			show_obj = $("#" + dom_obj.attr('data-show')),
+			show_obj = $("#" + dom_obj.attr('data-display')),
 			show_obj_parent = false;
 
 		if(show_obj.is("input[type=checkbox]")){	show_obj_parent = show_obj.parents(".form_checkbox");}

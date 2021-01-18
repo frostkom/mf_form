@@ -189,14 +189,14 @@ if($obj_form->check_allow_edit())
 
 														echo "<div class='show_actions'>"
 															.show_select(array('data' => $arr_data_equals, 'name' => 'strFormTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'value' => $obj_form->type_action_equals))
-															.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeActionShow', 'text' => __("...show this...", 'lang_form'), 'value' => $obj_form->type_action_show))
+															.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeActionShow', 'text' => __("...display this...", 'lang_form'), 'value' => $obj_form->type_action_show))
 														."</div>";
 													}
 
-													else
+													/*else
 													{
 														echo "Nope: ".$wpdb->last_query;
-													}
+													}*/
 												}
 											}
 

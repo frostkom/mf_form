@@ -83,14 +83,14 @@ jQuery(function($)
 
 	function show_query_settings(this_val)
 	{
-		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_custom_text_tag, .show_custom_tag, .show_custom_class").addClass('hide'); /*, .show_actions*/
+		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_actions, .show_custom_text_tag, .show_custom_tag, .show_custom_class").addClass('hide');
 
 		if(this_val > 0)
 		{
 			switch(this_val)
 			{
 				case '1': /* checkbox */
-					$(".show_checkbox").removeClass('hide'); /*, .show_actions*/
+					$(".show_checkbox, .show_actions").removeClass('hide');
 				break;
 
 				case '2': /* range */
@@ -114,11 +114,11 @@ jQuery(function($)
 				break;
 
 				case '10': /* select */
-					$(".show_select, .show_fetch_from").removeClass('hide'); /*, .show_actions*/
+					$(".show_select, .show_actions, .show_fetch_from").removeClass('hide');
 				break;
 
 				case '11': /* select_multiple */
-					$(".show_select, .show_fetch_from").removeClass('hide');
+					$(".show_select, .show_actions, .show_fetch_from").removeClass('hide');
 				break;
 
 				case '12': /* hidden_field */
@@ -144,7 +144,7 @@ jQuery(function($)
 
 				case '16': /* checkbox_multiple */
 				case '17': /* radio_multiple */
-					$(".show_fetch_from, .show_select").removeClass('hide');
+					$(".show_fetch_from, .show_select, .show_actions").removeClass('hide');
 				break;
 			}
 

@@ -5727,7 +5727,7 @@ class mf_form_output
 				if($this->row->formTypeActionShow > 0)
 				{
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
-					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-show='".$this->query_prefix.$this->row->formTypeActionShow."'";
+					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-display='".$this->query_prefix.$this->row->formTypeActionShow."'";
 				}
 
 				$field_data['text'] = $this->row->formTypeText;
@@ -5812,7 +5812,7 @@ class mf_form_output
 				if($this->row->formTypeActionShow > 0)
 				{
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
-					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-show='".$this->query_prefix.$this->row->formTypeActionShow."'";
+					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-display='".$this->query_prefix.$this->row->formTypeActionShow."'";
 				}
 
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
@@ -5831,7 +5831,7 @@ class mf_form_output
 				if($this->row->formTypeActionShow > 0)
 				{
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
-					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-show='".$this->query_prefix.$this->row->formTypeActionShow."'";
+					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-display='".$this->query_prefix.$this->row->formTypeActionShow."'";
 				}
 
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
