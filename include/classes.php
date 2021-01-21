@@ -336,7 +336,7 @@ class mf_form
 
 	function the_content($html)
 	{
-		global $wpdb;
+		global $wpdb, $post;
 
 		if(get_option('setting_replacement_form') > 0)
 		{
@@ -356,6 +356,8 @@ class mf_form
 
 			$if_statement = get_match("/\[if (.*?)\]/i", $html, false);
 			$if_parts = explode(" ", $if_statement);
+
+			$log_message = $post->ID." -> <a href='".get_permalink($post->ID)."'>".get_post_title($post->ID)."</a> -> ".$if_statement;
 
 			switch($if_parts[0])
 			{
@@ -387,13 +389,13 @@ class mf_form
 						break;
 
 						default:
-							do_log("Unknown if statement (2/".count($if_parts)."): ".$if_statement);
+							do_log("Unknown if statement (2/".count($if_parts)."): ".$log_message);
 						break;
 					}
 				break;
 
 				default:
-					do_log("Unknown if statement (1/".count($if_parts)."): ".$if_statement);
+					do_log("Unknown if statement (1/".count($if_parts)."): ".$log_message);
 				break;
 			}
 		}
