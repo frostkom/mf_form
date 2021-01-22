@@ -5087,11 +5087,20 @@ if(class_exists('mf_list_table'))
 				break;
 
 				case 'answerCreated':
-					$dteAnswerCreated = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' ORDER BY answerCreated DESC", $obj_form->id));
+					$dteAnswerCreated = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerSpam = '%d' ORDER BY answerCreated DESC", $obj_form->id, '0'));
+					$dteAnswerCreated_spam = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerSpam = '%d' ORDER BY answerCreated DESC", $obj_form->id, '1'));
 
 					if($dteAnswerCreated > DEFAULT_DATE)
 					{
-						$out .= format_date($dteAnswerCreated);
+						$actions = array();
+
+						if($dteAnswerCreated_spam > DEFAULT_DATE)
+						{
+							$actions['spam'] = __("Spam", 'lang_form').": ".format_date($dteAnswerCreated_spam);
+						}
+
+						$out .= format_date($dteAnswerCreated)
+						.$this->row_actions($actions);
 					}
 				break;
 
