@@ -3644,7 +3644,7 @@ class mf_form
 
 		if($error_text == '' && $this->is_sent == false && count($this->arr_answer_queries) > 0)
 		{
-			if(check_var($this->prefix.'check') != '' && in_array('honeypot', $setting_form_spam))
+			if(in_array('honeypot', $setting_form_spam) && check_var($this->prefix.'check') != '')
 			{
 				$this->is_spam = true;
 				$this->is_spam_id = 7;
@@ -3957,8 +3957,14 @@ class mf_form
 
 						else if($this->edit_mode == false)
 						{
-							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"))
-							.apply_filters('filter_form_after_fields', '')
+							$setting_form_spam = get_option('setting_form_spam', array('email', 'filter', 'honeypot'));
+
+							if(in_array('honeypot', $setting_form_spam))
+							{
+								$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
+							}
+
+							$out .= apply_filters('filter_form_after_fields', '')
 							."<div class='form_button'>"
 								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => $strFormButtonSymbol.$strFormButtonText))
 								.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
