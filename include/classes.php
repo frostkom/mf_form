@@ -746,7 +746,7 @@ class mf_form
 
 	function count_shortcode_button($count)
 	{
-		if($count == 0 &&$this->count_forms(array('post_status' => 'publish')) > 0)
+		if($count == 0 && $this->count_forms(array('post_status' => 'publish')) > 0)
 		{
 			$count++;
 		}
@@ -1943,6 +1943,35 @@ class mf_form
 					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
 
 					$done_text = __("I have approved the answer for you", 'lang_form');
+				}
+
+				else if(isset($_GET['btnAnswerVerifyPayment']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_verify_payment'], 'answer_verify_payment_'.$this->answer_id))
+				{
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentAmount, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
+
+					foreach($result as $r)
+					{
+						$intFormPaymentAmount = $r->formPaymentAmount;
+						$strFormPaymentCallback = $r->formPaymentCallback;
+
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid and Verified", 'lang_form'), $this->answer_id, '116:%'));
+
+						if($wpdb->rows_affected > 0 && $intFormPaymentAmount > 0 && $strFormPaymentCallback != '')
+						{
+							$paid = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intFormPaymentAmount));
+
+							call_user_func($strFormPaymentCallback, array('paid' => $paid, 'answer_id' => $this->answer_id));
+
+							$this->set_meta(array('id' => $this->answer_id, 'key' => 'payment_verified_by', 'value' => get_current_user_id()));
+
+							$done_text = __("I have verified the payment for you", 'lang_form');
+						}
+
+						else
+						{
+							$error_text = __("I could not verify the payment for you", 'lang_form');
+						}
+					}
 				}
 
 				else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
@@ -3938,9 +3967,9 @@ class mf_form
 						{
 							$r->formTypeText = stripslashes($r->formTypeText);
 
-							$obj_form_output = new mf_form_output(array('id' => $this->id, 'result' => $r, 'in_edit_mode' => $this->edit_mode, 'query_prefix' => $this->prefix));
+							$obj_form_output = new mf_form_output(array('id' => $this->id, 'answer_id' => $this->answer_id, 'result' => $r, 'in_edit_mode' => $this->edit_mode, 'query_prefix' => $this->prefix));
 
-							$obj_form_output->calculate_value($this->answer_id);
+							$obj_form_output->calculate_value(); //$this->answer_id
 							$obj_form_output->get_form_fields();
 
 							$out .= $obj_form_output->get_output($data);
@@ -5267,18 +5296,17 @@ if(class_exists('mf_list_table'))
 				break;
 
 				case 'payment':
+					$actions = array();
+
 					$strAnswerText_temp = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
 
 					$test_payment_value = $obj_form->get_meta(array('id' => $intAnswerID, 'meta_key' => 'test_payment'));
 
 					if($test_payment_value > 0)
 					{
-						$actions = array(
-							'status' => $strAnswerText_temp,
-						);
+						$actions['status'] = $strAnswerText_temp;
 
-						 $out .= __("Test Payment", 'lang_form')
-						 .$this->row_actions($actions);
+						$out .= __("Test Payment", 'lang_form');
 					}
 
 					else
@@ -5294,6 +5322,13 @@ if(class_exists('mf_list_table'))
 						{
 							case 101:
 							case 102:
+								$strFormPaymentCallback = $wpdb->get_var($wpdb->prepare("SELECT formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
+
+								if($strFormPaymentCallback != '')
+								{
+									$actions['verify'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerVerifyPayment&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_verify_payment_'.$intAnswerID, '_wpnonce_answer_verify_payment')."' rel='confirm'>".__("Verify", 'lang_form')."</a>";
+								}
+
 								$out .= "<i class='set_tr_color' rel='yellow'></i>";
 							break;
 
@@ -5309,6 +5344,8 @@ if(class_exists('mf_list_table'))
 							break;
 						}
 					}
+
+					$out .= $this->row_actions($actions);
 				break;
 
 				case 'answerCreated':
@@ -5346,6 +5383,10 @@ if(class_exists('mf_list_table'))
 
 								case 'user_id':
 									$meta_data_title .= __("User", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
+								break;
+
+								case 'payment_verified_by':
+									$meta_data_title .= __("Verified by", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
 								break;
 
 								default:
@@ -5554,28 +5595,22 @@ class mf_form_output
 	function __construct($data)
 	{
 		$this->id = isset($data['id']) ? $data['id'] : 0;
+		$this->answer_id = isset($data['answer_id']) ? $data['answer_id'] : 0;
 
 		$this->row = $data['result'];
 		$this->query_prefix = $data['query_prefix'];
-
-		$this->output = "";
-
+		$this->output = $this->answer_text = "";
 		$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = false;
-
-		$this->answer_text = "";
-
 		$this->in_edit_mode = $data['in_edit_mode'];
-
-		$this->obj_form = new mf_form();
 	}
 
-	function calculate_value($intAnswerID)
+	function calculate_value()
 	{
 		global $wpdb, $obj_form;
 
-		if($intAnswerID > 0)
+		if($this->answer_id > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d' LIMIT 0, 1", $this->row->form2TypeID, $intAnswerID));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d' LIMIT 0, 1", $this->row->form2TypeID, $this->answer_id));
 
 			foreach($result as $r)
 			{
@@ -5609,7 +5644,7 @@ class mf_form_output
 
 	function filter_form_fields(&$field_data)
 	{
-		if($this->row->formTypeFetchFrom != '')
+		if($this->row->formTypeFetchFrom != '' && (!isset($field_data['value']) || $field_data['value'] == ''))
 		{
 			if(substr($this->row->formTypeFetchFrom, 0, 1) == "[" && is_user_logged_in())
 			{
@@ -5635,7 +5670,7 @@ class mf_form_output
 				}
 			}
 
-			else if(!isset($field_data['value']) || $field_data['value'] == '')
+			else
 			{
 				if(isset($_GET[$this->row->formTypeFetchFrom]) && $_GET[$this->row->formTypeFetchFrom] != '')
 				{
@@ -5676,9 +5711,14 @@ class mf_form_output
 
 	function get_options_for_select($string)
 	{
-		global $wpdb;
+		global $wpdb, $obj_form;
 
-		if($this->obj_form->form_option_exists)
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
+		if($obj_form->form_option_exists)
 		{
 			@list($this->label, $str_select) = explode(":", $string);
 
@@ -5690,7 +5730,6 @@ class mf_form_output
 			{
 				$arr_option = $this->check_limit(array('array' => array($r->formOptionID, $r->formOptionValue, $r->formOptionLimit), 'form2TypeID' => $this->row->form2TypeID));
 
-				//$arr_data[($r->formOptionKey == 0 ? '' : $arr_option[0])] = $arr_option[1]; // This will not display the first option that has 0 as value
 				$arr_data[$arr_option[0]] = $arr_option[1];
 			}
 		}
@@ -5969,8 +6008,7 @@ class mf_form_output
 			break;
 
 			case 'hidden_field':
-				//$field_data['value'] = ($this->answer_text != '' ? $this->answer_text : $this->row->formTypeText);
-				$field_data['value'] = "";
+				$field_data['value'] = ($this->answer_id > 0 ? $this->answer_text : '');
 
 				$this->filter_form_fields($field_data);
 
