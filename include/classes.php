@@ -3708,6 +3708,8 @@ class mf_form
 						$this->set_meta(array('id' => $this->answer_id, 'key' => 'user_id', 'value' => get_current_user_id()));
 					}
 
+					$this->set_meta(array('id' => $this->answer_id, 'key' => 'user_agent', 'value' => $_SERVER['HTTP_USER_AGENT']));
+
 					if($this->check_if_has_payment())
 					{
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
@@ -5377,16 +5379,20 @@ if(class_exists('mf_list_table'))
 
 							switch($r->metaKey)
 							{
+								case 'payment_verified_by':
+									$meta_data_title .= __("Verified by", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
+								break;
+
 								case 'test_payment':
 									$meta_data_title .= __("Test Payment", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
 								break;
 
-								case 'user_id':
-									$meta_data_title .= __("User", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
+								case 'user_agent':
+									$meta_data_title .= __("Browser", 'lang_form').": ".$r->metaValue;
 								break;
 
-								case 'payment_verified_by':
-									$meta_data_title .= __("Verified by", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
+								case 'user_id':
+									$meta_data_title .= __("User", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
 								break;
 
 								default:
