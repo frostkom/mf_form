@@ -1169,7 +1169,10 @@ class mf_form
 
 				else// if($data['form_type_id'] > 0 || $r->formTypeCode != 'custom_tag')
 				{
-					$arr_data[$r->formTypeID] = array($r->formTypeName, $r->formTypeDesc);
+					$arr_data[$r->formTypeID] = array(
+						'name' => $r->formTypeName,
+						'desc' => $r->formTypeDesc,
+					);
 				}
 			}
 		}
