@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.6.2
+Version: 1.0.6.5
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -37,7 +37,7 @@ if(is_admin())
 	add_action('wp_trash_post', array($obj_form, 'wp_trash_post'));
 	add_action('deleted_user', array($obj_form, 'deleted_user'));
 
-	add_filter('wp_get_default_privacy_policy_content', array($obj_form, 'add_policy'));
+	//add_filter('wp_get_default_privacy_policy_content', array($obj_form, 'add_policy'));
 	add_filter('wp_privacy_personal_data_exporters', array($obj_form, 'wp_privacy_personal_data_exporters'), 10);
 	add_filter('wp_privacy_personal_data_erasers', array($obj_form, 'wp_privacy_personal_data_erasers'), 10);
 
@@ -58,7 +58,7 @@ else
 	add_filter('the_content', array($obj_form, 'the_content'));
 }
 
-add_shortcode('mf_form', array($obj_form, 'shortcode_form'));
+add_shortcode($obj_form->post_type, array($obj_form, 'shortcode_form'));
 
 add_action('widgets_init', array($obj_form, 'widgets_init'));
 

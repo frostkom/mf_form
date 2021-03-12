@@ -104,7 +104,7 @@ class mf_form
 			),
 		);
 
-		register_post_type('mf_form', $args);
+		register_post_type($this->post_type, $args);
 	}
 
 	function settings_form()
@@ -461,6 +461,22 @@ class mf_form
 				}
 			}
 		}
+
+		if(function_exists('wp_add_privacy_policy_content'))
+		{
+			if($this->get_amount() > 0)
+			{
+				$content = __("Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient.", 'lang_form');
+
+				if($this->has_remember_fields())
+				{
+					$content .= "\n\n"
+					.sprintf(__("When a visitor enters personal information in a form it is also saved in the so called %s which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", 'lang_form'), "'localStorage'");
+				}
+
+				wp_add_privacy_policy_content(__("Forms", 'lang_form'), $content);
+			}
+		}
 	}
 
 	function get_count_answer_message($data = array())
@@ -564,7 +580,7 @@ class mf_form
 
 	function admin_menu()
 	{
-		$count_forms = $this->count_forms();
+		$count_forms = $this->get_amount();
 
 		$menu_root = 'mf_form/';
 		$menu_start = ($count_forms > 0 ? $menu_root."list/index.php" : $menu_root."create/index.php");
@@ -581,8 +597,8 @@ class mf_form
 
 		if($count_forms > 0)
 		{
-			$menu_title = " - ".__("Add New", 'lang_form');
-			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_root.'create/index.php');
+			$menu_title = __("Add New", 'lang_form');
+			add_submenu_page($menu_start, $menu_title, " - ".$menu_title, $menu_capability, $menu_root.'create/index.php');
 
 			$menu_title = __("Answers", 'lang_form');
 			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'answer/index.php');
@@ -628,9 +644,9 @@ class mf_form
 		return ($form_id > 0);
 	}
 
-	function add_policy($content)
+	/*function add_policy($content)
 	{
-		if($this->count_forms() > 0)
+		if($this->get_amount() > 0)
 		{
 			$content .= "<h3>".__("Forms", 'lang_form')."</h3>
 			<p>"
@@ -646,7 +662,7 @@ class mf_form
 		}
 
 		return $content;
-	}
+	}*/
 
 	function export_personal_data($email_address, $page = 1)
 	{
@@ -746,7 +762,7 @@ class mf_form
 
 	function count_shortcode_button($count)
 	{
-		if($count == 0 && $this->count_forms(array('post_status' => 'publish')) > 0)
+		if($count == 0 && $this->get_amount(array('post_status' => 'publish')) > 0)
 		{
 			$count++;
 		}
@@ -775,7 +791,7 @@ class mf_form
 			}
 
 			$out .= "<h3>".__("Choose a Form", 'lang_form')."</h3>"
-			.show_select(array('data' => $arr_data, 'xtra' => "rel='mf_form'"));
+			.show_select(array('data' => $arr_data, 'xtra' => "rel=".$this->post_type));
 		}
 
 		return $out;
@@ -1425,7 +1441,7 @@ class mf_form
 
 						else
 						{
-							$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = 'mf_form' AND post_title = '%d' LIMIT 0, 1", $this->name));
+							$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = '%d' LIMIT 0, 1", $this->post_type, $this->name));
 
 							if($wpdb->num_rows > 0)
 							{
@@ -1435,7 +1451,7 @@ class mf_form
 							else
 							{
 								$post_data = array(
-									'post_type' => 'mf_form',
+									'post_type' => $this->post_type,
 									'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
 									'post_title' => $this->name,
 								);
@@ -1817,7 +1833,7 @@ class mf_form
 						$strFormName = $this->get_form_name($this->id);
 
 						$post_data = array(
-							'post_type' => 'mf_form',
+							'post_type' => $this->post_type,
 							'post_status' => 'publish',
 							'post_title' => $strFormName." (".__("copy", 'lang_form').")",
 						);
@@ -2129,11 +2145,11 @@ class mf_form
 		return $out;
 	}
 
-	function count_forms($data = array())
+	function get_amount($data = array())
 	{
 		global $wpdb;
 
-		return $wpdb->get_var("SELECT COUNT(ID) FROM ".$wpdb->posts." WHERE post_type = 'mf_form'");
+		return $wpdb->get_var($wpdb->prepare("SELECT COUNT(ID) FROM ".$wpdb->posts." WHERE post_type = %s", $this->post_type));
 	}
 
 	function is_poll()
@@ -4574,6 +4590,8 @@ class mf_form_payment
 
 	function process_callback()
 	{
+		global $obj_form;
+
 		$request_type = substr($_SERVER['REQUEST_URI'], 15);
 
 		$this->is_accept = isset($_GET['accept']) || $request_type == "accept";
@@ -4594,7 +4612,7 @@ class mf_form_payment
 			."POST: ".var_export($_POST, true)."\n\n"
 			."THIS: ".var_export($this, true)."\n\n";
 
-		list($upload_path, $upload_url) = get_uploads_folder('mf_form');
+		list($upload_path, $upload_url) = get_uploads_folder($obj_form->post_type);
 
 		$success = set_file_content(array('file' => $upload_path.$file, 'mode' => 'a', 'content' => trim($debug)));*/
 		##################
@@ -4823,7 +4841,9 @@ if(class_exists('mf_list_table'))
 	{
 		function set_default()
 		{
-			$this->post_type = 'mf_form';
+			global $obj_form;
+
+			$this->post_type = $obj_form->post_type;
 
 			$this->orderby_default = "post_modified";
 			$this->orderby_default_order = "DESC";
