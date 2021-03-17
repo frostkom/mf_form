@@ -9,7 +9,7 @@ if($obj_form->id > 0)
 	$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 
 	echo "<div class='wrap'>
-		<h2>".__("Answers", 'lang_form')." (".$strFormName.")</h2>"
+		<h2>".__("Answers", $obj_form->lang_key)." (".$strFormName.")</h2>"
 		.get_notification()
 		.$obj_form->get_pie_chart();
 
@@ -28,7 +28,7 @@ if($obj_form->id > 0)
 else
 {
 	echo "<div class='wrap'>
-		<h2>".__("Answers", 'lang_form')."</h2>
-		<p><em>".sprintf(__("I could not find a form with the ID %s", 'lang_form'), "'".$obj_form->id."'")."</em></p>
+		<h2>".__("Answers", $obj_form->lang_key)."</h2>
+		<p><em>".sprintf(__("I could not find a form with the ID %s", $obj_form->lang_key), "'".$obj_form->id."'")."</em></p>
 	</div>";
 }

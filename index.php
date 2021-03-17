@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.6.5
+Version: 1.0.6.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -16,6 +16,8 @@ GitHub Plugin URI: frostkom/mf_form
 
 include_once("include/classes.php");
 include_once("include/functions.php");
+
+load_plugin_textdomain('lang_form', false, dirname(plugin_basename(__FILE__))."/lang/");
 
 $obj_form = new mf_form();
 
@@ -68,8 +70,6 @@ add_action('wp_ajax_nopriv_submit_form', 'submit_form');*/
 add_filter('single_template', 'custom_templates_form');
 
 add_action('phpmailer_init', array($obj_form, 'phpmailer_init'), 0);
-
-load_plugin_textdomain('lang_form', false, dirname(plugin_basename(__FILE__))."/lang/");
 
 function activate_form()
 {
@@ -270,22 +270,22 @@ function activate_form()
 	}
 
 	$arr_form_check = array(
-		1 => array('name' => __("Number", 'lang_form'),				'code' => 'int',		'pattern' => '[0-9]*'),
-		2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip',		'pattern' => '[0-9]{5}'),
-		5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email',		'pattern' => ''),
-		6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno',		'pattern' => '\d*'),
-		7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
-		8 => array('name' => __("URL", 'lang_form'),				'code' => 'url',		'pattern' => ''),
-		9 => array('name' => __("Name", 'lang_form'),				'code' => 'name',		'pattern' => ''),
-		10 => array('name' => __("Street Address", 'lang_form'),	'code' => 'address',	'pattern' => ''),
-		11 => array('name' => __("City", 'lang_form'),				'code' => 'city',		'pattern' => ''),
-		11 => array('name' => __("Country", 'lang_form'),			'code' => 'country',	'pattern' => ''),
+		1 => array('name' => __("Number", $obj_form->lang_key),				'code' => 'int',		'pattern' => '[0-9]*'),
+		2 => array('name' => __("Zip Code", $obj_form->lang_key),			'code' => 'zip',		'pattern' => '[0-9]{5}'),
+		5 => array('name' => __("E-mail", $obj_form->lang_key),				'code' => 'email',		'pattern' => ''),
+		6 => array('name' => __("Phone no", $obj_form->lang_key),			'code' => 'telno',		'pattern' => '\d*'),
+		7 => array('name' => __("Decimal number", $obj_form->lang_key),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
+		8 => array('name' => __("URL", $obj_form->lang_key),				'code' => 'url',		'pattern' => ''),
+		9 => array('name' => __("Name", $obj_form->lang_key),				'code' => 'name',		'pattern' => ''),
+		10 => array('name' => __("Street Address", $obj_form->lang_key),	'code' => 'address',	'pattern' => ''),
+		11 => array('name' => __("City", $obj_form->lang_key),				'code' => 'city',		'pattern' => ''),
+		11 => array('name' => __("Country", $obj_form->lang_key),			'code' => 'country',	'pattern' => ''),
 	);
 
 	if(get_bloginfo('language') == "sv-SE")
 	{
-		$arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc',	'pattern' => '[0-9]{10}');
-		$arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",	'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
+		$arr_form_check[3] = array('name' => __("Social security no", $obj_form->lang_key)." (8208041234)",		'code' => 'soc',	'pattern' => '[0-9]{10}');
+		$arr_form_check[4] = array('name' => __("Social security no", $obj_form->lang_key)." (198208041234)",	'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
 	}
 
 	foreach($arr_form_check as $key => $value)
@@ -408,7 +408,7 @@ function activate_form()
 
 	foreach($arr_copy as $copy)
 	{
-		$log_message = sprintf(__("I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this.", 'lang_form'), $wpdb->base_prefix.$copy['table_from'], "<a href='".admin_url("admin.php?page=mf_form/list/index.php")."'>", "</a>");
+		$log_message = sprintf(__("I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this.", $obj_form->lang_key), $wpdb->base_prefix.$copy['table_from'], "<a href='".admin_url("admin.php?page=mf_form/list/index.php")."'>", "</a>");
 
 		if(does_table_exist($wpdb->base_prefix.$copy['table_from']))
 		{
