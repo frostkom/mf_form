@@ -20,7 +20,7 @@ function get_form_xtra($query_xtra = "", $search = "", $prefix = " WHERE", $fiel
 	global $wpdb;
 
 	$setting_form_permission_see_all = get_option('setting_form_permission_see_all');
-	$is_allowed_to_see_all_forms = $setting_form_permission_see_all != '' ? current_user_can($setting_form_permission_see_all) : true;
+	$is_allowed_to_see_all_forms = ($setting_form_permission_see_all != '' ? current_user_can($setting_form_permission_see_all) : true);
 
 	if(!$is_allowed_to_see_all_forms)
 	{

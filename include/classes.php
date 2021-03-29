@@ -204,7 +204,7 @@ class mf_form
 
 		echo show_select(array('data' => get_roles_for_select(array('add_choose_here' => true)), 'name' => $setting_key, 'value' => $option));
 	}
-	
+
 	function get_spam_types_for_select()
 	{
 		$arr_data = array(
@@ -431,11 +431,6 @@ class mf_form
 	function admin_init()
 	{
 		global $pagenow;
-
-		if(!is_plugin_active("mf_base/index.php"))
-		{
-			deactivate_plugins(str_replace("include/classes.php", "index.php", plugin_basename(__FILE__)));
-		}
 
 		$this->combined_head();
 
