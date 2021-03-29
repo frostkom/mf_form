@@ -281,7 +281,6 @@ if($obj_form->check_allow_edit())
 												}
 											}
 
-											echo " <a href='".admin_url("post-new.php?post_title=".$obj_form->name."&content=".$shortcode)."'>".__("Add New Post", $obj_form->lang_key)."</a>";
 											echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$obj_form->name."&content=".$shortcode)."'>".__("Add New Page", $obj_form->lang_key)."</a>";
 										}
 

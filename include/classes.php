@@ -4999,7 +4999,6 @@ if(class_exists('mf_list_table'))
 									}
 								}
 
-								//$actions['add_post'] = "<a href='".admin_url("post-new.php?post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Post", $obj_form->lang_key)."</a>";
 								$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", $obj_form->lang_key)."</a>";
 							}
 						}
@@ -5817,7 +5816,12 @@ class mf_form_output
 
 	function get_form_fields()
 	{
-		global $intFormTypeID2_temp, $intForm2TypeID2_temp;
+		global $intFormTypeID2_temp, $intForm2TypeID2_temp, $obj_form;
+
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
 
 		/*if(!isset($data['show_label'])){		$data['show_label'] = true;}
 		if(!isset($data['ignore_required'])){	$data['ignore_required'] = false;}
