@@ -68,12 +68,12 @@ if(is_user_logged_in())
 
 					if(!($obj_form->post_id > 0))
 					{
-						$json_output['error'] = __("The form can not be deleted because I could not find the post ID", $obj_form->lang_key);
+						$json_output['error'] = __("The form can not be deleted because I could not find the post ID", 'lang_form');
 					}
 
 					else if($obj_form->get_answer_amount(array('form_id' => $obj_form->id)) > 0)
 					{
-						$json_output['error'] = __("The form can not be deleted because there are answers", $obj_form->lang_key);
+						$json_output['error'] = __("The form can not be deleted because there are answers", 'lang_form');
 					}
 
 					else
@@ -99,7 +99,7 @@ if(is_user_logged_in())
 
 						else
 						{
-							$json_output['error'] = __("It looks like the form already has been deleted", $obj_form->lang_key);
+							$json_output['error'] = __("It looks like the form already has been deleted", 'lang_form');
 						}
 					}
 				break;

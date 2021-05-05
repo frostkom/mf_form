@@ -13,7 +13,6 @@ class mf_form
 
 		$this->post_type = 'mf_form';
 		$this->meta_prefix = $this->post_type.'_';
-		$this->lang_key = 'lang_form';
 
 		$this->edit_mode = $this->is_spam = $this->is_spam_id = $this->is_sent = false;
 
@@ -24,7 +23,7 @@ class mf_form
 
 		$this->form_option_exists = does_table_exist($wpdb->base_prefix."form_option");
 
-		$this->type = isset($data['type']) ? $data['type'] : '';
+		$this->type = (isset($data['type']) ? $data['type'] : '');
 	}
 
 	function check_allow_edit()
@@ -89,9 +88,9 @@ class mf_form
 	function init()
 	{
 		$labels = array(
-			'name' => _x(__("Forms", $this->lang_key), 'post type general name'),
-			'singular_name' => _x(__("Form", $this->lang_key), 'post type singular name'),
-			'menu_name' => __("Forms", $this->lang_key),
+			'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
+			'singular_name' => _x(__("Form", 'lang_form'), 'post type singular name'),
+			'menu_name' => __("Forms", 'lang_form'),
 		);
 
 		$args = array(
@@ -117,41 +116,41 @@ class mf_form
 		add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
 		$arr_settings = array(
-			'setting_redirect_emails' => __("Redirect all e-mails", $this->lang_key),
-			'setting_form_test_emails' => __("Redirect test e-mails", $this->lang_key),
-			'setting_form_permission_see_all' => __("View All", $this->lang_key),
-			'setting_form_permission_edit_all' => __("Edit All", $this->lang_key),
-			'setting_form_spam' => __("Spam Filter", $this->lang_key),
+			'setting_redirect_emails' => __("Redirect all e-mails", 'lang_form'),
+			'setting_form_test_emails' => __("Redirect test e-mails", 'lang_form'),
+			'setting_form_permission_see_all' => __("View All", 'lang_form'),
+			'setting_form_permission_edit_all' => __("Edit All", 'lang_form'),
+			'setting_form_spam' => __("Spam Filter", 'lang_form'),
 		);
 
 		$wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' LIMIT 0, 1");
 
 		if($wpdb->num_rows > 0)
 		{
-			$arr_settings['setting_form_clear_spam'] = __("Clear Spam", $this->lang_key);
+			$arr_settings['setting_form_clear_spam'] = __("Clear Spam", 'lang_form');
 		}
 
-		$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", $this->lang_key);
+		$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
 
 		if(get_option('setting_replacement_form') > 0)
 		{
-			$arr_settings['setting_replacement_form_text'] = __("Text to replace all e-mail links", $this->lang_key);
+			$arr_settings['setting_replacement_form_text'] = __("Text to replace all e-mail links", 'lang_form');
 		}
 
 		if($this->has_confirm_template() && is_plugin_active("mf_webshop/index.php"))
 		{
-			$arr_settings['setting_link_yes_text'] = __("Text to send as positive response", $this->lang_key);
+			$arr_settings['setting_link_yes_text'] = __("Text to send as positive response", 'lang_form');
 
 			if(get_option('setting_link_yes_text') != '')
 			{
-				$arr_settings['setting_link_no_text'] = __("Text to send as negative response", $this->lang_key);
-				$arr_settings['setting_link_thanks_text'] = __("Thank you message after sending response", $this->lang_key);
+				$arr_settings['setting_link_no_text'] = __("Text to send as negative response", 'lang_form');
+				$arr_settings['setting_link_thanks_text'] = __("Thank you message after sending response", 'lang_form');
 			}
 		}
 
 		if(IS_ADMIN && !$this->form_option_exists)
 		{
-			$arr_settings['setting_convert_form_options'] = __("Convert form options", $this->lang_key);
+			$arr_settings['setting_convert_form_options'] = __("Convert form options", 'lang_form');
 		}
 
 		else
@@ -166,7 +165,7 @@ class mf_form
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 
-		echo settings_header($setting_key, __("Forms", $this->lang_key));
+		echo settings_header($setting_key, __("Forms", 'lang_form'));
 	}
 
 	function setting_redirect_emails_callback()
@@ -174,7 +173,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key, 'no');
 
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", $this->lang_key)));
+		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
 
 		setting_time_limit(array('key' => $setting_key, 'value' => $option));
 	}
@@ -184,7 +183,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key, 'no');
 
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", $this->lang_key)));
+		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
 
 		setting_time_limit(array('key' => $setting_key, 'value' => $option));
 	}
@@ -208,13 +207,13 @@ class mf_form
 	function get_spam_types_for_select()
 	{
 		$arr_data = array(
-			'honeypot' => __("Honeypot", $this->lang_key),
-			'email' => __("Recurring E-mail", $this->lang_key),
-			'filter' => sprintf(__("%s and Links", $this->lang_key), "HTML"),
-			'contains_urls' => __("Contains URLs", $this->lang_key),
-			'contains_emails' => __("Contains E-mails", $this->lang_key),
-			'contains_phone_numbers' => __("Contains Phone Numbers", $this->lang_key),
-			'contains_page_title' => __("Contains Page Title", $this->lang_key),
+			'honeypot' => __("Honeypot", 'lang_form'),
+			'email' => __("Recurring E-mail", 'lang_form'),
+			'filter' => sprintf(__("%s and Links", 'lang_form'), "HTML"),
+			'contains_urls' => __("Contains URLs", 'lang_form'),
+			'contains_emails' => __("Contains E-mails", 'lang_form'),
+			'contains_phone_numbers' => __("Contains Phone Numbers", 'lang_form'),
+			'contains_page_title' => __("Contains Page Title", 'lang_form'),
 		);
 
 		return $arr_data;
@@ -248,7 +247,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => $this->get_option_form_suffix(array('value' => $option)), 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", $this->lang_key)));
+		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => $this->get_option_form_suffix(array('value' => $option)), 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 	}
 
 	function setting_replacement_form_text_callback()
@@ -256,7 +255,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Click here to send e-mail", $this->lang_key)));
+		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Click here to send e-mail", 'lang_form')));
 	}
 
 	function setting_form_clear_spam_callback()
@@ -264,7 +263,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option_or_default($setting_key, 6);
 
-		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'suffix' => __("months", $this->lang_key)));
+		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'suffix' => __("months", 'lang_form')));
 	}
 
 	function setting_link_yes_text_callback()
@@ -320,7 +319,7 @@ class mf_form
 
 		if($title == $email || strpos($title, $email))
 		{
-			$title = get_option_or_default('setting_replacement_form_text', __("Click here to send e-mail", $this->lang_key));
+			$title = get_option_or_default('setting_replacement_form_text', __("Click here to send e-mail", 'lang_form'));
 		}
 
 		$this->id = get_option('setting_replacement_form');
@@ -425,7 +424,7 @@ class mf_form
 		$plugin_version = get_plugin_version(__FILE__);
 
 		mf_enqueue_style('style_form', $plugin_include_url."style.css", $plugin_version);
-		mf_enqueue_script('script_form', $plugin_include_url."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", $this->lang_key)), $plugin_version);
+		mf_enqueue_script('script_form', $plugin_include_url."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version);
 	}
 
 	function admin_init()
@@ -443,7 +442,7 @@ class mf_form
 
 			if($page == 'mf_form/list/index.php')
 			{
-				mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", $this->lang_key)), $plugin_version);
+				mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
 			}
 
 			else
@@ -459,7 +458,7 @@ class mf_form
 				if($page == 'mf_form/create/index.php' || $page == 'mf_form/answer/index.php')
 				{
 					mf_enqueue_style('style_forms_wp', $plugin_include_url."style_wp.css", $plugin_version);
-					mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", $this->lang_key)), $plugin_version);
+					mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
 				}
 			}
 		}
@@ -468,15 +467,15 @@ class mf_form
 		{
 			if($this->get_amount() > 0)
 			{
-				$content = __("Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient.", $this->lang_key);
+				$content = __("Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient.", 'lang_form');
 
 				if($this->has_remember_fields())
 				{
 					$content .= "\n\n"
-					.sprintf(__("When a visitor enters personal information in a form it is also saved in the so called %s which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", $this->lang_key), "'localStorage'");
+					.sprintf(__("When a visitor enters personal information in a form it is also saved in the so called %s which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", 'lang_form'), "'localStorage'");
 				}
 
-				wp_add_privacy_policy_content(__("Forms", $this->lang_key), $content);
+				wp_add_privacy_policy_content(__("Forms", 'lang_form'), $content);
 			}
 		}
 	}
@@ -506,14 +505,14 @@ class mf_form
 			{
 				default:
 				case 'html':
-					$out = "&nbsp;<span class='update-plugins' title='".__("Unread answers", $this->lang_key)."'>
+					$out = "&nbsp;<span class='update-plugins' title='".__("Unread answers", 'lang_form')."'>
 						<span>".$rows."</span>
 					</span>";
 				break;
 
 				case 'array':
 					$out = array(
-						'title' => $rows > 1 ? sprintf(__("There are %d new answers", $this->lang_key), $rows) : __("There is one new answer", $this->lang_key),
+						'title' => $rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form'),
 						'tag' => 'form',
 						'link' => admin_url("admin.php?page=mf_form/list/index.php"),
 					);
@@ -553,7 +552,7 @@ class mf_form
 
 					if($date_diff_new > ($date_diff_old * 2) && $date_diff_new > (60 * 24 * 2) && $last_viewed < date("Y-m-d H:i:s", strtotime("-".$date_diff_new." minute")))
 					{
-						$message_temp = sprintf(__("There are no answers since %s", $this->lang_key), format_date($dteAnswerNew));
+						$message_temp = sprintf(__("There are no answers since %s", 'lang_form'), format_date($dteAnswerNew));
 
 						switch($data['return_type'])
 						{
@@ -591,21 +590,21 @@ class mf_form
 
 		$count_message = ($count_forms > 0 ? $this->get_count_answer_message() : "");
 
-		$menu_title = __("Forms", $this->lang_key);
+		$menu_title = __("Forms", 'lang_form');
 		add_menu_page("", $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms', 21);
 
-		$menu_title = __("List", $this->lang_key);
+		$menu_title = __("List", 'lang_form');
 		add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_start);
 
 		if($count_forms > 0)
 		{
-			$menu_title = __("Add New", $this->lang_key);
+			$menu_title = __("Add New", 'lang_form');
 			add_submenu_page($menu_start, $menu_title, " - ".$menu_title, $menu_capability, $menu_root.'create/index.php');
 
-			$menu_title = __("Answers", $this->lang_key);
+			$menu_title = __("Answers", 'lang_form');
 			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'answer/index.php');
 
-			$menu_title = __("Edit Answer", $this->lang_key);
+			$menu_title = __("Edit Answer", 'lang_form');
 			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
 		}
 	}
@@ -650,15 +649,15 @@ class mf_form
 	{
 		if($this->get_amount() > 0)
 		{
-			$content .= "<h3>".__("Forms", $this->lang_key)."</h3>
+			$content .= "<h3>".__("Forms", 'lang_form')."</h3>
 			<p>"
-				.__("Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient.", $this->lang_key)
+				.__("Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient.", 'lang_form')
 			."</p>";
 
 			if($this->has_remember_fields())
 			{
 				$content .= "<p>"
-					.sprintf(__("When a visitor enters personal information in a form it is also saved in the so called %s which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", $this->lang_key), "'localStorage'")
+					.sprintf(__("When a visitor enters personal information in a form it is also saved in the so called %s which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", 'lang_form'), "'localStorage'")
 				."</p>";
 			}
 		}
@@ -672,7 +671,7 @@ class mf_form
 		$page = (int)$page;
 
 		$group_id = $this->meta_prefix;
-		$group_label = __("Forms", $this->lang_key);
+		$group_label = __("Forms", 'lang_form');
 
 		$export_items = array();
 
@@ -713,7 +712,7 @@ class mf_form
 	function wp_privacy_personal_data_exporters($exporters)
 	{
 		$exporters[$this->meta_prefix] = array(
-			'exporter_friendly_name' => __("Forms", $this->lang_key),
+			'exporter_friendly_name' => __("Forms", 'lang_form'),
 			'callback' => array($this, 'export_personal_data'),
 		);
 
@@ -755,7 +754,7 @@ class mf_form
 	function wp_privacy_personal_data_erasers($erasers)
 	{
 		$erasers[$this->meta_prefix] = array(
-			'eraser_friendly_name' => __("Forms", $this->lang_key),
+			'eraser_friendly_name' => __("Forms", 'lang_form'),
 			'callback' => array($this, 'erase_personal_data'),
 		);
 
@@ -784,7 +783,7 @@ class mf_form
 		if(count($tbl_group->data) > 0)
 		{
 			$arr_data = array(
-				'' => "-- ".__("Choose Here", $this->lang_key)." --",
+				'' => "-- ".__("Choose Here", 'lang_form')." --",
 			);
 
 			foreach($tbl_group->data as $r)
@@ -792,7 +791,7 @@ class mf_form
 				$arr_data[$this->get_form_id($r['ID'])] = $r['post_title'];
 			}
 
-			$out .= "<h3>".__("Choose a Form", $this->lang_key)."</h3>"
+			$out .= "<h3>".__("Choose a Form", 'lang_form')."</h3>"
 			.show_select(array('data' => $arr_data, 'xtra' => "rel=".$this->post_type));
 		}
 
@@ -881,7 +880,7 @@ class mf_form
 
 			if($mail_to_new != $mail_to_old && $phpmailer->FromName != "WordPress" && substr($phpmailer->Subject, 0, strlen($reject_subject_start)) != $reject_subject_start)
 			{
-				$phpmailer->Subject = __("Redirect Test", $this->lang_key)." (".$mail_to_old."): ".$phpmailer->Subject;
+				$phpmailer->Subject = __("Redirect Test", 'lang_form')." (".$mail_to_old."): ".$phpmailer->Subject;
 				$phpmailer->clearAddresses();
 				$phpmailer->addAddress($mail_to_new);
 			}
@@ -895,7 +894,7 @@ class mf_form
 
 			if($mail_to_new != $mail_to_old)
 			{
-				$phpmailer->Subject = __("Redirect All", $this->lang_key)." (".$mail_to_old."): ".$phpmailer->Subject;
+				$phpmailer->Subject = __("Redirect All", 'lang_form')." (".$mail_to_old."): ".$phpmailer->Subject;
 				$phpmailer->clearAddresses();
 				$phpmailer->addAddress($mail_to_new);
 			}
@@ -1129,23 +1128,23 @@ class mf_form
 	function get_form_types()
 	{
 		return array(
-			1 => array('code' => 'checkbox',			'name' => "&#xf14a; ".__("Checkbox", $this->lang_key),					'desc' => __("To choose one or many alternatives", $this->lang_key),							'result' => 1),
-			2 => array('code' => 'range',				'name' => "&#xf258; ".__("Range", $this->lang_key),						'desc' => __("To choose a min and max value and create a slider for that", $this->lang_key),	'result' => 1),
-			3 => array('code' => 'input_field',			'name' => "&#xf044; ".__("Input Field", $this->lang_key),				'desc' => __("To enter a short text", $this->lang_key),											'result' => 1),
-			4 => array('code' => 'textarea',			'name' => "&#xf044; ".__("Textarea", $this->lang_key),					'desc' => __("To enter a longer text on multiple rows", $this->lang_key),						'result' => 1),
-			5 => array('code' => 'text',				'name' => "&#xf27a; ".__("Text", $this->lang_key),						'desc' => __("To present information to the visitor", $this->lang_key),							'result' => 0),
-			6 => array('code' => 'space',				'name' => "&#xf2d1; ".__("Space", $this->lang_key),						'desc' => __("To separate fields in the form with empty space", $this->lang_key),				'result' => 0),
-			7 => array('code' => 'datepicker',			'name' => "&#xf073; ".__("Datepicker", $this->lang_key),				'desc' => __("To choose a date", $this->lang_key),												'result' => 1),
-			8 => array('code' => 'radio_button',		'name' => "&#xf192; ".__("Radio Button", $this->lang_key),				'desc' => __("To choose one alternative", $this->lang_key),										'result' => 1),
-			9 => array('code' => 'referer_url',			'name' => "&#xf164; ".__("Referer URL", $this->lang_key),				'desc' => __("To get which URL the visitor came from", $this->lang_key),						'result' => 1),
-			10 => array('code' => 'select',				'name' => "&#xf022; ".__("Dropdown", $this->lang_key),					'desc' => __("To choose one alternative", $this->lang_key),										'result' => 1),
-			11 => array('code' => 'select_multiple',	'name' => "&#xf022; ".__("Multiple Selection", $this->lang_key),		'desc' => __("To choose one or many alternatives", $this->lang_key),							'result' => 1),
-			12 => array('code' => 'hidden_field',		'name' => "&#xf070; ".__("Hidden Field", $this->lang_key),				'desc' => __("To add hidden data to the form", $this->lang_key),								'result' => 1),
-			13 => array('code' => 'custom_tag',			'name' => "&#xf070; ".__("Custom Tag", $this->lang_key),				'desc' => __("To add a custom tag", $this->lang_key),											'result' => 0),
-			14 => array('code' => 'custom_tag_end',		'name' => "&#xf070; ".__("Custom Tag (end)", $this->lang_key),			'desc' => __("To add a custom end tag", $this->lang_key),										'result' => 0,		'public' => 'no'),
-			15 => array('code' => 'file',				'name' => "&#xf07c; ".__("File", $this->lang_key),						'desc' => __("To add a file upload to the form", $this->lang_key),								'result' => 1),
-			16 => array('code' => 'checkbox_multiple',	'name' => "&#xf14a; ".__("Multiple Checkboxes", $this->lang_key),		'desc' => __("To choose one or many alternatives", $this->lang_key),							'result' => 1),
-			17 => array('code' => 'radio_multiple',		'name' => "&#xf192; ".__("Multiple Radio Buttons", $this->lang_key),	'desc' => __("To choose one alternative", $this->lang_key),										'result' => 1),
+			1 => array('code' => 'checkbox',			'name' => "&#xf14a; ".__("Checkbox", 'lang_form'),					'desc' => __("To choose one or many alternatives", 'lang_form')), //, 'result' => 1
+			2 => array('code' => 'range',				'name' => "&#xf258; ".__("Range", 'lang_form'),						'desc' => __("To choose a min and max value and create a slider for that", 'lang_form')), //, 'result' => 1
+			3 => array('code' => 'input_field',			'name' => "&#xf044; ".__("Input Field", 'lang_form'),				'desc' => __("To enter a short text", 'lang_form')), //, 'result' => 1
+			4 => array('code' => 'textarea',			'name' => "&#xf044; ".__("Textarea", 'lang_form'),					'desc' => __("To enter a longer text on multiple rows", 'lang_form')), //, 'result' => 1
+			5 => array('code' => 'text',				'name' => "&#xf27a; ".__("Text", 'lang_form'),						'desc' => __("To present information to the visitor", 'lang_form')), //, 'result' => 0
+			6 => array('code' => 'space',				'name' => "&#xf2d1; ".__("Space", 'lang_form'),						'desc' => __("To separate fields in the form with empty space", 'lang_form')), //, 'result' => 0
+			7 => array('code' => 'datepicker',			'name' => "&#xf073; ".__("Datepicker", 'lang_form'),				'desc' => __("To choose a date", 'lang_form')), //, 'result' => 1
+			8 => array('code' => 'radio_button',		'name' => "&#xf192; ".__("Radio Button", 'lang_form'),				'desc' => __("To choose one alternative", 'lang_form')), //, 'result' => 1
+			9 => array('code' => 'referer_url',			'name' => "&#xf164; ".__("Referer URL", 'lang_form'),				'desc' => __("To get which URL the visitor came from", 'lang_form')), //, 'result' => 1
+			10 => array('code' => 'select',				'name' => "&#xf022; ".__("Dropdown", 'lang_form'),					'desc' => __("To choose one alternative", 'lang_form')), //, 'result' => 1
+			11 => array('code' => 'select_multiple',	'name' => "&#xf022; ".__("Multiple Selection", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form')), //, 'result' => 1
+			12 => array('code' => 'hidden_field',		'name' => "&#xf070; ".__("Hidden Field", 'lang_form'),				'desc' => __("To add hidden data to the form", 'lang_form')), //, 'result' => 1
+			13 => array('code' => 'custom_tag',			'name' => "&#xf070; ".__("Custom Tag", 'lang_form'),				'desc' => __("To add a custom tag", 'lang_form')), //, 'result' => 0
+			14 => array('code' => 'custom_tag_end',		'name' => "&#xf070; ".__("Custom Tag (end)", 'lang_form'),			'desc' => __("To add a custom end tag", 'lang_form')), //, 'result' => 0, 'public' => 'no'
+			15 => array('code' => 'file',				'name' => "&#xf07c; ".__("File", 'lang_form'),						'desc' => __("To add a file upload to the form", 'lang_form')), //, 'result' => 1
+			16 => array('code' => 'checkbox_multiple',	'name' => "&#xf14a; ".__("Multiple Checkboxes", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form')), //, 'result' => 1
+			17 => array('code' => 'radio_multiple',		'name' => "&#xf192; ".__("Multiple Radio Buttons", 'lang_form'),	'desc' => __("To choose one alternative", 'lang_form')), //, 'result' => 1
 		);
 	}
 
@@ -1157,11 +1156,11 @@ class mf_form
 
 		$arr_data = array();
 
-		$result = $wpdb->get_results("SELECT formTypeID, formTypeCode, formTypeName, formTypeDesc, COUNT(formTypeID) AS formType_amount FROM ".$wpdb->base_prefix."form_type LEFT JOIN ".$wpdb->base_prefix."form2type USING (formTypeID) WHERE formTypePublic = 'yes' GROUP BY formTypeID ORDER BY formType_amount DESC, formTypeName ASC");
+		$result = $wpdb->get_results("SELECT formTypeID, formTypeCode, formTypeName, formTypeDesc, COUNT(formTypeID) AS formType_amount FROM ".$wpdb->base_prefix."form_type LEFT JOIN ".$wpdb->base_prefix."form2type USING (formTypeID) WHERE formTypeCode NOT IN('custom_tag_end') GROUP BY formTypeID ORDER BY formType_amount DESC, formTypeName ASC"); //formTypePublic = 'yes'
 
 		if($wpdb->num_rows > 0)
 		{
-			$arr_data[''] = "-- ".__("Choose Here", $this->lang_key)." --";
+			$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 
 			foreach($result as $r)
 			{
@@ -1185,7 +1184,7 @@ class mf_form
 					//Don't let the use change from Custom Tag
 				}
 
-				else// if($data['form_type_id'] > 0 || $r->formTypeCode != 'custom_tag')
+				else
 				{
 					$arr_data[$r->formTypeID] = array(
 						'name' => $r->formTypeName,
@@ -1208,11 +1207,11 @@ class mf_form
 
 		if($wpdb->num_rows > 0)
 		{
-			$arr_data[''] = "-- ".__("Choose Here", $this->lang_key)." --";
+			$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 
 			foreach($result as $r)
 			{
-				$arr_data[$r->checkID] = __($r->checkName, $this->lang_key);
+				$arr_data[$r->checkID] = __($r->checkName, 'lang_form');
 			}
 		}
 
@@ -1230,7 +1229,7 @@ class mf_form
 	function get_tags_for_select()
 	{
 		return array(
-			'' => "-- ".__("Choose Here", $this->lang_key)." --",
+			'' => "-- ".__("Choose Here", 'lang_form')." --",
 			'h1' => "h1",
 			'h2' => "h2",
 			'h3' => "h3",
@@ -1252,7 +1251,7 @@ class mf_form
 	function get_payment_providers_for_select()
 	{
 		$arr_data = array(
-			'' => "-- ".__("Choose Here", $this->lang_key)." --",
+			'' => "-- ".__("Choose Here", 'lang_form')." --",
 		);
 
 		return apply_filters('form_payment_alternatives', $arr_data);
@@ -1263,41 +1262,41 @@ class mf_form
 		global $obj_base;
 
 		$arr_data = array(
-			'' => "-- ".__("Choose Here", $this->lang_key)." --"
+			'' => "-- ".__("Choose Here", 'lang_form')." --"
 		);
 
 		switch($intFormPaymentProvider)
 		{
 			case 1:
-				$arr_data[208] = __("Danish Krone", $this->lang_key)." (DKK)";
-				$arr_data[978] = __("Euro", $this->lang_key)." (EUR)";
-				$arr_data[840] = __("US Dollar", $this->lang_key)." (USD)";
-				$arr_data[826] = __("English Pound", $this->lang_key)." (GBP)";
-				$arr_data[752] = __("Swedish Krona", $this->lang_key)." (SEK)";
-				$arr_data[036] = __("Australian Dollar", $this->lang_key)." (AUD)";
-				$arr_data[124] = __("Canadian Dollar", $this->lang_key)." (CAD)";
-				$arr_data[352] = __("Icelandic Krona", $this->lang_key)." (ISK)";
-				$arr_data[392] = __("Japanese Yen", $this->lang_key)." (JPY)";
-				$arr_data[554] = __("New Zealand Dollar", $this->lang_key)." (NZD)";
-				$arr_data[578] = __("Norwegian Krone", $this->lang_key)." (NOK)";
-				$arr_data[756] = __("Swiss Franc", $this->lang_key)." (CHF)";
-				$arr_data[949] = __("Turkish Lira", $this->lang_key)." (TRY)";
+				$arr_data[208] = __("Danish Krone", 'lang_form')." (DKK)";
+				$arr_data[978] = __("Euro", 'lang_form')." (EUR)";
+				$arr_data[840] = __("US Dollar", 'lang_form')." (USD)";
+				$arr_data[826] = __("English Pound", 'lang_form')." (GBP)";
+				$arr_data[752] = __("Swedish Krona", 'lang_form')." (SEK)";
+				$arr_data[036] = __("Australian Dollar", 'lang_form')." (AUD)";
+				$arr_data[124] = __("Canadian Dollar", 'lang_form')." (CAD)";
+				$arr_data[352] = __("Icelandic Krona", 'lang_form')." (ISK)";
+				$arr_data[392] = __("Japanese Yen", 'lang_form')." (JPY)";
+				$arr_data[554] = __("New Zealand Dollar", 'lang_form')." (NZD)";
+				$arr_data[578] = __("Norwegian Krone", 'lang_form')." (NOK)";
+				$arr_data[756] = __("Swiss Franc", 'lang_form')." (CHF)";
+				$arr_data[949] = __("Turkish Lira", 'lang_form')." (TRY)";
 			break;
 
 			default:
-				$arr_data['DKK'] = __("Danish Krone", $this->lang_key)." (DKK)";
-				$arr_data['EUR'] = __("Euro", $this->lang_key)." (EUR)";
-				$arr_data['USD'] = __("US Dollar", $this->lang_key)." (USD)";
-				$arr_data['GBP'] = __("English Pound", $this->lang_key)." (GBP)";
-				$arr_data['SEK'] = __("Swedish Krona", $this->lang_key)." (SEK)";
-				$arr_data['AUD'] = __("Australian Dollar", $this->lang_key)." (AUD)";
-				$arr_data['CAD'] = __("Canadian Dollar", $this->lang_key)." (CAD)";
-				$arr_data['ISK'] = __("Icelandic Krona", $this->lang_key)." (ISK)";
-				$arr_data['JPY'] = __("Japanese Yen", $this->lang_key)." (JPY)";
-				$arr_data['NZD'] = __("New Zealand Dollar", $this->lang_key)." (NZD)";
-				$arr_data['NOK'] = __("Norwegian Krone", $this->lang_key)." (NOK)";
-				$arr_data['CHF'] = __("Swiss Franc", $this->lang_key)." (CHF)";
-				$arr_data['TRY'] = __("Turkish Lira", $this->lang_key)." (TRY)";
+				$arr_data['DKK'] = __("Danish Krone", 'lang_form')." (DKK)";
+				$arr_data['EUR'] = __("Euro", 'lang_form')." (EUR)";
+				$arr_data['USD'] = __("US Dollar", 'lang_form')." (USD)";
+				$arr_data['GBP'] = __("English Pound", 'lang_form')." (GBP)";
+				$arr_data['SEK'] = __("Swedish Krona", 'lang_form')." (SEK)";
+				$arr_data['AUD'] = __("Australian Dollar", 'lang_form')." (AUD)";
+				$arr_data['CAD'] = __("Canadian Dollar", 'lang_form')." (CAD)";
+				$arr_data['ISK'] = __("Icelandic Krona", 'lang_form')." (ISK)";
+				$arr_data['JPY'] = __("Japanese Yen", 'lang_form')." (JPY)";
+				$arr_data['NZD'] = __("New Zealand Dollar", 'lang_form')." (NZD)";
+				$arr_data['NOK'] = __("Norwegian Krone", 'lang_form')." (NOK)";
+				$arr_data['CHF'] = __("Swiss Franc", 'lang_form')." (CHF)";
+				$arr_data['TRY'] = __("Turkish Lira", 'lang_form')." (TRY)";
 			break;
 		}
 
@@ -1416,7 +1415,7 @@ class mf_form
 				{
 					if($this->name == '')
 					{
-						$error_text = __("Please, enter all required fields", $this->lang_key);
+						$error_text = __("Please, enter all required fields", 'lang_form');
 					}
 
 					else
@@ -1438,7 +1437,7 @@ class mf_form
 
 							do_action('update_form_fields', $this);
 
-							$done_text = __("I have updated the form for you", $this->lang_key);
+							$done_text = __("I have updated the form for you", 'lang_form');
 						}
 
 						else
@@ -1447,7 +1446,7 @@ class mf_form
 
 							if($wpdb->num_rows > 0)
 							{
-								$error_text = __("There is already a form with that name. Try with another one.", $this->lang_key);
+								$error_text = __("There is already a form with that name. Try with another one.", 'lang_form');
 							}
 
 							else
@@ -1531,7 +1530,7 @@ class mf_form
 									}
 								}
 
-								$done_text = __("I have created the form for you", $this->lang_key);
+								$done_text = __("I have created the form for you", 'lang_form');
 							}
 						}
 
@@ -1562,7 +1561,7 @@ class mf_form
 						//case 'radio_multiple':
 							if(count($this->arr_type_select_value) == 0 || $this->arr_type_select_value[0] == '')
 							{
-								$error_text = __("Please, enter all required fields", $this->lang_key);
+								$error_text = __("Please, enter all required fields", 'lang_form');
 							}
 
 							else
@@ -1625,7 +1624,7 @@ class mf_form
 
 							else
 							{
-								$error_text = __("I could not update the field", $this->lang_key);
+								$error_text = __("I could not update the field", 'lang_form');
 							}
 						}
 
@@ -1677,7 +1676,7 @@ class mf_form
 
 							else
 							{
-								$error_text = __("I could not insert the new field for you", $this->lang_key);
+								$error_text = __("I could not insert the new field for you", 'lang_form');
 							}
 						}
 					}
@@ -1737,7 +1736,7 @@ class mf_form
 
 					else
 					{
-						$error_text = __("I could not find the form you were looking for. If the problem persists, please contact an admin", $this->lang_key);
+						$error_text = __("I could not find the form you were looking for. If the problem persists, please contact an admin", 'lang_form');
 					}
 				}
 
@@ -1837,12 +1836,12 @@ class mf_form
 						$post_data = array(
 							'post_type' => $this->post_type,
 							'post_status' => 'publish',
-							'post_title' => $strFormName." (".__("copy", $this->lang_key).")",
+							'post_title' => $strFormName." (".__("copy", 'lang_form').")",
 						);
 
 						$intPostID = wp_insert_post($post_data);
 
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formName, postID".$copy_fields.", formCreated, userID) (SELECT CONCAT(formName, ' (".__("copy", $this->lang_key).")'), '%d'".$copy_fields.", NOW(), '%d' FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", $intPostID, get_current_user_id(), $this->id));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formName, postID".$copy_fields.", formCreated, userID) (SELECT CONCAT(formName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '%d' FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", $intPostID, get_current_user_id(), $this->id));
 						$intFormID_new = $wpdb->insert_id;
 
 						if($intFormID_new > 0)
@@ -1881,12 +1880,12 @@ class mf_form
 
 					if($inserted == false)
 					{
-						$error_text = __("Something went wrong. Contact your admin and add this URL as reference", $this->lang_key);
+						$error_text = __("Something went wrong. Contact your admin and add this URL as reference", 'lang_form');
 					}
 
 					else
 					{
-						$done_text = __("The form was succesfully copied", $this->lang_key);
+						$done_text = __("The form was succesfully copied", 'lang_form');
 					}
 				}
 
@@ -1927,7 +1926,7 @@ class mf_form
 
 						else if($strFormTypeCode == 'radio_button')
 						{
-							$strAnswerText_radio = isset($_POST["radio_".$intForm2TypeID2]) ? check_var($_POST["radio_".$intForm2TypeID2], 'int', false) : '';
+							$strAnswerText_radio = (isset($_POST["radio_".$intForm2TypeID2]) ? check_var($_POST["radio_".$intForm2TypeID2], 'int', false) : '');
 
 							if($strAnswerText_radio != '')
 							{
@@ -1956,14 +1955,14 @@ class mf_form
 				{
 					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d'", $this->answer_id));
 
-					$done_text = __("I have marked the email as spam for you", $this->lang_key);
+					$done_text = __("I have marked the email as spam for you", 'lang_form');
 				}
 
 				else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_approve'], 'answer_approve_'.$this->answer_id))
 				{
 					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
 
-					$done_text = __("I have approved the answer for you", $this->lang_key);
+					$done_text = __("I have approved the answer for you", 'lang_form');
 				}
 
 				else if(isset($_GET['btnAnswerVerifyPayment']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_verify_payment'], 'answer_verify_payment_'.$this->answer_id))
@@ -1975,7 +1974,7 @@ class mf_form
 						$intFormPaymentAmount = $r->formPaymentAmount;
 						$strFormPaymentCallback = $r->formPaymentCallback;
 
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid and Verified", $this->lang_key), $this->answer_id, '116:%'));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid and Verified", 'lang_form'), $this->answer_id, '116:%'));
 
 						if($wpdb->rows_affected > 0 && $intFormPaymentAmount > 0 && $strFormPaymentCallback != '')
 						{
@@ -1985,12 +1984,12 @@ class mf_form
 
 							$this->set_meta(array('id' => $this->answer_id, 'key' => 'payment_verified_by', 'value' => get_current_user_id()));
 
-							$done_text = __("I have verified the payment for you", $this->lang_key);
+							$done_text = __("I have verified the payment for you", 'lang_form');
 						}
 
 						else
 						{
-							$error_text = __("I could not verify the payment for you", $this->lang_key);
+							$error_text = __("I could not verify the payment for you", 'lang_form');
 						}
 					}
 				}
@@ -2019,8 +2018,6 @@ class mf_form
 							$this->label = $r->formTypeText;
 							$strCheckCode = $r->checkCode;
 							$strAnswerText = $r->answerText;
-
-							$this->arr_email_content['fields'][$intForm2TypeID2] = array();
 
 							switch($strFormTypeCode)
 							{
@@ -2071,7 +2068,13 @@ class mf_form
 								break;
 							}
 
-							if($this->label != '')
+							$this->arr_email_content['fields'][$intForm2TypeID2] = array(
+								'type' => $strFormTypeCode,
+								'label' => $this->label,
+								'value' => $strAnswerText,
+							);
+
+							/*if($this->label != '')
 							{
 								$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $this->label;
 							}
@@ -2079,22 +2082,24 @@ class mf_form
 							if($strAnswerText != '')
 							{
 								$this->arr_email_content['fields'][$intForm2TypeID2]['value'] = $strAnswerText;
-							}
+							}*/
 
-							if($strFormTypeCode == 'input_field')
+							switch($strFormTypeCode)
 							{
-								switch($strCheckCode)
-								{
-									case 'address':
-									case 'city':
-									case 'country':
-									case 'email':
-									case 'name':
-									case 'telno':
-									case 'zip':
-										$this->answer_data[$strCheckCode] = $strAnswerText;
-									break;
-								}
+								case 'input_field':
+									switch($strCheckCode)
+									{
+										case 'address':
+										case 'city':
+										case 'country':
+										case 'email':
+										case 'name':
+										case 'telno':
+										case 'zip':
+											$this->answer_data[$strCheckCode] = $strAnswerText;
+										break;
+									}
+								break;
 							}
 						}
 
@@ -2129,7 +2134,7 @@ class mf_form
 						$this->process_transactional_emails();
 					}
 
-					$done_text = __("I have resent the messages for you", $this->lang_key);
+					$done_text = __("I have resent the messages for you", 'lang_form');
 				}
 
 				else if(isset($_GET['btnFormExport']))
@@ -2287,7 +2292,7 @@ class mf_form
 		if(!isset($data['where'])){				$data['where'] = "";}
 
 		$arr_data = array(
-			'' => "-- ".__("Choose Here", $this->lang_key)." --"
+			'' => "-- ".__("Choose Here", 'lang_form')." --"
 		);
 
 		if($data['local_only'] == true)
@@ -2657,43 +2662,68 @@ class mf_form
 			switch($key)
 			{
 				case 'fields':
+					//do_log("render_mail_content: ".var_export($arr_types, true));
+
 					foreach($arr_types as $key => $arr_value)
 					{
-						$out_fields .= "- ".$arr_value['label'];
-
-						if(isset($arr_value['value']) && $arr_value['value'] != '')
+						switch($arr_value['type'])
 						{
-							if(substr($arr_value['label'], -1) != ":")
-							{
-								$out_fields .= ":";
-							}
+							case 'hidden_field':
+								// Do not display in e-mail
+							break;
 
-							$out_fields .= " <strong>"
-								.$arr_value['value'];
+							case 'text':
+								$out_fields .= "<p>".$arr_value['label']."</p>";
+							break;
 
-								if(isset($arr_value['xtra']))
+							case 'space':
+								$out_fields .= "<p>&nbsp;</p>";
+							break;
+
+							default:
+								$out_fields .= "<p>- ".$arr_value['label'];
+
+								if(isset($arr_value['value']) && $arr_value['value'] != '')
 								{
-									$out_fields .= $arr_value['xtra'];
+									if(substr($arr_value['label'], -1) != ":")
+									{
+										$out_fields .= ":";
+									}
+
+									$out_fields .= " <strong>"
+										.$arr_value['value'];
+
+										if(isset($arr_value['xtra']))
+										{
+											$out_fields .= $arr_value['xtra'];
+										}
+
+									$out_fields .= "</strong>";
 								}
 
-							$out_fields .= "</strong>";
+								$out_fields .= "</p>";
+							break;
 						}
-
-						$out_fields .= "<br>";
 					}
 				break;
 
 				case 'doc_types':
 					foreach($arr_types as $key => $arr_value)
 					{
-						$out_doc_types .= "- ".$arr_value['label'];
+						$out_doc_types .= "<p>"
+							."- ".$arr_value['label'];
 
-						if(substr($arr_value['label'], -1) != ":")
-						{
-							$out_doc_types .= ":";
-						}
+							if(substr($arr_value['label'], -1) != ":")
+							{
+								$out_doc_types .= ":";
+							}
 
-						$out_doc_types .= " ".$arr_value['value']."<br>";
+							if($arr_value['value'] != '')
+							{
+								$out_doc_types .= " ".$arr_value['value'];
+							}
+
+						$out_doc_types .= "</p>";
 					}
 				break;
 
@@ -2702,7 +2732,7 @@ class mf_form
 					{
 						if($product['value'] != '')
 						{
-							$out_products .= "- ".$product['value']."<br>";
+							$out_products .= "<p>- ".$product['value']."</p>";
 
 							$intProductID = $product['id'];
 							$strProductName = $product['value'];
@@ -2810,7 +2840,7 @@ class mf_form
 	function get_icons_for_select()
 	{
 		$arr_data = array();
-		$arr_data[''] = "-- ".__("Choose Here", $this->lang_key)." --";
+		$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 
 		$obj_font_icons = new mf_font_icons();
 		$arr_icons = $obj_font_icons->get_array();
@@ -2831,7 +2861,7 @@ class mf_form
 
 		if($data['add_choose_here'] == true)
 		{
-			$arr_data[''] = "-- ".__("Choose Here", $this->lang_key)." --";
+			$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 		}
 
 		foreach($data['result'] as $r)
@@ -2845,7 +2875,7 @@ class mf_form
 			else if(in_array($r->formTypeID, array(13)))
 			//else if(in_array($r->formTypeCode, array('custom_tag')))
 			{
-				$strFormTypeText = "(".__("Custom Tag", $this->lang_key).")";
+				$strFormTypeText = "(".__("Custom Tag", 'lang_form').")";
 			}
 
 			else
@@ -2923,7 +2953,7 @@ class mf_form
 
 				if($sent)
 				{
-					$setting_link_thanks_text = nl2br(get_option_or_default('setting_link_thanks_text', __("The message has been sent!", $this->lang_key)));
+					$setting_link_thanks_text = nl2br(get_option_or_default('setting_link_thanks_text', __("The message has been sent!", 'lang_form')));
 
 					$out .= "<p>".$setting_link_thanks_text."</p>
 					<p class='grey'>".$mail_content."</p>";
@@ -2939,19 +2969,19 @@ class mf_form
 			{
 				if(isset($_GET['btnFormLinkYes']))
 				{
-					$error_text = sprintf(__("There was no content to send. You have to enter text into the field Text to send as positive response in %sMy Settings%s", $this->lang_key), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
+					$error_text = sprintf(__("There was no content to send. You have to enter text into the field Text to send as positive response in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
 				}
 
 				else
 				{
-					$error_text = sprintf(__("There was no content to send. You have to enter text into the field Text to send as negative response in %sMy Settings%s", $this->lang_key), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
+					$error_text = sprintf(__("There was no content to send. You have to enter text into the field Text to send as negative response in %sMy Settings%s", 'lang_form'), "<a href='".admin_url("options-general.php?page=settings_mf_base#settings_form")."'>", "</a>");
 				}
 			}
 		}
 
 		else
 		{
-			$error_text = __("Oops! You do not seam to have the correct link or it has expired", $this->lang_key);
+			$error_text = __("Oops! You do not seam to have the correct link or it has expired", 'lang_form');
 		}
 
 		return $out;
@@ -3041,37 +3071,22 @@ class mf_form
 		if(!isset($data['type'])){		$data['type'] = '';}
 
 		$arr_data = array(
-			1 => array('exclude' => 'select_multiple',	'text' => 'contains_html',					'explain' => sprintf(__("Contains %s", $this->lang_key), "HTML")),
-			2 => array('exclude' => 'referer_url',		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => sprintf(__("Link including %s", $this->lang_key), "http")),
-			3 => array('exclude' => '',					'text' => "/([qm]){5}/",					'explain' => __("Question Marks", $this->lang_key)),
-			4 => array('exclude' => '',					'text' => "/(bit\.ly)/",					'explain' => __("Shortening Links", $this->lang_key)),
-			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("URL Shortcodes", $this->lang_key)),
-			6 => array('exclude' => '',					'text' => "",								'explain' => __("Recurring E-mail", $this->lang_key)),
-			7 => array('exclude' => '',					'text' => "",								'explain' => __("Honeypot", $this->lang_key)),
+			1 => array('exclude' => 'select_multiple',	'text' => 'contains_html',					'explain' => sprintf(__("Contains %s", 'lang_form'), "HTML")),
+			2 => array('exclude' => 'referer_url',		'text' => "/(http|https|ftp|ftps)\:/i",		'explain' => sprintf(__("Link including %s", 'lang_form'), "http")),
+			3 => array('exclude' => '',					'text' => "/([qm]){5}/",					'explain' => __("Question Marks", 'lang_form')),
+			4 => array('exclude' => '',					'text' => "/(bit\.ly)/",					'explain' => __("Shortening Links", 'lang_form')),
+			5 => array('exclude' => '',					'text' => "/([bs][url[bs]=)/",				'explain' => __("URL Shortcodes", 'lang_form')),
+			6 => array('exclude' => '',					'text' => "",								'explain' => __("Recurring E-mail", 'lang_form')),
+			7 => array('exclude' => '',					'text' => "",								'explain' => __("Honeypot", 'lang_form')),
 		);
 
 		if($data['type'] == 'explain')
 		{
-			$arr_data[8] = array('exclude' => '',		'text' => array($this, 'contains_urls'),			'explain' => __("Contains URLs", $this->lang_key));
-			$arr_data[9] = array('exclude' => '',		'text' => array($this, 'contains_emails'),			'explain' => __("Contains E-mails", $this->lang_key));
-			$arr_data[10] = array('exclude' => '',		'text' => array($this, 'contains_page_title'),		'explain' => __("Contains Page Title", $this->lang_key));
-			$arr_data[11] = array('exclude' => '',		'text' => array($this, 'contains_phone_numbers'),	'explain' => __("Contains Phone Numbers", $this->lang_key));
+			$arr_data[8] = array('exclude' => '',		'text' => array($this, 'contains_urls'),			'explain' => __("Contains URLs", 'lang_form'));
+			$arr_data[9] = array('exclude' => '',		'text' => array($this, 'contains_emails'),			'explain' => __("Contains E-mails", 'lang_form'));
+			$arr_data[10] = array('exclude' => '',		'text' => array($this, 'contains_page_title'),		'explain' => __("Contains Page Title", 'lang_form'));
+			$arr_data[11] = array('exclude' => '',		'text' => array($this, 'contains_phone_numbers'),	'explain' => __("Contains Phone Numbers", 'lang_form'));
 		}
-
-		/*if(class_exists('mf_theme_core'))
-		{
-			global $obj_theme_core;
-
-			if(!isset($obj_theme_core))
-			{
-				$obj_theme_core = new mf_theme_core();
-			}
-
-			if($obj_theme_core->is_theme_active())
-			{
-				$arr_data[10] = array('exclude' => '',		'text' => "/(".$obj_theme_core->get_wp_title().")/",	'explain' => __("Page Title", $this->lang_key));
-			}
-		}*/
 
 		if($data['exclude'] != '')
 		{
@@ -3419,7 +3434,7 @@ class mf_form
 
 					if($answer_rows >= $arr_option[2])
 					{
-						$error_text = __("It is already full. Try with another alternative", $this->lang_key);
+						$error_text = __("It is already full. Try with another alternative", 'lang_form');
 					}
 				}
 
@@ -3443,7 +3458,7 @@ class mf_form
 
 		if($out == '')
 		{
-			$out = __("Please, enter all required fields", $this->lang_key);
+			$out = __("Please, enter all required fields", 'lang_form');
 		}
 
 		return $out;
@@ -3474,7 +3489,7 @@ class mf_form
 
 		else
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeDisplay = '1' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeDisplay = '1' AND formTypeCode NOT IN('custom_tag', 'custom_tag_end') ORDER BY form2TypeOrder ASC", $this->id)); // AND formTypeResult = '1'
 
 			foreach($result as $r)
 			{
@@ -3486,7 +3501,9 @@ class mf_form
 
 				if(!isset($this->arr_email_content['fields'][$intForm2TypeID2]))
 				{
-					$this->arr_email_content['fields'][$intForm2TypeID2] = array();
+					$this->arr_email_content['fields'][$intForm2TypeID2] = array(
+						'type' => $strFormTypeCode,
+					);
 				}
 
 				$handle2fetch = $this->prefix.$intForm2TypeID2;
@@ -3613,7 +3630,7 @@ class mf_form
 							{
 								if($intFormTypeRequired == true)
 								{
-									$error_text = __("You have to submit a file", $this->lang_key);
+									$error_text = __("You have to submit a file", 'lang_form');
 								}
 							}
 
@@ -3621,7 +3638,7 @@ class mf_form
 							{
 								if($intFormTypeRequired == true)
 								{
-									$error_text = __("The file was not uploaded", $this->lang_key);
+									$error_text = __("The file was not uploaded", 'lang_form');
 								}
 							}
 
@@ -3645,30 +3662,29 @@ class mf_form
 					break;
 
 					default:
-						if($strCheckCode != '')
+						switch($strCheckCode)
 						{
-							switch($strCheckCode)
-							{
-								case 'zip':
-									if(get_bloginfo('language') == "sv-SE")
+							case 'zip':
+								if(get_bloginfo('language') == "sv-SE")
+								{
+									include_once("class_zipcode.php");
+									$obj_zipcode = new mf_zipcode();
+
+									$city_name = $obj_zipcode->get_city($strAnswerText);
+
+									if($city_name != '')
 									{
-										include_once("class_zipcode.php");
-										$obj_zipcode = new mf_zipcode();
-
-										$city_name = $obj_zipcode->get_city($strAnswerText);
-
-										if($city_name != '')
-										{
-											$this->arr_email_content['fields'][$intForm2TypeID2]['xtra'] = ", ".$city_name;
-										}
+										$this->arr_email_content['fields'][$intForm2TypeID2]['xtra'] = ", ".$city_name;
 									}
-								break;
-							}
+								}
+							break;
 						}
 					break;
 				}
 
-				if($this->label != '')
+				$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $this->label;
+
+				/*if($this->label != '')
 				{
 					switch($strFormTypeCode)
 					{
@@ -3680,7 +3696,7 @@ class mf_form
 							$this->arr_email_content['fields'][$intForm2TypeID2]['label'] = $this->label;
 						break;
 					}
-				}
+				}*/
 
 				if($strAnswerText != '')
 				{
@@ -3699,7 +3715,7 @@ class mf_form
 
 				else if($strFormTypeCode == 'radio_button')
 				{
-					$strAnswerText_radio = isset($_POST["radio_".$intForm2TypeID2]) ? check_var($_POST["radio_".$intForm2TypeID2], 'int', false) : '';
+					$strAnswerText_radio = (isset($_POST["radio_".$intForm2TypeID2]) ? check_var($_POST["radio_".$intForm2TypeID2], 'int', false) : '');
 
 					if($strAnswerText_radio != '')
 					{
@@ -3709,7 +3725,9 @@ class mf_form
 
 						if(!isset($this->arr_email_content['fields'][$strAnswerText_radio]))
 						{
-							$this->arr_email_content['fields'][$strAnswerText_radio] = array();
+							$this->arr_email_content['fields'][$strAnswerText_radio] = array(
+								'type' => $strFormTypeCode,
+							);
 						}
 
 						$this->arr_email_content['fields'][$strAnswerText_radio]['value'] = "x";
@@ -3748,7 +3766,8 @@ class mf_form
 					if(isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '')
 					{
 						$this->arr_email_content['fields'][] = array(
-							'label' => __("Sent From", $this->lang_key),
+							'type' => 'http_referer',
+							'label' => __("Sent From", 'lang_form'),
 							'value' => remove_protocol(array('url' => $_SERVER['HTTP_REFERER'], 'clean' => true, 'trim' => true))
 						);
 					}
@@ -3764,7 +3783,7 @@ class mf_form
 
 					if($this->check_if_has_payment())
 					{
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", $this->lang_key)));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
 						$test_payment = (isset($_POST[$this->prefix.'test_payment']) && (IS_ADMIN || isset($_GET['make_test_payment'])));
 
@@ -3921,7 +3940,7 @@ class mf_form
 			$this->accept_duplicates = $r->formAcceptDuplicates;
 			$intFormShowAnswers = $r->formShowAnswers;
 			$strFormAnswerURL = $r->formAnswerURL;
-			$strFormButtonText = $r->formButtonText != '' ? $r->formButtonText : __("Submit", $this->lang_key);
+			$strFormButtonText = $r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form');
 			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag(array('symbol' => $r->formButtonSymbol));
 			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
 
@@ -3987,7 +4006,7 @@ class mf_form
 
 					else
 					{
-						$done_text = __("Thank You!", $this->lang_key);
+						$done_text = __("Thank You!", 'lang_form');
 
 						$out .= get_notification();
 					}
@@ -3997,7 +4016,7 @@ class mf_form
 
 			else if($this->edit_mode == false && $dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
 			{
-				$error_text = __("This form is not open for submissions anymore", $this->lang_key);
+				$error_text = __("This form is not open for submissions anymore", 'lang_form');
 
 				$out .= get_notification();
 			}
@@ -4032,7 +4051,7 @@ class mf_form
 						if($this->answer_id > 0)
 						{
 							$out .= "<div class='form_button'>"
-								.show_button(array('name' => 'btnFormUpdate', 'text' => __("Update", $this->lang_key)))
+								.show_button(array('name' => 'btnFormUpdate', 'text' => __("Update", 'lang_form')))
 								.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
 								.input_hidden(array('name' => 'intAnswerID', 'value' => $this->answer_id))
 							."</div>";
@@ -4044,17 +4063,17 @@ class mf_form
 
 							if(in_array('honeypot', $setting_form_spam))
 							{
-								$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", $this->lang_key), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
+								$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
 							}
 
 							$out .= apply_filters('filter_form_after_fields', '')
 							."<div class='form_button'>"
 								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => $strFormButtonSymbol.$strFormButtonText))
-								.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", $this->lang_key), 'class' => "button-secondary hide"));
+								.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
 								if($this->check_if_has_payment() && (IS_ADMIN || isset($_GET['make_test_payment'])))
 								{
-									$out .= show_checkbox(array('name' => $this->prefix.'test_payment', 'text' => __("Perform test payment", $this->lang_key), 'value' => 1))
+									$out .= show_checkbox(array('name' => $this->prefix.'test_payment', 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
 									.apply_filters('filter_form_test_payment', '');
 								}
 
@@ -4496,9 +4515,9 @@ class mf_form_payment
 
 		$out = "";
 
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText LIKE %s", "103: ".__("User canceled", $obj_form->lang_key), $this->answer_id, '10%'));
+		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText LIKE %s", "103: ".__("User canceled", 'lang_form'), $this->answer_id, '10%'));
 
-		$error_text = __("Your payment was cancelled", $obj_form->lang_key);
+		$error_text = __("Your payment was cancelled", 'lang_form');
 
 		$out .= get_notification();
 
@@ -4515,7 +4534,7 @@ class mf_form_payment
 		{
 			if($is_verified)
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid and Verified", $obj_form->lang_key), $this->answer_id, '116:%'));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid and Verified", 'lang_form'), $this->answer_id, '116:%'));
 
 				if($wpdb->rows_affected > 0)
 				{
@@ -4525,7 +4544,7 @@ class mf_form_payment
 
 			else
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText LIKE %s", "104: ".__("User has paid. Waiting for confirmation...", $obj_form->lang_key), $this->answer_id, '10%'));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText LIKE %s", "104: ".__("User has paid. Waiting for confirmation...", 'lang_form'), $this->answer_id, '10%'));
 			}
 
 			if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
@@ -4575,7 +4594,7 @@ class mf_form_payment
 
 			else
 			{
-				$done_text = __("Thank You!", $obj_form->lang_key);
+				$done_text = __("Thank You!", 'lang_form');
 
 				$out .= get_notification();
 			}
@@ -4652,7 +4671,7 @@ class mf_form_payment
 
 		$this->amount = check_var('amount', 'int');
 
-		$out = apply_filters('form_process_callback', "<p>".__("Processing", $obj_form->lang_key)."&hellip;</p>", $this);
+		$out = apply_filters('form_process_callback', "<p>".__("Processing", 'lang_form')."&hellip;</p>", $this);
 
 		return $out;
 	}
@@ -4750,7 +4769,7 @@ if(class_exists('mf_export'))
 			$obj_form->id = $this->type;
 			$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $this->type));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeCode NOT IN('text', 'space', 'custom_tag', 'custom_tag_end') ORDER BY form2TypeOrder ASC", $this->type)); // AND formTypeResult = '1'
 
 			$this_row = array();
 
@@ -4780,10 +4799,10 @@ if(class_exists('mf_export'))
 
 			if($obj_form->check_if_has_payment())
 			{
-				$this_row[] = __("Payment", $obj_form->lang_key);
+				$this_row[] = __("Payment", 'lang_form');
 			}
 
-			$this_row[] = __("Created", $obj_form->lang_key);
+			$this_row[] = __("Created", 'lang_form');
 
 			$this->data[] = $this_row;
 
@@ -4797,7 +4816,7 @@ if(class_exists('mf_export'))
 
 				$this_row = array();
 
-				$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $intFormID));
+				$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeCode NOT IN('text', 'space', 'custom_tag', 'custom_tag_end') ORDER BY form2TypeOrder ASC", $intFormID)); // AND formTypeResult = '1'
 
 				foreach($resultText as $r)
 				{
@@ -4899,20 +4918,20 @@ if(class_exists('mf_list_table'))
 			$this->set_views(array(
 				'db_field' => 'post_status',
 				'types' => array(
-					'all' => __("All", $obj_form->lang_key),
-					'publish' => __("Public", $obj_form->lang_key),
+					'all' => __("All", 'lang_form'),
+					'publish' => __("Public", 'lang_form'),
 					'draft' => __("Draft"),
-					'trash' => __("Trash", $obj_form->lang_key),
+					'trash' => __("Trash", 'lang_form'),
 				),
 			));
 
 			$this->set_columns(array(
-				'post_title' => __("Name", $obj_form->lang_key),
-				'content' => __("Content", $obj_form->lang_key),
-				'answers' => __("Answers", $obj_form->lang_key),
-				'spam' => __("Spam", $obj_form->lang_key),
-				'answerCreated' => __("Latest Answer", $obj_form->lang_key),
-				'post_modified' => __("Modified", $obj_form->lang_key),
+				'post_title' => __("Name", 'lang_form'),
+				'content' => __("Content", 'lang_form'),
+				'answers' => __("Answers", 'lang_form'),
+				'spam' => __("Spam", 'lang_form'),
+				'answerCreated' => __("Latest Answer", 'lang_form'),
+				'post_modified' => __("Modified", 'lang_form'),
 			));
 
 			$this->set_sortable_columns(array(
@@ -4954,19 +4973,19 @@ if(class_exists('mf_list_table'))
 					{
 						if($obj_form->check_allow_edit())
 						{
-							$actions['edit'] = "<a href='".$post_edit_url."'>".__("Edit", $obj_form->lang_key)."</a>";
+							$actions['edit'] = "<a href='".$post_edit_url."'>".__("Edit", 'lang_form')."</a>";
 
 							$query_answers = $obj_form->get_answer_amount(array('form_id' => $obj_form->id));
 
 							if($query_answers == 0)
 							{
-								$actions['delete'] = "<a href='#delete/form/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", $obj_form->lang_key)."</a>";
+								$actions['delete'] = "<a href='#delete/form/".$obj_form->id."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 							}
 						}
 
-						$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id), 'form_copy_'.$obj_form->id, '_wpnonce_form_copy')."'>".__("Copy", $obj_form->lang_key)."</a>";
+						$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$obj_form->id), 'form_copy_'.$obj_form->id, '_wpnonce_form_copy')."'>".__("Copy", 'lang_form')."</a>";
 
-						$actions['export'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("Export", $obj_form->lang_key)."</a>";
+						$actions['export'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("Export", 'lang_form')."</a>";
 
 						if($post_status == 'publish' && $obj_form->id > 0)
 						{
@@ -4980,10 +4999,10 @@ if(class_exists('mf_list_table'))
 								{
 									if($obj_form->check_allow_edit())
 									{
-										$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", $obj_form->lang_key)."</a>";
+										$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
 									}
 
-									$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View", $obj_form->lang_key)."</a>";
+									$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View", 'lang_form')."</a>";
 								}
 							}
 
@@ -4995,18 +5014,18 @@ if(class_exists('mf_list_table'))
 
 									if($post_url != '')
 									{
-										$actions['view'] = "<a href='".$post_url."'>".__("View", $obj_form->lang_key)."</a>";
+										$actions['view'] = "<a href='".$post_url."'>".__("View", 'lang_form')."</a>";
 									}
 								}
 
-								$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", $obj_form->lang_key)."</a>";
+								$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 							}
 						}
 					}
 
 					else if($obj_form->check_allow_edit())
 					{
-						$actions['recover'] = "<a href='".$post_edit_url."&recover'>".__("Recover", $obj_form->lang_key)."</a>";
+						$actions['recover'] = "<a href='".$post_edit_url."&recover'>".__("Recover", 'lang_form')."</a>";
 					}
 
 					if($obj_form->check_allow_edit())
@@ -5025,7 +5044,7 @@ if(class_exists('mf_list_table'))
 				case 'content':
 					if($post_status == 'publish')
 					{
-						$out .= "<i class='fa fa-link fa-lg grey' title='".__("Public", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
 					}
 
 					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailConditions, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
@@ -5043,30 +5062,30 @@ if(class_exists('mf_list_table'))
 						{*/
 							if($intFormEmailNotifyPage > 0)
 							{
-								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", $obj_form->lang_key), $strFormEmail)."'></i> ";
+								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
 							}
 
 							else
 							{
-								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", $obj_form->lang_key), $strFormEmail)."'></i> ";
+								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
 							}
 						//}
 
 						if($strFormEmailConditions != '')
 						{
-							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", $obj_form->lang_key)."'></i> ";
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
 						}
 
 						if($intFormEmailConfirm > 0)
 						{
 							if($intFormEmailConfirmPage > 0)
 							{
-								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", $obj_form->lang_key)."'></i> ";
+								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
 							}
 
 							else
 							{
-								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", $obj_form->lang_key)."'></i> ";
+								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
 							}
 						}
 
@@ -5083,65 +5102,65 @@ if(class_exists('mf_list_table'))
 								break;
 							}
 
-							$out .= "<i class='".$icon." fa-lg grey' title='".__("Provider", $obj_form->lang_key)."'></i> ";
+							$out .= "<i class='".$icon." fa-lg grey' title='".__("Provider", 'lang_form')."'></i> ";
 						}
 					}
 
 					if($obj_form->is_form_field_type_used(array('display' => '0')))
 					{
-						$out .= "<i class='fa fa-eye-slash fa-lg grey' title='".__("There are hidden fields", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-eye-slash fa-lg grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('required' => true)))
 					{
-						$out .= "<i class='fa fa-asterisk fa-lg grey' title='".__("There are required fields", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-asterisk fa-lg grey' title='".__("There are required fields", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('autofocus' => true)))
 					{
-						$out .= "<i class='fa fa-i-cursor fa-lg grey' title='".__("There are autofocus fields", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-i-cursor fa-lg grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('remember' => true)))
 					{
-						$out .= "<i class='fa fa-sync fa-lg grey' title='".__("There are remembered fields", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-sync fa-lg grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
 					}
 
 					$out .= "<br>";
 
 					if($obj_form->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
 					{
-						$out .= "<i class='fa fa-at fa-lg grey' title='".__("There is a field for entering email adress", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-at fa-lg grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('query_type_id' => array(10, 11))))
 					{
-						$out .= "<i class='fa fa-list-alt fa-lg grey' title='".__("Dropdown", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-list-alt fa-lg grey' title='".__("Dropdown", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('query_type_id' => array(1, 16))))
 					{
-						$out .= "<i class='fa fa-check-square fa-lg grey' title='".__("Checkbox", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-check-square fa-lg grey' title='".__("Checkbox", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('query_type_id' => 2)))
 					{
-						$out .= "<i class='fa fa-sliders-h fa-lg grey' title='".__("Range", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-sliders-h fa-lg grey' title='".__("Range", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('query_type_id' => 7)))
 					{
-						$out .= "<i class='fa fa-calendar-alt fa-lg grey' title='".__("Datepicker", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-calendar-alt fa-lg grey' title='".__("Datepicker", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('query_type_id' => array(8, 17))))
 					{
-						$out .= "<i class='far fa-circle fa-lg grey' title='".__("Radio button", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='far fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('query_type_id' => 15)))
 					{
-						$out .= "<i class='fa fa-file fa-lg grey' title='".__("File", $obj_form->lang_key)."'></i> ";
+						$out .= "<i class='fa fa-file fa-lg grey' title='".__("File", 'lang_form')."'></i> ";
 					}
 				break;
 
@@ -5155,7 +5174,7 @@ if(class_exists('mf_list_table'))
 							$count_message = $obj_form->get_count_answer_message(array('form_id' => $obj_form->id));
 
 							$actions = array(
-								'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", $obj_form->lang_key)."</a>",
+								'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$obj_form->id)."'>".__("View", 'lang_form')."</a>",
 								'export_csv' => "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormAnswerExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>CSV</a>",
 							);
 
@@ -5192,7 +5211,7 @@ if(class_exists('mf_list_table'))
 
 						if($dteAnswerCreated_spam > DEFAULT_DATE)
 						{
-							$actions['spam'] = __("Spam", $obj_form->lang_key).": ".format_date($dteAnswerCreated_spam);
+							$actions['spam'] = __("Spam", 'lang_form').": ".format_date($dteAnswerCreated_spam);
 						}
 
 						$out .= format_date($dteAnswerCreated)
@@ -5248,8 +5267,8 @@ if(class_exists('mf_list_table'))
 			$this->set_views(array(
 				'db_field' => 'answerSpam',
 				'types' => array(
-					'0' => __("All", $obj_form->lang_key),
-					'1' => __("Spam", $obj_form->lang_key)
+					'0' => __("All", 'lang_form'),
+					'1' => __("Spam", 'lang_form')
 				),
 			));
 
@@ -5257,12 +5276,12 @@ if(class_exists('mf_list_table'))
 
 			if(isset($_GET['answerSpam']) && $_GET['answerSpam'] == 1)
 			{
-				$arr_columns['answerSpam'] = __("Spam", $obj_form->lang_key);
+				$arr_columns['answerSpam'] = __("Spam", 'lang_form');
 			}
 
 			$obj_form->answer_column = 0;
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' ORDER BY form2TypeOrder ASC", $obj_form->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeCode, formTypeText, form2TypeID FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeCode NOT IN('text', 'space', 'custom_tag', 'custom_tag_end') ORDER BY form2TypeOrder ASC", $obj_form->id)); // AND formTypeResult = '1'
 
 			foreach($result as $r)
 			{
@@ -5301,16 +5320,16 @@ if(class_exists('mf_list_table'))
 					break;
 				}
 
-				$arr_columns[$intForm2TypeID2] = shorten_text(array('string' => $obj_form->label, 'limit' => $label_limit));
+				$arr_columns[$intForm2TypeID2] = shorten_text(array('string' => trim($obj_form->label, ":"), 'limit' => $label_limit));
 			}
 
 			if($obj_form->check_if_has_payment())
 			{
-				$arr_columns['payment'] = __("Payment", $obj_form->lang_key);
+				$arr_columns['payment'] = __("Payment", 'lang_form');
 			}
 
-			$arr_columns['answerCreated'] = __("Created", $obj_form->lang_key);
-			$arr_columns['sent'] = __("Sent", $obj_form->lang_key);
+			$arr_columns['answerCreated'] = __("Created", 'lang_form');
+			$arr_columns['sent'] = __("Sent", 'lang_form');
 
 			$this->set_columns($arr_columns);
 
@@ -5346,7 +5365,7 @@ if(class_exists('mf_list_table'))
 							}
 						}
 
-						$actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."' rel='confirm'>".__("Approve", $obj_form->lang_key)."</a>";
+						$actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
 					}
 
 					$out .= $this->row_actions($actions);
@@ -5363,7 +5382,7 @@ if(class_exists('mf_list_table'))
 					{
 						$actions['status'] = $strAnswerText_temp;
 
-						$out .= __("Test Payment", $obj_form->lang_key);
+						$out .= __("Test Payment", 'lang_form');
 					}
 
 					else
@@ -5383,7 +5402,7 @@ if(class_exists('mf_list_table'))
 
 								if($strFormPaymentCallback != '')
 								{
-									$actions['verify'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerVerifyPayment&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_verify_payment_'.$intAnswerID, '_wpnonce_answer_verify_payment')."' rel='confirm'>".__("Verify", $obj_form->lang_key)."</a>";
+									$actions['verify'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerVerifyPayment&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_verify_payment_'.$intAnswerID, '_wpnonce_answer_verify_payment')."' rel='confirm'>".__("Verify", 'lang_form')."</a>";
 								}
 
 								$out .= "<i class='set_tr_color' rel='yellow'></i>";
@@ -5409,17 +5428,17 @@ if(class_exists('mf_list_table'))
 					$obj_form->answer_column = 0;
 
 					$actions = array(
-						'id' => __("ID", $obj_form->lang_key).": ".$intAnswerID,
+						'id' => __("ID", 'lang_form').": ".$intAnswerID,
 					);
 
 					if($item['answerIP'] != '')
 					{
-						$actions['ip'] = __("IP", $obj_form->lang_key).": ".$item['answerIP'];
+						$actions['ip'] = __("IP", 'lang_form').": ".$item['answerIP'];
 					}
 
 					if($item['answerToken'] != '')
 					{
-						$actions['token'] = __("Token", $obj_form->lang_key).": ".$item['answerToken'];
+						$actions['token'] = __("Token", 'lang_form').": ".$item['answerToken'];
 					}
 
 					$result = $obj_form->get_meta(array('id' => $intAnswerID));
@@ -5435,19 +5454,19 @@ if(class_exists('mf_list_table'))
 							switch($r->metaKey)
 							{
 								case 'payment_verified_by':
-									$meta_data_title .= __("Verified by", $obj_form->lang_key).": ".get_user_info(array('id' => $r->metaValue));
+									$meta_data_title .= __("Verified by", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
 								break;
 
 								case 'test_payment':
-									$meta_data_title .= __("Test Payment", $obj_form->lang_key).": ".get_user_info(array('id' => $r->metaValue));
+									$meta_data_title .= __("Test Payment", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
 								break;
 
 								case 'user_agent':
-									$meta_data_title .= __("Browser", $obj_form->lang_key).": ".$r->metaValue;
+									$meta_data_title .= __("Browser", 'lang_form').": ".$r->metaValue;
 								break;
 
 								case 'user_id':
-									$meta_data_title .= __("User", $obj_form->lang_key).": ".get_user_info(array('id' => $r->metaValue));
+									$meta_data_title .= __("User", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
 								break;
 
 								default:
@@ -5456,7 +5475,7 @@ if(class_exists('mf_list_table'))
 							}
 						}
 
-						$actions['meta_data'] = "<span title='".$meta_data_title."'>".__("Meta Data", $obj_form->lang_key)." (".count($result).")</span>";
+						$actions['meta_data'] = "<span title='".$meta_data_title."'>".__("Meta Data", 'lang_form')." (".count($result).")</span>";
 					}
 
 					if($obj_form->check_if_has_payment() == false)
@@ -5468,7 +5487,7 @@ if(class_exists('mf_list_table'))
 
 						if($strSentTo != '' && strlen($strSentTo) > 4)
 						{
-							$actions['sent_to'] = "<br><strong>".__("Sent To", $obj_form->lang_key)."</strong><br>".$strSentTo;
+							$actions['sent_to'] = "<br><strong>".__("Sent To", 'lang_form')."</strong><br>".$strSentTo;
 						}
 					}
 
@@ -5526,7 +5545,7 @@ if(class_exists('mf_list_table'))
 
 							if($sent_failed_w_type > 0)
 							{
-								$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'>".__("Resend", $obj_form->lang_key)."</a>";
+								$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
 							}
 
 						$out .= "</div>";
@@ -5543,7 +5562,7 @@ if(class_exists('mf_list_table'))
 					{
 						$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 
-						$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeResult = '1' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
+						$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeCode NOT IN('text', 'space', 'custom_tag', 'custom_tag_end') AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name)); // AND formTypeResult = '1'
 
 						foreach($resultText as $r)
 						{
@@ -5604,11 +5623,11 @@ if(class_exists('mf_list_table'))
 												break;
 
 												case 'email':
-													$strAnswerText = "<a href='mailto:".$strAnswerText."?subject=".__("Re", $obj_form->lang_key).": ".$strFormName."'>".$strAnswerText."</a>";
+													$strAnswerText = "<a href='mailto:".$strAnswerText."?subject=".__("Re", 'lang_form').": ".$strFormName."'>".$strAnswerText."</a>";
 
 													if($item['answerSpam'] == false)
 													{
-														$actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID, '_wpnonce_answer_spam')."' rel='confirm'>".__("Mark as Spam", $obj_form->lang_key)."</a>";
+														$actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID, '_wpnonce_answer_spam')."' rel='confirm'>".__("Mark as Spam", 'lang_form')."</a>";
 													}
 												break;
 
@@ -5629,13 +5648,38 @@ if(class_exists('mf_list_table'))
 
 							if($strAnswerText != '')
 							{
-								$out .= stripslashes(stripslashes($strAnswerText));
+								switch($strFormTypeCode)
+								{
+									case 'checkbox':
+									case 'radio_button':
+									//case 'checkbox_multiple':
+									//case 'radio_multiple':
+										if($strAnswerText == 1)
+										{
+											$out .= "<i class='fa fa-check green'></i>";
+										}
+
+										else if($strAnswerText == 0)
+										{
+											$out .= "<i class='fa fa-close red'></i>";
+										}
+
+										else
+										{
+											$out .= stripslashes(stripslashes($strAnswerText));
+										}
+									break;
+
+									default:
+										$out .= stripslashes(stripslashes($strAnswerText));
+									break;
+								}
 							}
 
 							if($obj_form->answer_column == 0)
 							{
-								$actions['edit'] = "<a href='".admin_url("admin.php?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID)."'>".__("Edit", $obj_form->lang_key)."</a>";
-								$actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", $obj_form->lang_key)."</a>";
+								$actions['edit'] = "<a href='".admin_url("admin.php?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID)."'>".__("Edit", 'lang_form')."</a>";
+								$actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 
 								$obj_form->answer_column++;
 							}
@@ -5758,12 +5802,12 @@ class mf_form_output
 			if($answer_rows >= $data['array'][2])
 			{
 				$data['array'][0] = "disabled_".$data['array'][0];
-				$data['array'][1] .= " (".__("Full", $obj_form->lang_key).")";
+				$data['array'][1] .= " (".__("Full", 'lang_form').")";
 			}
 
 			else
 			{
-				$data['array'][1] .= " (".($data['array'][2] - $answer_rows)." / ".$data['array'][2]." ".__("left", $obj_form->lang_key).")";
+				$data['array'][1] .= " (".($data['array'][2] - $answer_rows)." / ".$data['array'][2]." ".__("left", 'lang_form').")";
 			}
 		}
 
@@ -6054,7 +6098,7 @@ class mf_form_output
 			break;
 
 			case 'space':
-				$this->output .= $this->in_edit_mode == true ? "<p class='grey".$class_output_small."'>(".__("Space", $obj_form->lang_key).")</p>" : "<p".$class_output.">&nbsp;</p>";
+				$this->output .= $this->in_edit_mode == true ? "<p class='grey".$class_output_small."'>(".__("Space", 'lang_form').")</p>" : "<p".$class_output.">&nbsp;</p>";
 			break;
 
 			case 'referer_url':
@@ -6062,7 +6106,7 @@ class mf_form_output
 
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", $obj_form->lang_key)." (".$this->row->formTypeText.": '".$referer_url."')</p>";
+					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->row->formTypeText.": '".$referer_url."')</p>";
 				}
 
 				else
@@ -6080,7 +6124,7 @@ class mf_form_output
 
 				if($this->in_edit_mode == true)
 				{
-					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", $obj_form->lang_key)." (".$this->query_prefix.$this->row->form2TypeID.": ".$field_data['value'].")</p>";
+					$this->output .= "<p class='grey".$class_output_small."'>".__("Hidden", 'lang_form')." (".$this->query_prefix.$this->row->form2TypeID.": ".$field_data['value'].")</p>";
 				}
 
 				else
@@ -6153,38 +6197,38 @@ class mf_form_output
 
 		if($this->in_edit_mode == true)
 		{
-			$row_settings = show_checkbox(array('name' => 'display_'.$this->row->form2TypeID, 'text' => __("Display", $obj_form->lang_key), 'value' => 1, 'compare' => $this->row->formTypeDisplay, 'xtra' => "class='ajax_checkbox' rel='display/type/".$this->row->form2TypeID."'"));
+			$row_settings = show_checkbox(array('name' => 'display_'.$this->row->form2TypeID, 'text' => __("Display", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeDisplay, 'xtra' => "class='ajax_checkbox' rel='display/type/".$this->row->form2TypeID."'"));
 
 			if($this->show_required == true)
 			{
-				$row_settings .= show_checkbox(array('name' => 'require_'.$this->row->form2TypeID, 'text' => __("Required", $obj_form->lang_key), 'value' => 1, 'compare' => $this->row->formTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->form2TypeID."'"));
+				$row_settings .= show_checkbox(array('name' => 'require_'.$this->row->form2TypeID, 'text' => __("Required", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRequired, 'xtra' => "class='ajax_checkbox' rel='require/type/".$this->row->form2TypeID."'"));
 			}
 
 			if($this->show_autofocus == true)
 			{
-				$row_settings .= show_checkbox(array('name' => 'autofocus_'.$this->row->form2TypeID, 'text' => __("Autofocus", $obj_form->lang_key), 'value' => 1, 'compare' => $this->row->formTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->form2TypeID."'"));
+				$row_settings .= show_checkbox(array('name' => 'autofocus_'.$this->row->form2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->form2TypeID."'"));
 			}
 
 			if($this->show_remember == true)
 			{
-				$row_settings .= show_checkbox(array('name' => 'remember_'.$this->row->form2TypeID, 'text' => __("Remember Answer", $obj_form->lang_key), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
+				$row_settings .= show_checkbox(array('name' => 'remember_'.$this->row->form2TypeID, 'text' => __("Remember Answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
 			}
 
 			if($this->show_copy == true)
 			{
-				$row_settings .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."'>".__("Copy", $obj_form->lang_key)."</a>";
+				$row_settings .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."'>".__("Copy", 'lang_form')."</a>";
 			}
 
 			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d' LIMIT 0, 1", $this->row->form2TypeID));
 
 			if($wpdb->num_rows == 0)
 			{
-				$row_settings .= ($this->show_copy == true ? " | " : "")."<a href='#delete/type/".$this->row->form2TypeID."' class='ajax_link confirm_link'>".__("Delete", $obj_form->lang_key)."</a>";
+				$row_settings .= ($this->show_copy == true ? " | " : "")."<a href='#delete/type/".$this->row->form2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 			}
 
 			if($this->show_template_info == true)
 			{
-				$row_settings .= "<p class='add2condition' rel='".$this->row->form2TypeID."'>".sprintf(__("For use in templates this field has got %s and %s", $obj_form->lang_key), "<a href='#'>[label_".$this->row->form2TypeID."]</a>", "<a href='#'>[answer_".$this->row->form2TypeID."]</a>")."</p>";
+				$row_settings .= "<p class='add2condition' rel='".$this->row->form2TypeID."'>".sprintf(__("For use in templates this field has got %s and %s", 'lang_form'), "<a href='#'>[label_".$this->row->form2TypeID."]</a>", "<a href='#'>[answer_".$this->row->form2TypeID."]</a>")."</p>";
 			}
 
 			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='flex_flow".($data['form2type_id'] == $this->row->form2TypeID ? " active" : "").($this->row->formTypeDisplay == 0 ? " hide_publicly" : "")."'>"
@@ -6200,7 +6244,7 @@ class mf_form_output
 							$out .= "<i class='fa fa-info-circle blue'></i>";
 						}
 
-						$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", $obj_form->lang_key)."'><i class='far fa-edit'></i></a>
+						$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."' title='".__("Edit", 'lang_form')."'><i class='far fa-edit'></i></a>
 					</div>";
 
 					if($row_settings != '')
@@ -6229,7 +6273,7 @@ class widget_form extends WP_Widget
 
 		$this->widget_ops = array(
 			'classname' => 'form',
-			'description' => __("Display a form that you have previously created", $this->obj_form->lang_key),
+			'description' => __("Display a form that you have previously created", 'lang_form'),
 		);
 
 		$this->arr_default = array(
@@ -6237,7 +6281,7 @@ class widget_form extends WP_Widget
 			'form_id' => "",
 		);
 
-		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Form", $this->obj_form->lang_key), $this->widget_ops);
+		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Form", 'lang_form'), $this->widget_ops);
 	}
 
 	function widget($args, $instance)
@@ -6288,7 +6332,7 @@ class widget_form extends WP_Widget
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", $this->obj_form->lang_key), 'value' => $instance['form_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
+			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
 			.show_select(array('data' => $this->obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
 		."</div>";
 	}

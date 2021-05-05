@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.6.8
+Version: 1.0.6.10
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -155,14 +155,11 @@ if(is_plugin_active("mf_base/index.php"))
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_type (
 			formTypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			formTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 			formTypeCode VARCHAR(30),
 			formTypeName VARCHAR(40) DEFAULT NULL,
 			formTypeDesc TEXT DEFAULT NULL,
-			formTypeResult ENUM('0','1') NOT NULL DEFAULT '1',
-			PRIMARY KEY (formTypeID),
-			KEY formTypeResult (formTypeResult)
-		) DEFAULT CHARSET=".$default_charset);
+			PRIMARY KEY (formTypeID)
+		) DEFAULT CHARSET=".$default_charset); //formTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes', formTypeResult ENUM('0','1') NOT NULL DEFAULT '1', //, KEY formTypeResult (formTypeResult)
 
 		$arr_add_column[$wpdb->base_prefix."form_type"] = array(
 			'formTypeDesc' => "ALTER TABLE [table] ADD [column] VARCHAR(40) DEFAULT NULL AFTER formTypeName",
@@ -170,6 +167,8 @@ if(is_plugin_active("mf_base/index.php"))
 
 		$arr_update_column[$wpdb->base_prefix."form_type"] = array(
 			'formTypeName' => "ALTER TABLE [table] CHANGE [column] formTypeName VARCHAR(40) DEFAULT NULL",
+			'formTypeResult' => "ALTER TABLE [table] DROP COLUMN [column]",
+			'formTypePublic' => "ALTER TABLE [table] DROP COLUMN [column]",
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
@@ -266,28 +265,28 @@ if(is_plugin_active("mf_base/index.php"))
 
 		foreach($obj_form->get_form_types() as $key => $value)
 		{
-			if(!isset($value['public'])){	$value['public'] = 'yes';}
+			//if(!isset($value['public'])){	$value['public'] = 'yes';}
 
-			$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_type SET formTypeID = '%d', formTypeCode = %s, formTypeName = %s, formTypeDesc = %s, formTypeResult = '%d', formTypePublic = %s", $key, $value['code'], $value['name'], $value['desc'], $value['result'], $value['public']);
+			$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_type SET formTypeID = '%d', formTypeCode = %s, formTypeName = %s, formTypeDesc = %s", $key, $value['code'], $value['name'], $value['desc']); //, formTypeResult = '%d', formTypePublic = %s //, $value['result'], $value['public']
 		}
 
 		$arr_form_check = array(
-			1 => array('name' => __("Number", $obj_form->lang_key),				'code' => 'int',		'pattern' => '[0-9]*'),
-			2 => array('name' => __("Zip Code", $obj_form->lang_key),			'code' => 'zip',		'pattern' => '[0-9]{5}'),
-			5 => array('name' => __("E-mail", $obj_form->lang_key),				'code' => 'email',		'pattern' => ''),
-			6 => array('name' => __("Phone no", $obj_form->lang_key),			'code' => 'telno',		'pattern' => '\d*'),
-			7 => array('name' => __("Decimal number", $obj_form->lang_key),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
-			8 => array('name' => __("URL", $obj_form->lang_key),				'code' => 'url',		'pattern' => ''),
-			9 => array('name' => __("Name", $obj_form->lang_key),				'code' => 'name',		'pattern' => ''),
-			10 => array('name' => __("Street Address", $obj_form->lang_key),	'code' => 'address',	'pattern' => ''),
-			11 => array('name' => __("City", $obj_form->lang_key),				'code' => 'city',		'pattern' => ''),
-			11 => array('name' => __("Country", $obj_form->lang_key),			'code' => 'country',	'pattern' => ''),
+			1 => array('name' => __("Number", 'lang_form'),				'code' => 'int',		'pattern' => '[0-9]*'),
+			2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip',		'pattern' => '[0-9]{5}'),
+			5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email',		'pattern' => ''),
+			6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno',		'pattern' => '\d*'),
+			7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
+			8 => array('name' => __("URL", 'lang_form'),				'code' => 'url',		'pattern' => ''),
+			9 => array('name' => __("Name", 'lang_form'),				'code' => 'name',		'pattern' => ''),
+			10 => array('name' => __("Street Address", 'lang_form'),	'code' => 'address',	'pattern' => ''),
+			11 => array('name' => __("City", 'lang_form'),				'code' => 'city',		'pattern' => ''),
+			11 => array('name' => __("Country", 'lang_form'),			'code' => 'country',	'pattern' => ''),
 		);
 
 		if(get_bloginfo('language') == "sv-SE")
 		{
-			$arr_form_check[3] = array('name' => __("Social security no", $obj_form->lang_key)." (8208041234)",		'code' => 'soc',	'pattern' => '[0-9]{10}');
-			$arr_form_check[4] = array('name' => __("Social security no", $obj_form->lang_key)." (198208041234)",	'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
+			$arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc',	'pattern' => '[0-9]{10}');
+			$arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",	'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
 		}
 
 		foreach($arr_form_check as $key => $value)
@@ -410,7 +409,7 @@ if(is_plugin_active("mf_base/index.php"))
 
 		foreach($arr_copy as $copy)
 		{
-			$log_message = sprintf(__("I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this.", $obj_form->lang_key), $wpdb->base_prefix.$copy['table_from'], "<a href='".admin_url("admin.php?page=mf_form/list/index.php")."'>", "</a>");
+			$log_message = sprintf(__("I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this.", 'lang_form'), $wpdb->base_prefix.$copy['table_from'], "<a href='".admin_url("admin.php?page=mf_form/list/index.php")."'>", "</a>");
 
 			if(does_table_exist($wpdb->base_prefix.$copy['table_from']))
 			{
