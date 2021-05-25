@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.6.10
+Version: 1.0.6.11
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -82,7 +82,7 @@ if(is_plugin_active("mf_base/index.php"))
 			$obj_form = new mf_form();
 		}
 
-		$default_charset = DB_CHARSET != '' ? DB_CHARSET : "utf8";
+		$default_charset = (DB_CHARSET != '' ? DB_CHARSET : 'utf8');
 
 		$arr_add_column = $arr_update_column = $arr_add_index = array();
 

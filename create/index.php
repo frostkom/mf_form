@@ -1,5 +1,6 @@
 <?php
 
+$obj_base = new mf_base();
 $obj_form = new mf_form(array('type' => 'create'));
 
 if($obj_form->check_allow_edit())
@@ -295,7 +296,7 @@ if($obj_form->check_allow_edit())
 									show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $obj_form->answer_url, 'text' => __("Confirmation Page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_answer_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>")) //, 'suffix' => get_option_page_suffix(array('value' => $obj_form->answer_url))
 									.show_textfield(array('name' => 'strFormMandatoryText', 'text' => __("Text when mandatory fields have not been entered", 'lang_form'), 'value' => $obj_form->mandatory_text, 'placeholder' => __("Please, enter all required fields", 'lang_form'), 'maxlength' => 100))
 									."<div class='flex_flow'>"
-										.show_select(array('data' => $obj_form->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $obj_form->button_symbol, 'text' => __("Button Symbol", 'lang_form')))
+										.show_select(array('data' => $obj_base->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $obj_form->button_symbol, 'text' => __("Button Symbol", 'lang_form')))
 										.show_textfield(array('name' => 'strFormButtonText', 'text' => __("Text", 'lang_form'), 'value' => $obj_form->button_text, 'placeholder' => __("Submit", 'lang_form'), 'maxlength' => 100))
 									."</div>"
 									.show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $obj_form->deadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"))

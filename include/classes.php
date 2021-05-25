@@ -1885,7 +1885,7 @@ class mf_form
 
 					else
 					{
-						$done_text = __("The form was succesfully copied", 'lang_form');
+						$done_text = __("The form was successfully copied", 'lang_form');
 					}
 				}
 
@@ -2837,21 +2837,25 @@ class mf_form
 		return $wpdb->get_var($wpdb->prepare("SELECT COUNT(formTypeID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_check USING (checkID) WHERE formID = '%d' AND formTypeID = '3' AND checkCode = 'email'", $this->id));
 	}
 
-	function get_icons_for_select()
+	/*function get_icons_for_select()
 	{
+		global $obj_font_icons;
+
 		$arr_data = array();
 		$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 
-		$obj_font_icons = new mf_font_icons();
-		$arr_icons = $obj_font_icons->get_array();
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
 
-		foreach($arr_icons as $key => $value)
+		foreach($obj_font_icons->get_array() as $key => $value)
 		{
 			$arr_data[$key] = $value;
 		}
 
 		return $arr_data;
-	}
+	}*/
 
 	function get_form_type_for_select($data)
 	{
@@ -3747,6 +3751,8 @@ class mf_form
 			{
 				$this->is_spam = true;
 				$this->is_spam_id = 7;
+
+				do_log("Honeypot value: ".check_var($this->prefix.'check'));
 			}
 
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, ($this->allow_save_ip() == 'yes' ? $_SERVER['REMOTE_ADDR'] : ''), $this->is_spam, $this->is_spam_id));
@@ -3925,13 +3931,16 @@ class mf_form
 
 	function get_form($data = array())
 	{
-		global $wpdb, $wp_query, $done_text, $error_text;
+		global $wpdb, $wp_query, $done_text, $error_text, $obj_font_icons;
 
 		if(!isset($data['do_redirect'])){	$data['do_redirect'] = true;}
 
 		$out = "";
 
-		$obj_font_icons = new mf_font_icons();
+		if(!isset($obj_font_icons))
+		{
+			$obj_font_icons = new mf_font_icons();
+		}
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT formAcceptDuplicates, formShowAnswers, formAnswerURL, formButtonText, formButtonSymbol, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND blogID = '%d' AND formDeleted = '0'", $this->id, $wpdb->blogid));
 
@@ -4790,7 +4799,7 @@ if(class_exists('mf_export'))
 					case 'select_multiple':
 					case 'checkbox_multiple':
 					case 'radio_multiple':
-						list($obj_form->label, $str_select) = explode(":", $obj_form->label);
+						@list($obj_form->label, $str_select) = explode(":", $obj_form->label);
 					break;
 				}
 
