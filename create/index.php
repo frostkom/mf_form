@@ -239,7 +239,7 @@ if($obj_form->check_allow_edit())
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Save", 'lang_form')."</span></h3>
 								<div class='inside'>"
-									.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => 1, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
+									.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => true, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
 									.show_textfield(array('name' => 'strFormURL', 'text' => __("URL", 'lang_form'), 'value' => $obj_form->url, 'maxlength' => 100));
 
 									if($form_output != '')
@@ -432,7 +432,7 @@ if($obj_form->check_allow_edit())
 				echo "<form method='post' action='' class='mf_form mf_settings'>
 					<div class='postbox'>
 						<div class='inside'>"
-							.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => 1, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
+							.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => true, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
 							.show_textarea(array('name' => 'strFormImport', 'text' => __("Import Form Fields", 'lang_form'), 'value' => $obj_form->import, 'placeholder' => "3,".__("Name", 'lang_form').","))
 							.show_button(array('name' => 'btnFormPublish', 'text' => __("Add", 'lang_form')))
 							.input_hidden(array('name' => 'intFormID', 'value' => $obj_form->id))

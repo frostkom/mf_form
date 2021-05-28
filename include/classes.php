@@ -636,6 +636,16 @@ class mf_form
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
 	}
 
+	function filter_last_updated_post_types($array, $type)
+	{
+		if($type == 'auto')
+		{
+			$array[] = $this->post_type;
+		}
+
+		return $array;
+	}
+
 	function has_remember_fields()
 	{
 		global $wpdb;
@@ -644,26 +654,6 @@ class mf_form
 
 		return ($form_id > 0);
 	}
-
-	/*function add_policy($content)
-	{
-		if($this->get_amount() > 0)
-		{
-			$content .= "<h3>".__("Forms", 'lang_form')."</h3>
-			<p>"
-				.__("Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient.", 'lang_form')
-			."</p>";
-
-			if($this->has_remember_fields())
-			{
-				$content .= "<p>"
-					.sprintf(__("When a visitor enters personal information in a form it is also saved in the so called %s which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor.", 'lang_form'), "'localStorage'")
-				."</p>";
-			}
-		}
-
-		return $content;
-	}*/
 
 	function export_personal_data($email_address, $page = 1)
 	{
