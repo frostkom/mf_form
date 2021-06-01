@@ -2620,14 +2620,30 @@ class mf_form
 	{
 		$intForm2TypeID = $matches[1];
 
-		return $this->page_content_data['content']['fields'][$intForm2TypeID]['label'];
+		if(isset($this->page_content_data['content']['fields'][$intForm2TypeID]['value']))
+		{
+			return $this->page_content_data['content']['fields'][$intForm2TypeID]['label'];
+		}
+
+		else
+		{
+			do_log("Field did not exist when checking in preg_replace_label(): ".var_export($matches, true)." -> ".$intForm2TypeID." -> ".var_export($this->page_content_data['content']['fields'], true));
+		}
 	}
 
 	function preg_replace_answer($matches)
 	{
 		$intForm2TypeID = $matches[1];
 
-		return $this->page_content_data['content']['fields'][$intForm2TypeID]['value'];
+		if(isset($this->page_content_data['content']['fields'][$intForm2TypeID]['value']))
+		{
+			return $this->page_content_data['content']['fields'][$intForm2TypeID]['value'];
+		}
+
+		else
+		{
+			do_log("Field did not exist when checking in preg_replace_answer(): ".var_export($matches, true)." -> ".$intForm2TypeID." -> ".var_export($this->page_content_data['content']['fields'], true));
+		}
 	}
 
 	function render_mail_subject()
@@ -3238,20 +3254,28 @@ class mf_form
 
 		if($this->email_conditions != '')
 		{
-			foreach(explode("\n", $this->email_conditions) as $arr_condition)
+			foreach(explode("\n", $this->email_conditions) as $str_condition)
 			{
-				list($field_id, $option_id, $email) = explode("|", $arr_condition, 3);
+				@list($field_id, $option_id, $email) = explode("|", $str_condition, 3);
 
-				if(substr($field_id, 0, strlen($this->prefix)) == $this->prefix)
+				if($field_id != '' && $option_id != '' && $email != '')
 				{
-					$field_id = str_replace($this->prefix, "", $field_id);
+					if(substr($field_id, 0, strlen($this->prefix)) == $this->prefix)
+					{
+						$field_id = str_replace($this->prefix, "", $field_id);
+					}
+
+					if(isset($_REQUEST[$this->prefix.$field_id]) && check_var($this->prefix.$field_id) == $option_id)
+					{
+						$this->email_admin = $email;
+
+						break;
+					}
 				}
 
-				if(isset($_REQUEST[$this->prefix.$field_id]) && check_var($this->prefix.$field_id) == $option_id)
+				else
 				{
-					$this->email_admin = $email;
-
-					break;
+					do_log("Condition was not correctly formated (FormID: ".$this->id." -> ".$str_condition.")");
 				}
 			}
 		}
