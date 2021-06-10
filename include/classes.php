@@ -2843,26 +2843,6 @@ class mf_form
 		return $wpdb->get_var($wpdb->prepare("SELECT COUNT(formTypeID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_check USING (checkID) WHERE formID = '%d' AND formTypeID = '3' AND checkCode = 'email'", $this->id));
 	}
 
-	/*function get_icons_for_select()
-	{
-		global $obj_font_icons;
-
-		$arr_data = array();
-		$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
-
-		if(!isset($obj_font_icons))
-		{
-			$obj_font_icons = new mf_font_icons();
-		}
-
-		foreach($obj_font_icons->get_array() as $key => $value)
-		{
-			$arr_data[$key] = $value;
-		}
-
-		return $arr_data;
-	}*/
-
 	function get_form_type_for_select($data)
 	{
 		if(!isset($data['add_choose_here'])){	$data['add_choose_here'] = false;}

@@ -12,7 +12,10 @@ if(!defined('ABSPATH'))
 include_once("../classes.php");
 require_once("../functions.php");
 
-$obj_form = new mf_form();
+if(!isset($obj_form))
+{
+	$obj_form = new mf_form();
+}
 
 $json_output = array();
 
