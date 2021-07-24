@@ -5664,7 +5664,7 @@ if(class_exists('mf_list_table'))
 
 										else if($strAnswerText == 0)
 										{
-											$out .= "<i class='fa fa-close red'></i>";
+											$out .= "<i class='fa fa-times red'></i>";
 										}
 
 										else
