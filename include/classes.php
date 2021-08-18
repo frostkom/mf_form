@@ -585,8 +585,7 @@ class mf_form
 
 		$menu_root = 'mf_form/';
 		$menu_start = ($count_forms > 0 ? $menu_root."list/index.php" : $menu_root."create/index.php");
-
-		$menu_capability = 'edit_pages';
+		$menu_capability = override_capability(array('page' => $menu_start, 'default' => 'edit_pages'));
 
 		$count_message = ($count_forms > 0 ? $this->get_count_answer_message() : "");
 

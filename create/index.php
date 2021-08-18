@@ -292,8 +292,8 @@ if($obj_form->check_allow_edit())
 							</div>
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
-								<div class='inside'>".
-									show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $obj_form->answer_url, 'text' => __("Confirmation Page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_answer_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>")) //, 'suffix' => get_option_page_suffix(array('value' => $obj_form->answer_url))
+								<div class='inside'>"
+									.show_select(array('data' => $arr_data_pages, 'name' => 'strFormAnswerURL', 'value' => $obj_form->answer_url, 'text' => __("Confirmation Page", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_answer_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>")) //, 'suffix' => get_option_page_suffix(array('value' => $obj_form->answer_url))
 									.show_textfield(array('name' => 'strFormMandatoryText', 'text' => __("Text when mandatory fields have not been entered", 'lang_form'), 'value' => $obj_form->mandatory_text, 'placeholder' => __("Please, enter all required fields", 'lang_form'), 'maxlength' => 100))
 									."<div class='flex_flow'>"
 										.show_select(array('data' => $obj_base->get_icons_for_select(), 'name' => 'strFormButtonSymbol', 'value' => $obj_form->button_symbol, 'text' => __("Button Symbol", 'lang_form')))
