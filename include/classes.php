@@ -1334,7 +1334,7 @@ class mf_form
 				$this->form2type_id = check_var('intForm2TypeID');
 				$this->form2type_order = check_var('intForm2TypeOrder');
 
-				$this->email_confirm = isset($_POST['intFormEmailConfirm']) ? 1 : 0;
+				$this->email_confirm = (isset($_POST['intFormEmailConfirm']) ? 1 : 0);
 				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
 				$this->show_answers = check_var('intFormShowAnswers');
 				$this->accept_duplicates = check_var('strFormAcceptDuplicates', 'char', true, 'yes');
@@ -1363,7 +1363,7 @@ class mf_form
 				$this->payment_callback = check_var('strFormPaymentCallback');
 
 				$this->type_id = check_var('intFormTypeID');
-				$this->type_text = isset($_POST['strFormTypeText']) ? $_POST['strFormTypeText'] : ""; //Allow HTML here
+				$this->type_text = (isset($_POST['strFormTypeText']) ? $_POST['strFormTypeText'] : ""); //Allow HTML here
 				$this->type_text2 = check_var('strFormTypeText2');
 				$this->check_id = check_var('intCheckID');
 				$this->type_placeholder = check_var('strFormTypePlaceholder');
