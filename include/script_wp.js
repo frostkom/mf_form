@@ -281,7 +281,8 @@ jQuery(function($)
 	}
 
 	var dom_email_confirm = $("#intFormEmailConfirm"),
-		dom_email_confirm_parent = $("#intFormEmailConfirmPage").parent(".form_select"),
+		dom_email_confirm_id_parent = $("#intFormEmailConfirmID").parent(".form_select"),
+		dom_email_confirm_page_parent = $("#intFormEmailConfirmPage").parent(".form_select"),
 		dom_email_notify = $("#intFormEmailNotify"),
 		dom_email_notify_parent = $("#intFormEmailNotifyPage").parent(".form_select"),
 		dom_form_email_parent = $("#strFormEmail").parent(".form_textfield"),
@@ -294,14 +295,16 @@ jQuery(function($)
 
 		if(dom_email_confirm.is(":checked"))
 		{
-			dom_email_confirm_parent.removeClass('hide');
+			dom_email_confirm_id_parent.removeClass('hide');
+			dom_email_confirm_page_parent.removeClass('hide');
 
 			display_dom_form_email = true;
 		}
 
 		else
 		{
-			dom_email_confirm_parent.addClass('hide');
+			dom_email_confirm_id_parent.addClass('hide');
+			dom_email_confirm_page_parent.addClass('hide');
 		}
 
 		if(dom_email_notify.is(":checked"))
