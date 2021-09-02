@@ -322,6 +322,7 @@ if($obj_form->check_allow_edit())
 									}
 
 									echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 1, 'compare' => $obj_form->email_notify))
+									.show_select(array('data' => $obj_form->get_email_notify_from_for_select(), 'name' => 'strFormEmailNotifyFrom', 'value' => $obj_form->email_notify_from, 'text' => __("From", 'lang_form')))
 									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $obj_form->email_notify_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_email_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 
 									$int_email_fields = $obj_form->has_email_field();

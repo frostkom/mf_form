@@ -1345,6 +1345,7 @@ class mf_form
 				$this->from_name = check_var('strFormFromName');
 				$this->email_conditions = check_var('strFormEmailConditions');
 				$this->email_notify = check_var('intFormEmailNotify');
+				$this->email_notify_from = check_var('strFormEmailNotifyFrom');
 				$this->email_notify_page = check_var('intFormEmailNotifyPage');
 				$this->email_name = check_var('strFormEmailName');
 				$this->mandatory_text = check_var('strFormMandatoryText');
@@ -1423,7 +1424,7 @@ class mf_form
 
 							$this->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $this->deadline));
 
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmID = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_id, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email, $this->from_name, $this->email_conditions, $this->email_notify, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmID = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_id, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email, $this->from_name, $this->email_conditions, $this->email_notify, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
 
 							do_action('update_form_fields', $this);
 
@@ -1685,7 +1686,7 @@ class mf_form
 						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $this->id));
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 					if($wpdb->num_rows > 0)
 					{
@@ -1702,6 +1703,7 @@ class mf_form
 							$this->from_name = $r->formFromName;
 							$this->email_conditions = $r->formEmailConditions;
 							$this->email_notify = $r->formEmailNotify;
+							$this->email_notify_from = $r->formEmailNotifyFrom;
 							$this->email_notify_page = $r->formEmailNotifyPage;
 							$this->email_name = $r->formEmailName;
 							$this->mandatory_text = $r->formMandatoryText;
@@ -1820,7 +1822,7 @@ class mf_form
 
 					if($wpdb->num_rows > 0)
 					{
-						$copy_fields = ", blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback";
+						$copy_fields = ", blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback";
 
 						$strFormName = $this->get_form_name($this->id);
 
@@ -2315,6 +2317,14 @@ class mf_form
 		}
 
 		return $arr_data;
+	}
+
+	function get_email_notify_from_for_select()
+	{
+		return array(
+			'admin' => __("Admin", 'lang_form'),
+			'visitor' => __("Visitor", 'lang_form'),
+		);
 	}
 
 	function get_form_name($id = 0)
@@ -3237,7 +3247,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
@@ -3248,6 +3258,7 @@ class mf_form
 			$this->email_admin_name = $r->formFromName;
 			$this->email_conditions = $r->formEmailConditions;
 			$this->email_notify = $r->formEmailNotify;
+			$this->email_notify_from = $r->formEmailNotifyFrom;
 			$this->email_notify_page = $r->formEmailNotifyPage;
 			$this->email_subject = ($r->formEmailName != '' ? $r->formEmailName : $this->form_name);
 		}
@@ -3285,6 +3296,54 @@ class mf_form
 			}
 		}
 
+		$email_from_visitor_address = $email_from_visitor = $email_from_admin_address = $email_from_admin = "";
+
+		// From Visitor
+		###################
+		if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
+		{
+			if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
+			{
+				$name_temp = $this->answer_data['name'];
+			}
+
+			else
+			{
+				$name_temp = $this->answer_data['email'];
+			}
+
+			$email_from_visitor_address = $this->answer_data['email'];
+			$email_from_visitor = "From: ".$name_temp." <".$this->answer_data['email'].">\r\n";
+		}
+		###################
+
+		// From admin
+		###################
+		if($this->email_admin != '')
+		{
+			if(strpos($this->email_admin, "<"))
+			{
+				$email_from_admin_address = $this->email_admin;
+				$email_from_admin = "From: ".$this->email_admin."\r\n";
+			}
+
+			else if(strpos($this->email_admin, ","))
+			{
+				$arr_email_admin = explode(",", $this->email_admin);
+				$email_admin = trim($arr_email_admin[0]);
+
+				$email_from_admin_address = $email_admin;
+				$email_from_admin = "From: ".$email_admin." <".$email_admin.">\r\n";
+			}
+
+			else
+			{
+				$email_from_admin_address = $this->email_admin;
+				$email_from_admin = "From: ".($this->email_admin_name != '' ? $this->email_admin_name : $this->email_admin)." <".$this->email_admin.">\r\n";
+			}
+		}
+		###################
+
 		if(isset($this->send_to) && $this->send_to != '')
 		{
 			$this->mail_data = array(
@@ -3294,7 +3353,7 @@ class mf_form
 				'content' => '',
 			);
 
-			if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
+			/*if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
 			{
 				if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
 				{
@@ -3307,6 +3366,12 @@ class mf_form
 				}
 
 				$this->mail_data['headers'] = "From: ".$name_temp." <".$this->answer_data['email'].">\r\n";
+			}*/
+
+			if($email_from_visitor != '')
+			{
+				$this->mail_data['from'] = $email_from_visitor_address;
+				$this->mail_data['headers'] = $email_from_visitor;
 			}
 
 			$this->mail_data['content'] = $this->get_page_content_for_email();
@@ -3342,17 +3407,31 @@ class mf_form
 
 			if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
 			{
-				if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
+				switch($this->email_notify_from)
 				{
-					$name_temp = $this->answer_data['name'];
-				}
+					default:
+					case 'visitor':
+						/*if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
+						{
+							$name_temp = $this->answer_data['name'];
+						}
 
-				else
-				{
-					$name_temp = $this->answer_data['email'];
-				}
+						else
+						{
+							$name_temp = $this->answer_data['email'];
+						}
 
-				$this->mail_data['headers'] = "From: ".$name_temp." <".$this->answer_data['email'].">\r\n";
+						$this->mail_data['headers'] = "From: ".$name_temp." <".$this->answer_data['email'].">\r\n";*/
+
+						$this->mail_data['from'] = $email_from_visitor_address;
+						$this->mail_data['headers'] = $email_from_visitor;
+					break;
+
+					case 'admin':
+						$this->mail_data['from'] = $email_from_admin_address;
+						$this->mail_data['headers'] = $email_from_admin;
+					break;
+				}
 			}
 
 			$this->page_content_data['mail_to'] = $this->mail_data['to'];
@@ -3372,7 +3451,7 @@ class mf_form
 				'content' => '',
 			);
 
-			if($this->email_admin != '')
+			/*if($this->email_admin != '')
 			{
 				if(strpos($this->email_admin, "<"))
 				{
@@ -3392,6 +3471,12 @@ class mf_form
 				{
 					$this->mail_data['headers'] = "From: ".($this->email_admin_name != '' ? $this->email_admin_name : $this->email_admin)." <".$this->email_admin.">\r\n";
 				}
+			}*/
+
+			if($email_from_admin != '')
+			{
+				$this->mail_data['from'] = $email_from_admin_address;
+				$this->mail_data['headers'] = $email_from_admin;
 			}
 
 			$this->page_content_data['mail_to'] = $this->mail_data['to'];
@@ -3428,7 +3513,12 @@ class mf_form
 
 			else
 			{
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_email SET answerID = '%d', answerEmail = %s, answerType = %s, answerSent = '%d'", $this->answer_id, $this->mail_data['to'], $this->mail_data['type'], $sent));
+				if(!isset($this->mail_data['from']) || $this->mail_data['from'] == '')
+				{
+					$this->mail_data['from'] = get_bloginfo('admin_email');
+				}
+
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_email SET answerID = '%d', answerEmailFrom = %s, answerEmail = %s, answerType = %s, answerSent = '%d'", $this->answer_id, $this->mail_data['from'], $this->mail_data['to'], $this->mail_data['type'], $sent));
 			}
 		}
 
@@ -4880,6 +4970,8 @@ if(class_exists('mf_export'))
 
 							case 'select_multiple':
 							case 'checkbox_multiple':
+								$obj_form->prefix = $obj_form->get_post_info()."_";
+
 								$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
 							break;
 
@@ -5526,7 +5618,7 @@ if(class_exists('mf_list_table'))
 				break;
 
 				case 'sent':
-					$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerSent, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
+					$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmailFrom, answerEmail, answerSent, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
 					$count_temp = $wpdb->num_rows;
 
 					if($count_temp > 0)
@@ -5536,6 +5628,7 @@ if(class_exists('mf_list_table'))
 
 						foreach($result_emails as $r)
 						{
+							$strAnswerEmailFrom = $r->answerEmailFrom;
 							$strAnswerEmail = $r->answerEmail;
 							$intAnswerSent = $r->answerSent;
 							$strAnswerType = $r->answerType;
@@ -5562,7 +5655,7 @@ if(class_exists('mf_list_table'))
 							if($strAnswerEmail != $strAnswerEmail_temp)
 							{
 								$li_out .= "<li>
-									<i class='".$fa_class."'></i> ".$strAnswerEmail
+									<i class='".$fa_class."'></i> ".($strAnswerEmailFrom != '' ? $strAnswerEmailFrom." -> " : "").$strAnswerEmail
 								."</li>";
 
 								$strAnswerEmail_temp = $strAnswerEmail;
