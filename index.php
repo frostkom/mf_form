@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.7.2
+Version: 1.0.7.3
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -99,10 +99,14 @@ if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 			formFromName VARCHAR(100) DEFAULT NULL,
 			formEmailConditions TEXT DEFAULT NULL,
 			formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
-			formEmailNotifyFrom ENUM('admin', 'visitor') NOT NULL DEFAULT 'admin',
+			formEmailNotifyFrom ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin',
+			formEmailNotifyFromEmail VARCHAR(100) DEFAULT NULL,
+			formEmailNotifyFromEmailName VARCHAR(100) DEFAULT NULL,
 			formEmailNotifyPage INT UNSIGNED NOT NULL DEFAULT '0',
 			formEmailName VARCHAR(100) DEFAULT NULL,
 			formEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
+			formEmailConfirmFromEmail VARCHAR(100) DEFAULT NULL,
+			formEmailConfirmFromEmailName VARCHAR(100) DEFAULT NULL,
 			formEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',
 			formShowAnswers ENUM('0', '1') NOT NULL DEFAULT '0',
 			formMandatoryText VARCHAR(100) DEFAULT NULL,
@@ -139,12 +143,17 @@ if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 			'formFromName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmail",
 			'formAcceptDuplicates' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER formName",
 			'formEmailConfirmID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formEmailConfirm",
-			'formEmailNotifyFrom' => "ALTER TABLE [table] ADD [column] ENUM('admin', 'visitor') NOT NULL DEFAULT 'admin' AFTER formEmailNotify",
+			'formEmailNotifyFrom' => "ALTER TABLE [table] ADD [column] ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin' AFTER formEmailNotify",
+			'formEmailNotifyFromEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailNotifyFrom",
+			'formEmailNotifyFromEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailNotifyFromEmail",
+			'formEmailConfirmFromEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailConfirm",
+			'formEmailConfirmFromEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailConfirmFromEmail",
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form"] = array(
 			'formPaymentFunction' => "ALTER TABLE [table] CHANGE [column] formPaymentCallback VARCHAR(100) DEFAULT NULL",
 			'formPaymentCost' => "ALTER TABLE [table] CHANGE [column] [column] DOUBLE UNSIGNED DEFAULT NULL",
+			'formEmailNotifyFrom' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin'",
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (

@@ -1335,16 +1335,20 @@ class mf_form
 				$this->form2type_order = check_var('intForm2TypeOrder');
 
 				$this->email_confirm = (isset($_POST['intFormEmailConfirm']) ? 1 : 0);
+				$this->email_confirm_from_email = check_var('strFormEmailConfirmFromEmail');
+				$this->email_confirm_from_email_name = check_var('strFormEmailConfirmFromEmailName');
 				$this->email_confirm_id = check_var('intFormEmailConfirmID');
 				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
 				$this->show_answers = check_var('intFormShowAnswers');
 				$this->accept_duplicates = check_var('strFormAcceptDuplicates', 'char', true, 'yes');
 				$this->save_ip = check_var('strFormSaveIP');
 				$this->answer_url = check_var('strFormAnswerURL');
-				$this->email = check_var('strFormEmail', 'email');
-				$this->from_name = check_var('strFormFromName');
+				$this->email_admin = check_var('strFormEmail', 'email'); //$this->email = 
+				$this->email_admin_name = check_var('strFormFromName');
 				$this->email_conditions = check_var('strFormEmailConditions');
 				$this->email_notify = check_var('intFormEmailNotify');
+				$this->email_notify_from_email = check_var('strFormEmailNotifyFromEmail');
+				$this->email_notify_from_email_name = check_var('strFormEmailNotifyFromEmailName');
 				$this->email_notify_from = check_var('strFormEmailNotifyFrom');
 				$this->email_notify_page = check_var('intFormEmailNotifyPage');
 				$this->email_name = check_var('strFormEmailName');
@@ -1424,7 +1428,7 @@ class mf_form
 
 							$this->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $this->deadline));
 
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmID = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_id, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email, $this->from_name, $this->email_conditions, $this->email_notify, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
 
 							do_action('update_form_fields', $this);
 
@@ -1686,23 +1690,27 @@ class mf_form
 						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $this->id));
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 					if($wpdb->num_rows > 0)
 					{
 						foreach($result as $r)
 						{
 							$this->email_confirm = $r->formEmailConfirm;
+							$this->email_confirm_from_email = $r->formEmailConfirmFromEmail;
+							$this->email_confirm_from_email_name = $r->formEmailConfirmFromEmailName;
 							$this->email_confirm_id = $r->formEmailConfirmID;
 							$this->email_confirm_page = $r->formEmailConfirmPage;
 							$this->show_answers = $r->formShowAnswers;
 							$this->accept_duplicates = $r->formAcceptDuplicates;
 							$this->save_ip = $r->formSaveIP;
 							$this->answer_url = $r->formAnswerURL;
-							$this->email = $r->formEmail;
-							$this->from_name = $r->formFromName;
+							$this->email_admin = $r->formEmail; //$this->email = 
+							$this->email_admin_name = $r->formFromName;
 							$this->email_conditions = $r->formEmailConditions;
 							$this->email_notify = $r->formEmailNotify;
+							$this->email_notify_from_email = $r->formEmailNotifyFromEmail;
+							$this->email_notify_from_email_name = $r->formEmailNotifyFromEmailName;
 							$this->email_notify_from = $r->formEmailNotifyFrom;
 							$this->email_notify_page = $r->formEmailNotifyPage;
 							$this->email_name = $r->formEmailName;
@@ -2324,6 +2332,7 @@ class mf_form
 		return array(
 			'admin' => __("Admin", 'lang_form'),
 			'visitor' => __("Visitor", 'lang_form'),
+			'other' => __("Other", 'lang_form'),
 		);
 	}
 
@@ -3247,17 +3256,21 @@ class mf_form
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
 			$this->email_confirm = $r->formEmailConfirm;
+			$this->email_confirm_from_email = $r->formEmailConfirmFromEmail;
+			$this->email_confirm_from_email_name = $r->formEmailConfirmFromEmailName;
 			$this->email_confirm_id = $r->formEmailConfirmID;
 			$this->email_confirm_page = $r->formEmailConfirmPage;
 			$this->email_admin = $r->formEmail;
 			$this->email_admin_name = $r->formFromName;
 			$this->email_conditions = $r->formEmailConditions;
 			$this->email_notify = $r->formEmailNotify;
+			$this->email_notify_from_email = $r->formEmailNotifyFromEmail;
+			$this->email_notify_from_email_name = $r->formEmailNotifyFromEmailName;
 			$this->email_notify_from = $r->formEmailNotifyFrom;
 			$this->email_notify_page = $r->formEmailNotifyPage;
 			$this->email_subject = ($r->formEmailName != '' ? $r->formEmailName : $this->form_name);
@@ -3296,7 +3309,7 @@ class mf_form
 			}
 		}
 
-		$email_from_visitor_address = $email_from_visitor = $email_from_admin_address = $email_from_admin = "";
+		$email_from_visitor_address = $email_from_visitor = $email_from_admin_address = $email_from_admin = $email_from_other_address = $email_from_other = "";
 
 		// From Visitor
 		###################
@@ -3344,6 +3357,15 @@ class mf_form
 		}
 		###################
 
+		// From other
+		###################
+		if($this->email_notify_from_email != '')
+		{
+			$email_from_other_address = $this->email_notify_from_email;
+			$email_from_other = "From: ".($this->email_notify_from_email_name != '' ? $this->email_notify_from_email_name : $this->email_notify_from_email)." <".$this->email_notify_from_email.">\r\n";
+		}
+		###################
+
 		if(isset($this->send_to) && $this->send_to != '')
 		{
 			$this->mail_data = array(
@@ -3352,21 +3374,6 @@ class mf_form
 				'subject' => $this->page_content_data['subject'],
 				'content' => '',
 			);
-
-			/*if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
-			{
-				if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
-				{
-					$name_temp = $this->answer_data['name'];
-				}
-
-				else
-				{
-					$name_temp = $this->answer_data['email'];
-				}
-
-				$this->mail_data['headers'] = "From: ".$name_temp." <".$this->answer_data['email'].">\r\n";
-			}*/
 
 			if($email_from_visitor != '')
 			{
@@ -3411,18 +3418,6 @@ class mf_form
 				{
 					default:
 					case 'visitor':
-						/*if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
-						{
-							$name_temp = $this->answer_data['name'];
-						}
-
-						else
-						{
-							$name_temp = $this->answer_data['email'];
-						}
-
-						$this->mail_data['headers'] = "From: ".$name_temp." <".$this->answer_data['email'].">\r\n";*/
-
 						$this->mail_data['from'] = $email_from_visitor_address;
 						$this->mail_data['headers'] = $email_from_visitor;
 					break;
@@ -3430,6 +3425,11 @@ class mf_form
 					case 'admin':
 						$this->mail_data['from'] = $email_from_admin_address;
 						$this->mail_data['headers'] = $email_from_admin;
+					break;
+
+					case 'other':
+						$this->mail_data['from'] = ($email_from_other_address != '' ? $email_from_other_address : $email_from_admin_address);
+						$this->mail_data['headers'] = ($email_from_other != '' ? $email_from_other : $email_from_admin);
 					break;
 				}
 			}
@@ -3451,29 +3451,13 @@ class mf_form
 				'content' => '',
 			);
 
-			/*if($this->email_admin != '')
+			if($this->email_confirm_from_email != '')
 			{
-				if(strpos($this->email_admin, "<"))
-				{
-					$this->mail_data['headers'] = "From: ".$this->email_admin."\r\n";
-				}
+				$this->mail_data['from'] = $this->email_notify_from_email;
+				$this->mail_data['headers'] = "From: ".($this->email_notify_from_email_name != '' ? $this->email_notify_from_email_name : $this->email_notify_from_email)." <".$this->email_notify_from_email.">\r\n";
+			}
 
-				else if(strpos($this->email_admin, ","))
-				{
-					$arr_email_admin = explode(",", $this->email_admin);
-
-					$email_admin = trim($arr_email_admin[0]);
-
-					$this->mail_data['headers'] = "From: ".$email_admin." <".$email_admin.">\r\n";
-				}
-
-				else
-				{
-					$this->mail_data['headers'] = "From: ".($this->email_admin_name != '' ? $this->email_admin_name : $this->email_admin)." <".$this->email_admin.">\r\n";
-				}
-			}*/
-
-			if($email_from_admin != '')
+			else if($email_from_admin != '')
 			{
 				$this->mail_data['from'] = $email_from_admin_address;
 				$this->mail_data['headers'] = $email_from_admin;
@@ -5180,18 +5164,15 @@ if(class_exists('mf_list_table'))
 						$intFormEmailConfirmPage = $r->formEmailConfirmPage;
 						$intFormPaymentProvider = $r->formPaymentProvider;
 
-						/*if($strFormEmail != '')
-						{*/
-							if($intFormEmailNotifyPage > 0)
-							{
-								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
-							}
+						if($intFormEmailNotifyPage > 0)
+						{
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
+						}
 
-							else
-							{
-								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
-							}
-						//}
+						else
+						{
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
+						}
 
 						if($strFormEmailConditions != '')
 						{

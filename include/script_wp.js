@@ -280,13 +280,20 @@ jQuery(function($)
 		});
 	}
 
-	var dom_email_confirm = $("#intFormEmailConfirm"),
+	var dom_email_notify = $("#intFormEmailNotify"),
+		dom_email_notify_from = $("#strFormEmailNotifyFrom").parent(".form_select"),
+		dom_email_notify_div = $(".email_notify_div"),
+		dom_email_notify_from_email = $("#strFormEmailNotifyFromEmail").parent(".form_textfield"),
+		dom_email_notify_from_email_name = $("#strFormEmailNotifyFromEmailName").parent(".form_textfield"),
+		dom_email_notify_parent = $("#intFormEmailNotifyPage").parent(".form_select"),
+		dom_email_confirm = $("#intFormEmailConfirm"),
+		dom_email_confirm_div = $(".email_confirm_div"),
+		dom_email_confirm_from_email = $("#strFormEmailConfirmFromEmail").parent(".form_textfield"),
+		dom_email_confirm_from_email_name = $("#strFormEmailConfirmFromEmailName").parent(".form_textfield"),
 		dom_email_confirm_id_parent = $("#intFormEmailConfirmID").parent(".form_select"),
 		dom_email_confirm_page_parent = $("#intFormEmailConfirmPage").parent(".form_select"),
-		dom_email_notify = $("#intFormEmailNotify"),
-		dom_email_notify_parent = $("#intFormEmailNotifyPage").parent(".form_select"),
 		dom_form_email_parent = $("#strFormEmail").parent(".form_textfield"),
-		dom_form_from_name_parent = $("#strFormFromName").parent(".form_textfield"),
+		/*dom_form_from_name_parent = $("#strFormFromName").parent(".form_textfield"),*/
 		dom_form_email_conditions_parent = $("#strFormEmailConditions").parent(".form_textarea");
 
 	function toggle_email_settings()
@@ -295,6 +302,7 @@ jQuery(function($)
 
 		if(dom_email_confirm.is(":checked"))
 		{
+			dom_email_confirm_div.removeClass('hide');
 			dom_email_confirm_id_parent.removeClass('hide');
 			dom_email_confirm_page_parent.removeClass('hide');
 
@@ -303,12 +311,14 @@ jQuery(function($)
 
 		else
 		{
+			dom_email_confirm_div.addClass('hide');
 			dom_email_confirm_id_parent.addClass('hide');
 			dom_email_confirm_page_parent.addClass('hide');
 		}
 
 		if(dom_email_notify.is(":checked"))
 		{
+			dom_email_notify_from.removeClass('hide');
 			dom_email_notify_parent.removeClass('hide');
 
 			display_dom_form_email = true;
@@ -316,27 +326,43 @@ jQuery(function($)
 
 		else
 		{
+			dom_email_notify_from.addClass('hide');
 			dom_email_notify_parent.addClass('hide');
 		}
 
 		if(display_dom_form_email == true)
 		{
 			dom_form_email_parent.removeClass('hide');
-			dom_form_from_name_parent.removeClass('hide');
+			/*dom_form_from_name_parent.removeClass('hide');*/
 			dom_form_email_conditions_parent.removeClass('hide');
 		}
 
 		else
 		{
 			dom_form_email_parent.addClass('hide');
-			dom_form_from_name_parent.addClass('hide');
+			/*dom_form_from_name_parent.addClass('hide');*/
 			dom_form_email_conditions_parent.addClass('hide');
+		}
+
+		if($("#strFormEmailNotifyFrom").val() == 'other')
+		{
+			dom_email_notify_div.removeClass('hide');
+		}
+
+		else
+		{
+			dom_email_notify_div.addClass('hide');
 		}
 	}
 
 	toggle_email_settings();
 
 	$(document).on('click', "#intFormEmailConfirm, #intFormEmailNotify", function()
+	{
+		toggle_email_settings();
+	});
+	
+	$(document).on('change', "#strFormEmailNotifyFrom", function()
 	{
 		toggle_email_settings();
 	});
