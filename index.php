@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.7.3
+Version: 1.0.7.4
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -37,6 +37,8 @@ if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 		add_action('admin_init', array($obj_form, 'settings_form'));
 		add_action('admin_init', array($obj_form, 'admin_init'), 0);
 		add_action('admin_menu', array($obj_form, 'admin_menu'));
+
+		add_filter('filter_sites_table_settings', array($obj_form, 'filter_sites_table_settings'));
 
 		add_action('wp_trash_post', array($obj_form, 'wp_trash_post'));
 		add_action('deleted_user', array($obj_form, 'deleted_user'));

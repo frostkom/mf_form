@@ -480,6 +480,26 @@ class mf_form
 		}
 	}
 
+	function filter_sites_table_settings($arr_settings)
+	{
+		$arr_settings['settings_form'] = array(
+			'setting_redirect_emails' => array(
+				'type' => 'bool',
+				'global' => false,
+				'icon' => "fas fa-share",
+				'name' => __("Redirect all e-mails", 'lang_form'),
+			),
+			'setting_form_test_emails' => array(
+				'type' => 'bool',
+				'global' => false,
+				'icon' => "fas fa-share",
+				'name' => __("Redirect test e-mails", 'lang_form'),
+			),
+		);
+
+		return $arr_settings;
+	}
+
 	function get_count_answer_message($data = array())
 	{
 		global $wpdb;
