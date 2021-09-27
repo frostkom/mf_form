@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.7.4
+Version: 1.0.7.5
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -519,7 +519,7 @@ if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 						{
 							$success = false;
 
-							do_log("There was no value for the option (".$intFormID.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
+							do_log("There was no value for the option (1) (".$intFormID.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
 						}
 					}
 

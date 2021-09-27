@@ -1537,7 +1537,7 @@ class mf_form
 													{
 														$success = false;
 
-														do_log("There was no value for the option (".$this->id.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
+														do_log("There was no value for the option (2) (".$this->id.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
 													}
 												}
 											break;
@@ -3862,12 +3862,18 @@ class mf_form
 
 		if($error_text == '' && $this->is_sent == false && count($this->arr_answer_queries) > 0)
 		{
-			if(in_array('honeypot', $setting_form_spam) && check_var($this->prefix.'check') != '')
+			$honeypot_check = check_var($this->prefix.'check');
+
+			if(in_array('honeypot', $setting_form_spam) && $honeypot_check != '')
 			{
 				$this->is_spam = true;
 				$this->is_spam_id = 7;
 
-				do_log("Honeypot value: ".check_var($this->prefix.'check'));
+				// URLs in the Honeypot should always be considered as spam
+				if(filter_var($honeypot_check, FILTER_VALIDATE_URL) === false)
+				{
+					do_log("Honeypot value: ".$honeypot_check);
+				}
 			}
 
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, ($this->allow_save_ip() == 'yes' ? $_SERVER['REMOTE_ADDR'] : ''), $this->is_spam, $this->is_spam_id));
