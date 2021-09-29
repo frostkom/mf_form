@@ -61,8 +61,16 @@ if($obj_form->check_allow_edit())
 											.show_textfield(array('name' => 'strFormTypeDefault', 'text' => __("Default value", 'lang_form'), 'value' => $obj_form->type_default, 'maxlength' => 3, 'size' => 5))
 										."</div>"
 										."<div class='show_select'>
-											<label>".__("Value", 'lang_form')." <i class='fa fa-info-circle' title='".__("Enter ID, Name and Limit (optional)", 'lang_form')."'></i></label>
-											<div class='select_rows'>";
+											<label>".__("Value", 'lang_form')." <i class='fa fa-info-circle' title='".__("Enter ID, Name and Limit (optional)", 'lang_form')."'></i></label>";
+
+											if($obj_form->type_connect_to > 0)
+											{
+												$notice_text = sprintf(__("This field is connected to %s and cannot be edited", 'lang_form'), "<strong>".$obj_form->get_field_name($obj_form->type_connect_to)."</strong>");
+
+												echo get_notification();
+											}
+
+											echo "<div class='select_rows".($obj_form->type_connect_to > 0 ? " is_disabled" : "")."'>";
 
 												$count_temp = count($obj_form->arr_type_select_value);
 
@@ -147,6 +155,25 @@ if($obj_form->check_allow_edit())
 
 												echo show_textfield(array('name' => 'strFormTypeFetchFrom', 'text' => __("Change Default Value", 'lang_form')." <i class='fa fa-info-circle' title='custom_handle_that_you_can_name_whatever, [user_display_name], [user_email] ".__("or", 'lang_form')." [user_address]'></i>", 'value' => $obj_form->type_fetch_from, 'maxlength' => 50, 'placeholder' => sprintf(__("Assign handle or shortcode", 'lang_form'), $handle_temp), 'xtra_class' => "show_fetch_from hide", 'description' => $description_temp));
 
+												// Connect to another select
+												##############################
+												if($obj_form->form_option_exists)
+												{
+													list($result, $rows) = $obj_form->get_form_type_info(array('query_type_code' => array('select'), 'query_exclude_id' => $obj_form->form2type_id));
+
+													if($rows > 0)
+													{
+														$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
+
+														echo "<div class='show_select'>"
+															.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeConnectTo', 'text' => __("Connect to", 'lang_form'), 'value' => $obj_form->type_connect_to))
+														."</div>";
+													}
+												}
+												##############################
+
+												// Actions
+												##############################
 												$arr_data_equals = array();
 
 												if($obj_form->form_option_exists)
@@ -199,6 +226,7 @@ if($obj_form->check_allow_edit())
 														echo "Nope: ".$wpdb->last_query;
 													}*/
 												}
+												##############################
 											}
 
 										echo get_toggler_container(array('type' => 'end'));

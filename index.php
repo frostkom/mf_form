@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.7.5
+Version: 1.0.7.10
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -197,6 +197,7 @@ if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 			formTypeTag VARCHAR(20) DEFAULT NULL,
 			formTypeClass VARCHAR(50) DEFAULT NULL,
 			formTypeFetchFrom VARCHAR(50) DEFAULT NULL,
+			formTypeConnectTo INT UNSIGNED NOT NULL DEFAULT '0',
 			formTypeActionEquals VARCHAR(10),
 			formTypeActionShow INT UNSIGNED NOT NULL DEFAULT '0',
 			formTypeDisplay ENUM('0','1') NOT NULL DEFAULT '1',
@@ -213,6 +214,7 @@ if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 
 		$arr_add_column[$wpdb->base_prefix."form2type"] = array(
 			'formTypeDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '1' AFTER formTypeActionShow",
+			'formTypeConnectTo' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER formTypeFetchFrom",
 		);
 
 		if(get_site_option('setting_convert_form_options') == 'yes')
@@ -396,7 +398,7 @@ if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 			'fields_from' => "query2TypeID, query2TypeID2, queryID, queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow, queryTypeRequired, queryTypeAutofocus, queryTypeRemember, query2TypeOrder, query2TypeCreated, userID",
 
 			'table_to' => "form2type",
-			'fields_to' => "form2TypeID, form2TypeID2, formID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeActionEquals, formTypeActionShow, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder, form2TypeCreated, userID",
+			'fields_to' => "form2TypeID, form2TypeID2, formID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder, form2TypeCreated, userID",
 		);
 
 		$arr_copy[] = array(
