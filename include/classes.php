@@ -173,9 +173,9 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key, 'no');
 
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form')));
+		$description = setting_time_limit(array('key' => $setting_key, 'value' => $option));
 
-		setting_time_limit(array('key' => $setting_key, 'value' => $option));
+		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form'), 'description' => $description));
 	}
 
 	function setting_form_test_emails_callback()
@@ -183,9 +183,9 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key, 'no');
 
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form')));
+		$description = setting_time_limit(array('key' => $setting_key, 'value' => $option));
 
-		setting_time_limit(array('key' => $setting_key, 'value' => $option));
+		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form'), 'description' => $description));
 	}
 
 	function setting_form_permission_see_all_callback()
@@ -690,7 +690,6 @@ class mf_form
 			'select' => "answerID, answerCreated",
 			'limit' => (($page - 1) * $number),
 			'amount' => $number,
-			'debug' => ($_SERVER['REMOTE_ADDR'] == ""),
 		));
 
 		foreach($tbl_group->data as $r)
@@ -741,7 +740,6 @@ class mf_form
 			'select' => "answerID, answerCreated",
 			//'limit' => (($page - 1) * $number),
 			//'amount' => $number,
-			'debug' => ($_SERVER['REMOTE_ADDR'] == ""),
 		));
 
 		foreach($tbl_group->data as $r)
@@ -786,7 +784,6 @@ class mf_form
 
 		$tbl_group->select_data(array(
 			//'select' => "*",
-			'debug' => ($_SERVER['REMOTE_ADDR'] == ""),
 		));
 
 		if(count($tbl_group->data) > 0)
@@ -4132,20 +4129,11 @@ class mf_form
 			{
 				$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID IN('5', '8', '17')", $this->id));
 
-				$out .= "<div class='mf_form mf_form_results'>"; // rel='".$intFormShowAnswers.", ".$data['total_answers']."' rel='".$this->edit_mode.", ".$this->is_sent.", ".$this->is_duplicate()."'
+				$out .= "<div class='mf_form mf_form_results'>";
 
 					if($intFormShowAnswers == 1 && $data['total_answers'] > 0)
 					{
-						// jQuery needs to be called earlier for this to work
-						/*if($_SERVER['REMOTE_ADDR'] == "")
-						{
-							$out .= $this->get_pie_chart(array('heading_size' => 4));
-						}
-
-						else
-						{*/
-							$out .= $this->get_poll_results($data);
-						//}
+						$out .= $this->get_poll_results($data);
 					}
 
 					else if($intFormAnswerURL > 0)
