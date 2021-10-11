@@ -2235,7 +2235,7 @@ class mf_form
 
 		if($this->is_poll())
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerIP = %s LIMIT 0, 1", $this->id, $_SERVER['REMOTE_ADDR']));
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerIP = %s LIMIT 0, 1", $this->id, get_current_visitor_ip()));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -3914,7 +3914,7 @@ class mf_form
 				}
 			}
 
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, ($this->allow_save_ip() == 'yes' ? $_SERVER['REMOTE_ADDR'] : ''), $this->is_spam, $this->is_spam_id));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, ($this->allow_save_ip() == 'yes' ? get_current_visitor_ip() : ''), $this->is_spam, $this->is_spam_id));
 			$this->answer_id = $wpdb->insert_id;
 
 			$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
