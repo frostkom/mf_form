@@ -3630,7 +3630,7 @@ class mf_form
 			'fields' => array(),
 		);
 
-		$setting_form_spam = get_option('setting_form_spam', array('email', 'filter', 'honeypot'));
+		$setting_form_spam = get_option_or_default('setting_form_spam', array('email', 'filter', 'honeypot'));
 
 		$this->form_name = $this->get_post_info(array('select' => "post_title"));
 		$this->prefix = $this->get_post_info()."_";
@@ -4218,7 +4218,7 @@ class mf_form
 
 						else if($this->edit_mode == false)
 						{
-							$setting_form_spam = get_option('setting_form_spam', array('email', 'filter', 'honeypot'));
+							$setting_form_spam = get_option_or_default('setting_form_spam', array('email', 'filter', 'honeypot'));
 
 							if(in_array('honeypot', $setting_form_spam))
 							{
