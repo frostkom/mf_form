@@ -361,7 +361,7 @@ jQuery(function($)
 	{
 		toggle_email_settings();
 	});
-	
+
 	$(document).on('change', "#strFormEmailNotifyFrom", function()
 	{
 		toggle_email_settings();

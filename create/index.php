@@ -414,7 +414,7 @@ if($obj_form->check_allow_edit())
 
 										if(in_array('password', $arr_fields))
 										{
-											echo show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password"), 'value' => $obj_form->payment_password, 'maxlength' => 100));
+											echo show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password"), 'value' => $obj_form->payment_password, 'maxlength' => 100, 'xtra' => " autocomplete='new-password'"));
 										}
 
 										if(in_array('secret_key', $arr_fields))
