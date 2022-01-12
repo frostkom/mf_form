@@ -260,12 +260,12 @@
 					flex: 0 1 0;
 				}
 
-					.select_rows .option .form_textfield + .form_textfield
+					.select_rows .option > div + div
 					{
 						margin-left: .3em;
 					}
 
-						.select_rows .option .form_textfield.option_value
+						.select_rows .option .option_value
 						{
 							-webkit-box-flex: 2 1 0;
 							-webkit-flex: 2 1 0;
@@ -273,19 +273,24 @@
 							flex: 2 1 0;
 						}
 
-						.select_rows .option .form_textfield.option_key
+						.select_rows .option .option_key
 						{
 							min-width: 2.7em;
 						}
 
-							.select_rows .option .form_textfield.option_key input
+							.select_rows .option .option_key input
 							{
 								text-align: center;
 							}
 
-						.select_rows .option .form_textfield.option_limit
+						.select_rows .option .option_limit
 						{
 							min-width: 3.5em;
+						}
+
+						.select_rows .option .option_action
+						{
+							max-width: 10em;
 						}
 
 	.flot_wrapper

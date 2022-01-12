@@ -148,7 +148,7 @@ class mf_form
 			}
 		}
 
-		if(IS_ADMIN && !$this->form_option_exists)
+		/*if(IS_ADMIN && !$this->form_option_exists)
 		{
 			$arr_settings['setting_convert_form_options'] = __("Convert form options", 'lang_form');
 		}
@@ -156,7 +156,7 @@ class mf_form
 		else
 		{
 			delete_site_option('setting_convert_form_options');
-		}
+		}*/
 
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
 	}
@@ -302,14 +302,14 @@ class mf_form
 		));
 	}
 
-	function setting_convert_form_options_callback()
+	/*function setting_convert_form_options_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		settings_save_site_wide($setting_key);
 		$option = get_site_option($setting_key, 'no');
 
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
-	}
+	}*/
 
 	function preg_email_concat($matches)
 	{
@@ -937,7 +937,7 @@ class mf_form
 		}
 	}
 
-	function save_options($intForm2TypeID, $arrFormTypeSelect_id, $arrFormTypeSelect_key, $arrFormTypeSelect_value, $arrFormTypeSelect_limit)
+	function save_options($intForm2TypeID, $arrFormTypeSelect_id, $arrFormTypeSelect_key, $arrFormTypeSelect_value, $arrFormTypeSelect_limit, $arrFormTypeSelect_action)
 	{
 		global $wpdb;
 
@@ -954,7 +954,7 @@ class mf_form
 				{
 					if($arrFormTypeSelect_value[$i] != '')
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], $i, $intForm2TypeID, $arrFormTypeSelect_id[$i]));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], $arrFormTypeSelect_action[$i], $i, $intForm2TypeID, $arrFormTypeSelect_id[$i]));
 
 						if($wpdb->rows_affected == 1)
 						{
@@ -995,7 +995,7 @@ class mf_form
 				{
 					$intFormOptionOrder_temp = $wpdb->get_var($wpdb->prepare("SELECT formOptionOrder FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder DESC LIMIT 0, 1", $intForm2TypeID));
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], ($intFormOptionOrder_temp + 1)));
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d'", $intForm2TypeID, $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], $arrFormTypeSelect_action[$i], ($intFormOptionOrder_temp + 1)));
 
 					if($wpdb->rows_affected == 1)
 					{
@@ -1402,6 +1402,8 @@ class mf_form
 				$this->arr_type_select_key = check_var('arrFormTypeSelect_key');
 				$this->arr_type_select_value = check_var('arrFormTypeSelect_value');
 				$this->arr_type_select_limit = check_var('arrFormTypeSelect_limit');
+				$this->arr_type_select_action = check_var('arrFormTypeSelect_action');
+				//$this->arr_type_select_display = check_var('arrFormTypeSelect_display');
 
 				// Range
 				$this->type_min = check_var('strFormTypeMin', '', true, "0");
@@ -1540,7 +1542,7 @@ class mf_form
 
 												foreach($arr_options as $str_option)
 												{
-													@list($option_key, $option_value, $option_limit) = explode("|", $str_option, 3);
+													@list($option_key, $option_value, $option_limit, $option_action) = explode("|", $str_option, 4);
 
 													if($option_value != '')
 													{
@@ -1548,12 +1550,12 @@ class mf_form
 
 														if($intFormOptionID > 0)
 														{
-															$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d' WHERE formOptionID = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i, $intFormOptionID));
+															$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d' WHERE formOptionID = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $option_action, $i, $intFormOptionID));
 														}
 
 														else
 														{
-															$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i));
+															$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $option_action, $i));
 
 															$intFormOptionID = $wpdb->insert_id;
 														}
@@ -1613,7 +1615,7 @@ class mf_form
 								{
 									if($this->form2type_id > 0)
 									{
-										$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit);
+										$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit, $this->arr_type_select_action);
 									}
 								}
 
@@ -1701,7 +1703,7 @@ class mf_form
 									//case 'radio_multiple':
 										if($this->form_option_exists)
 										{
-											$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit);
+											$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit, $this->arr_type_select_action);
 										}
 									break;
 								}
@@ -1827,9 +1829,9 @@ class mf_form
 									{
 										$form2type_id_temp = $this->get_type_connect_to_root(array('connect_to' => $this->type_connect_to, 'field_id' => $this->form2type_id));
 
-										$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $form2type_id_temp));
+										$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit, formOptionAction FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $form2type_id_temp));
 
-										$this->arr_type_select_id = $this->arr_type_select_key = $this->arr_type_select_value = $this->arr_type_select_limit = array();
+										$this->arr_type_select_id = $this->arr_type_select_key = $this->arr_type_select_value = $this->arr_type_select_limit = $this->arr_type_select_action = array();
 
 										foreach($result as $r)
 										{
@@ -1837,6 +1839,7 @@ class mf_form
 											$this->arr_type_select_key[] = $r->formOptionKey;
 											$this->arr_type_select_value[] = $r->formOptionValue;
 											$this->arr_type_select_limit[] = $r->formOptionLimit;
+											$this->arr_type_select_action[] = $r->formOptionAction;
 										}
 									}
 
@@ -1912,7 +1915,7 @@ class mf_form
 
 								if($intForm2TypeID_new > 0)
 								{
-									$copy_fields = "formOptionKey, formOptionValue, formOptionLimit, formOptionOrder";
+									$copy_fields = "formOptionKey, formOptionValue, formOptionLimit, formOptionOrder, formOptionAction";
 
 									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option (form2TypeID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d')", $intForm2TypeID_new, $intForm2TypeID));
 								}
@@ -4869,7 +4872,7 @@ if(class_exists('mf_export'))
 					case 17:
 						$i = 0;
 
-						$result2 = $wpdb->get_results($wpdb->prepare("SELECT formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $r->form2TypeID));
+						$result2 = $wpdb->get_results($wpdb->prepare("SELECT formOptionKey, formOptionValue, formOptionLimit, formOptionAction FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $r->form2TypeID));
 
 						foreach($result2 as $r2)
 						{
@@ -4883,7 +4886,7 @@ if(class_exists('mf_export'))
 								$r->formTypeText .= ";";
 							}
 
-							$r->formTypeText .= $r2->formOptionKey."|".$r2->formOptionValue."|".$r2->formOptionLimit;
+							$r->formTypeText .= $r2->formOptionKey."|".$r2->formOptionValue."|".$r2->formOptionLimit."|".$r2->formOptionAction;
 
 							$i++;
 						}
@@ -5989,13 +5992,25 @@ class mf_form_output
 
 			$form2type_id_temp = $obj_form->get_type_connect_to_root(array('connect_to' => $this->row->formTypeConnectTo, 'field_id' => $this->row->form2TypeID));
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $form2type_id_temp));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit, formOptionAction FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $form2type_id_temp));
 
 			$arr_data = array();
 
 			foreach($result as $r)
 			{
 				$arr_option = $this->check_limit(array('array' => array($r->formOptionID, $r->formOptionValue, $r->formOptionLimit), 'form2TypeID' => $form2type_id_temp));
+
+				if($r->formOptionAction > 0)
+				{
+					$arr_option[1] = array(
+						'name' => $arr_option[1],
+						'attributes' => array(
+							'data-action' => $this->query_prefix.$r->formOptionAction,
+						),
+					);
+
+					$this->row->has_action = true;
+				}
 
 				$arr_data[$arr_option[0]] = $arr_option[1];
 			}
@@ -6058,8 +6073,13 @@ class mf_form_output
 
 				if($this->row->formTypeActionShow > 0)
 				{
-					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
+					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_display";
 					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-display='".$this->query_prefix.$this->row->formTypeActionShow."'";
+				}
+
+				else if(isset($this->row->has_action) && $this->row->has_action)
+				{
+					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
 				}
 
 				$field_data['text'] = $this->row->formTypeText;
@@ -6143,8 +6163,13 @@ class mf_form_output
 			case 'radio_multiple':
 				if($this->row->formTypeActionShow > 0)
 				{
-					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
+					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_display";
 					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-display='".$this->query_prefix.$this->row->formTypeActionShow."'";
+				}
+
+				else if(isset($this->row->has_action) && $this->row->has_action)
+				{
+					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
 				}
 
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
@@ -6175,8 +6200,13 @@ class mf_form_output
 
 				if($this->row->formTypeActionShow > 0)
 				{
-					$field_data['class'] .= ($field_data['class'] != '' ? " " : "")."form_action";
+					$field_data['class'] .= ($field_data['class'] != '' ? " " : "")."form_display";
 					$field_data['xtra'] = ($field_data['xtra'] != '' ? " " : "")."data-equals='".$this->row->formTypeActionEquals."' data-display='".$this->query_prefix.$this->row->formTypeActionShow."'";
+				}
+
+				else if(isset($this->row->has_action) && $this->row->has_action)
+				{
+					$field_data['class'] .= ($field_data['class'] != '' ? " " : "")."form_action";
 				}
 
 				$this->filter_form_fields($field_data);

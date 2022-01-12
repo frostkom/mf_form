@@ -26,8 +26,6 @@ jQuery(function($)
 			dom_obj_val = dom_obj.val(),
 			dom_obj_target = $(".form_connect_to select[data-connect_to='" + dom_obj_id + "']");
 
-		console.log("Disable " , dom_obj_val , " in " , dom_obj_target);
-
 		dom_obj_target.find("option").prop('disabled', false);
 
 		if(dom_obj_val != '')
@@ -47,8 +45,6 @@ jQuery(function($)
 	{
 		var connect_to = $(this).attr('data-connect_to');
 
-		/*console.log("Bind " , connect_to);*/
-
 		$(".form_select select#" + connect_to).each(function()
 		{
 			do_form_type_connect_to($(this));
@@ -60,71 +56,162 @@ jQuery(function($)
 		});
 	});
 
-	function do_form_type_action(dom_obj)
+	function do_form_type_display(dom_obj)
 	{
-		var equals = dom_obj.attr('data-equals'),
-			show_obj = $("#" + dom_obj.attr('data-display')),
-			show_obj_parent = false;
+		var data_equals = dom_obj.attr('data-equals'),
+			data_display = dom_obj.attr('data-display');
 
-		if(show_obj.is("input[type=checkbox]")){	show_obj_parent = show_obj.parents(".form_checkbox");}
-		else if(show_obj.is("input")){				show_obj_parent = show_obj.parents(".form_textfield");}
-		else if(show_obj.is("input[type=radio]")){	show_obj_parent = show_obj.parents(".form_radio");}
-		else if(show_obj.is("select")){				show_obj_parent = show_obj.parents(".form_select");}
-		else if(show_obj.is("textarea")){			show_obj_parent = show_obj.parents(".form_textarea");}
-		else
+		if(data_display != '')
 		{
-			show_obj_parent = show_obj;
-		}
+			var show_obj = $("#" + data_display),
+				show_obj_parent = false;
 
-		if(show_obj_parent !== false)
-		{
-			if(dom_obj.is("select"))
+			if(show_obj.length > 0)
 			{
-				if(dom_obj.val() == equals)
-				{
-					show_obj_parent.removeClass('hide');
-				}
-
+				if(show_obj.is("input[type=checkbox]")){	show_obj_parent = show_obj.parents(".form_checkbox");}
+				else if(show_obj.is("input")){				show_obj_parent = show_obj.parents(".form_textfield");}
+				else if(show_obj.is("input[type=radio]")){	show_obj_parent = show_obj.parents(".form_radio");}
+				else if(show_obj.is("select")){				show_obj_parent = show_obj.parents(".form_select");}
+				else if(show_obj.is("textarea")){			show_obj_parent = show_obj.parents(".form_textarea");}
 				else
 				{
-					show_obj_parent.addClass('hide');
-				}
-			}
-
-			else if(dom_obj.is("input[type='checkbox']"))
-			{
-				if(dom_obj.is(":checked"))
-				{
-					show_obj_parent.removeClass('hide');
+					show_obj_parent = show_obj;
 				}
 
-				else
+				if(show_obj_parent !== false)
 				{
-					show_obj_parent.addClass('hide');
-				}
-			}
+					if(dom_obj.is("select"))
+					{
+						if(dom_obj.val() == data_equals)
+						{
+							show_obj_parent.removeClass('hide');
+						}
 
-			else if(dom_obj.is("input[type='radio']"))
-			{
-				if(dom_obj.val() == equals && dom_obj.is(":checked"))
-				{
-					show_obj_parent.removeClass('hide');
-				}
+						else
+						{
+							show_obj_parent.addClass('hide');
+						}
+					}
 
-				else
-				{
-					show_obj_parent.addClass('hide');
+					else if(dom_obj.is("input[type='checkbox']"))
+					{
+						if(dom_obj.is(":checked"))
+						{
+							show_obj_parent.removeClass('hide');
+						}
+
+						else
+						{
+							show_obj_parent.addClass('hide');
+						}
+					}
+
+					else if(dom_obj.is("input[type='radio']"))
+					{
+						if(dom_obj.val() == data_equals && dom_obj.is(":checked"))
+						{
+							show_obj_parent.removeClass('hide');
+						}
+
+						else
+						{
+							show_obj_parent.addClass('hide');
+						}
+					}
 				}
 			}
 		}
 	}
 
-	$(".form_action select, .form_action input").each(function()
+	function do_form_type_action(dom_obj)
+	{
+		var data_equals = dom_obj.val();
+
+		dom_obj.children("option").each(function()
+		{
+			var dom_option = $(this),
+				data_display = dom_option.attr('data-action');
+
+			if(data_display != '')
+			{
+				var show_obj = $("#" + data_display),
+					show_obj_parent = false;
+
+				if(show_obj.length > 0)
+				{
+					if(show_obj.is("input[type=checkbox]")){	show_obj_parent = show_obj.parents(".form_checkbox");}
+					else if(show_obj.is("input")){				show_obj_parent = show_obj.parents(".form_textfield");}
+					else if(show_obj.is("input[type=radio]")){	show_obj_parent = show_obj.parents(".form_radio");}
+					else if(show_obj.is("select")){				show_obj_parent = show_obj.parents(".form_select");}
+					else if(show_obj.is("textarea")){			show_obj_parent = show_obj.parents(".form_textarea");}
+					else
+					{
+						show_obj_parent = show_obj;
+					}
+
+					if(show_obj_parent !== false)
+					{
+						if(dom_obj.is("select"))
+						{
+							if(dom_option.attr('value') == data_equals)
+							{
+								show_obj_parent.removeClass('hide');
+							}
+
+							else
+							{
+								show_obj_parent.addClass('hide');
+							}
+						}
+
+						/* Not tested yet */
+						/*else if(dom_obj.is("input[type='checkbox']"))
+						{
+							if(dom_option.is(":checked"))
+							{
+								show_obj_parent.removeClass('hide');
+							}
+
+							else
+							{
+								show_obj_parent.addClass('hide');
+							}
+						}
+
+						else if(dom_obj.is("input[type='radio']"))
+						{
+							if(dom_option.attr('value') == data_equals && dom_option.is(":checked"))
+							{
+								show_obj_parent.removeClass('hide');
+							}
+
+							else
+							{
+								show_obj_parent.addClass('hide');
+							}
+						}*/
+					}
+				}
+			}
+		});
+	}
+
+	$(".form_display select, .form_display input").each(function()
+	{
+		do_form_type_display($(this));
+	});
+
+	$(document).on('change, click', ".form_display select, .form_display input", function()
+	{
+		do_form_type_display($(this));
+	});
+
+	$(".form_action select").each(function()
 	{
 		do_form_type_action($(this));
 	});
 
-	$(document).on('change, click', ".form_action select, .form_action input", function()
+	$(document).on('change, click', ".form_action select", function()
 	{
 		do_form_type_action($(this));
 	});

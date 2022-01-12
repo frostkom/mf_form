@@ -34,17 +34,32 @@ if($obj_form->check_allow_edit())
 
 				$arr_data_pages = $obj_form->get_pages_for_select();
 
+				$has_single_action = ($obj_form->type_action_equals != '' && $obj_form->type_action_show > 0);
+				$has_multiple_action = false;
+
+				if($obj_form->form_option_exists)
+				{
+					foreach($obj_form->arr_type_select_action as $key => $value)
+					{
+						if($value > 0)
+						{
+							$has_multiple_action = true;
+							break;
+						}
+					}
+				}
+
 				echo "<div id='post-body' class='columns-2'>
 					<div id='post-body-content'>
 						<div class='postbox".($obj_form->form2type_id > 0 ? " active" : "")."'>
 							<h3 class='hndle'><span>".__("Content", 'lang_form')."</span></h3>
 							<form method='post' action='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."' class='mf_form mf_settings inside'>
-								<div class='flex_flow'>
-									<div>"
+								<div".($has_single_action == false || $has_multiple_action == true ? "" : " class='flex_flow'").">"
+									."<div>"
 										.show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(array('form_type_id' => $obj_form->type_id)), 'name' => 'intFormTypeID', 'value' => $obj_form->type_id, 'class' => "fontawesome"))
 									."</div>
 									<div>"
-										.show_textarea(array('name' => 'strFormTypeText', 'value' => $obj_form->type_text, 'class' => "show_textarea hide", 'placeholder' => __("Text", 'lang_form')))
+										.show_textarea(array('name' => 'strFormTypeText', 'text' => __("Text", 'lang_form'), 'value' => $obj_form->type_text, 'class' => "show_textarea hide", 'placeholder' => __("Text", 'lang_form')))
 										."<div class='show_checkbox hide'>
 											<h4>".__("Examples", 'lang_form')."</h4>
 											<ol class='pointer'>
@@ -61,7 +76,7 @@ if($obj_form->check_allow_edit())
 											.show_textfield(array('name' => 'strFormTypeDefault', 'text' => __("Default value", 'lang_form'), 'value' => $obj_form->type_default, 'maxlength' => 3, 'size' => 5))
 										."</div>"
 										."<div class='show_select'>
-											<label>".__("Value", 'lang_form')." <i class='fa fa-info-circle' title='".__("Enter ID, Name and Limit (optional)", 'lang_form')."'></i></label>";
+											<label>".__("Value", 'lang_form')." <i class='fa fa-info-circle' title='".__("Enter ID, Name, Limit and Field to be displayed if option is chosen", 'lang_form')."'></i></label>";
 
 											if($obj_form->type_connect_to > 0)
 											{
@@ -82,6 +97,7 @@ if($obj_form->check_allow_edit())
 														$obj_form->arr_type_select_key = array('0', '1', '2');
 														$obj_form->arr_type_select_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
 														$obj_form->arr_type_select_limit = array('', '', '');
+														$obj_form->arr_type_select_action = array('', '', '');
 													}
 
 													else
@@ -97,10 +113,23 @@ if($obj_form->check_allow_edit())
 												/*echo "ID: ".var_export($obj_form->arr_type_select_id, true)."<br>"
 												."Key: ".var_export($obj_form->arr_type_select_key, true)."<br>"
 												."Value: ".var_export($obj_form->arr_type_select_value, true)."<br>"
-												."Limit: ".var_export($obj_form->arr_type_select_limit, true)."<br>";*/
+												."Limit: ".var_export($obj_form->arr_type_select_limit, true)."<br>"
+												."Action: ".var_export($obj_form->arr_type_select_action, true)."<br>";*/
 
 												if($obj_form->form_option_exists)
 												{
+													$arr_data_show = array();
+
+													if($has_single_action == false || $has_multiple_action == true)
+													{
+														list($result, $rows) = $obj_form->get_form_type_info(array('query_type_code' => array('checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'custom_tag', 'checkbox_multiple', 'radio_multiple'), 'query_exclude_id' => $obj_form->form2type_id));
+
+														if($rows > 0)
+														{
+															$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
+														}
+													}
+
 													for($i = 0; $i < $count_temp; $i++)
 													{
 														$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $obj_form->form2type_id, 'option_id' => $obj_form->arr_type_select_id[$i]));
@@ -108,8 +137,14 @@ if($obj_form->check_allow_edit())
 														echo "<div class='option'>"
 															.show_textfield(array('name' => 'arrFormTypeSelect_key[]', 'value' => $obj_form->arr_type_select_key[$i], 'placeholder' => __("Key", 'lang_form'), 'xtra_class' => "option_key")) //, 'readonly' => $is_select_value_used //input text is needed when using payment price as ID
 															.show_textfield(array('name' => 'arrFormTypeSelect_value[]', 'value' => $obj_form->arr_type_select_value[$i], 'placeholder' => __("Enter Option Here", 'lang_form'), 'xtra_class' => "option_value", 'readonly' => $is_select_value_used, 'xtra' => ($is_select_value_used ? " title='".__("This option has been chosen in a previous answer, so be careful with what you change it to. If you still want to edit this option, just double click on the field.", 'lang_form')."'" : "")))
-															.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_limit[]', 'value' => $obj_form->arr_type_select_limit[$i], 'xtra' => " min='0'", 'xtra_class' => "option_limit"))
-															.input_hidden(array('name' => 'arrFormTypeSelect_id[]', 'value' => $obj_form->arr_type_select_id[$i]))
+															.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_limit[]', 'value' => $obj_form->arr_type_select_limit[$i], 'xtra' => " min='0'", 'xtra_class' => "option_limit"));
+
+															if(count($arr_data_show) > 0)
+															{
+																echo show_select(array('data' => $arr_data_show, 'name' => 'arrFormTypeSelect_action[]', 'value' => $obj_form->arr_type_select_action[$i], 'multiple' => false, 'class' => "option_action"));
+															}
+
+															echo input_hidden(array('name' => 'arrFormTypeSelect_id[]', 'value' => $obj_form->arr_type_select_id[$i]))
 														."</div>";
 													}
 												}
@@ -174,57 +209,60 @@ if($obj_form->check_allow_edit())
 
 												// Actions
 												##############################
-												$arr_data_equals = array();
-
-												if($obj_form->form_option_exists)
+												if($has_single_action == true || $has_multiple_action == false)
 												{
-													switch($obj_form->type_id)
+													$arr_data_equals = array();
+
+													if($obj_form->form_option_exists)
 													{
-														case 1:
-														//case 'checkbox':
-															$arr_data_equals[0] = __("No", 'lang_form');
-															$arr_data_equals[1] = __("Yes", 'lang_form');
-														break;
+														switch($obj_form->type_id)
+														{
+															case 1:
+															//case 'checkbox':
+																$arr_data_equals[0] = __("No", 'lang_form');
+																$arr_data_equals[1] = __("Yes", 'lang_form');
+															break;
 
-														default:
-															$count_temp = count($obj_form->arr_type_select_value);
+															default:
+																$count_temp = count($obj_form->arr_type_select_value);
 
-															for($i = 0; $i < $count_temp; $i++)
-															{
-																$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
-															}
-														break;
-													}
-												}
-
-												else
-												{
-													$count_temp = count($obj_form->arr_type_select_value);
-
-													for($i = 0; $i < $count_temp; $i++)
-													{
-														$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
-													}
-												}
-
-												if(count($arr_data_equals) > 1)
-												{
-													list($result, $rows) = $obj_form->get_form_type_info(array('query_type_code' => array('checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'custom_tag', 'checkbox_multiple', 'radio_multiple'), 'query_exclude_id' => $obj_form->form2type_id));
-
-													if($rows > 0)
-													{
-														$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
-
-														echo "<div class='show_actions'>"
-															.show_select(array('data' => $arr_data_equals, 'name' => 'strFormTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'value' => $obj_form->type_action_equals))
-															.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeActionShow', 'text' => __("...display this...", 'lang_form'), 'value' => $obj_form->type_action_show))
-														."</div>";
+																for($i = 0; $i < $count_temp; $i++)
+																{
+																	$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
+																}
+															break;
+														}
 													}
 
-													/*else
+													else
 													{
-														echo "Nope: ".$wpdb->last_query;
-													}*/
+														$count_temp = count($obj_form->arr_type_select_value);
+
+														for($i = 0; $i < $count_temp; $i++)
+														{
+															$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
+														}
+													}
+
+													if(count($arr_data_equals) > 1)
+													{
+														list($result, $rows) = $obj_form->get_form_type_info(array('query_type_code' => array('checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'custom_tag', 'checkbox_multiple', 'radio_multiple'), 'query_exclude_id' => $obj_form->form2type_id));
+
+														if($rows > 0)
+														{
+															$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
+
+															echo "<div class='show_actions'>"
+																.show_select(array('data' => $arr_data_equals, 'name' => 'strFormTypeActionEquals', 'text' => __("If this equals...", 'lang_form'), 'value' => $obj_form->type_action_equals))
+																.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeActionShow', 'text' => __("...display this...", 'lang_form'), 'value' => $obj_form->type_action_show))
+															."</div>";
+														}
+
+														/*else
+														{
+															echo "Nope: ".$wpdb->last_query;
+														}*/
+													}
 												}
 												##############################
 											}

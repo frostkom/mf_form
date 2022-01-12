@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.7.14
+Version: 1.0.8.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -14,7 +14,7 @@ Depends: MF Base
 GitHub Plugin URI: frostkom/mf_form
 */
 
-if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
+if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 {
 	include_once("include/classes.php");
 	include_once("include/functions.php");
@@ -217,20 +217,25 @@ if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 			'formTypeConnectTo' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER formTypeFetchFrom",
 		);
 
-		if(get_site_option('setting_convert_form_options') == 'yes')
-		{
+		/*if(get_site_option('setting_convert_form_options') == 'yes')
+		{*/
 			$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
 				formOptionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 				form2TypeID INT UNSIGNED NOT NULL,
 				formOptionKey VARCHAR(10) DEFAULT NULL,
 				formOptionValue TEXT,
 				formOptionLimit SMALLINT UNSIGNED,
+				formOptionAction INT UNSIGNED,
 				formOptionOrder INT UNSIGNED NOT NULL DEFAULT '0',
 				PRIMARY KEY (formOptionID),
 				KEY form2TypeID (form2TypeID),
 				KEY formOptionOrder (formOptionOrder)
 			) DEFAULT CHARSET=".$default_charset);
-		}
+
+			$arr_add_column[$wpdb->base_prefix."form_option"] = array(
+				'formOptionAction' => "ALTER TABLE [table] ADD [column] INT UNSIGNED AFTER formOptionLimit",
+			);
+		//}
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2answer (
 			answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -550,7 +555,7 @@ if(function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
 
 		mf_uninstall_plugin(array(
 			'uploads' => $obj_form->post_type,
-			'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'setting_convert_form_options', 'option_form_list_viewed'),
+			'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'), //, 'setting_convert_form_options'
 			'meta' => array('meta_forms_viewed'),
 			'post_types' => array($obj_form->post_type),
 			'tables' => array('form', 'form_option', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),

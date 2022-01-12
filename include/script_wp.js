@@ -213,7 +213,7 @@ jQuery(function($)
 
 				var dom_option_last = $(".select_rows .option:last-child");
 
-				dom_option_last.find("input").val('').attr({'value': ''}).removeAttr('readonly');
+				dom_option_last.find("input, select").val('').attr({'value': ''}).removeAttr('readonly');
 
 				if(parseInt(dom_key) == dom_key)
 				{
