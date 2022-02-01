@@ -3910,8 +3910,8 @@ class mf_form
 				$this->is_spam = true;
 				$this->is_spam_id = 7;
 
-				// URLs in the Honeypot should always be considered as spam
-				if(filter_var($honeypot_check, FILTER_VALIDATE_URL) === false)
+				// Honeypot should always be considered as spam if URL/Shortcode
+				if(filter_var($honeypot_check, FILTER_VALIDATE_URL) === false || strpos($honeypot_check, "[/"))
 				{
 					do_log("Honeypot value: ".$honeypot_check);
 				}
