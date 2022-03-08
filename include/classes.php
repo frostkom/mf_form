@@ -1567,7 +1567,7 @@ class mf_form
 													{
 														$success = false;
 
-														do_log("There was no value for the option (2) (".$this->id.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
+														do_log("There was no value for the option (2) (".$this->id.", ".$intForm2TypeID.", ".$this->type_text." -> ".$strFormOptions." -> ".$str_option.")");
 													}
 												}
 											break;

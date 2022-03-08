@@ -1,5 +1,7 @@
 jQuery(function($)
 {
+	/* Range */
+	/* ################### */
 	function update_range_text(selector)
 	{
 		if(selector.siblings("label").children("span").length == 0)
@@ -19,7 +21,10 @@ jQuery(function($)
 	{
 		update_range_text($(this));
 	});
+	/* ################### */
 
+	/*  */
+	/* ################### */
 	function do_form_type_connect_to(dom_obj)
 	{
 		var dom_obj_id = dom_obj.attr('id'),
@@ -55,7 +60,10 @@ jQuery(function($)
 			do_form_type_connect_to($(this));
 		});
 	});
+	/* ################### */
 
+	/* Single Conditions */
+	/* ################### */
 	function do_form_type_display(dom_obj)
 	{
 		var data_equals = dom_obj.attr('data-equals'),
@@ -123,6 +131,19 @@ jQuery(function($)
 		}
 	}
 
+	$(".form_display select, .form_display input").each(function()
+	{
+		do_form_type_display($(this));
+	});
+
+	$(document).on('blur change click', ".form_display select, .form_display input", function()
+	{
+		do_form_type_display($(this));
+	});
+	/* ################### */
+
+	/* Multiple Conditions */
+	/* ################### */
 	function do_form_type_action(dom_obj)
 	{
 		var data_equals = dom_obj.val();
@@ -196,26 +217,19 @@ jQuery(function($)
 		});
 	}
 
-	$(".form_display select, .form_display input").each(function()
-	{
-		do_form_type_display($(this));
-	});
-
-	$(document).on('change, click', ".form_display select, .form_display input", function()
-	{
-		do_form_type_display($(this));
-	});
-
 	$(".form_action select").each(function()
 	{
 		do_form_type_action($(this));
 	});
 
-	$(document).on('change, click', ".form_action select", function()
+	$(document).on('blur change click', ".form_action select", function()
 	{
 		do_form_type_action($(this));
 	});
+	/* ################### */
 
+	/* Remember Field Values */
+	/* ################### */
 	function check_remember_fields()
 	{
 		$.getScript(script_form.plugins_url + "/mf_base/include/jquery.Storage.js").done(function()
@@ -311,7 +325,10 @@ jQuery(function($)
 	{
 		check_remember_fields();
 	}
+	/* ################### */
 
+	/* Get Municipality from Zip Code */
+	/* ################### */
 	function check_zip_code(selector)
 	{
 		var search = selector.val();
@@ -344,10 +361,11 @@ jQuery(function($)
 		check_zip_code($(this));
 	});
 
-	$(document).on('keyup, focusout', ".mf_form .form_zipcode input", function()
+	$(document).on('blur keyup focusout', ".mf_form .form_zipcode input", function()
 	{
 		check_zip_code($(this));
 	});
+	/* ################### */
 
 	var dom_radio_multiple = $(".mf_form .form_radio_multiple + .form_radio_multiple");
 
@@ -449,47 +467,6 @@ jQuery(function($)
 	{
 		hide_form_overlay();
 	});
-
-	/*if(script_form.reload == 'no')
-	{
-		$(document).on('submit', ".mf_form_submit", function()
-		{
-			var self = $(this),
-				form_data = self.serialize();
-
-			form_data += "&action=submit_form";
-
-			$.ajax(
-			{
-				url: script_form.ajax_url,
-				type: 'post',
-				dataType: 'json',
-				data: form_data,
-				success: function(data)
-				{
-					if(data.success)
-					{
-						if(data.output)
-						{
-							self.html(data.output);
-						}
-
-						if(data.redirect)
-						{
-							location.href = data.redirect;
-						}
-					}
-
-					else if(data.error)
-					{
-						$("h1").after("<div class='error'><p>" + data.error + "</p></div>");
-					}
-				}
-			});
-
-			return false;
-		});
-	}*/
 
 	$(document).on('click', ".mf_form_submit button.button-primary", function()
 	{
