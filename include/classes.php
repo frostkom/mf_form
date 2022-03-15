@@ -961,7 +961,7 @@ class mf_form
 							//$updated = true;
 						}
 
-						/*else // If nothing has changed, don't log about it
+						/*else // If nothing has changed, don't log it
 						{
 							do_log("I could not update the option (".var_export($wpdb->last_query, true).")");
 						}*/
@@ -1578,12 +1578,6 @@ class mf_form
 								$done_text = __("I have created the form for you", 'lang_form');
 							}
 						}
-
-						/*if($wpdb->rows_affected > 0)
-						{
-							mf_redirect(admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id));
-							//echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'</script>";
-						}*/
 					}
 				}
 
@@ -1677,7 +1671,7 @@ class mf_form
 						{
 							if($this->id > 0 && $this->type_id > 0 && ($this->type_id == 6 || $this->type_id == 9 || $this->type_text != '')) //'space', 'referer_url'
 							{
-								$this->form2type_order = $wpdb->get_var($wpdb->prepare("SELECT form2TypeOrder + 1 FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder DESC", $this->id));
+								$this->form2type_order = $wpdb->get_var($wpdb->prepare("SELECT (form2TypeOrder + 1) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder DESC", $this->id));
 
 								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeActionEquals = %s, formTypeActionShow = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_connect_to, $this->type_action_equals, $this->type_action_show, $this->form2type_order, get_current_user_id()));
 
@@ -1864,6 +1858,7 @@ class mf_form
 							if(isset($_GET['btnFieldCopy']))
 							{
 								$this->form2type_id = "";
+								$this->arr_type_select_id = array();
 							}
 						}
 					}
