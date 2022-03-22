@@ -1858,7 +1858,13 @@ class mf_form
 							if(isset($_GET['btnFieldCopy']))
 							{
 								$this->form2type_id = "";
-								$this->arr_type_select_id = array();
+
+								$count_temp = count($this->arr_type_select_id);
+
+								for($i = 0; $i < $count_temp; $i++)
+								{
+									$this->arr_type_select_id[$i] = '';
+								}
 							}
 						}
 					}
