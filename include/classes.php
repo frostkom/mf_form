@@ -655,6 +655,16 @@ class mf_form
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
 	}
 
+	function do_clone_site($data)
+	{
+		do_log("Clone Forms: ".var_export($data, true));
+	}
+
+	function do_switch_sites($data)
+	{
+		do_log("Switch Forms: ".var_export($data, true));
+	}
+
 	function filter_last_updated_post_types($array, $type)
 	{
 		if($type == 'auto')
@@ -5424,7 +5434,14 @@ if(class_exists('mf_list_table'))
 			if($this->search != '')
 			{
 				$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
-				$this->query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%' OR SOUNDEX(answerText) = SOUNDEX('".$this->search."') OR SOUNDEX(answerEmail) = SOUNDEX('".$this->search."'))";
+				$this->query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%'";
+
+					if(preg_match('/[a-zA-Z]/', $this->search))
+					{
+						$this->query_where .= " OR SOUNDEX(answerText) = SOUNDEX('".$this->search."') OR SOUNDEX(answerEmail) = SOUNDEX('".$this->search."')";
+					}
+
+				$this->query_where .= ")";
 			}
 
 			$this->set_views(array(
