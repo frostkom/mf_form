@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: 
-Version: 1.0.8.8
+Version: 1.0.8.9
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -351,8 +351,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 				if($r->postID > 0 && $post_title == $r->formName)
 				{
-					//do_log("Same ID and Name (".$r->formName." == ".$post_title.", blogID:".$r->blogID.", postID:".$r->postID.")");
-
 					if($wpdb->blogid > 0 && $r->blogID != $wpdb->blogid)
 					{
 						do_log("Update blogID (".$r->formName." == ".$post_title.", blogID:".$r->blogID.", postID:".$r->postID.")");
@@ -377,8 +375,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 					else
 					{
-						//do_log("NOT same Name (".$r->formName.", blogID:".$r->blogID.", ".$wpdb->base_prefix."form.postID:".$r->postID.")");
-
 						if($r->formDeleted == '0')
 						{
 							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW() WHERE formID = '%d'", $r->formID));
@@ -518,8 +514,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 							if($option_key != '')
 							{
 								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '%d' WHERE form2TypeID = '%d' AND answerText = %s", $intFormOptionID, $intForm2TypeID, $option_key));
-
-								//do_log("Updated form_answer (".$wpdb->last_query.")");
 							}
 
 							$i++;

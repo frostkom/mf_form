@@ -657,12 +657,51 @@ class mf_form
 
 	function do_clone_site($data)
 	{
-		do_log("Clone Forms: ".var_export($data, true));
+		global $wpdb;
+
+		//do_log("Cloned Forms: ".var_export($data, true));
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form WHERE blogID = '%d'", $data['from']));
+
+		foreach($result as $r)
+		{
+			$intFormID = $r->formID;
+
+			if($this->clone_form(array('id' => $intFormID, 'blog_id_to' => $data['to'], 'include_answers' => true))) //, 'blog_id_from' => $data['from']
+			{
+				$done_text = __("The form was successfully copied", 'lang_form');
+			}
+
+			else
+			{
+				$error_text = __("Something went wrong. Contact your admin and add this URL as reference", 'lang_form');
+			}
+		}
 	}
 
 	function do_switch_sites($data)
 	{
-		do_log("Switch Forms: ".var_export($data, true));
+		global $wpdb;
+
+		do_log("Switched Forms: ".var_export($data, true));
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, blogID FROM ".$wpdb->base_prefix."form WHERE (blogID = '%d' OR blogID = '%d')", $data['from'], $data['to']));
+
+		foreach($result as $r)
+		{
+			$intFormID = $r->formID;
+			$intBlogID = $r->blogID;
+
+			if($intBlogID == $data['from'])
+			{
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d' WHERE formID = '%d'", $data['to'], $intFormID));
+			}
+
+			else
+			{
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d' WHERE formID = '%d'", $data['from'], $intFormID));
+			}
+		}
 	}
 
 	function filter_last_updated_post_types($array, $type)
@@ -1452,6 +1491,85 @@ class mf_form
 		return ($type_connect_to_temp > 0 ? $type_connect_to_temp : $data['field_id']);
 	}
 
+	function clone_form($data)
+	{
+		global $wpdb;
+
+		if(!isset($data['include_answers'])){	$data['include_answers'] = false;}
+		//if(!isset($data['blog_id_from'])){	$data['blog_id_from'] = 0;}
+		if(!isset($data['blog_id_to'])){		$data['blog_id_to'] = 0;}
+
+		$success = true;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $data['id'])); //, formName
+
+		foreach($result as $r)
+		{
+			$intFormID = $r->formID;
+			//$strFormName = $r->formName;
+
+			$copy_fields = ", blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback";
+
+			$strFormName = $this->get_form_name($intFormID);
+
+			$post_data = array(
+				'post_type' => $this->post_type,
+				'post_status' => 'publish',
+				'post_title' => $strFormName." (".__("copy", 'lang_form').")",
+			);
+
+			$intPostID = wp_insert_post($post_data);
+
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formName, postID".$copy_fields.", formCreated, userID) (SELECT CONCAT(formName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '%d' FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", $intPostID, get_current_user_id(), $intFormID));
+			$intFormID_new = $wpdb->insert_id;
+
+			if($intFormID_new > 0)
+			{
+				if($data['blog_id_to'] > 0)
+				{
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d' WHERE formID = '%d'", $data['blog_id_to'], $intFormID_new));
+				}
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeID DESC", $intFormID));
+
+				foreach($result as $r)
+				{
+					$intForm2TypeID = $r->form2TypeID;
+
+					$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
+
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, ".$copy_fields.", form2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
+
+					$intForm2TypeID_new = $wpdb->insert_id;
+
+					if($intForm2TypeID_new > 0)
+					{
+						$copy_fields = "formOptionKey, formOptionValue, formOptionLimit, formOptionOrder, formOptionAction";
+
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option (form2TypeID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d')", $intForm2TypeID_new, $intForm2TypeID));
+					}
+
+					else
+					{
+						$success = false;
+					}
+
+					if($data['include_answers'] == true)
+					{
+						do_log("Clone answers from ".$intFormID." -> ".$intFormID_new);
+					}
+				}
+			}
+
+			else
+			{
+				$success = false;
+			}
+		}
+
+		return $success;
+	}
+
 	function save_data()
 	{
 		global $wpdb, $error_text, $done_text;
@@ -1889,69 +2007,14 @@ class mf_form
 			default:
 				if(isset($_GET['btnFormCopy']) && wp_verify_nonce($_REQUEST['_wpnonce_form_copy'], 'form_copy_'.$this->id))
 				{
-					$inserted = true;
-
-					$result_temp = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
-
-					if($wpdb->num_rows > 0)
+					if($this->clone_form(array('id' => $this->id)))
 					{
-						$copy_fields = ", blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback";
-
-						$strFormName = $this->get_form_name($this->id);
-
-						$post_data = array(
-							'post_type' => $this->post_type,
-							'post_status' => 'publish',
-							'post_title' => $strFormName." (".__("copy", 'lang_form').")",
-						);
-
-						$intPostID = wp_insert_post($post_data);
-
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formName, postID".$copy_fields.", formCreated, userID) (SELECT CONCAT(formName, ' (".__("copy", 'lang_form').")'), '%d'".$copy_fields.", NOW(), '%d' FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", $intPostID, get_current_user_id(), $this->id));
-						$intFormID_new = $wpdb->insert_id;
-
-						if($intFormID_new > 0)
-						{
-							$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeID DESC", $this->id));
-
-							foreach($result as $r)
-							{
-								$intForm2TypeID = $r->form2TypeID;
-
-								$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
-
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, ".$copy_fields.", form2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
-
-								$intForm2TypeID_new = $wpdb->insert_id;
-
-								if($intForm2TypeID_new > 0)
-								{
-									$copy_fields = "formOptionKey, formOptionValue, formOptionLimit, formOptionOrder, formOptionAction";
-
-									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option (form2TypeID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d')", $intForm2TypeID_new, $intForm2TypeID));
-								}
-
-								else
-								{
-									$inserted = false;
-								}
-							}
-						}
-
-						else
-						{
-							$inserted = false;
-						}
-					}
-
-					if($inserted == false)
-					{
-						$error_text = __("Something went wrong. Contact your admin and add this URL as reference", 'lang_form');
+						$done_text = __("The form was successfully copied", 'lang_form');
 					}
 
 					else
 					{
-						$done_text = __("The form was successfully copied", 'lang_form');
+						$error_text = __("Something went wrong. Contact your admin and add this URL as reference", 'lang_form');
 					}
 				}
 
@@ -2753,8 +2816,6 @@ class mf_form
 			switch($key)
 			{
 				case 'fields':
-					//do_log("render_mail_content: ".var_export($arr_types, true));
-
 					foreach($arr_types as $key => $arr_value)
 					{
 						switch($arr_value['type'])
