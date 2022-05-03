@@ -362,51 +362,55 @@ class mf_form
 
 		if($intAnswerID > 0)
 		{
-			$value = $wpdb->get_var($wpdb->prepare("SELECT SUM(formOptionKey) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form_option ON ".$wpdb->base_prefix."form_answer.answerText = ".$wpdb->base_prefix."form_option.formOptionID WHERE answerID = %d AND formTypeID IN('8', '17')", $intAnswerID));
+			$value = $wpdb->get_var($wpdb->prepare("SELECT SUM(formOptionKey) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form_option ON ".$wpdb->base_prefix."form_answer.answerText = ".$wpdb->base_prefix."form_option.formOptionID WHERE answerID = %d AND formTypeID IN('8', '17')", $intAnswerID)); //radio_button, radio_multiple
 
 			$if_statement = get_match("/\[if (.*?)\]/i", $html, false);
-			$if_parts = explode(" ", $if_statement);
 
-			$log_message = $post->ID." -> <a href='".get_permalink($post->ID)."'>".get_post_title($post->ID)."</a> -> ".$if_statement;
-
-			switch($if_parts[0])
+			if($if_statement != '')
 			{
-				case 'value':
-					switch($if_parts[1])
-					{
-						case '>':
-							if($value > $if_parts[2])
-							{
-								$html = preg_replace(array("/\[if ".$if_statement."\](\<br\>)?/i", "/\[end_if\](\<br\>)?/i", "/\[else\](.*?)?\[end_else\](\<br\>)?/is"), "", $html);
-							}
+				$if_parts = explode(" ", $if_statement);
 
-							else
-							{
-								$html = preg_replace(array("/\[if ".$if_statement."\](.*?)\[end_if\](\<br\>)?/is", "/\[else\](\<br\>)?/i", "/\[end_else\](\<br\>)?/i"), "", $html);
-							}
-						break;
+				$log_message = $post->ID." -> <a href='".get_permalink($post->ID)."'>".get_post_title($post->ID)."</a> -> ".$if_statement;
 
-						case '<':
-							if($value < $if_parts[2])
-							{
-								$html = preg_replace(array("/\[if ".$if_statement."\](\<br\>)?/i", "/\[end_if\](\<br\>)?/i", "/\[else\](.*?)?\[end_else\](\<br\>)?/is"), "", $html);
-							}
+				switch($if_parts[0])
+				{
+					case 'value':
+						switch($if_parts[1])
+						{
+							case '>':
+								if($value > $if_parts[2])
+								{
+									$html = preg_replace(array("/\[if ".$if_statement."\](\<br\>)?/i", "/\[end_if\](\<br\>)?/i", "/\[else\](.*?)?\[end_else\](\<br\>)?/is"), "", $html);
+								}
 
-							else
-							{
-								$html = preg_replace(array("/\[if ".$if_statement."\](.*?)?\[end_if\](\<br\>)?/is", "/\[else\](\<br\>)?/i", "/\[end_else\](\<br\>)?/i"), "", $html);
-							}
-						break;
+								else
+								{
+									$html = preg_replace(array("/\[if ".$if_statement."\](.*?)\[end_if\](\<br\>)?/is", "/\[else\](\<br\>)?/i", "/\[end_else\](\<br\>)?/i"), "", $html);
+								}
+							break;
 
-						default:
-							do_log("Unknown if statement (2/".count($if_parts)."): ".$log_message);
-						break;
-					}
-				break;
+							case '<':
+								if($value < $if_parts[2])
+								{
+									$html = preg_replace(array("/\[if ".$if_statement."\](\<br\>)?/i", "/\[end_if\](\<br\>)?/i", "/\[else\](.*?)?\[end_else\](\<br\>)?/is"), "", $html);
+								}
 
-				default:
-					do_log("Unknown if statement (1/".count($if_parts)."): ".$log_message);
-				break;
+								else
+								{
+									$html = preg_replace(array("/\[if ".$if_statement."\](.*?)?\[end_if\](\<br\>)?/is", "/\[else\](\<br\>)?/i", "/\[end_else\](\<br\>)?/i"), "", $html);
+								}
+							break;
+
+							default:
+								do_log("Unknown if statement (2/".count($if_parts)."): ".$log_message);
+							break;
+						}
+					break;
+
+					default:
+						do_log("Unknown if statement (1/".count($if_parts)."): ".$log_message);
+					break;
+				}
 			}
 		}
 
@@ -1400,7 +1404,7 @@ class mf_form
 				$this->form2type_id = check_var('intForm2TypeID');
 				$this->form2type_order = check_var('intForm2TypeOrder');
 
-				$this->email_confirm = (isset($_POST['intFormEmailConfirm']) ? 1 : 0);
+				$this->email_confirm = isset($_POST['intFormEmailConfirm']);
 				$this->email_confirm_from_email = check_var('strFormEmailConfirmFromEmail');
 				$this->email_confirm_from_email_name = check_var('strFormEmailConfirmFromEmailName');
 				$this->email_confirm_id = check_var('intFormEmailConfirmID');
@@ -1501,6 +1505,8 @@ class mf_form
 
 		$success = true;
 
+		$arr_form_id = $arr_form2type_id = $arr_answer_id = array();
+
 		$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $data['id'])); //, formName
 
 		foreach($result as $r)
@@ -1525,6 +1531,8 @@ class mf_form
 
 			if($intFormID_new > 0)
 			{
+				$arr_form_id[$intFormID] = $intFormID_new;
+
 				if($data['blog_id_to'] > 0)
 				{
 					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d' WHERE formID = '%d'", $data['blog_id_to'], $intFormID_new));
@@ -1539,11 +1547,12 @@ class mf_form
 					$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
 
 					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, ".$copy_fields.", form2TypeCreated, userID) (SELECT %d, ".$copy_fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
-
 					$intForm2TypeID_new = $wpdb->insert_id;
 
 					if($intForm2TypeID_new > 0)
 					{
+						$arr_form2type_id[$intForm2TypeID] = $intForm2TypeID_new;
+
 						$copy_fields = "formOptionKey, formOptionValue, formOptionLimit, formOptionOrder, formOptionAction";
 
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option (form2TypeID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d')", $intForm2TypeID_new, $intForm2TypeID));
@@ -1556,7 +1565,42 @@ class mf_form
 
 					if($data['include_answers'] == true)
 					{
-						do_log("Clone answers from ".$intFormID." -> ".$intFormID_new);
+						$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."wp_form2answer WHERE formID = '%d'", $intFormID));
+
+						foreach($result as $r)
+						{
+							$intAnswerID = $r->answerID;
+
+							$copy_fields = "answerIP, answerSpam, spamID, answerToken, answerCreated";
+
+							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option (formID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form_option WHERE answerID = '%d')", $intFormID_new, $intAnswerID));
+							$intAnswerID_new = $wpdb->insert_id;
+
+							if($intAnswerID_new > 0)
+							{
+								$arr_answer_id[$intAnswerID] = $intAnswerID_new;
+
+								$result_answer = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $intAnswerID));
+
+								foreach($result_answer as $r)
+								{
+									$intForm2TypeID = $r->form2TypeID;
+									$strAnswerText = $r->answerText;
+
+									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s", $intAnswerID_new, $arr_form2type_id[$intForm2TypeID], $strAnswerText));
+								}
+
+								$copy_fields = "answerEmailFrom, answerEmail, answerType, answerSent";
+
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_email (answerID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d')", $intAnswerID_new, $intAnswerID));
+
+								$copy_fields = "metaKey, metaValue";
+
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer_meta (answerID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d')", $intAnswerID_new, $intAnswerID));
+							}
+						}
+
+						do_log("Cloned answers from ".$intFormID." -> ".$intFormID_new);
 					}
 				}
 			}
