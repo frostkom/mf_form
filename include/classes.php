@@ -499,6 +499,12 @@ class mf_form
 				'icon' => "fas fa-share",
 				'name' => __("Redirect test e-mails", 'lang_form'),
 			),
+			'setting_replacement_form' => array(
+				'type' => 'string',
+				'global' => false,
+				'icon' => "fas fa-at",
+				'name' => __("Form to replace all e-mail links", 'lang_form'),
+			),
 		);
 
 		return $arr_settings;
