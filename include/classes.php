@@ -636,6 +636,9 @@ class mf_form
 			$menu_title = __("Edit Answer", 'lang_form');
 			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
 		}
+
+		$menu_title = __("Settings", 'lang_form');
+		add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, admin_url("options-general.php?page=settings_mf_base#settings_form"));
 	}
 
 	function wp_trash_post($post_id)
@@ -4035,7 +4038,7 @@ class mf_form
 				// Honeypot should always be considered as spam if URL/Shortcode
 				if(filter_var($honeypot_check, FILTER_VALIDATE_URL) === false || strpos($honeypot_check, "[/"))
 				{
-					do_log("Honeypot value: ".$honeypot_check);
+					//do_log("Honeypot value: ".$honeypot_check);
 				}
 			}
 
