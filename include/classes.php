@@ -76,8 +76,8 @@ class mf_form
 				{
 					$intAnswerID = $r->answerID;
 
-					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = %d", $intAnswerID));
-					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = %d", $intAnswerID));
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $intAnswerID));
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $intAnswerID));
 				}
 			}
 		}
@@ -362,7 +362,7 @@ class mf_form
 
 		if($intAnswerID > 0)
 		{
-			$value = $wpdb->get_var($wpdb->prepare("SELECT SUM(formOptionKey) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form_option ON ".$wpdb->base_prefix."form_answer.answerText = ".$wpdb->base_prefix."form_option.formOptionID WHERE answerID = %d AND formTypeID IN('8', '17')", $intAnswerID)); //radio_button, radio_multiple
+			$value = $wpdb->get_var($wpdb->prepare("SELECT SUM(formOptionKey) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form_option ON ".$wpdb->base_prefix."form_answer.answerText = ".$wpdb->base_prefix."form_option.formOptionID WHERE answerID = '%d' AND formTypeID IN('8', '17')", $intAnswerID)); //radio_button, radio_multiple
 
 			$if_statement = get_match("/\[if (.*?)\]/i", $html, false);
 
