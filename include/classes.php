@@ -1422,7 +1422,7 @@ class mf_form
 				$this->accept_duplicates = check_var('strFormAcceptDuplicates', 'char', true, 'yes');
 				$this->save_ip = check_var('strFormSaveIP');
 				$this->answer_url = check_var('strFormAnswerURL');
-				$this->email_admin = check_var('strFormEmail', 'email'); //$this->email = 
+				$this->email_admin = check_var('strFormEmail', 'email');
 				$this->email_admin_name = check_var('strFormFromName');
 				$this->email_conditions = check_var('strFormEmailConditions');
 				$this->email_notify = check_var('intFormEmailNotify');
@@ -1930,7 +1930,7 @@ class mf_form
 							$this->accept_duplicates = $r->formAcceptDuplicates;
 							$this->save_ip = $r->formSaveIP;
 							$this->answer_url = $r->formAnswerURL;
-							$this->email_admin = $r->formEmail; //$this->email = 
+							$this->email_admin = $r->formEmail;
 							$this->email_admin_name = $r->formFromName;
 							$this->email_conditions = $r->formEmailConditions;
 							$this->email_notify = $r->formEmailNotify;

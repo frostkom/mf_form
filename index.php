@@ -2,7 +2,7 @@
 /*
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
-Description: 
+Description:
 Version: 1.0.8.15
 Licence: GPLv2 or later
 Author: Martin Fors
