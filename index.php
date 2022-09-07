@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.0.8.15
+Version: 1.0.8.17
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -139,26 +139,26 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		) DEFAULT CHARSET=".$default_charset);
 
 		$arr_add_column[$wpdb->base_prefix."form"] = array(
-			'formTermsPage' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formPaymentHmac",
-			'formPaymentCallback' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formPaymentAmount",
-			'formPaymentTax' => "ALTER TABLE [table] ADD [column] TINYINT UNSIGNED DEFAULT NULL AFTER formPaymentAmount",
-			'formSaveIP' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'no' AFTER formName",
-			'formPaymentCost' => "ALTER TABLE [table] ADD [column] DOUBLE UNSIGNED DEFAULT NULL AFTER formPaymentCheck",
-			'formEmailConditions' => "ALTER TABLE [table] ADD [column] TEXT DEFAULT NULL AFTER formEmail",
-			'formFromName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmail",
-			'formAcceptDuplicates' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER formName",
-			'formEmailConfirmID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formEmailConfirm",
-			'formEmailNotifyFrom' => "ALTER TABLE [table] ADD [column] ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin' AFTER formEmailNotify",
-			'formEmailNotifyFromEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailNotifyFrom",
-			'formEmailNotifyFromEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailNotifyFromEmail",
-			'formEmailConfirmFromEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailConfirm",
-			'formEmailConfirmFromEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailConfirmFromEmail",
+			//'formTermsPage' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formPaymentHmac",
+			//'formPaymentCallback' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formPaymentAmount",
+			//'formPaymentTax' => "ALTER TABLE [table] ADD [column] TINYINT UNSIGNED DEFAULT NULL AFTER formPaymentAmount",
+			//'formSaveIP' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'no' AFTER formName",
+			//'formPaymentCost' => "ALTER TABLE [table] ADD [column] DOUBLE UNSIGNED DEFAULT NULL AFTER formPaymentCheck",
+			//'formEmailConditions' => "ALTER TABLE [table] ADD [column] TEXT DEFAULT NULL AFTER formEmail",
+			//'formFromName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmail",
+			//'formAcceptDuplicates' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER formName",
+			//'formEmailConfirmID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formEmailConfirm",
+			//'formEmailNotifyFrom' => "ALTER TABLE [table] ADD [column] ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin' AFTER formEmailNotify",
+			//'formEmailNotifyFromEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailNotifyFrom",
+			//'formEmailNotifyFromEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailNotifyFromEmail",
+			//'formEmailConfirmFromEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailConfirm",
+			//'formEmailConfirmFromEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailConfirmFromEmail",
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form"] = array(
-			'formPaymentFunction' => "ALTER TABLE [table] CHANGE [column] formPaymentCallback VARCHAR(100) DEFAULT NULL",
-			'formPaymentCost' => "ALTER TABLE [table] CHANGE [column] [column] DOUBLE UNSIGNED DEFAULT NULL",
-			'formEmailNotifyFrom' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin'",
+			//'formPaymentFunction' => "ALTER TABLE [table] CHANGE [column] formPaymentCallback VARCHAR(100) DEFAULT NULL",
+			//'formPaymentCost' => "ALTER TABLE [table] CHANGE [column] [column] DOUBLE UNSIGNED DEFAULT NULL",
+			//'formEmailNotifyFrom' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin'",
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (
@@ -177,16 +177,16 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formTypeName VARCHAR(40) DEFAULT NULL,
 			formTypeDesc TEXT DEFAULT NULL,
 			PRIMARY KEY (formTypeID)
-		) DEFAULT CHARSET=".$default_charset); //formTypePublic ENUM('no', 'yes') NOT NULL DEFAULT 'yes', formTypeResult ENUM('0','1') NOT NULL DEFAULT '1', //, KEY formTypeResult (formTypeResult)
+		) DEFAULT CHARSET=".$default_charset);
 
 		$arr_add_column[$wpdb->base_prefix."form_type"] = array(
-			'formTypeDesc' => "ALTER TABLE [table] ADD [column] VARCHAR(40) DEFAULT NULL AFTER formTypeName",
+			//'formTypeDesc' => "ALTER TABLE [table] ADD [column] VARCHAR(40) DEFAULT NULL AFTER formTypeName",
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form_type"] = array(
-			'formTypeName' => "ALTER TABLE [table] CHANGE [column] formTypeName VARCHAR(40) DEFAULT NULL",
-			'formTypeResult' => "ALTER TABLE [table] DROP COLUMN [column]",
-			'formTypePublic' => "ALTER TABLE [table] DROP COLUMN [column]",
+			//'formTypeName' => "ALTER TABLE [table] CHANGE [column] formTypeName VARCHAR(40) DEFAULT NULL",
+			//'formTypeResult' => "ALTER TABLE [table] DROP COLUMN [column]",
+			//'formTypePublic' => "ALTER TABLE [table] DROP COLUMN [column]",
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
@@ -216,29 +216,26 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		) DEFAULT CHARSET=".$default_charset);
 
 		$arr_add_column[$wpdb->base_prefix."form2type"] = array(
-			'formTypeDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '1' AFTER formTypeActionShow",
-			'formTypeConnectTo' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER formTypeFetchFrom",
+			//'formTypeDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0','1') NOT NULL DEFAULT '1' AFTER formTypeActionShow",
+			//'formTypeConnectTo' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER formTypeFetchFrom",
 		);
 
-		/*if(get_site_option('setting_convert_form_options') == 'yes')
-		{*/
-			$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
-				formOptionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-				form2TypeID INT UNSIGNED NOT NULL,
-				formOptionKey VARCHAR(10) DEFAULT NULL,
-				formOptionValue TEXT,
-				formOptionLimit SMALLINT UNSIGNED,
-				formOptionAction INT UNSIGNED,
-				formOptionOrder INT UNSIGNED NOT NULL DEFAULT '0',
-				PRIMARY KEY (formOptionID),
-				KEY form2TypeID (form2TypeID),
-				KEY formOptionOrder (formOptionOrder)
-			) DEFAULT CHARSET=".$default_charset);
+		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
+			formOptionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			form2TypeID INT UNSIGNED NOT NULL,
+			formOptionKey VARCHAR(10) DEFAULT NULL,
+			formOptionValue TEXT,
+			formOptionLimit SMALLINT UNSIGNED,
+			formOptionAction INT UNSIGNED,
+			formOptionOrder INT UNSIGNED NOT NULL DEFAULT '0',
+			PRIMARY KEY (formOptionID),
+			KEY form2TypeID (form2TypeID),
+			KEY formOptionOrder (formOptionOrder)
+		) DEFAULT CHARSET=".$default_charset);
 
-			$arr_add_column[$wpdb->base_prefix."form_option"] = array(
-				'formOptionAction' => "ALTER TABLE [table] ADD [column] INT UNSIGNED AFTER formOptionLimit",
-			);
-		//}
+		$arr_add_column[$wpdb->base_prefix."form_option"] = array(
+			//'formOptionAction' => "ALTER TABLE [table] ADD [column] INT UNSIGNED AFTER formOptionLimit",
+		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2answer (
 			answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -254,7 +251,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		) DEFAULT CHARSET=".$default_charset);
 
 		$arr_add_column[$wpdb->base_prefix."form2answer"] = array(
-			'spamID' => "ALTER TABLE [table] ADD [column] SMALLINT NOT NULL DEFAULT '0' AFTER answerSpam",
+			//'spamID' => "ALTER TABLE [table] ADD [column] SMALLINT NOT NULL DEFAULT '0' AFTER answerSpam",
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer (
@@ -284,7 +281,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		) DEFAULT CHARSET=".$default_charset);
 
 		$arr_add_column[$wpdb->base_prefix."form_answer_email"] = array(
-			'answerEmailFrom' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER answerID",
+			//'answerEmailFrom' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER answerID",
 		);
 
 		update_columns($arr_update_column);
@@ -552,7 +549,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		mf_uninstall_plugin(array(
 			'uploads' => $obj_form->post_type,
-			'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'), //, 'setting_convert_form_options'
+			'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'),
 			'meta' => array('meta_forms_viewed'),
 			'post_types' => array($obj_form->post_type),
 			'tables' => array('form', 'form_option', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),

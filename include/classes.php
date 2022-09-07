@@ -148,16 +148,6 @@ class mf_form
 			}
 		}
 
-		/*if(IS_ADMIN && !$this->form_option_exists)
-		{
-			$arr_settings['setting_convert_form_options'] = __("Convert form options", 'lang_form');
-		}
-
-		else
-		{
-			delete_site_option('setting_convert_form_options');
-		}*/
-
 		show_settings_fields(array('area' => $options_area, 'object' => $this, 'settings' => $arr_settings));
 	}
 
@@ -301,15 +291,6 @@ class mf_form
 			'editor_height' => 100,
 		));
 	}
-
-	/*function setting_convert_form_options_callback()
-	{
-		$setting_key = get_setting_key(__FUNCTION__);
-		settings_save_site_wide($setting_key);
-		$option = get_site_option($setting_key, 'no');
-
-		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option));
-	}*/
 
 	function preg_email_concat($matches)
 	{
@@ -1232,7 +1213,7 @@ class mf_form
 
 			foreach($result as $r)
 			{
-				if($data['form_type_id'] != $r->formTypeID && in_array($r->formTypeCode, array('radio_button'))) //'checkbox', 1, 8
+				if($data['form_type_id'] != $r->formTypeID && in_array($r->formTypeCode, array('radio_button')))
 				{
 					//Don't let new fields be old style radio button
 				}
@@ -1986,6 +1967,7 @@ class mf_form
 							$this->type_action_show = $r->formTypeActionShow;
 
 							switch($this->type_id)
+							//switch($this->type_code)
 							{
 								case 2:
 								//case 'range':
@@ -4106,7 +4088,7 @@ class mf_form
 
 		$out = "";
 
-		list($result, $rows) = $this->get_form_type_info(array('query_type_code' => array('text', 'radio_button', 'radio_multiple'))); //, 'select'
+		list($result, $rows) = $this->get_form_type_info(array('query_type_code' => array('text', 'radio_button', 'radio_multiple')));
 
 		foreach($result as $r)
 		{
@@ -4990,6 +4972,7 @@ if(class_exists('mf_export'))
 			foreach($result as $r)
 			{
 				switch($r->formTypeID)
+				//switch($r->formTypeCode)
 				{
 					case 10:
 					case 11:
@@ -6583,6 +6566,8 @@ class mf_form_output
 			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='".$row_class."'>"
 				.$this->output;
 
+				$out .= "<i class='fa fa-eye-slash field_hidden_by_rule' title='".__("The field is hidden by a rule in the form", 'lang_form')."'></i>";
+
 				if($this->row->formTypeID != 14)
 				//if($this->row->formTypeCode != 'custom_tag_end')
 				{
@@ -6604,12 +6589,12 @@ class mf_form_output
 
 				if($this->row->formTypeDisplay == 0)
 				{
-					$out .= "<i class='fa fa-eye-slash'></i>";
+					$out .= "<i class='fa fa-eye-slash field_hidden_by_creator' title='".__("The field is hidden by the creator of the form", 'lang_form')."'></i>";
 				}
 
 				if($this->row->formTypeConnectTo > 0)
 				{
-					$out .= "<i class='fas fa-link'></i>";
+					$out .= "<i class='fas fa-link field_connected_to'></i>";
 				}
 
 			$out .= "</mf-form-row>";

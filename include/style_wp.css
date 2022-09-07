@@ -204,16 +204,26 @@
 				text-decoration: none;
 			}
 
-		mf-form-row > i
+		mf-form-row > .field_hidden_by_rule, mf-form-row > .field_hidden_by_creator, mf-form-row > .field_connected_to
 		{
 			font-size: 5em;
 			left: 50%;
 			opacity: .1;
-			pointer-events: none;
+			/*pointer-events: none;*/
 			position: absolute;
 			top: 50%;
 			transform: translate(-50%, -50%);
 		}
+
+			mf-form-row > .field_hidden_by_rule
+			{
+				display: none;
+			}
+
+				mf-form-row > .hide + .field_hidden_by_rule
+				{
+					display: block;
+				}
 
 		.show_range input
 		{
