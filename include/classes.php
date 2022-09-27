@@ -1413,6 +1413,7 @@ class mf_form
 				$this->email_notify_page = check_var('intFormEmailNotifyPage');
 				$this->email_name = check_var('strFormEmailName');
 				$this->mandatory_text = check_var('strFormMandatoryText');
+				$this->button_display = check_var('intFormButtonDisplay');
 				$this->button_text = check_var('strFormButtonText');
 				$this->button_symbol = check_var('strFormButtonSymbol');
 
@@ -1504,7 +1505,7 @@ class mf_form
 			$intFormID = $r->formID;
 			//$strFormName = $r->formName;
 
-			$copy_fields = ", blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback";
+			$copy_fields = ", blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonDisplay, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback";
 
 			$strFormName = $this->get_form_name($intFormID);
 
@@ -1635,7 +1636,7 @@ class mf_form
 
 							$this->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $this->deadline));
 
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonDisplay = '%d', formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_display, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
 
 							do_action('update_form_fields', $this);
 
@@ -1896,7 +1897,7 @@ class mf_form
 						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $this->id));
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonDisplay, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 					if($wpdb->num_rows > 0)
 					{
@@ -1921,6 +1922,7 @@ class mf_form
 							$this->email_notify_page = $r->formEmailNotifyPage;
 							$this->email_name = $r->formEmailName;
 							$this->mandatory_text = $r->formMandatoryText;
+							$this->button_display = $r->formButtonDisplay;
 							$this->button_text = $r->formButtonText;
 							$this->button_symbol = $r->formButtonSymbol;
 							$this->payment_provider = $r->formPaymentProvider;
@@ -4211,14 +4213,15 @@ class mf_form
 			$obj_font_icons = new mf_font_icons();
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formAcceptDuplicates, formShowAnswers, formAnswerURL, formButtonText, formButtonSymbol, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND blogID = '%d' AND formDeleted = '0'", $this->id, $wpdb->blogid));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formAcceptDuplicates, formShowAnswers, formAnswerURL, formButtonDisplay, formButtonText, formButtonSymbol, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND blogID = '%d' AND formDeleted = '0'", $this->id, $wpdb->blogid));
 
 		foreach($result as $r)
 		{
 			$this->accept_duplicates = $r->formAcceptDuplicates;
 			$intFormShowAnswers = $r->formShowAnswers;
 			$strFormAnswerURL = $r->formAnswerURL;
-			$strFormButtonText = $r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form');
+			$intFormButtonDisplay = $r->formButtonDisplay;
+			$strFormButtonText = ($r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form'));
 			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag(array('symbol' => $r->formButtonSymbol));
 			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
 
@@ -4335,33 +4338,37 @@ class mf_form
 								$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
 							}
 
-							$out .= apply_filters('filter_form_after_fields', '')
-							."<div class='form_button'>"
-								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => $strFormButtonSymbol.$strFormButtonText))
-								.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
+							$out .= apply_filters('filter_form_after_fields', '');
 
-								if($this->check_if_has_payment() && (IS_ADMIN || isset($_GET['make_test_payment'])))
-								{
-									$out .= show_checkbox(array('name' => $this->prefix.'test_payment', 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
-									.apply_filters('filter_form_test_payment', '');
-								}
+							if($intFormButtonDisplay != 0)
+							{
+								$out .= "<div class='form_button'>"
+									.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => $strFormButtonSymbol.$strFormButtonText))
+									.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
-								if(isset($this->send_to) && $this->send_to != '')
-								{
-									$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $this->send_to)));
-								}
-
-								$out .= input_hidden(array('name' => 'intFormID', 'value' => $this->id));
-
-								if(isset($this->form_atts) && is_array($this->form_atts))
-								{
-									foreach($this->form_atts as $key => $value)
+									if($this->check_if_has_payment() && (IS_ADMIN || isset($_GET['make_test_payment'])))
 									{
-										$out .= input_hidden(array('name' => $key, 'value' => $value));
+										$out .= show_checkbox(array('name' => $this->prefix.'test_payment', 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
+										.apply_filters('filter_form_test_payment', '');
 									}
-								}
 
-							$out .= "</div>";
+									if(isset($this->send_to) && $this->send_to != '')
+									{
+										$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $this->send_to)));
+									}
+
+									$out .= input_hidden(array('name' => 'intFormID', 'value' => $this->id));
+
+									if(isset($this->form_atts) && is_array($this->form_atts))
+									{
+										foreach($this->form_atts as $key => $value)
+										{
+											$out .= input_hidden(array('name' => $key, 'value' => $value));
+										}
+									}
+
+								$out .= "</div>";
+							}
 						}
 
 					$out .= "</form>";

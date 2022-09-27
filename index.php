@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.0.8.18
+Version: 1.0.8.19
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -116,6 +116,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',
 			formShowAnswers ENUM('0', '1') NOT NULL DEFAULT '0',
 			formMandatoryText VARCHAR(100) DEFAULT NULL,
+			formButtonDisplay ENUM('0', '1') NOT NULL DEFAULT '1',
 			formButtonText VARCHAR(100) DEFAULT NULL,
 			formButtonSymbol VARCHAR(20) DEFAULT NULL,
 			formPaymentProvider INT DEFAULT NULL,
@@ -154,6 +155,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			//'formEmailNotifyFromEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailNotifyFromEmail",
 			//'formEmailConfirmFromEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailConfirm",
 			//'formEmailConfirmFromEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailConfirmFromEmail",
+			'formButtonDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER formMandatoryText", //220927
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form"] = array(

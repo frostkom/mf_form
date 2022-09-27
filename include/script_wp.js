@@ -280,7 +280,9 @@ jQuery(function($)
 		});
 	}
 
-	var dom_email_notify = $("#intFormEmailNotify"),
+	var dom_button_display = $("#intFormButtonDisplay"),
+		dom_button_display_div = $(".button_display_div"),
+		dom_email_notify = $("#intFormEmailNotify"),
 		dom_email_notify_from = $("#strFormEmailNotifyFrom").parent(".form_select"),
 		dom_email_notify_div = $(".email_notify_div"),
 		dom_email_notify_from_email = $("#strFormEmailNotifyFromEmail").parent(".form_textfield"),
@@ -296,8 +298,18 @@ jQuery(function($)
 		/*dom_form_from_name_parent = $("#strFormFromName").parent(".form_textfield"),*/
 		dom_form_email_conditions_parent = $("#strFormEmailConditions").parent(".form_textarea");
 
-	function toggle_email_settings()
+	function toggle_settings()
 	{
+		if(dom_button_display.is(":checked"))
+		{
+			dom_button_display_div.removeClass('hide');
+		}
+
+		else
+		{
+			dom_button_display_div.addClass('hide');
+		}
+
 		var display_dom_form_email = false;
 
 		if(dom_email_confirm.is(":checked"))
@@ -355,16 +367,16 @@ jQuery(function($)
 		}
 	}
 
-	toggle_email_settings();
+	toggle_settings();
 
-	$(document).on('click', "#intFormEmailConfirm, #intFormEmailNotify", function()
+	$(document).on('click', "#intFormButtonDisplay, #intFormEmailConfirm, #intFormEmailNotify", function()
 	{
-		toggle_email_settings();
+		toggle_settings();
 	});
 
 	$(document).on('change', "#strFormEmailNotifyFrom", function()
 	{
-		toggle_email_settings();
+		toggle_settings();
 	});
 
 	var dom_form_email_conditions = $("#strFormEmailConditions");
