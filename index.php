@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.0.8.17
+Version: 1.0.8.18
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -110,6 +110,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formEmailNotifyPage INT UNSIGNED NOT NULL DEFAULT '0',
 			formEmailName VARCHAR(100) DEFAULT NULL,
 			formEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
+			formEmailConfirmID INT UNSIGNED DEFAULT NULL,
 			formEmailConfirmFromEmail VARCHAR(100) DEFAULT NULL,
 			formEmailConfirmFromEmailName VARCHAR(100) DEFAULT NULL,
 			formEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',
@@ -147,7 +148,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			//'formEmailConditions' => "ALTER TABLE [table] ADD [column] TEXT DEFAULT NULL AFTER formEmail",
 			//'formFromName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmail",
 			//'formAcceptDuplicates' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER formName",
-			//'formEmailConfirmID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formEmailConfirm",
+			'formEmailConfirmID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT NULL AFTER formEmailConfirm",
 			//'formEmailNotifyFrom' => "ALTER TABLE [table] ADD [column] ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin' AFTER formEmailNotify",
 			//'formEmailNotifyFromEmail' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailNotifyFrom",
 			//'formEmailNotifyFromEmailName' => "ALTER TABLE [table] ADD [column] VARCHAR(100) DEFAULT NULL AFTER formEmailNotifyFromEmail",
