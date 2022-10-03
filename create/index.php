@@ -352,6 +352,30 @@ if($obj_form->check_allow_edit())
 										}
 
 										echo show_textfield(array('text' => __("Shortcode", 'lang_form'), 'value' => $shortcode, 'xtra_class' => "display_on_hover", 'xtra' => "readonly onclick='this.select()'"));
+
+										if($obj_form->id > 0)
+										{
+											$result = $wpdb->get_results($wpdb->prepare("SELECT formCreated, userID, postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
+
+											foreach($result as $r)
+											{
+												$dteFormCreated = $r->formCreated;
+												$intUserID = $r->userID;
+												$intPostID = $r->postID;
+
+												echo "<br><em>".sprintf(__("Created %s by %s", 'lang_form'), format_date($dteFormCreated), get_user_info(array('id' => $intUserID)))."</em>";
+
+												$result = $wpdb->get_results($wpdb->prepare("SELECT post_modified, post_author FROM ".$wpdb->posts." WHERE ID = '%d' AND post_modified > %s", $intPostID, $dteFormCreated));
+
+												foreach($result as $r)
+												{
+													$post_modified = $r->post_modified;
+													$post_author = $r->post_author;
+
+													echo "<br><em>".sprintf(__("Updated %s by %s", 'lang_form'), format_date($post_modified), get_user_info(array('id' => $post_author)))."</em>";
+												}
+											}
+										}
 									}
 
 								echo "</div>

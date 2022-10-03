@@ -311,13 +311,13 @@
 		.flot_wrapper > div
 		{
 			float: left;
-			width: 400px;
+			width: 500px;
 		}
 
 			.flot_pie
 			{
 				float: left;
-				height: 300px;
+				height: 350px;
 				margin-bottom: 20px;
 				width: 100%;
 			}

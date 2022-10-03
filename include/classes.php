@@ -1627,9 +1627,10 @@ class mf_form
 						{
 							$post_data = array(
 								'ID' => $this->post_id,
-								'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
+								'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
 								'post_title' => $this->name,
 								'post_name' => $this->url,
+								'post_author' => get_current_user_id(),
 							);
 
 							wp_update_post($post_data);
@@ -1656,7 +1657,7 @@ class mf_form
 							{
 								$post_data = array(
 									'post_type' => $this->post_type,
-									'post_status' => isset($_POST['btnFormPublish']) ? 'publish' : 'draft',
+									'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
 									'post_title' => $this->name,
 								);
 
@@ -4429,55 +4430,31 @@ class mf_form
 
 		if(!isset($_GET['answerSpam']) || $_GET['answerSpam'] == 0)
 		{
-			list($resultPie, $rowsPie) = $this->get_form_type_info(array('query_type_code' => array('checkbox', 'radio_button', 'select', 'radio_multiple')));
+			list($result, $rows) = $this->get_form_type_info(array('query_type_code' => array('checkbox', 'radio_button', 'select', 'radio_multiple')));
 
-			if($rowsPie > 0)
+			if($rows > 0)
 			{
 				mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js", '0.7'); //Should be placed in admin_init
 				mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js", '1.1');
 
-				$js_out = $order_temp = "";
+				$js_out = "";
 				$arr_data_pie = array();
 
 				$i = 0;
 
-				foreach($resultPie as $r)
+				foreach($result as $r)
 				{
 					$intForm2TypeID = $r->form2TypeID;
 					$intFormTypeID = $r->formTypeID;
 					$strFormTypeCode = $r->formTypeCode;
 					$strFormTypeText = $r->formTypeText;
-					$strForm2TypeOrder = $r->form2TypeOrder;
 
-					switch($strFormTypeCode)
+					if(!isset($arr_data_pie[$intForm2TypeID]))
 					{
-						case 'checkbox':
-							if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
-							{
-								$i++;
-							}
-						break;
-
-						case 'radio_button':
-							if($order_temp != '' && $strForm2TypeOrder != ($order_temp + 1))
-							{
-								$i++;
-							}
-						break;
-
-						case 'select':
-							$i++;
-						break;
-					}
-
-					if(!isset($arr_data_pie[$i]))
-					{
-						$arr_data_pie[$i] = array(
+						$arr_data_pie[$intForm2TypeID] = array(
 							'data' => '',
 						);
 					}
-
-					$order_temp = $strForm2TypeOrder;
 
 					switch($strFormTypeCode)
 					{
@@ -4485,22 +4462,22 @@ class mf_form
 						case 'radio_button':
 							$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d' AND answerSpam = '0' AND formTypeID = '%d' AND form2TypeID = '%d'", $this->id, $intFormTypeID, $intForm2TypeID));
 
-							$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
+							$arr_data_pie[$intForm2TypeID]['data'] .= ($arr_data_pie[$intForm2TypeID]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $strFormTypeText, 'limit' => 20))."', data: ".$intAnswerCount."}";
 						break;
 
 						case 'select':
 						case 'radio_multiple':
 							if($this->form_option_exists)
 							{
-								$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
+								$result_options = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
 
-								foreach($result as $r)
+								foreach($result_options as $r)
 								{
 									$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $r->formOptionID));
 
 									if($intAnswerCount > 0)
 									{
-										$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $r->formOptionValue, 'limit' => 20))."', data: ".$intAnswerCount."}";
+										$arr_data_pie[$intForm2TypeID]['data'] .= ($arr_data_pie[$intForm2TypeID]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $r->formOptionValue, 'limit' => 20))."', data: ".$intAnswerCount."}";
 									}
 								}
 							}
@@ -4520,7 +4497,7 @@ class mf_form
 
 										if($intAnswerCount > 0)
 										{
-											$arr_data_pie[$i]['data'] .= ($arr_data_pie[$i]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_option[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
+											$arr_data_pie[$intForm2TypeID]['data'] .= ($arr_data_pie[$intForm2TypeID]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_option[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
 										}
 									}
 								}
@@ -4528,7 +4505,7 @@ class mf_form
 						break;
 					}
 
-					$arr_data_pie[$i]['label'] = $strFormTypeText;
+					$arr_data_pie[$intForm2TypeID]['label'] = $strFormTypeText;
 				}
 
 				$out .= "<div class='flot_wrapper'>";
@@ -5211,12 +5188,14 @@ if(class_exists('mf_list_table'))
 				'answers' => __("Answers", 'lang_form'),
 				'spam' => __("Spam", 'lang_form'),
 				'answerCreated' => __("Latest Answer", 'lang_form'),
+				'post_date' => __("Created", 'lang_form'),
 				'post_modified' => __("Modified", 'lang_form'),
 			));
 
 			$this->set_sortable_columns(array(
 				'post_title',
 				'answerCreated',
+				'post_date',
 				'post_modified',
 			));
 		}
@@ -5496,8 +5475,28 @@ if(class_exists('mf_list_table'))
 					}
 				break;
 
+				case 'post_date':
+					$actions = array();
+
+					if($item['userID'] > 0)
+					{
+						$actions['user'] = get_user_info(array('id' => $item['userID']));
+					}
+
+					$out .= format_date($item['post_date'])
+					.$this->row_actions($actions);
+				break;
+
 				case 'post_modified':
-					$out .= format_date($item['post_modified']);
+					$actions = array();
+
+					if($item['post_author'] > 0 && $item['post_author'] != $item['userID'])
+					{
+						$actions['user'] = get_user_info(array('id' => $item['post_author']));
+					}
+
+					$out .= format_date($item['post_modified'])
+					.$this->row_actions($actions);
 				break;
 
 				default:
