@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.0.8.22
+Version: 1.0.8.23
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -18,8 +18,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 {
 	include_once("include/classes.php");
 	include_once("include/functions.php");
-
-	load_plugin_textdomain('lang_form', false, dirname(plugin_basename(__FILE__))."/lang/");
 
 	$obj_form = new mf_form();
 
@@ -55,6 +53,8 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_filter('get_shortcode_output', array($obj_form, 'get_shortcode_output'));
 		add_filter('get_shortcode_list', array($obj_form, 'get_shortcode_list'));
 
+		add_filter('filter_cookie_types', array($obj_form, 'filter_cookie_types'));
+
 		//add_filter('get_user_reminders', array($obj_form, 'get_user_reminders'), 10, 1);
 	}
 
@@ -78,6 +78,8 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	add_filter('single_template', 'custom_templates_form');
 
 	add_action('phpmailer_init', array($obj_form, 'phpmailer_init'), 0);
+
+	load_plugin_textdomain('lang_form', false, dirname(plugin_basename(__FILE__))."/lang/");
 
 	function activate_form()
 	{
@@ -243,7 +245,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2answer (
 			answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			formID INT UNSIGNED NOT NULL,
-			answerIP VARCHAR(15) DEFAULT NULL,
+			answerIP VARCHAR(32) DEFAULT NULL,
 			answerSpam ENUM('0', '1') NOT NULL DEFAULT '0',
 			spamID SMALLINT NOT NULL DEFAULT '0',
 			answerToken VARCHAR(100) DEFAULT NULL,
@@ -255,6 +257,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$arr_add_column[$wpdb->base_prefix."form2answer"] = array(
 			//'spamID' => "ALTER TABLE [table] ADD [column] SMALLINT NOT NULL DEFAULT '0' AFTER answerSpam",
+		);
+
+		$arr_update_column[$wpdb->base_prefix."form2answer"] = array(
+			'answerIP' => "ALTER TABLE [table] CHANGE [column] answerIP VARCHAR(32) DEFAULT NULL", //221007
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer (
@@ -548,7 +554,9 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	function uninstall_form()
 	{
-		global $obj_form;
+		include_once("include/classes.php");
+
+		$obj_form = new mf_form();
 
 		mf_uninstall_plugin(array(
 			'uploads' => $obj_form->post_type,

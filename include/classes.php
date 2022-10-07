@@ -865,6 +865,41 @@ class mf_form
 		return array($post_id, $content_list);
 	}
 
+	function filter_cookie_types($array)
+	{
+		global $wpdb;
+
+		$form_id_with_ip = 0;
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' AND formSaveIP = %s AND formDeleted = '0' LIMIT 0, 1", $wpdb->blogid, 'yes'));
+
+		foreach($result as $r)
+		{
+			$form_id_with_ip = $r->formID;
+		}
+
+		if($form_id_with_ip == 0)
+		{
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' AND formSaveIP = %s AND formDeleted = '0'", $wpdb->blogid, 'no'));
+
+			foreach($result as $r)
+			{
+				if($this->is_poll(array('id' => $r->formID)))
+				{
+					$form_id_with_ip = $r->formID;
+					break;
+				}
+			}
+		}
+
+		if($form_id_with_ip > 0)
+		{
+			$array['ip']['form_save_ip'] = array('label' => sprintf(__("The form %s collects IP address", 'lang_form'), "<em>".$this->get_form_name($form_id_with_ip)."</em>"), 'used' => false, 'lifetime' => "1 year");
+		}
+
+		return $array;
+	}
+
 	function delete_answer($answer_id)
 	{
 		global $wpdb;
@@ -2330,18 +2365,20 @@ class mf_form
 	{
 		global $wpdb;
 
+		if(!isset($data['id'])){	$data['id'] = $this->id;}
+
 		if(!isset($this->accept_duplicates))
 		{
-			$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $this->id));
+			$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $data['id']));
 		}
 
-		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('1', '8', '10', '11', '16', '17') LIMIT 0, 1", $this->id));
+		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('1', '8', '10', '11', '16', '17') LIMIT 0, 1", $data['id']));
 		$rows_poll_fields = $wpdb->num_rows;
 
-		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('2', '3', '4', '7', '9', '12', '15') LIMIT 0, 1", $this->id));
+		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('2', '3', '4', '7', '9', '12', '15') LIMIT 0, 1", $data['id']));
 		$rows_input_fields = $wpdb->num_rows;
 
-		return $this->accept_duplicates == 'no' || ($rows_poll_fields > 0 && $rows_input_fields == 0);
+		return ($this->accept_duplicates == 'no' || ($rows_poll_fields > 0 && $rows_input_fields == 0));
 	}
 
 	function is_duplicate()
@@ -2350,7 +2387,7 @@ class mf_form
 
 		if($this->is_poll())
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerIP = %s LIMIT 0, 1", $this->id, get_current_visitor_ip()));
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND (answerIP = %s OR answerIP = %s) LIMIT 0, 1", $this->id, get_current_visitor_ip(), md5(AUTH_SALT.get_current_visitor_ip())));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -2509,7 +2546,9 @@ class mf_form
 			$this->id = $id;
 		}
 
-		return $this->get_post_info(array('select' => 'post_title'));
+		$form_name = $this->get_post_info(array('select' => 'post_title'));
+
+		return ($form_name != '' ? $form_name: __("Unknown", 'lang_form')." (#".$id.")");
 	}
 
 	function get_form_id($id)
@@ -4027,7 +4066,25 @@ class mf_form
 				}
 			}
 
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, ($this->allow_save_ip() == 'yes' ? get_current_visitor_ip() : ''), $this->is_spam, $this->is_spam_id));
+			if($this->allow_save_ip() == 'yes')
+			{
+				if(apply_filters('get_allow_cookies', true) == true)
+				{
+					$current_visitor_ip = get_current_visitor_ip();
+				}
+
+				else
+				{
+					$current_visitor_ip = md5(AUTH_SALT.get_current_visitor_ip());
+				}
+			}
+
+			else
+			{
+				$current_visitor_ip = '';
+			}
+
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, $current_visitor_ip, $this->is_spam, $this->is_spam_id));
 			$this->answer_id = $wpdb->insert_id;
 
 			$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
