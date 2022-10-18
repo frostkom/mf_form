@@ -9,7 +9,28 @@ if($obj_form->id > 0)
 	$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
 
 	echo "<div class='wrap'>
-		<h2>".__("Answers", 'lang_form')." (".$strFormName.")</h2>"
+		<h2>"
+			.__("Answers", 'lang_form')." <span>".$strFormName."</span>";
+
+			$export_url = "admin.php?page=mf_form/answer/index.php&btnFormAnswerExport&btnExportRun&intExportType=".$obj_form->id; //&intFormID=".$obj_form->id."
+
+			$search = check_var('s');
+
+			if($search != '')
+			{
+				$export_url .= "&s=".$search;
+			}
+
+			$export_url .= "&strExportFormat=";
+
+			echo "<a href='".wp_nonce_url(admin_url($export_url."csv"), 'export_run', '_wpnonce_export_run')."' class='add-new-h2'>".sprintf(__("Export as %s", 'lang_form'), "CSV")."</a>";
+
+			if(is_plugin_active("mf_phpexcel/index.php"))
+			{
+				echo "<a href='".wp_nonce_url(admin_url($export_url."xls"), 'export_run', '_wpnonce_export_run')."' class='add-new-h2'>XLS</a>";
+			}
+
+		echo "</h2>"
 		.get_notification();
 
 		$tbl_group = new mf_answer_table();

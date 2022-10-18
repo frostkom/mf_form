@@ -531,7 +531,7 @@ class mf_form
 			}
 		}
 
-		else if(!($data['form_id'] > 0)) // && IS_SUPER_ADMIN
+		else if(!($data['form_id'] > 0))
 		{
 			$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) ORDER BY answerCreated DESC LIMIT 0, 2");
 
@@ -5081,6 +5081,8 @@ if(class_exists('mf_export'))
 			$obj_form->id = $this->type;
 			$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
+			$search = check_var('s');
+
 			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, formTypeText FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeCode NOT IN('text', 'space', 'custom_tag', 'custom_tag_end') ORDER BY form2TypeOrder ASC", $this->type)); // AND formTypeResult = '1'
 
 			$this_row = array();
@@ -5118,7 +5120,28 @@ if(class_exists('mf_export'))
 
 			$this->data[] = $this_row;
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, formID, answerCreated FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam = '0' GROUP BY answerID ORDER BY answerCreated DESC", $this->type));
+			$query_join = " INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID)";
+			$query_where = "";
+
+			// (Almost) Same as in mf_answer_table()
+			if($search != '')
+			{
+				$query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
+				$query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_option ON ".$wpdb->base_prefix."form_answer.answerText = ".$wpdb->base_prefix."form_option.formOptionID";
+
+				$query_where .= " AND (answerText LIKE '%".$search."%' OR answerEmail LIKE '%".$search."%' OR answerCreated LIKE '%".$search."%'";
+					$query_where .= " OR formOptionValue LIKE '%".$search."%'";
+
+					if(preg_match('/[a-zA-Z]/', $search))
+					{
+						$query_where .= " OR SOUNDEX(answerText) = SOUNDEX('".$search."') OR SOUNDEX(answerEmail) = SOUNDEX('".$search."')";
+						$query_where .= " OR SOUNDEX(formOptionValue) = SOUNDEX('".$search."')";
+					}
+
+				$query_where .= ")";	
+			}
+			
+			$result = $wpdb->get_results("SELECT answerID, formID, answerCreated FROM ".$wpdb->base_prefix."form2answer".$query_join." WHERE formID = '".esc_sql($this->type)."' AND answerSpam = '0'".$query_where." GROUP BY answerID ORDER BY answerCreated DESC");
 
 			foreach($result as $r)
 			{
@@ -5591,6 +5614,7 @@ if(class_exists('mf_list_table'))
 
 			$this->query_where .= ($this->query_where != '' ? " AND " : "")."formID = '".$obj_form->id."'";
 
+			// Same as in mf_form_answer_export()
 			if($this->search != '')
 			{
 				$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
