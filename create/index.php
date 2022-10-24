@@ -14,7 +14,7 @@ if($obj_form->check_allow_edit())
 	$form_status = $obj_form->get_form_status();
 
 	echo "<div class='wrap'>
-		<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." (".$obj_form->name.")" : __("Add New", 'lang_form'))."</h2>"
+		<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." <span>".$obj_form->name."</span>" : __("Add New", 'lang_form'))."</h2>"
 		.get_notification()
 		."<div id='poststuff'>";
 
@@ -393,11 +393,11 @@ if($obj_form->check_allow_edit())
 										.show_textfield(array('name' => 'strFormMandatoryText', 'text' => __("Text when mandatory fields have not been entered", 'lang_form'), 'value' => $obj_form->mandatory_text, 'placeholder' => __("Please, enter all required fields", 'lang_form'), 'maxlength' => 100))
 										.show_textfield(array('type' => 'date', 'name' => 'dteFormDeadline', 'text' => __("Deadline", 'lang_form'), 'value' => $obj_form->deadline, 'xtra' => "min='".date("Y-m-d", strtotime("+1 day"))."'"))
 										."<div class='flex_flow'>"
-											.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormAcceptDuplicates', 'value' => $obj_form->accept_duplicates, 'text' => __("Accept Duplicates", 'lang_form')));
+											.show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormAcceptDuplicates', 'value' => $obj_form->accept_duplicates, 'text' => __("Accept Duplicates", 'lang_form'), 'class' => "nowrap"));
 
 											if($obj_form->is_poll())
 											{
-												echo show_select(array('data' => get_yes_no_for_select(array('return_integer' => true)), 'name' => 'intFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => $obj_form->show_answers));
+												echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => $obj_form->show_answers)); //array('return_integer' => true)
 											}
 
 											echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $obj_form->save_ip, 'text' => __("Save IP", 'lang_form')))

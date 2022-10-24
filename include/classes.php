@@ -66,6 +66,11 @@ class mf_form
 
 		if($obj_cron->is_running == false)
 		{
+			// Delete old nonces
+			$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_nonce WHERE nonceCreated < DATE_SUB(NOW(), INTERVAL 10 HOUR)");
+
+			// Delete old spam answers
+			##############################
 			$setting_form_clear_spam = get_option_or_default('setting_form_clear_spam', 6);
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' AND answerCreated < DATE_SUB(NOW(), INTERVAL %d MONTH)", $setting_form_clear_spam));
@@ -80,6 +85,7 @@ class mf_form
 					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $intAnswerID));
 				}
 			}
+			##############################
 		}
 
 		$obj_cron->end();
@@ -1434,7 +1440,7 @@ class mf_form
 				$this->email_confirm_from_email_name = check_var('strFormEmailConfirmFromEmailName');
 				$this->email_confirm_id = check_var('intFormEmailConfirmID');
 				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
-				$this->show_answers = check_var('intFormShowAnswers');
+				$this->show_answers = check_var('strFormShowAnswers');
 				$this->accept_duplicates = check_var('strFormAcceptDuplicates', 'char', true, 'yes');
 				$this->save_ip = check_var('strFormSaveIP');
 				$this->answer_url = check_var('strFormAnswerURL');
@@ -1672,7 +1678,7 @@ class mf_form
 
 							$this->meta(array('action' => 'update', 'key' => 'deadline', 'value' => $this->deadline));
 
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formShowAnswers = '%d', formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonDisplay = '%d', formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_display, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formShowAnswers = %s, formName = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonDisplay = '%d', formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->show_answers, $this->name, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_display, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
 
 							do_action('update_form_fields', $this);
 
@@ -2367,10 +2373,10 @@ class mf_form
 
 		if(!isset($data['id'])){	$data['id'] = $this->id;}
 
-		if(!isset($this->accept_duplicates))
+		/*if(!isset($this->accept_duplicates))
 		{
 			$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $data['id']));
-		}
+		}*/
 
 		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('1', '8', '10', '11', '16', '17') LIMIT 0, 1", $data['id']));
 		$rows_poll_fields = $wpdb->num_rows;
@@ -2378,16 +2384,22 @@ class mf_form
 		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('2', '3', '4', '7', '9', '12', '15') LIMIT 0, 1", $data['id']));
 		$rows_input_fields = $wpdb->num_rows;
 
-		return ($this->accept_duplicates == 'no' || ($rows_poll_fields > 0 && $rows_input_fields == 0));
+		//return ($this->accept_duplicates == 'no' || ($rows_poll_fields > 0 && $rows_input_fields == 0));
+		return ($rows_poll_fields > 0 && $rows_input_fields == 0);
 	}
 
 	function is_duplicate()
 	{
 		global $wpdb;
 
-		if($this->is_poll())
+		if(!isset($this->accept_duplicates))
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND (answerIP = %s OR answerIP = %s) LIMIT 0, 1", $this->id, get_current_visitor_ip(), md5(AUTH_SALT.get_current_visitor_ip())));
+			$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $this->id));
+		}
+
+		if($this->accept_duplicates == 'no' || $this->is_poll())
+		{
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND (answerIP = %s OR answerIP = %s OR answerIP = %s) LIMIT 0, 1", $this->id, get_current_visitor_ip(), md5(get_current_visitor_ip()), md5((defined('AUTH_SALT') ? AUTH_SALT : "").get_current_visitor_ip())));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -4258,6 +4270,26 @@ class mf_form
 		return $out;
 	}
 
+	function create_nonce()
+	{
+		global $wpdb;
+
+		$nonce_key = md5((defined('AUTH_SALT') ? AUTH_SALT : "").get_current_visitor_ip().date("YmdHis"));
+
+		$wpdb->get_var($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_nonce SET nonceKey = %s, nonceCreated = NOW()", $nonce_key));
+
+		return $nonce_key;
+	}
+
+	function check_nonce($nonce_key)
+	{
+		global $wpdb;
+
+		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_nonce WHERE nonceKey = %s", $nonce_key));
+
+		return ($wpdb->rows_affected == 1);
+	}
+
 	function get_form($data = array())
 	{
 		global $wpdb, $wp_query, $done_text, $error_text, $obj_font_icons;
@@ -4276,7 +4308,7 @@ class mf_form
 		foreach($result as $r)
 		{
 			$this->accept_duplicates = $r->formAcceptDuplicates;
-			$intFormShowAnswers = $r->formShowAnswers;
+			$strFormShowAnswers = $r->formShowAnswers;
 			$strFormAnswerURL = $r->formAnswerURL;
 			$intFormButtonDisplay = $r->formButtonDisplay;
 			$strFormButtonText = ($r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form'));
@@ -4302,7 +4334,7 @@ class mf_form
 
 				$out .= "<div class='mf_form mf_form_results'>";
 
-					if($intFormShowAnswers == 1 && $data['total_answers'] > 0)
+					if($strFormShowAnswers == 'yes' && $data['total_answers'] > 0)
 					{
 						$out .= $this->get_poll_results($data);
 					}
@@ -4402,7 +4434,10 @@ class mf_form
 							{
 								$out .= "<div class='form_button'>"
 									.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => $strFormButtonSymbol.$strFormButtonText))
-									.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
+									.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"))
+									.input_hidden(array('name' => 'form_submit_'.$this->id, 'value' => $this->create_nonce()));
+
+									//$out .= wp_nonce_field('form_submit_'.$this->id, '_wpnonce_form_submit', true, false);
 
 									if($this->check_if_has_payment() && (IS_ADMIN || isset($_GET['make_test_payment'])))
 									{
@@ -4445,9 +4480,9 @@ class mf_form
 
 		if(!isset($data['form2type_id'])){	$data['form2type_id'] = 0;}
 
-		$this->edit_mode = isset($data['edit']) ? $data['edit'] : false;
-		$this->send_to = isset($data['send_to']) ? $data['send_to'] : "";
-		$this->answer_id = isset($data['answer_id']) ? $data['answer_id'] : "";
+		$this->edit_mode = (isset($data['edit']) ? $data['edit'] : false);
+		$this->send_to = (isset($data['send_to']) ? $data['send_to'] : "");
+		$this->answer_id = (isset($data['answer_id']) ? $data['answer_id'] : "");
 
 		if(isset($_GET['accept']) || isset($_GET['callback']) || isset($_GET['cancel']))
 		{
@@ -4464,7 +4499,7 @@ class mf_form
 		{
 			$this->prefix = $this->get_post_info()."_";
 
-			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data))
+			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data) && $this->check_nonce($_POST['form_submit_'.$this->id])) // && wp_verify_nonce($_POST['_wpnonce_form_submit'], 'form_submit_'.$this->id)
 			{
 				$out .= $this->process_submit();
 			}

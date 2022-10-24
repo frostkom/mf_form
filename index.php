@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.0.8.24
+Version: 1.1.0.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://frostkom.se
@@ -99,7 +99,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			blogID TINYINT UNSIGNED,
 			postID INT UNSIGNED NOT NULL DEFAULT '0',
 			formName VARCHAR(100) DEFAULT NULL,
-			formAcceptDuplicates ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
+			formAcceptDuplicates ENUM('no', 'yes') NOT NULL DEFAULT 'no',
 			formSaveIP ENUM('no', 'yes') NOT NULL DEFAULT 'no',
 			formAnswerURL VARCHAR(20) DEFAULT NULL,
 			formEmail VARCHAR(100) DEFAULT NULL,
@@ -116,7 +116,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formEmailConfirmFromEmail VARCHAR(100) DEFAULT NULL,
 			formEmailConfirmFromEmailName VARCHAR(100) DEFAULT NULL,
 			formEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',
-			formShowAnswers ENUM('0', '1') NOT NULL DEFAULT '0',
+			formShowAnswers ENUM('no', 'yes') NOT NULL DEFAULT 'no',
 			formMandatoryText VARCHAR(100) DEFAULT NULL,
 			formButtonDisplay ENUM('0', '1') NOT NULL DEFAULT '1',
 			formButtonText VARCHAR(100) DEFAULT NULL,
@@ -164,7 +164,19 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			//'formPaymentFunction' => "ALTER TABLE [table] CHANGE [column] formPaymentCallback VARCHAR(100) DEFAULT NULL",
 			//'formPaymentCost' => "ALTER TABLE [table] CHANGE [column] [column] DOUBLE UNSIGNED DEFAULT NULL",
 			//'formEmailNotifyFrom' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin'",
+			'formShowAnswers' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('no', 'yes', '1') NOT NULL DEFAULT 'no'", // 221024
 		);
+
+		$wpdb->query("UPDATE ".$wpdb->base_prefix."form SET formShowAnswers = 'yes' WHERE formShowAnswers = '1'");
+		$wpdb->query("UPDATE ".$wpdb->base_prefix."form SET formShowAnswers = 'no' WHERE (formShowAnswers = '0' OR formShowAnswers = '' OR formShowAnswers IS null)");
+
+		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_nonce (
+			nonceID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			nonceKey VARCHAR(32),
+			nonceCreated DATETIME DEFAULT NULL,
+			PRIMARY KEY (nonceID),
+			KEY nonceKey (nonceKey)
+		) DEFAULT CHARSET=".$default_charset);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (
 			checkID INT UNSIGNED NOT NULL AUTO_INCREMENT,
