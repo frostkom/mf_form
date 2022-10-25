@@ -4434,8 +4434,12 @@ class mf_form
 							{
 								$out .= "<div class='form_button'>"
 									.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => $strFormButtonSymbol.$strFormButtonText))
-									.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"))
-									.input_hidden(array('name' => 'form_submit_'.$this->id, 'value' => $this->create_nonce()));
+									.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
+
+									if(does_table_exist($wpdb->base_prefix."form_nonce"))
+									{
+										$out .= input_hidden(array('name' => 'form_submit_'.$this->id, 'value' => $this->create_nonce()));
+									}
 
 									//$out .= wp_nonce_field('form_submit_'.$this->id, '_wpnonce_form_submit', true, false);
 
@@ -4474,7 +4478,7 @@ class mf_form
 
 	function process_form($data = array())
 	{
-		global $error_text;
+		global $wpdb, $error_text;
 
 		$out = "";
 
@@ -4499,7 +4503,7 @@ class mf_form
 		{
 			$this->prefix = $this->get_post_info()."_";
 
-			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data) && $this->check_nonce($_POST['form_submit_'.$this->id])) // && wp_verify_nonce($_POST['_wpnonce_form_submit'], 'form_submit_'.$this->id)
+			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data) && (!does_table_exist($wpdb->base_prefix."form_nonce") || $this->check_nonce($_POST['form_submit_'.$this->id]))) // && wp_verify_nonce($_POST['_wpnonce_form_submit'], 'form_submit_'.$this->id)
 			{
 				$out .= $this->process_submit();
 			}
