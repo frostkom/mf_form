@@ -114,11 +114,11 @@ jQuery(function($)
 				break;
 
 				case '10': /* select */
-					$(".show_select, .show_actions, .show_fetch_from").removeClass('hide');
+					$(".show_select, .show_actions, .show_custom_class, .show_fetch_from").removeClass('hide');
 				break;
 
 				case '11': /* select_multiple */
-					$(".show_select, .show_actions, .show_fetch_from").removeClass('hide');
+					$(".show_select, .show_actions, .show_custom_class, .show_fetch_from").removeClass('hide');
 				break;
 
 				case '12': /* hidden_field */

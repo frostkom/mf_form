@@ -2399,7 +2399,7 @@ class mf_form
 
 		if($this->accept_duplicates == 'no' || $this->is_poll())
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND (answerIP = %s OR answerIP = %s OR answerIP = %s) LIMIT 0, 1", $this->id, get_current_visitor_ip(), md5(get_current_visitor_ip()), md5((defined('AUTH_SALT') ? AUTH_SALT : "").get_current_visitor_ip())));
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND (answerIP = %s OR answerIP = %s OR answerIP = %s) LIMIT 0, 1", $this->id, get_current_visitor_ip(), md5(get_current_visitor_ip()), md5((defined('NONCE_SALT') ? NONCE_SALT : '').get_current_visitor_ip())));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -4087,7 +4087,7 @@ class mf_form
 
 				else
 				{
-					$current_visitor_ip = md5(AUTH_SALT.get_current_visitor_ip());
+					$current_visitor_ip = md5((defined('NONCE_SALT') ? NONCE_SALT : '').get_current_visitor_ip());
 				}
 			}
 
@@ -4274,7 +4274,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		$nonce_key = md5((defined('AUTH_SALT') ? AUTH_SALT : "").get_current_visitor_ip().date("YmdHis"));
+		$nonce_key = md5((defined('NONCE_SALT') ? NONCE_SALT : '').get_current_visitor_ip().date("YmdHis"));
 
 		$wpdb->get_var($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_nonce SET nonceKey = %s, nonceCreated = NOW()", $nonce_key));
 
@@ -4503,7 +4503,7 @@ class mf_form
 		{
 			$this->prefix = $this->get_post_info()."_";
 
-			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data) && (!does_table_exist($wpdb->base_prefix."form_nonce") || $this->check_nonce($_POST['form_submit_'.$this->id]))) // && wp_verify_nonce($_POST['_wpnonce_form_submit'], 'form_submit_'.$this->id)
+			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data) && (!does_table_exist($wpdb->base_prefix."form_nonce") || (isset($_POST['form_submit_'.$this->id]) && $this->check_nonce($_POST['form_submit_'.$this->id])))) // && wp_verify_nonce($_POST['_wpnonce_form_submit'], 'form_submit_'.$this->id)
 			{
 				$out .= $this->process_submit();
 			}
