@@ -67,7 +67,10 @@ class mf_form
 		if($obj_cron->is_running == false)
 		{
 			// Delete old nonces
-			$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_nonce WHERE nonceCreated < DATE_SUB(NOW(), INTERVAL 10 HOUR)");
+			if(does_table_exist($wpdb->base_prefix."form_nonce"))
+			{
+				$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_nonce WHERE nonceCreated < DATE_SUB(NOW(), INTERVAL 10 HOUR)");
+			}
 
 			// Delete old spam answers
 			##############################
