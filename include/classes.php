@@ -6697,9 +6697,9 @@ class mf_form_output
 
 				$out .= "<i class='fa fa-eye-slash field_hidden_by_rule' title='".__("The field is hidden by a rule in the form", 'lang_form')."'></i>";
 
-				if($this->row->formTypeID != 14)
+				/*if($this->row->formTypeID != 14)
 				//if($this->row->formTypeCode != 'custom_tag_end')
-				{
+				{*/
 					$out .= "<div class='row_icons'>";
 
 						if($row_settings != '')
@@ -6714,7 +6714,7 @@ class mf_form_output
 					{
 						$out .= "<div class='row_settings'>".$row_settings."</div>";
 					}
-				}
+				//}
 
 				if($this->row->formTypeDisplay == 0)
 				{
