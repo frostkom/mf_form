@@ -516,7 +516,7 @@ class mf_form
 			." AND (blogID = '".$wpdb->blogid."' OR blogID IS null)"
 			." AND answerSpam = '0'";
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID)".$query_xtra, $last_viewed));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID)".$query_xtra, ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
 		$rows = $wpdb->num_rows;
 
 		if($rows > 0)
