@@ -6771,7 +6771,7 @@ class widget_form extends WP_Widget
 
 		if($instance['form_id'] > 0)
 		{
-			echo $before_widget;
+			echo apply_filters('filter_before_widget', $before_widget);
 
 				if($instance['form_heading'] != '')
 				{
