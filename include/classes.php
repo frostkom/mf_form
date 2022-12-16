@@ -5180,9 +5180,9 @@ if(class_exists('mf_export'))
 						$query_where .= " OR SOUNDEX(formOptionValue) = SOUNDEX('".$search."')";
 					}
 
-				$query_where .= ")";	
+				$query_where .= ")";
 			}
-			
+
 			$result = $wpdb->get_results("SELECT answerID, formID, answerCreated FROM ".$wpdb->base_prefix."form2answer".$query_join." WHERE formID = '".esc_sql($this->type)."' AND answerSpam = '0'".$query_where." GROUP BY answerID ORDER BY answerCreated DESC");
 
 			foreach($result as $r)
@@ -5336,7 +5336,15 @@ if(class_exists('mf_list_table'))
 			$post_id = $item['ID'];
 			$post_status = $item['post_status'];
 
-			$obj_form->get_form_id($post_id);
+			if(isset($item['formID']) && $item['formID'] > 0)
+			{
+				$obj_form->id = $item['formID'];
+			}
+
+			else
+			{
+				$obj_form->get_form_id($post_id);
+			}
 
 			switch($column_name)
 			{

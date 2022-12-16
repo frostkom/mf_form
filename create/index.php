@@ -289,15 +289,22 @@ if($obj_form->check_allow_edit())
 
 						$form_output = $obj_form->process_form(array('edit' => true, 'form2type_id' => $obj_form->form2type_id));
 
-						if($form_output != '')
-						{
-							echo "<div class='postbox'>
-								<h3 class='hndle'><span>".__("Overview", 'lang_form')."</span></h3>
-								<div class='inside'>"
-									.$form_output
-								."</div>
-							</div>";
-						}
+						echo "<div class='postbox'>
+							<h3 class='hndle'><span>".__("Overview", 'lang_form')."</span></h3>
+							<div class='inside'>";
+
+								if($form_output != '')
+								{
+									echo $form_output;
+								}
+
+								else
+								{
+									echo "<em>".__("There are no fields in this form so far. Add a few and they will display here.", 'lang_form')."</em>";
+								}
+
+							echo "</div>
+						</div>";
 
 					echo "</div>
 					<div id='postbox-container-1'>
