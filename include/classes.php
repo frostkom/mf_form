@@ -1032,7 +1032,7 @@ class mf_form
 
 		for($i = 0; $i < $count_temp; $i++)
 		{
-			if($arrFormTypeSelect_id[$i] > 0)
+			if(isset($arrFormTypeSelect_id[$i]) && $arrFormTypeSelect_id[$i] > 0)
 			{
 				$wpdb->get_results($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND formOptionID = '%d'", $intForm2TypeID, $arrFormTypeSelect_id[$i]));
 				$rows = $wpdb->num_rows;
@@ -3734,26 +3734,30 @@ class mf_form
 		$arr_data = array();
 
 		@list($str_label, $str_select) = explode(":", $data['string']);
-		$arr_options = explode(",", $str_select);
 
-		foreach($arr_options as $str_option)
+		if($str_select != '')
 		{
-			$arr_option = explode("|", $str_option);
+			$arr_options = explode(",", $str_select);
 
-			if($arr_option[0] == $data['value'])
+			foreach($arr_options as $str_option)
 			{
-				if(isset($arr_option[2]) && $arr_option[2] > 0)
+				$arr_option = explode("|", $str_option);
+
+				if($arr_option[0] == $data['value'])
 				{
-					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND form2TypeID = '%d' AND answerText = %s AND answerSpam = '0' GROUP BY answerID", $this->id, $data['form2TypeID'], $arr_option[0]));
-					$answer_rows = $wpdb->num_rows;
-
-					if($answer_rows >= $arr_option[2])
+					if(isset($arr_option[2]) && $arr_option[2] > 0)
 					{
-						$error_text = __("It is already full. Try with another alternative", 'lang_form');
-					}
-				}
+						$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE formID = '%d' AND form2TypeID = '%d' AND answerText = %s AND answerSpam = '0' GROUP BY answerID", $this->id, $data['form2TypeID'], $arr_option[0]));
+						$answer_rows = $wpdb->num_rows;
 
-				break;
+						if($answer_rows >= $arr_option[2])
+						{
+							$error_text = __("It is already full. Try with another alternative", 'lang_form');
+						}
+					}
+
+					break;
+				}
 			}
 		}
 	}
@@ -5900,8 +5904,11 @@ if(class_exists('mf_list_table'))
 					{
 						$strSentTo = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '0'", $intAnswerID));
 
-						$strSentTo = trim(trim($strSentTo), ', ');
-						$strSentTo = str_replace(", ", "<br>", $strSentTo);
+						if($strSentTo != '')
+						{
+							$strSentTo = trim(trim($strSentTo), ', ');
+							$strSentTo = str_replace(", ", "<br>", $strSentTo);
+						}
 
 						if($strSentTo != '' && strlen($strSentTo) > 4)
 						{
@@ -6810,11 +6817,18 @@ class widget_form extends WP_Widget
 
 	function form($instance)
 	{
+		global $obj_form;
+
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
 		$instance = wp_parse_args((array)$instance, $this->arr_default);
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
-			.show_select(array('data' => $this->obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'value' => $instance['form_id']))
+			.show_select(array('data' => $this->obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'text' => __("Form", 'lang_form'), 'value' => $instance['form_id'], 'suffix' => $obj_form->get_option_form_suffix(array('value' => $instance['form_id']))))
 		."</div>";
 	}
 }
