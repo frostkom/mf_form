@@ -26,7 +26,7 @@
 			width: 47%;
 		}
 
-			.mf_settings .form_textfield input, .mf_settings select, .mf_settings textarea, .mf_settings .form_password input
+			.mf_settings .mf_form_field
 			{
 				width: 100%;
 			}
