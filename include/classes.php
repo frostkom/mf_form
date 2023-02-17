@@ -5674,8 +5674,8 @@ if(class_exists('mf_list_table'))
 				$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
 				$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_option ON ".$wpdb->base_prefix."form_answer.answerText = ".$wpdb->base_prefix."form_option.formOptionID";
 
-				$this->query_where .= " AND (answerText LIKE '%".$this->search."%' OR answerEmail LIKE '%".$this->search."%' OR answerCreated LIKE '%".$this->search."%'";
-					$this->query_where .= " OR formOptionValue LIKE '%".$this->search."%'";
+				$this->query_where .= " AND (answerText LIKE '".$this->filter_search_before_like($this->search)."' OR answerEmail LIKE '".$this->filter_search_before_like($this->search)."' OR answerCreated LIKE '".$this->filter_search_before_like($this->search)."'";
+					$this->query_where .= " OR formOptionValue LIKE '".$this->filter_search_before_like($this->search)."'";
 
 					if(preg_match('/[a-zA-Z]/', $this->search))
 					{
