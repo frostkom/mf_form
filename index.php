@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.1.1
+Version: 1.1.1.2
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -284,6 +284,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$arr_add_column[$wpdb->base_prefix."form_answer_email"] = array(
 			//'' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER ",
+			'answerEmailFrom' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER answerID",
 		);
 
 		update_columns($arr_update_column);

@@ -1619,7 +1619,7 @@ class mf_form
 
 						$copy_fields = "answerIP, answerSpam, spamID, answerToken, answerCreated";
 
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option (formID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form_option WHERE answerID = '%d')", $intFormID_new, $intAnswerID));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer (formID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d')", $intFormID_new, $intAnswerID));
 
 						if($data['include_answers'] == true)
 						{
