@@ -468,7 +468,7 @@ jQuery(function($)
 		hide_form_overlay();
 	});
 
-	$(document).on('click', ".mf_form_submit button.button-primary", function()
+	$(document).on('click', ".mf_form_submit .button-primary", function()
 	{
 		var dom_obj = $(this);
 

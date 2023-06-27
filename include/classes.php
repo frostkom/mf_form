@@ -4311,7 +4311,7 @@ class mf_form
 
 		$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_nonce WHERE nonceKey = %s", $nonce_key));
 
-		return ($wpdb->rows_affected == 1);
+		return ($wpdb->rows_affected >= 1);
 	}
 
 	function get_form($data = array())
@@ -4527,10 +4527,15 @@ class mf_form
 		{
 			$this->prefix = $this->get_post_info()."_";
 
-			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data) && (!does_table_exist($wpdb->base_prefix."form_nonce") || (isset($_POST['form_submit_'.$this->id]) && $this->check_nonce($_POST['form_submit_'.$this->id])))) // && wp_verify_nonce($_POST['_wpnonce_form_submit'], 'form_submit_'.$this->id)
+			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data) && (!does_table_exist($wpdb->base_prefix."form_nonce") || (isset($_POST['form_submit_'.$this->id]) && $this->check_nonce($_POST['form_submit_'.$this->id]))))
 			{
 				$out .= $this->process_submit();
 			}
+
+			/*else if($_SERVER['REMOTE_ADDR'] == "")
+			{
+				$out .= "Form is not triggered (".$this->id.", ".isset($_POST[$this->prefix.'btnFormSubmit'])." && ".$this->is_correct_form($data)." && (!".does_table_exist($wpdb->base_prefix."form_nonce")." || (".isset($_POST['form_submit_'.$this->id])." && ".$this->check_nonce($_POST['form_submit_'.$this->id])."))".")";
+			}*/
 
 			$out .= $this->get_form($data);
 		}
