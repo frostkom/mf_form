@@ -42,6 +42,7 @@ if($obj_form->id > 0)
 
 		$tbl_group->select_data(array(
 			'select' => "answerID, answerCreated, answerIP, answerSpam, spamID, answerToken",
+			//'debug' => true,
 		));
 
 		$tbl_group->do_display();

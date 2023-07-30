@@ -72,6 +72,50 @@ class mf_form
 				$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_nonce WHERE nonceCreated < DATE_SUB(NOW(), INTERVAL 10 HOUR)");
 			}
 
+			// Look for empty answers
+			$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE ".$wpdb->base_prefix."form_answer.answerID IS null");
+			$last_query = $wpdb->last_query;
+			$num_rows = $wpdb->num_rows;
+
+			if($num_rows > 0)
+			{
+				$i = 0;
+
+				foreach($result as $r)
+				{
+					$has_data = false;
+
+					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $r->answerID));
+
+					if($wpdb->num_rows > 0)
+					{
+						$has_data = true;
+					}
+
+					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d'", $r->answerID));
+
+					if($wpdb->num_rows > 0)
+					{
+						$has_data = true;
+					}
+
+					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
+
+					if($wpdb->num_rows > 0)
+					{
+						$has_data = true;
+					}
+
+					if($has_data == false)
+					{
+						$i++;
+						//$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $r->answerID));
+					}
+				}
+
+				do_log("There are ".$num_rows." (".$i.") empty answers (".$last_query.")");
+			}
+
 			// Delete old spam answers
 			##############################
 			$setting_form_clear_spam = get_option_or_default('setting_form_clear_spam', 6);
@@ -2565,7 +2609,7 @@ class mf_form
 	function get_email_notify_from_for_select()
 	{
 		return array(
-			'admin' => __("Admin", 'lang_form'),
+			'admin' => __("Admin", 'lang_form')." (".get_bloginfo('admin_email').")",
 			'visitor' => __("Visitor", 'lang_form'),
 			'other' => __("Other", 'lang_form'),
 		);
@@ -5688,12 +5732,14 @@ if(class_exists('mf_list_table'))
 		{
 			global $wpdb, $obj_form;
 
+			$this->query_join .= " INNER JOIN ".$wpdb->base_prefix."form_answer USING (answerID)";
 			$this->query_where .= ($this->query_where != '' ? " AND " : "")."formID = '".$obj_form->id."'";
 
 			// Same as in mf_form_answer_export()
 			if($this->search != '')
 			{
-				$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
+				//$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID)";
+				$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID)";
 				$this->query_join .= " LEFT JOIN ".$wpdb->base_prefix."form_option ON ".$wpdb->base_prefix."form_answer.answerText = ".$wpdb->base_prefix."form_option.formOptionID";
 
 				$this->query_where .= " AND (answerText LIKE '".$this->filter_search_before_like($this->search)."' OR answerEmail LIKE '".$this->filter_search_before_like($this->search)."' OR answerCreated LIKE '".$this->filter_search_before_like($this->search)."'";
