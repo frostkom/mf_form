@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.1.5
+Version: 1.1.1.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -353,9 +353,9 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 				{
 					if($wpdb->blogid > 0 && $r->blogID != $wpdb->blogid)
 					{
-						do_log("Update blogID (".$r->formName." == ".$post_title.", blogID:".$r->blogID.", postID:".$r->postID.")");
+						//do_log("Update blogID (".$r->formName." == ".$post_title.", blogID:".$r->blogID.", postID:".$r->postID.")");
 
-						//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formDeleted = '0', formDeletedDate = null WHERE formID = '%d'", $wpdb->blogid, $r->formID));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formDeleted = '0', formDeletedDate = null WHERE formID = '%d'", $wpdb->blogid, $r->formID));
 					}
 				}
 

@@ -2,19 +2,99 @@
 
 class mf_form
 {
+	var $id = 0;
+	var $post_status = "";
+	var $form2type_id = 0;
+	var $post_id = 0;
+	var $post_type = 'mf_form';
+	var $meta_prefix = '';
+	var $edit_mode = false;
+	var $is_spam = false;
+	var $is_spam_id = false;
+	var $is_sent = false;
+	var $form_option_exists = false;
+	var $type = '';
+	var $send_to = '';
+	var $answer_id = '';
+	var $prefix = '';
+	var $accept_duplicates = '';
+	var $provider = '';
+	var $has_payment = false;
+	var $payment_provider = "";
+	var $payment_cost = "";
+	var $payment_amount = "";
+	var $form_atts = array();
+	var $answer_column = 0;
+	var $label = "";
+	var $answer_data = array();
+	var $arr_answer_queries = array();
+	var $arr_email_content = array();
+	var $form_name = "";
+	var $import = "";
+	var $url = "";
+	var $deadline = "";
+	var $form2type_order = "";
+	var $email_confirm = "";
+	var $email_confirm_from_email = "";
+	var $email_confirm_from_email_name = "";
+	var $email_confirm_id = "";
+	var $email_confirm_page = "";
+	var $show_answers = "";
+	var $save_ip = "";
+	var $answer_url = "";
+	var $email_admin = "";
+	var $email_admin_name = "";
+	var $email_conditions = "";
+	var $email_notify = "";
+	var $email_notify_from_email = "";
+	var $email_notify_from_email_name = "";
+	var $email_notify_from = "";
+	var $email_notify_page = "";
+	var $email_name = "";
+	var $mandatory_text = "";
+	var $button_display = "";
+	var $button_text = "";
+	var $button_symbol = "";
+	var $payment_hmac = "";
+	var $terms_page = "";
+	var $payment_merchant = "";
+	var $payment_password = "";
+	var $payment_currency = "";
+	var $payment_tax = "";
+	var $payment_callback = "";
+	var $type_id = "";
+	var $type_text = "";
+	var $type_text2 = "";
+	var $check_id = "";
+	var $type_placeholder = "";
+	var $type_tag = "";
+	var $type_class = "";
+	var $type_fetch_from = "";
+	var $type_connect_to = "";
+	var $type_action_equals = "";
+	var $type_action_show = "";
+	var $arr_type_select_id = array();
+	var $arr_type_select_key = array();
+	var $arr_type_select_value = array();
+	var $arr_type_select_limit = array();
+	var $arr_type_select_action = array();
+	var $type_min = "";
+	var $type_max = "";
+	var $type_default = "";
+
 	function __construct($data = array())
 	{
 		global $wpdb;
 
-		$this->id = isset($data['id']) && $data['id'] > 0 ? $data['id'] : check_var('intFormID');
+		$this->id = (isset($data['id']) && $data['id'] > 0 ? $data['id'] : check_var('intFormID'));
 
-		$this->post_status = "";
-		$this->form2type_id = $this->post_id = 0;
+		//$this->post_status = "";
+		//$this->form2type_id = $this->post_id = 0;
 
-		$this->post_type = 'mf_form';
+		//$this->post_type = 'mf_form';
 		$this->meta_prefix = $this->post_type.'_';
 
-		$this->edit_mode = $this->is_spam = $this->is_spam_id = $this->is_sent = false;
+		//$this->edit_mode = $this->is_spam = $this->is_spam_id = $this->is_sent = false;
 
 		if($this->id > 0)
 		{
@@ -2521,7 +2601,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		$this->has_payment = false;
+		//$this->has_payment = false;
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentCost, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
@@ -3856,7 +3936,7 @@ class mf_form
 		global $wpdb, $error_text, $done_text;
 
 		$out = $error_text = "";
-		$this->answer_data = $this->arr_answer_queries = array();
+		//$this->answer_data = $this->arr_answer_queries = array();
 
 		$this->arr_email_content = array(
 			'fields' => array(),
@@ -6198,15 +6278,29 @@ if(class_exists('mf_list_table'))
 
 class mf_form_output
 {
+	var $id = 0;
+	var $answer_id = 0;
+
+	var $row = array();
+	var $query_prefix = '';
+	var $output = "";
+	var $answer_text = "";
+	var $show_required = false;
+	var $show_autofocus = false;
+	var $show_remember = false;
+	var $show_copy = false;
+	var $show_template_info = false;
+	var $in_edit_mode = "";
+
 	function __construct($data)
 	{
-		$this->id = isset($data['id']) ? $data['id'] : 0;
-		$this->answer_id = isset($data['answer_id']) ? $data['answer_id'] : 0;
+		$this->id = (isset($data['id']) ? $data['id'] : 0);
+		$this->answer_id = (isset($data['answer_id']) ? $data['answer_id'] : 0);
 
 		$this->row = $data['result'];
 		$this->query_prefix = $data['query_prefix'];
-		$this->output = $this->answer_text = "";
-		$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = false;
+		//$this->output = $this->answer_text = "";
+		//$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = false;
 		$this->in_edit_mode = $data['in_edit_mode'];
 	}
 
