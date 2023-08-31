@@ -6917,6 +6917,15 @@ class mf_form_output
 
 class widget_form extends WP_Widget
 {
+	var $obj_form = "";
+
+	var $widget_ops = array();
+
+	var $arr_default = array(
+		'form_heading' => "",
+		'form_id' => "",
+	);
+
 	function __construct()
 	{
 		$this->obj_form = new mf_form();
@@ -6926,10 +6935,10 @@ class widget_form extends WP_Widget
 			'description' => __("Display a form that you have previously created", 'lang_form'),
 		);
 
-		$this->arr_default = array(
+		/*$this->arr_default = array(
 			'form_heading' => "",
 			'form_id' => "",
-		);
+		);*/
 
 		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Form", 'lang_form'), $this->widget_ops);
 	}
