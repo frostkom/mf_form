@@ -153,47 +153,50 @@ class mf_form
 			}
 
 			// Look for empty answers
-			$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE ".$wpdb->base_prefix."form_answer.answerID IS null");
-			$last_query = $wpdb->last_query;
-			$num_rows = $wpdb->num_rows;
-
-			if($num_rows > 0)
+			if(!is_multisite() || is_main_site())
 			{
-				$i = 0;
+				$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE ".$wpdb->base_prefix."form_answer.answerID IS null");
+				$last_query = $wpdb->last_query;
+				$num_rows = $wpdb->num_rows;
 
-				foreach($result as $r)
+				if($num_rows > 0)
 				{
-					$has_data = false;
+					$i = 0;
 
-					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $r->answerID));
-
-					if($wpdb->num_rows > 0)
+					foreach($result as $r)
 					{
-						$has_data = true;
+						$has_data = false;
+
+						$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $r->answerID));
+
+						if($wpdb->num_rows > 0)
+						{
+							$has_data = true;
+						}
+
+						$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d'", $r->answerID));
+
+						if($wpdb->num_rows > 0)
+						{
+							$has_data = true;
+						}
+
+						$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
+
+						if($wpdb->num_rows > 0)
+						{
+							$has_data = true;
+						}
+
+						if($has_data == false)
+						{
+							$i++;
+							//$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $r->answerID));
+						}
 					}
 
-					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d'", $r->answerID));
-
-					if($wpdb->num_rows > 0)
-					{
-						$has_data = true;
-					}
-
-					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
-
-					if($wpdb->num_rows > 0)
-					{
-						$has_data = true;
-					}
-
-					if($has_data == false)
-					{
-						$i++;
-						//$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $r->answerID));
-					}
+					do_log("There are ".$num_rows." (".$i.") empty answers (".$last_query.")");
 				}
-
-				do_log("There are ".$num_rows." (".$i.") empty answers (".$last_query.")");
 			}
 
 			// Delete old spam answers
