@@ -20,9 +20,7 @@ if($obj_form->check_allow_edit())
 
 			if($obj_form->id > 0)
 			{
-				$obj_form->form2type_id_example = $obj_form->form2type_id > 0 ? $obj_form->form2type_id : 123;
-
-				$form_email_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_form'), "[answer_id]", "[label_".$obj_form->form2type_id_example."]", "[answer_".$obj_form->form2type_id_example."]")
+				$form_email_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_form'), "[answer_id]", "[label_".($obj_form->form2type_id > 0 ? $obj_form->form2type_id : 123)."]", "[answer_".$obj_form->form2type_id_example."]")
 					."&content=".sprintf(__("Ticket: %s, Answers: %s", 'lang_form'), "[answer_id]", "[form_fields]");
 
 				if(is_plugin_active("mf_webshop/index.php"))

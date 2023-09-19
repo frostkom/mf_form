@@ -30,6 +30,7 @@ class mf_form
 	var $arr_answer_queries = array();
 	var $arr_email_content = array();
 	var $form_name = "";
+	var $name = "";
 	var $import = "";
 	var $url = "";
 	var $deadline = "";
@@ -81,6 +82,8 @@ class mf_form
 	var $type_min = "";
 	var $type_max = "";
 	var $type_default = "";
+	var $page_content_data = array();
+	var $mail_data = array();
 
 	function __construct($data = array())
 	{
@@ -88,13 +91,7 @@ class mf_form
 
 		$this->id = (isset($data['id']) && $data['id'] > 0 ? $data['id'] : check_var('intFormID'));
 
-		//$this->post_status = "";
-		//$this->form2type_id = $this->post_id = 0;
-
-		//$this->post_type = 'mf_form';
 		$this->meta_prefix = $this->post_type.'_';
-
-		//$this->edit_mode = $this->is_spam = $this->is_spam_id = $this->is_sent = false;
 
 		if($this->id > 0)
 		{
@@ -3635,11 +3632,11 @@ class mf_form
 			$this->email_notify_from_email_name = $r->formEmailNotifyFromEmailName;
 			$this->email_notify_from = $r->formEmailNotifyFrom;
 			$this->email_notify_page = $r->formEmailNotifyPage;
-			$this->email_subject = ($r->formEmailName != '' ? $r->formEmailName : $this->form_name);
+			$email_subject = ($r->formEmailName != '' ? $r->formEmailName : $this->form_name);
 		}
 
 		$this->page_content_data = array(
-			'subject' => $this->email_subject,
+			'subject' => $email_subject,
 			'content' => $this->arr_email_content,
 		);
 
