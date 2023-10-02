@@ -187,12 +187,13 @@ class mf_form
 
 						if($has_data == false)
 						{
-							$i++;
-							//$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $r->answerID));
+							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $r->answerID));
+
+							//$i++;
 						}
 					}
 
-					do_log("There are ".$num_rows." (".$i.") empty answers (".$last_query.")");
+					//do_log("There are ".$num_rows." (".$i.") empty answers (".$last_query.")");
 				}
 			}
 
