@@ -2349,7 +2349,7 @@ class mf_form
 
 				else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
 				{
-					$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerSent = '0' AND answerType != ''", $this->answer_id));
+					$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $this->answer_id)); // AND answerSent = '0'
 
 					if($wpdb->num_rows > 0)
 					{
@@ -2362,7 +2362,7 @@ class mf_form
 							'fields' => array(),
 						);
 
-						$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->base_prefix."form2type.form2TypeID, formTypeCode, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) INNER JOIN ".$wpdb->base_prefix."form_answer ON ".$wpdb->base_prefix."form2type.form2TypeID = ".$wpdb->base_prefix."form_answer.form2TypeID WHERE answerID = '%d' ORDER BY form2TypeOrder ASC", $this->answer_id));
+						$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->base_prefix."form2type.form2TypeID, formTypeCode, formTypeText, checkCode, answerText FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) LEFT JOIN ".$wpdb->base_prefix."form_answer ON ".$wpdb->base_prefix."form2type.form2TypeID = ".$wpdb->base_prefix."form_answer.form2TypeID WHERE formID = '%d' AND (answerID = '%d' OR answerID IS null) ORDER BY form2TypeOrder ASC", $this->id, $this->answer_id));
 
 						foreach($result as $r)
 						{
@@ -2398,6 +2398,15 @@ class mf_form
 								case 'select_multiple':
 								case 'checkbox_multiple':
 									$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
+								break;
+
+								case 'file':
+									$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+									foreach($result as $r)
+									{
+										$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
+									}
 								break;
 
 								default:
@@ -2484,10 +2493,22 @@ class mf_form
 							}
 						}
 
+						// This will only display the slug. How do we know where the form is placed on the site here?
+						/*$this->arr_email_content['fields'][] = array(
+							'type' => 'http_referer',
+							'label' => __("Sent From", 'lang_form'),
+							'value' => remove_protocol(array('url' => $this->get_post_info(), 'clean' => true, 'trim' => true))
+						);*/
+
 						$this->process_transactional_emails();
+
+						$done_text = __("I have resent the messages for you", 'lang_form');
 					}
 
-					$done_text = __("I have resent the messages for you", 'lang_form');
+					else
+					{
+						$error_text = __("I could not resend the messages for you", 'lang_form');
+					}
 				}
 
 				else if(isset($_GET['btnFormExport']))
@@ -3836,7 +3857,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		if(!isset($this->is_spam) || $this->is_spam == false)
+		if($this->is_spam == false)
 		{
 			$sent = send_email($this->mail_data);
 		}
@@ -3846,7 +3867,7 @@ class mf_form
 			$sent = false;
 		}
 
-		if(isset($this->answer_id) && $this->answer_id > 0)
+		if($this->answer_id > 0)
 		{
 			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s LIMIT 0, 1", $this->answer_id, $this->mail_data['to'], $this->mail_data['type']));
 
@@ -3937,7 +3958,6 @@ class mf_form
 		global $wpdb, $error_text, $done_text;
 
 		$out = $error_text = "";
-		//$this->answer_data = $this->arr_answer_queries = array();
 
 		$this->arr_email_content = array(
 			'fields' => array(),
@@ -4126,6 +4146,13 @@ class mf_form
 								if($intFileID > 0)
 								{
 									$strAnswerText = $intFileID;
+
+									$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+									foreach($result as $r)
+									{
+										$strAnswerText_send = "<a href='".$r->guid."'>".$r->post_title."</a>";
+									}
 								}
 							}
 						}
@@ -6107,21 +6134,24 @@ if(class_exists('mf_list_table'))
 							if($strAnswerEmail != $strAnswerEmail_temp)
 							{
 								$li_out .= "<li>
-									<i class='".$fa_class."'></i> ".($strAnswerEmailFrom != '' ? $strAnswerEmailFrom." -> " : "").$strAnswerEmail
+									<i class='".$fa_class."' title='".($strAnswerEmailFrom != '' ? $strAnswerEmailFrom." -> " : "").$strAnswerEmail."'></i>"
 								."</li>";
 
 								$strAnswerEmail_temp = $strAnswerEmail;
 							}
 						}
 
-						$out .= ($sent_failed > 0 ? $sent_successfully."/" : "").$count_temp
-						."<div class='row-actions'>
+						$out .= ($sent_failed > 0 ? $sent_successfully."/" : "").$count_temp;
+
+						$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
+
+						$out .= "<div class='row-actions'>
 							<ul>".$li_out."</ul>";
 
-							if($sent_failed_w_type > 0)
+							/*if($sent_failed_w_type > 0)
 							{
 								$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
-							}
+							}*/
 
 						$out .= "</div>";
 					}
