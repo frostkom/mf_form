@@ -625,6 +625,23 @@ class mf_form
 		return $arr_settings;
 	}
 
+	function get_query_permission()
+	{
+		global $wpdb;
+		
+		$query_where = "";
+
+		$setting_form_permission_see_all = get_option('setting_form_permission_see_all');
+		$is_allowed_to_see_all_forms = ($setting_form_permission_see_all != '' ? current_user_can($setting_form_permission_see_all) : true);
+
+		if(!$is_allowed_to_see_all_forms)
+		{
+			$query_where .= " AND ".$wpdb->base_prefix."form.userID = '".get_current_user_id()."'";
+		}
+
+		return $query_where;
+	}
+
 	function get_count_answer_message($data = array())
 	{
 		global $wpdb;
@@ -637,11 +654,7 @@ class mf_form
 
 		$last_viewed = get_user_meta($data['user_id'], 'meta_forms_viewed', true);
 
-		$query_xtra = get_form_xtra(" WHERE answerCreated > %s".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""))
-			." AND (blogID = '".$wpdb->blogid."' OR blogID IS null)"
-			." AND answerSpam = '0'";
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID)".$query_xtra, ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
+		$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) INNER JOIN ".$wpdb->base_prefix."form_answer_email USING (answerID) WHERE (blogID = '%d' OR blogID IS null) AND (answerCreated > %s OR answerCreated > DATE_SUB(NOW(), INTERVAL 1 MONTH)) AND answerSpam = '0' AND answerSent = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : "").$this->get_query_permission(), $wpdb->blogid, ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
 		$rows = $wpdb->num_rows;
 
 		if($rows > 0)
@@ -650,22 +663,48 @@ class mf_form
 			{
 				default:
 				case 'html':
-					$out = "&nbsp;<span class='update-plugins' title='".__("Unread answers", 'lang_form')."'>
+					$out .= "&nbsp;<i class='fa fa-exclamation-triangle yellow' title='".($rows > 1 ? sprintf(__("There are %d unsent messages", 'lang_form'), $rows) : __("There is one unset message", 'lang_form'))."'></i>";
+				break;
+
+				case 'array':
+					$out = array(
+						'title' => ($rows > 1 ? sprintf(__("There are %d unsent messages", 'lang_form'), $rows) : __("There is one unset message", 'lang_form')),
+						'tag' => 'form',
+						'link' => admin_url("admin.php?page=mf_form/list/index.php"),
+					);
+				break;
+			}
+
+			return $out;
+		}
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) WHERE (blogID = '%d' OR blogID IS null) AND answerCreated > %s AND answerSpam = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : "").$this->get_query_permission(), $wpdb->blogid, ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
+		$rows = $wpdb->num_rows;
+
+		if($rows > 0)
+		{
+			switch($data['return_type'])
+			{
+				default:
+				case 'html':
+					$out .= "&nbsp;<span class='update-plugins' title='".($rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form'))."'>
 						<span>".$rows."</span>
 					</span>";
 				break;
 
 				case 'array':
 					$out = array(
-						'title' => $rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form'),
+						'title' => ($rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form')),
 						'tag' => 'form',
 						'link' => admin_url("admin.php?page=mf_form/list/index.php"),
 					);
 				break;
 			}
+
+			return $out;
 		}
 
-		else if(!($data['form_id'] > 0))
+		if(!($data['form_id'] > 0))
 		{
 			$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) ORDER BY answerCreated DESC LIMIT 0, 2");
 
@@ -703,7 +742,7 @@ class mf_form
 						{
 							default:
 							case 'html':
-								$out = "&nbsp;<span title='".$message_temp."'>
+								$out .= "&nbsp;<span title='".$message_temp."'>
 									<i class='fa fa-exclamation-triangle yellow'></i>
 								</span>";
 							break;
@@ -719,6 +758,8 @@ class mf_form
 					}
 				}
 			}
+
+			return $out;
 		}
 
 		return $out;
@@ -5469,7 +5510,7 @@ if(class_exists('mf_list_table'))
 
 			if($this->search != '')
 			{
-				$this->query_where .= ($this->query_where != '' ? " AND " : "").get_form_xtra("", $this->search, "", "post_title");
+				$this->query_where .= ($this->query_where != '' ? " AND " : "")."post_title LIKE '%".$this->search."%'".$obj_form->get_query_permission();
 			}
 
 			$this->set_views(array(
