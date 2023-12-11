@@ -128,7 +128,7 @@ class mf_form
 
 		else
 		{
-			$out = IS_ADMIN;
+			$out = IS_ADMINISTRATOR;
 		}
 
 		return $out;
@@ -1127,7 +1127,7 @@ class mf_form
 
 	function phpmailer_init($phpmailer)
 	{
-		if(is_user_logged_in() && defined('IS_ADMIN') && IS_ADMIN && get_option('setting_form_test_emails') == 'yes')
+		if(is_user_logged_in() && defined('IS_ADMINISTRATOR') && IS_ADMINISTRATOR && get_option('setting_form_test_emails') == 'yes')
 		{
 			$user_data = get_userdata(get_current_user_id());
 
@@ -4349,7 +4349,7 @@ class mf_form
 					{
 						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_answer SET answerID = '%d', form2TypeID = '0', answerText = %s", $this->answer_id, "101: ".__("Sent to processing", 'lang_form')));
 
-						$test_payment = (isset($_POST[$this->prefix.'test_payment']) && (IS_ADMIN || isset($_GET['make_test_payment'])));
+						$test_payment = (isset($_POST[$this->prefix.'test_payment']) && (IS_ADMINISTRATOR || isset($_GET['make_test_payment'])));
 
 						if($test_payment == true)
 						{
@@ -4660,7 +4660,7 @@ class mf_form
 
 									//$out .= wp_nonce_field('form_submit_'.$this->id, '_wpnonce_form_submit', true, false);
 
-									if($this->check_if_has_payment() && (IS_ADMIN || isset($_GET['make_test_payment'])))
+									if($this->check_if_has_payment() && (IS_ADMINISTRATOR || isset($_GET['make_test_payment'])))
 									{
 										$out .= show_checkbox(array('name' => $this->prefix.'test_payment', 'text' => __("Perform test payment", 'lang_form'), 'value' => 1))
 										.apply_filters('filter_form_test_payment', '');

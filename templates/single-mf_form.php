@@ -4,7 +4,7 @@ get_header();
 
 	if(have_posts())
 	{
-		echo "<article".(IS_ADMIN ? " class='single-mf_form'" : "").">";
+		echo "<article".(IS_ADMINISTRATOR ? " class='single-mf_form'" : "").">";
 
 			while(have_posts())
 			{
