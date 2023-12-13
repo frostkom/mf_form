@@ -6418,41 +6418,51 @@ class mf_form_output
 	{
 		if($this->row->formTypeFetchFrom != '' && (!isset($field_data['value']) || $field_data['value'] == ''))
 		{
-			if(substr($this->row->formTypeFetchFrom, 0, 1) == "[" && is_user_logged_in())
+			if(isset($_GET[$this->row->formTypeFetchFrom]) && $_GET[$this->row->formTypeFetchFrom] != '')
 			{
-				$user_data = get_userdata(get_current_user_id());
-
-				switch($this->row->formTypeFetchFrom)
-				{
-					case '[user_display_name]':
-						$field_data['value'] = $user_data->display_name;
-					break;
-
-					case '[user_email]':
-						$field_data['value'] = $user_data->user_email;
-					break;
-
-					case '[user_address]':
-						$profile_address_street = get_the_author_meta('profile_address_street', $user_data->ID);
-						$profile_address_zipcode = get_the_author_meta('profile_address_zipcode', $user_data->ID);
-						$profile_address_city = get_the_author_meta('profile_address_city', $user_data->ID);
-
-						$field_data['value'] = $profile_address_street.", ".$profile_address_zipcode." ".$profile_address_city;
-					break;
-				}
+				$field_data['value'] = check_var($this->row->formTypeFetchFrom);
 			}
 
 			else
 			{
-				if(isset($_GET[$this->row->formTypeFetchFrom]) && $_GET[$this->row->formTypeFetchFrom] != '')
+				$field_data['value'] = $this->row->formTypeFetchFrom;
+			}
+
+			if(strpos($this->row->formTypeFetchFrom, "[") !== false)
+			{
+				$user_display_name = $user_email = $user_address = "";
+
+				$user_id = get_current_user_id();
+
+				if($user_id > 0)
 				{
-					$field_data['value'] = check_var($this->row->formTypeFetchFrom);
+					$user_data = get_userdata($user_id);
+
+					$user_display_name = $user_data->display_name;
+					$user_email = $user_data->user_email;
+
+					$profile_address_street = get_the_author_meta('profile_address_street', $user_data->ID);
+					$profile_address_zipcode = get_the_author_meta('profile_address_zipcode', $user_data->ID);
+					$profile_address_city = get_the_author_meta('profile_address_city', $user_data->ID);
+					$user_address = $profile_address_street.", ".$profile_address_zipcode." ".$profile_address_city;
 				}
 
-				else
+				$arr_exclude = $arr_include = array();
+				$arr_exclude[] = "[user_display_name]";		$arr_include[] = $user_display_name;
+				$arr_exclude[] = "[user_email]";			$arr_include[] = $user_email;
+				$arr_exclude[] = "[user_address]";			$arr_include[] = $user_address;
+
+				$arr_request = get_match_all('/\[get\=(.*?)\]/is', $this->row->formTypeFetchFrom, false);
+
+				if(isset($arr_request[0]) && count($arr_request[0]) > 0)
 				{
-					$field_data['value'] = $this->row->formTypeFetchFrom;
+					foreach($arr_request[0] as $str_request)
+					{
+						$arr_exclude[] = "[get=".$str_request."]";		$arr_include[] = check_var($str_request);
+					}
 				}
+
+				$field_data['value'] = str_replace($arr_exclude, $arr_include, $field_data['value']);
 			}
 		}
 	}

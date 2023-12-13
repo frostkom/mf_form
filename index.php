@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.2.2
+Version: 1.1.2.3
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -198,7 +198,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			checkID INT UNSIGNED DEFAULT NULL,
 			formTypeTag VARCHAR(20) DEFAULT NULL,
 			formTypeClass VARCHAR(50) DEFAULT NULL,
-			formTypeFetchFrom VARCHAR(50) DEFAULT NULL,
+			formTypeFetchFrom TEXT DEFAULT NULL,
 			formTypeConnectTo INT UNSIGNED NOT NULL DEFAULT '0',
 			formTypeActionEquals VARCHAR(10),
 			formTypeActionShow INT UNSIGNED NOT NULL DEFAULT '0',
@@ -216,6 +216,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$arr_add_column[$wpdb->base_prefix."form2type"] = array(
 			'formTypeConnectTo' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER formTypeFetchFrom",
+		);
+
+		$arr_update_column[$wpdb->base_prefix."form2type"] = array(
+			'formTypeFetchFrom' => "ALTER TABLE [table] CHANGE [column] formTypeFetchFrom TEXT DEFAULT NULL",
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
