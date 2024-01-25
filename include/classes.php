@@ -3093,7 +3093,6 @@ class mf_form
 	function render_mail_subject()
 	{
 		$arr_shortcodes = $arr_values = array();
-
 		$arr_shortcodes[] = "[answer_id]";		$arr_values[] = $this->answer_id;
 
 		$this->mail_data['subject'] = str_replace($arr_shortcodes, $arr_values, $this->mail_data['subject']);
@@ -3218,25 +3217,16 @@ class mf_form
 				."&product_id=".$intProductID
 				."&hash=".md5((defined('NONCE_SALT') ? NONCE_SALT : '')."_".$this->answer_id."_".$intProductID);
 
-			$arr_exclude = array(
-				"[answer_id]",
-				"[form_fields]",
-				"[doc_types]",
-				"[products]",
-				"[product]",
-				"[link_yes]",
-				"[link_no]",
-			);
-
-			$arr_include = array(
-				$this->answer_id,
-				$out_fields,
-				$out_doc_types,
-				$out_products,
-				$strProductName,
-				str_replace("btnVar", "btnFormLinkYes", $link_base_url),
-				str_replace("btnVar", "btnFormLinkNo", $link_base_url),
-			);
+			$arr_exclude = $arr_include = array();
+			$arr_exclude[] = "[heading]";		$arr_include[] = $this->mail_data['subject'];
+			$arr_exclude[] = "[content]";		$arr_include[] = $out_fields;
+			$arr_exclude[] = "[answer_id]";		$arr_include[] = $this->answer_id;
+			$arr_exclude[] = "[form_fields]";	$arr_include[] = $out_fields;
+			$arr_exclude[] = "[doc_types]";		$arr_include[] = $out_doc_types;
+			$arr_exclude[] = "[products]";		$arr_include[] = $out_products;
+			$arr_exclude[] = "[product]";		$arr_include[] = $strProductName;
+			$arr_exclude[] = "[link_yes]";		$arr_include[] = str_replace("btnVar", "btnFormLinkYes", $link_base_url);
+			$arr_exclude[] = "[link_no]";		$arr_include[] = str_replace("btnVar", "btnFormLinkNo", $link_base_url);
 
 			$out = str_replace($arr_exclude, $arr_include, $data['template']);
 		}
@@ -3254,11 +3244,11 @@ class mf_form
 
 		if($this->page_content_data['page_id'] > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $this->page_content_data['page_id']));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $this->page_content_data['page_id'])); //post_title, 
 
 			foreach($result as $r)
 			{
-				$this->mail_data['subject'] = $r->post_title;
+				//$this->mail_data['subject'] = $r->post_title; // Only if we want the form name to be replaced by the template name
 				$mail_template = apply_filters('the_content', $r->post_content);
 
 				$mail_content = $this->render_mail_content(array('mail_to' => $this->page_content_data['mail_to'], 'template' => $mail_template));
@@ -3875,8 +3865,8 @@ class mf_form
 
 			if($this->email_confirm_from_email != '')
 			{
-				$this->mail_data['from'] = $this->email_notify_from_email;
-				$this->mail_data['headers'] = "From: ".($this->email_notify_from_email_name != '' ? $this->email_notify_from_email_name : $this->email_notify_from_email)." <".$this->email_notify_from_email.">\r\n";
+				$this->mail_data['from'] = $this->email_confirm_from_email;
+				$this->mail_data['headers'] = "From: ".($this->email_confirm_from_email_name != '' ? $this->email_confirm_from_email_name : $this->email_confirm_from_email)." <".$this->email_confirm_from_email.">\r\n";
 			}
 
 			else if($email_from_admin != '')

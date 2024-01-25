@@ -329,39 +329,43 @@ if($obj_form->check_allow_edit())
 
 									if($form_status == 'publish' && $obj_form->id > 0) //post_status -> form_status
 									{
-										$shortcode = "[mf_form id=".$obj_form->id."]";
+										echo "<div class='form_buttons display_on_hover'>";
 
-										$result = get_pages_from_shortcode($shortcode);
+											$shortcode = "[mf_form id=".$obj_form->id."]";
 
-										if(count($result) > 0)
-										{
-											foreach($result as $post_id_temp)
+											$result = get_pages_from_shortcode($shortcode);
+
+											if(count($result) > 0)
 											{
-												if($obj_form->check_allow_edit())
+												foreach($result as $post_id_temp)
 												{
-													echo " <a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
-												}
+													if($obj_form->check_allow_edit())
+													{
+														echo " <a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."' class='button'>".__("Edit Page", 'lang_form')."</a>";
+													}
 
-												$actions['view_page'] = " <a href='".get_permalink($post_id_temp)."'>".__("View", 'lang_form')."</a>";
-											}
-										}
-
-										else
-										{
-											if($form_status == 'publish')
-											{
-												$post_url = get_permalink($obj_form->post_id);
-
-												if($post_url != '')
-												{
-													$actions['view'] = " <a href='".$post_url."'>".__("View", 'lang_form')."</a>";
+													echo " <a href='".get_permalink($post_id_temp)."' class='button'>".__("View", 'lang_form')."</a>";
 												}
 											}
 
-											echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$obj_form->name."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
-										}
+											else
+											{
+												if($form_status == 'publish')
+												{
+													$post_url = get_permalink($obj_form->post_id);
 
-										echo show_textfield(array('text' => __("Shortcode", 'lang_form'), 'value' => $shortcode, 'xtra_class' => "display_on_hover", 'xtra' => "readonly onclick='this.select()'"));
+													if($post_url != '')
+													{
+														echo " <a href='".$post_url."' class='button'>".__("View", 'lang_form')."</a>";
+													}
+												}
+
+												echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$obj_form->name."&content=".$shortcode)."' class='button'>".__("Add New Page", 'lang_form')."</a>";
+											}
+
+											//echo show_textfield(array('text' => __("Shortcode", 'lang_form'), 'value' => $shortcode, 'xtra' => "readonly onclick='this.select()'"));
+
+										echo "</div>";
 
 										if($obj_form->id > 0)
 										{
@@ -373,7 +377,7 @@ if($obj_form->check_allow_edit())
 												$intUserID = $r->userID;
 												$intPostID = $r->postID;
 
-												echo "<br><em>".sprintf(__("Created %s by %s", 'lang_form'), format_date($dteFormCreated), get_user_info(array('id' => $intUserID)))."</em>";
+												echo "<p><em>".sprintf(__("Created %s by %s", 'lang_form'), format_date($dteFormCreated), get_user_info(array('id' => $intUserID)))."</em></p>";
 
 												$result = $wpdb->get_results($wpdb->prepare("SELECT post_modified, post_author FROM ".$wpdb->posts." WHERE ID = '%d' AND post_modified > %s", $intPostID, $dteFormCreated));
 
@@ -382,7 +386,7 @@ if($obj_form->check_allow_edit())
 													$post_modified = $r->post_modified;
 													$post_author = $r->post_author;
 
-													echo "<br><em>".sprintf(__("Updated %s by %s", 'lang_form'), format_date($post_modified), get_user_info(array('id' => $post_author)))."</em>";
+													echo "<p><em>".sprintf(__("Updated %s by %s", 'lang_form'), format_date($post_modified), get_user_info(array('id' => $post_author)))."</em></p>";
 												}
 											}
 										}
