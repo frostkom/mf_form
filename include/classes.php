@@ -219,6 +219,29 @@ class mf_form
 		$obj_cron->end();
 	}
 
+	function block_render_callback($attributes)
+	{
+		/* var_export($attributes, true) -> array (
+			'align' => 'full', // .alignfull
+			'style' => array (
+				'color' => array (
+					'background' => '#d5e0f0ad', // background: #d5e0f0ad
+				),
+			),
+		)*/
+
+		$out = "";
+
+		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)
+		{
+			$out = "<div>" // class=''
+				.apply_filters('the_content', "[mf_form id=".$attributes['form_id']."]")
+			."</div>";
+		}
+
+		return $out;
+	}
+
 	function init()
 	{
 		$labels = array(
@@ -239,6 +262,20 @@ class mf_form
 		);
 
 		register_post_type($this->post_type, $args);
+
+		$plugin_include_url = plugin_dir_url(__FILE__);
+		$plugin_version = get_plugin_version(__FILE__);
+
+		wp_register_style('style_form_block_wp', $plugin_include_url."block/style.css?v=".$plugin_version, $plugin_version);
+		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-editor'), $plugin_version);
+		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false))));
+
+		register_block_type('mf/form', array(
+			'editor_script' => 'script_form_block_wp',
+		    'editor_style' => 'style_form_block_wp',
+			'render_callback' => array($this, 'block_render_callback'),
+	        'style' => 'style_form_block_wp',
+		));
 	}
 
 	function settings_form()
@@ -628,7 +665,7 @@ class mf_form
 	function get_query_permission()
 	{
 		global $wpdb;
-		
+	
 		$query_where = "";
 
 		$setting_form_permission_see_all = get_option('setting_form_permission_see_all');
