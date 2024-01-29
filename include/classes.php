@@ -665,7 +665,7 @@ class mf_form
 	function get_query_permission()
 	{
 		global $wpdb;
-	
+
 		$query_where = "";
 
 		$setting_form_permission_see_all = get_option('setting_form_permission_see_all');
@@ -4590,18 +4590,13 @@ class mf_form
 							switch_to_blog($blog_id);
 						}
 
-						if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
+						if($data['do_redirect'] == true && isset($wp_query->post->ID) && ($intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID)))
 						{
 							$out .= "<i class='fa fa-spinner fa-spin fa-3x'></i>";
 
-							$this->redirect_url = get_permalink($intFormAnswerURL);
+							echo $out;
 
-							if($data['do_redirect'] == true)
-							{
-								echo $out;
-
-								mf_redirect($this->redirect_url);
-							}
+							mf_redirect(get_permalink($intFormAnswerURL));
 						}
 
 						if($blog_id > 0)

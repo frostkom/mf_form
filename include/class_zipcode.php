@@ -2,6 +2,8 @@
 
 class mf_zipcode
 {
+	var $arr_data;
+
 	function __construct()
 	{
 		$this->arr_data = array(
