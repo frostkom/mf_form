@@ -2617,7 +2617,7 @@ class mf_form
 
 		if(!isset($data['id'])){	$data['id'] = $this->id;}
 
-		/*if(!isset($this->accept_duplicates))
+		/*if($this->accept_duplicates == "")
 		{
 			$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $data['id']));
 		}*/
@@ -6384,7 +6384,7 @@ class mf_form_output
 	var $show_remember = false;
 	var $show_copy = false;
 	var $show_template_info = false;
-	var $in_edit_mode = "";
+	var $in_edit_mode = false;
 
 	function __construct($data)
 	{
@@ -6833,7 +6833,7 @@ class mf_form_output
 			break;
 
 			case 'space':
-				$this->output .= $this->in_edit_mode == true ? "<p class='grey".$class_output_small."'>(".__("Space", 'lang_form').")</p>" : "<p".$class_output.">&nbsp;</p>";
+				$this->output .= ($this->in_edit_mode == true ? "<p class='grey".$class_output_small."'>(".__("Space", 'lang_form').")</p>" : "<p".$class_output.">&nbsp;</p>");
 			break;
 
 			case 'referer_url':
@@ -6927,8 +6927,6 @@ class mf_form_output
 		global $wpdb, $obj_form;
 
 		$out = "";
-
-		if(!isset($this->in_edit_mode)){	$this->in_edit_mode = false;}
 
 		if($this->in_edit_mode == true)
 		{
