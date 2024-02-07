@@ -3508,20 +3508,20 @@ class mf_form
 
 	function contains_page_title($string)
 	{
-		if(class_exists('mf_theme_core'))
+		/*if(class_exists('mf_theme_core'))
 		{
 			global $obj_theme_core;
 
 			if(!isset($obj_theme_core))
 			{
 				$obj_theme_core = new mf_theme_core();
-			}
+			}*/
 
-			if($obj_theme_core->is_theme_active())
+			if(apply_filters('is_theme_active', false)) //$obj_theme_core->is_theme_active()
 			{
 				return preg_match("/(".$obj_theme_core->get_wp_title().")/", $string);
 			}
-		}
+		//}
 
 		return false;
 
