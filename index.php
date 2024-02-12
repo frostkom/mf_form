@@ -72,9 +72,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	add_action('widgets_init', array($obj_form, 'widgets_init'));
 
-	/*add_action('wp_ajax_submit_form', 'submit_form');
-	add_action('wp_ajax_nopriv_submit_form', 'submit_form');*/
-
 	add_filter('single_template', 'custom_templates_form');
 
 	add_action('phpmailer_init', array($obj_form, 'phpmailer_init'), 0);

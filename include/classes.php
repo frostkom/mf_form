@@ -272,9 +272,9 @@ class mf_form
 
 		register_block_type('mf/form', array(
 			'editor_script' => 'script_form_block_wp',
-		    'editor_style' => 'style_form_block_wp',
+			'editor_style' => 'style_form_block_wp',
 			'render_callback' => array($this, 'block_render_callback'),
-	        'style' => 'style_form_block_wp',
+			//'style' => 'style_form_block_wp',
 		));
 	}
 
