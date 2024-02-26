@@ -144,12 +144,15 @@ class mf_form
 		if($obj_cron->is_running == false)
 		{
 			// Delete old nonces
+			#######################
 			if(does_table_exist($wpdb->base_prefix."form_nonce"))
 			{
 				$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_nonce WHERE nonceCreated < DATE_SUB(NOW(), INTERVAL 10 HOUR)");
 			}
+			#######################
 
 			// Look for empty answers
+			#######################
 			if(!is_multisite() || is_main_site())
 			{
 				$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE ".$wpdb->base_prefix."form_answer.answerID IS null");
@@ -196,9 +199,10 @@ class mf_form
 					//do_log("There are ".$num_rows." (".$i.") empty answers (".$last_query.")");
 				}
 			}
+			#######################
 
 			// Delete old spam answers
-			##############################
+			#######################
 			$setting_form_clear_spam = get_option_or_default('setting_form_clear_spam', 6);
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerSpam = '1' AND answerCreated < DATE_SUB(NOW(), INTERVAL %d MONTH)", $setting_form_clear_spam));
@@ -213,7 +217,15 @@ class mf_form
 					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $intAnswerID));
 				}
 			}
-			##############################
+			#######################
+
+			// Delete old uploads
+			#######################
+			list($upload_path, $upload_url) = get_uploads_folder($this->post_type);
+
+			get_file_info(array('path' => $upload_path, 'callback' => 'delete_files_callback', 'time_limit' => WEEK_IN_SECONDS));
+			get_file_info(array('path' => $upload_path, 'folder_callback' => 'delete_empty_folder_callback'));
+			#######################
 		}
 
 		$obj_cron->end();
