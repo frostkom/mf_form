@@ -256,6 +256,8 @@ class mf_form
 
 	function init()
 	{
+		// Post types
+		#######################
 		$labels = array(
 			'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
 			'singular_name' => _x(__("Form", 'lang_form'), 'post type singular name'),
@@ -274,11 +276,14 @@ class mf_form
 		);
 
 		register_post_type($this->post_type, $args);
+		#######################
 
+		// Blocks
+		#######################
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		$plugin_version = get_plugin_version(__FILE__);
 
-		wp_register_style('style_form_block_wp', $plugin_include_url."block/style.css?v=".$plugin_version, $plugin_version);
+		wp_register_style('style_form_block_wp', $plugin_include_url."block/style_wp.css?v=".$plugin_version, $plugin_version);
 		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-editor'), $plugin_version);
 		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false))));
 
@@ -288,6 +293,7 @@ class mf_form
 			'render_callback' => array($this, 'block_render_callback'),
 			//'style' => 'style_form_block_wp',
 		));
+		#######################
 	}
 
 	function settings_form()

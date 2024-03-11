@@ -8,8 +8,8 @@
 	registerBlockType('mf/form',
 	{
 		title: __("Form", 'lang_form'),
-		description: __('Display a Form', 'lang_form'),
-		icon: 'forms',
+		description: __("Display a Form", 'lang_form'),
+		icon: 'forms', /* https://developer.wordpress.org/resource/dashicons/ */
 		category: 'widgets', /* common, formatting, layout widgets, embed */
 		'attributes': /* https://developer.wordpress.org/block-editor/reference-guides/block-api/block-supports/ */
 		{
@@ -80,16 +80,16 @@
 		/*'styles': [
 			{
 				'name': 'default',
-				'label': __('Rounded'),
+				'label': __("Rounded", 'lang_form'),
 				'isDefault': true
 			},
 			{
 				'name': 'outline',
-				'label': __('Outline')
+				'label': __("Outline", 'lang_form')
 			},
 			{
 				'name': 'squared',
-				'label': __('Squared')
+				'label': __("Squared", 'lang_form')
 			},
 		],*/
 		edit: function(props)
@@ -122,7 +122,7 @@
 					el(
 						SelectControl,
 						{
-							label: __('Select a Form', 'lang_form'),
+							label: __("Select a Form", 'lang_form'),
 							value: attributes.form_id,
 							options: arr_options,
 							onChange: onChangeSelect
