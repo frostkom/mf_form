@@ -285,7 +285,7 @@ class mf_form
 
 		wp_register_style('style_form_block_wp', $plugin_include_url."block/style_wp.css?v=".$plugin_version, $plugin_version);
 		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-editor'), $plugin_version);
-		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false))));
+		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array('form_id' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false))));
 
 		register_block_type('mf/form', array(
 			'editor_script' => 'script_form_block_wp',
@@ -352,7 +352,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key, 'no');
 
-		$description = setting_time_limit(array('key' => $setting_key, 'value' => $option));
+		list($option, $description) = setting_time_limit(array('key' => $setting_key, 'value' => $option, 'return' => 'array'));
 
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When a visitor sends an e-mail through the site it is redirected to the admins address", 'lang_form'), 'description' => $description));
 	}
@@ -362,7 +362,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key, 'no');
 
-		$description = setting_time_limit(array('key' => $setting_key, 'value' => $option));
+		list($option, $description) = setting_time_limit(array('key' => $setting_key, 'value' => $option, 'return' => 'array'));
 
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form'), 'description' => $description));
 	}

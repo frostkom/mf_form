@@ -10,7 +10,7 @@
 		title: __("Form", 'lang_form'),
 		description: __("Display a Form", 'lang_form'),
 		icon: 'forms', /* https://developer.wordpress.org/resource/dashicons/ */
-		category: 'widgets', /* common, formatting, layout widgets, embed */
+		category: 'widgets', /* common, formatting, layout, widgets, embed */
 		'attributes': /* https://developer.wordpress.org/block-editor/reference-guides/block-api/block-supports/ */
 		{
 			'align': {
@@ -94,17 +94,9 @@
 		],*/
 		edit: function(props)
 		{
-			var attributes = props.attributes,
-				setAttributes = props.setAttributes;
-
-			function onChangeSelect(newValue)
-			{
-                setAttributes({form_id: newValue});
-            }
-
 			var arr_options = [];
 
-			jQuery.each(script_form_block_wp.data, function(index, value)
+			jQuery.each(script_form_block_wp.form_id, function(index, value)
 			{
 				if(index == "")
 				{
@@ -123,9 +115,12 @@
 						SelectControl,
 						{
 							label: __("Select a Form", 'lang_form'),
-							value: attributes.form_id,
+							value: props.attributes.form_id,
 							options: arr_options,
-							onChange: onChangeSelect
+							onChange: function(value)
+							{
+								props.setAttributes({form_id: value});
+							}
 						}
 					)
 				);
