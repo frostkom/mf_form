@@ -13,11 +13,13 @@
 		category: 'widgets', /* common, formatting, layout, widgets, embed */
 		'attributes': /* https://developer.wordpress.org/block-editor/reference-guides/block-api/block-supports/ */
 		{
-			'align': {
+			'align':
+			{
 				'type': 'string',
-				'default': 'right'
+				'default': ''
 			},
-			'form_id': {
+			'form_id':
+			{
                 'type': 'string',
                 'default': ''
             },/*,
@@ -110,7 +112,7 @@
 			{
 				return el(
 					'div',
-					{className: props.className},
+					{className: "wp_mf_block " + props.className},
 					el(
 						SelectControl,
 						{
@@ -130,7 +132,7 @@
 			{
 				return el(
 					'em',
-					{className: props.className},
+					{className: "wp_mf_block " + props.className},
 					__("There are no forms yet. Create one and then you can add it here", 'lang_form')
 				);
 			}

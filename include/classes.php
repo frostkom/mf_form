@@ -283,15 +283,14 @@ class mf_form
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		$plugin_version = get_plugin_version(__FILE__);
 
-		wp_register_style('style_form_block_wp', $plugin_include_url."block/style_wp.css?v=".$plugin_version, $plugin_version);
 		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-editor'), $plugin_version);
 		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array('form_id' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false))));
 
 		register_block_type('mf/form', array(
 			'editor_script' => 'script_form_block_wp',
-			'editor_style' => 'style_form_block_wp',
+			'editor_style' => 'style_base_block_wp',
 			'render_callback' => array($this, 'block_render_callback'),
-			//'style' => 'style_form_block_wp',
+			//'style' => 'style_base_block_wp',
 		));
 		#######################
 	}
