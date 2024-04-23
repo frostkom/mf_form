@@ -360,10 +360,8 @@ if($obj_form->check_allow_edit())
 													}
 												}
 
-												echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$obj_form->name."&content=".$shortcode)."' class='button'>".__("Add New Page", 'lang_form')."</a>";
+												//echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$obj_form->name."&content=".$shortcode)."' class='button'>".__("Add New Page", 'lang_form')."</a>";
 											}
-
-											//echo show_textfield(array('text' => __("Shortcode", 'lang_form'), 'value' => $shortcode, 'xtra' => "readonly onclick='this.select()'"));
 
 										echo "</div>";
 

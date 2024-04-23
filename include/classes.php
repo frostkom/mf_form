@@ -5665,7 +5665,7 @@ if(class_exists('mf_list_table'))
 									}
 								}
 
-								$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
+								//$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
 							}
 						}
 					}
@@ -6389,9 +6389,8 @@ if(class_exists('mf_list_table'))
 
 class mf_form_output
 {
-	var $id = 0;
-	var $answer_id = 0;
-
+	var $id;
+	var $answer_id;
 	var $row = array();
 	var $query_prefix = '';
 	var $output = "";
@@ -6410,8 +6409,6 @@ class mf_form_output
 
 		$this->row = $data['result'];
 		$this->query_prefix = $data['query_prefix'];
-		//$this->output = $this->answer_text = "";
-		//$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = false;
 		$this->in_edit_mode = $data['in_edit_mode'];
 	}
 
@@ -7036,10 +7033,8 @@ class mf_form_output
 
 class widget_form extends WP_Widget
 {
-	var $obj_form = "";
-
-	var $widget_ops = array();
-
+	var $obj_form;
+	var $widget_ops;
 	var $arr_default = array(
 		'form_heading' => "",
 		'form_id' => "",
@@ -7053,11 +7048,6 @@ class widget_form extends WP_Widget
 			'classname' => 'form',
 			'description' => __("Display a form that you have previously created", 'lang_form'),
 		);
-
-		/*$this->arr_default = array(
-			'form_heading' => "",
-			'form_id' => "",
-		);*/
 
 		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Form", 'lang_form'), $this->widget_ops);
 	}
