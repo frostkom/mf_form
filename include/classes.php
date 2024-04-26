@@ -679,6 +679,16 @@ class mf_form
 		return $arr_settings;
 	}
 
+	function filter_sites_table_pages($arr_pages)
+	{
+		$arr_pages[$this->post_type] = array(
+			'icon' => "fab fa-wpforms",
+			'title' => __("Forms", 'lang_form'),
+		);
+
+		return $arr_pages;
+	}
+
 	function get_query_permission()
 	{
 		global $wpdb;
