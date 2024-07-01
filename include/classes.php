@@ -1563,13 +1563,13 @@ class mf_form
 		);
 	}
 
-	function get_pages_for_select()
+	/*function get_pages_for_select()
 	{
 		$arr_data = array();
 		get_post_children(array('add_choose_here' => true), $arr_data);
 
 		return $arr_data;
-	}
+	}*/
 
 	function get_payment_providers_for_select()
 	{
@@ -6504,7 +6504,12 @@ class mf_form_output
 				{
 					foreach($arr_request[0] as $str_request)
 					{
-						$arr_exclude[] = "[get=".$str_request."]";		$arr_include[] = check_var($str_request);
+						$value_temp = check_var($str_request);
+
+						if($value_temp != '')
+						{
+							$arr_exclude[] = "[get=".$str_request."]";		$arr_include[] = $value_temp;
+						}
 					}
 				}
 

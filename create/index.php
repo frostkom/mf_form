@@ -32,7 +32,9 @@ if($obj_form->check_allow_edit())
 
 				$form_answer_page_shortcodes = "&content=".sprintf(__("%sDisplay this...%s%s...or this%s", 'lang_form'), "[if id > 1]", "[end_if]", "[else]", "[end_else]");
 
-				$arr_data_pages = $obj_form->get_pages_for_select();
+				//$arr_data_pages = $obj_form->get_pages_for_select();
+				$arr_data_pages = array();
+				get_post_children(array('add_choose_here' => true), $arr_data_pages);
 
 				$has_single_action = ($obj_form->type_action_equals != '' && $obj_form->type_action_show > 0);
 				$has_multiple_action = false;
