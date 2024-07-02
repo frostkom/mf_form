@@ -103,6 +103,56 @@ class mf_form
 		$this->type = (isset($data['type']) ? $data['type'] : '');
 	}
 
+	function filter_actions($data = array())
+	{
+		if(!isset($data['actions'])){	$data['actions'] = array();}
+		if(!isset($data['class'])){		$data['class'] = "";}
+
+		$block_code = '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->';
+		$arr_ids = apply_filters('get_page_from_block_code', array(), $block_code);
+
+		if(count($arr_ids) == 0)
+		{
+			$shortcode = "[mf_form id=".$this->id."]";
+			$arr_ids = get_pages_from_shortcode($shortcode);
+		}
+
+		if(count($arr_ids) > 0)
+		{
+			foreach($arr_ids as $post_id_temp)
+			{
+				if($this->check_allow_edit())
+				{
+					$data['actions']['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("Edit Page", 'lang_form')."</a>";
+				}
+
+				$data['actions']['view_page'] = "<a href='".get_permalink($post_id_temp)."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("View", 'lang_form')."</a>";
+			}
+		}
+
+		else
+		{
+			if($this->post_status == 'publish')
+			{
+				$post_url = get_permalink($this->post_id);
+
+				if($post_url != '')
+				{
+					$data['actions']['view'] = "<a href='".$post_url."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("View", 'lang_form')."</a>";
+				}
+			}
+
+			$data['actions']['create_page'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/create/index.php&btnPageCreate&intFormID=".$this->id."&strFormName=".$this->name), 'page_create_'.$this->id, '_wpnonce_page_create')."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("Add New Page", 'lang_form')."</a>";
+
+			if(isset($shortcode))
+			{
+				//$data['actions']['create'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$this->name."&content=".$shortcode)."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("Add New Page", 'lang_form')."</a>";
+			}
+		}
+
+		return $data['actions'];
+	}
+
 	function check_allow_edit()
 	{
 		global $wpdb;
@@ -2178,8 +2228,19 @@ class mf_form
 					if($this->type_id == 0)
 					{
 						mf_redirect(admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id));
-						//echo "<script>location.href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'</script>";
 					}
+				}
+
+				if(isset($_GET['btnPageCreate']) && wp_verify_nonce($_GET['_wpnonce_page_create'], 'page_create_'.$this->id))
+				{
+					$post_id = wp_insert_post(array(
+						'post_type' => 'page',
+						'post_status' => 'draft',
+						'post_title' => $this->name,
+						'post_content' => '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->',
+					));
+
+					mf_redirect(admin_url("post.php?post=".$post_id."&action=edit"));
 				}
 
 				if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $this->id > 0)
@@ -3162,6 +3223,21 @@ class mf_form
 		$this->mail_data['subject'] = str_replace($arr_shortcodes, $arr_values, $this->mail_data['subject']);
 		$this->mail_data['subject'] = preg_replace_callback("/\[label_(.*?)\]/", array($this, 'preg_replace_label'), $this->mail_data['subject']);
 		$this->mail_data['subject'] = preg_replace_callback("/\[answer_(.*?)\]/", array($this, 'preg_replace_answer'), $this->mail_data['subject']);
+	}
+
+	function get_form_url($form_id)
+	{
+		$out = "#";
+
+		if($form_id > 0)
+		{
+			foreach(get_pages_from_shortcode("[mf_form id=".$form_id."]") as $post_id)
+			{
+				$out = get_permalink($post_id);
+			}
+		}
+
+		return $out;
 	}
 
 	function render_mail_content($data = array())
@@ -5601,8 +5677,8 @@ if(class_exists('mf_list_table'))
 
 			$out = "";
 
-			$post_id = $item['ID'];
-			$post_status = $item['post_status'];
+			$obj_form->post_id = $item['ID'];
+			$obj_form->post_status = $item['post_status'];
 
 			if(isset($item['formID']) && $item['formID'] > 0)
 			{
@@ -5611,13 +5687,13 @@ if(class_exists('mf_list_table'))
 
 			else
 			{
-				$obj_form->get_form_id($post_id);
+				$obj_form->get_form_id($obj_form->post_id);
 			}
 
 			switch($column_name)
 			{
 				case 'post_title':
-					$strFormName = $item['post_title'];
+					$obj_form->name = $item['post_title'];
 
 					if($obj_form->check_allow_edit())
 					{
@@ -5626,7 +5702,7 @@ if(class_exists('mf_list_table'))
 
 					$actions = array();
 
-					if($post_status != 'trash')
+					if($obj_form->post_status != 'trash')
 					{
 						if($obj_form->check_allow_edit())
 						{
@@ -5644,39 +5720,9 @@ if(class_exists('mf_list_table'))
 
 						$actions['export'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormExport&intFormID=".$obj_form->id."&btnExportRun&intExportType=".$obj_form->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("Export", 'lang_form')."</a>";
 
-						if($post_status == 'publish' && $obj_form->id > 0)
+						if($obj_form->post_status == 'publish' && $obj_form->id > 0)
 						{
-							$shortcode = "[mf_form id=".$obj_form->id."]";
-
-							$result = get_pages_from_shortcode($shortcode);
-
-							if(count($result) > 0)
-							{
-								foreach($result as $post_id_temp)
-								{
-									if($obj_form->check_allow_edit())
-									{
-										$actions['edit_page'] = "<a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."'>".__("Edit Page", 'lang_form')."</a>";
-									}
-
-									$actions['view_page'] = "<a href='".get_permalink($post_id_temp)."'>".__("View", 'lang_form')."</a>";
-								}
-							}
-
-							else
-							{
-								if($obj_form->get_form_status() == 'publish')
-								{
-									$post_url = get_permalink($post_id);
-
-									if($post_url != '')
-									{
-										$actions['view'] = "<a href='".$post_url."'>".__("View", 'lang_form')."</a>";
-									}
-								}
-
-								//$actions['add_page'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$strFormName."&content=".$shortcode)."'>".__("Add New Page", 'lang_form')."</a>";
-							}
+							$actions = $obj_form->filter_actions(array('actions' => $actions));
 						}
 					}
 
@@ -5687,19 +5733,19 @@ if(class_exists('mf_list_table'))
 
 					if($obj_form->check_allow_edit())
 					{
-						$out .= "<a href='".$post_edit_url."'>".$strFormName."</a>";
+						$out .= "<a href='".$post_edit_url."'>".$obj_form->name."</a>";
 					}
 
 					else
 					{
-						$out .= $strFormName;
+						$out .= $obj_form->name;
 					}
 
 					$out .= $this->row_actions($actions);
 				break;
 
 				case 'content':
-					if($post_status == 'publish')
+					if($obj_form->post_status == 'publish')
 					{
 						$out .= "<i class='fa fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
 					}
@@ -5819,7 +5865,7 @@ if(class_exists('mf_list_table'))
 				break;
 
 				case 'answers':
-					if($post_status != 'trash')
+					if($obj_form->post_status != 'trash')
 					{
 						$query_answers = $obj_form->get_answer_amount(array('form_id' => $obj_form->id));
 
@@ -5844,7 +5890,7 @@ if(class_exists('mf_list_table'))
 				break;
 
 				case 'spam':
-					if($post_status != 'trash')
+					if($obj_form->post_status != 'trash')
 					{
 						$query_spam = $obj_form->get_answer_amount(array('form_id' => $obj_form->id, 'is_spam' => 1));
 

@@ -10,7 +10,6 @@ if(!defined('ABSPATH'))
 }
 
 include_once("../classes.php");
-require_once("../functions.php");
 
 if(!isset($obj_form))
 {

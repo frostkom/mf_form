@@ -11,7 +11,7 @@ if($obj_form->check_allow_edit())
 
 	echo $obj_form->save_data();
 
-	$form_status = $obj_form->get_form_status();
+	$obj_form->post_status = $obj_form->get_form_status();
 
 	echo "<div class='wrap'>
 		<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." <span>".$obj_form->name."</span>" : __("Add New", 'lang_form'))."</h2>"
@@ -322,47 +322,22 @@ if($obj_form->check_allow_edit())
 
 									if($form_output != '')
 									{
-										echo show_button(array('name' => 'btnFormPublish', 'text' => ($form_status == 'publish' ? __("Save", 'lang_form') : __("Publish", 'lang_form'))));
+										echo show_button(array('name' => 'btnFormPublish', 'text' => ($obj_form->post_status == 'publish' ? __("Save", 'lang_form') : __("Publish", 'lang_form'))));
 									}
 
 									echo show_button(array('name' => 'btnFormDraft', 'text' => __("Save Draft", 'lang_form'), 'class' => "button"))
 									.input_hidden(array('name' => 'intFormID', 'value' => $obj_form->id))
 									.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false);
 
-									if($form_status == 'publish' && $obj_form->id > 0) //post_status -> form_status
+									if($obj_form->post_status == 'publish' && $obj_form->id > 0)
 									{
 										echo "<div class='form_buttons display_on_hover'>";
 
-											$shortcode = "[mf_form id=".$obj_form->id."]";
+											$actions = $obj_form->filter_actions(array('class' => "button"));
 
-											$result = get_pages_from_shortcode($shortcode);
-
-											if(count($result) > 0)
+											foreach($actions as $key => $value)
 											{
-												foreach($result as $post_id_temp)
-												{
-													if($obj_form->check_allow_edit())
-													{
-														echo " <a href='".admin_url("post.php?post=".$post_id_temp."&action=edit")."' class='button'>".__("Edit Page", 'lang_form')."</a>";
-													}
-
-													echo " <a href='".get_permalink($post_id_temp)."' class='button'>".__("View", 'lang_form')."</a>";
-												}
-											}
-
-											else
-											{
-												if($form_status == 'publish')
-												{
-													$post_url = get_permalink($obj_form->post_id);
-
-													if($post_url != '')
-													{
-														echo " <a href='".$post_url."' class='button'>".__("View", 'lang_form')."</a>";
-													}
-												}
-
-												//echo " <a href='".admin_url("post-new.php?post_type=page&post_title=".$obj_form->name."&content=".$shortcode)."' class='button'>".__("Add New Page", 'lang_form')."</a>";
+												echo " ".$value;
 											}
 
 										echo "</div>";
