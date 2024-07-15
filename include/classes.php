@@ -907,8 +907,11 @@ class mf_form
 			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
 		}
 
-		$menu_title = __("Settings", 'lang_form');
-		add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, admin_url("options-general.php?page=settings_mf_base#settings_form"));
+		if(IS_EDITOR)
+		{
+			$menu_title = __("Settings", 'lang_form');
+			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, admin_url("options-general.php?page=settings_mf_base#settings_form"));
+		}
 	}
 
 	function wp_trash_post($post_id)
