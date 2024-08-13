@@ -83,7 +83,7 @@ jQuery(function($)
 
 	function show_query_settings(this_val)
 	{
-		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_actions, .show_custom_text_tag, .show_custom_tag, .show_custom_class").addClass('hide');
+		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_actions, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_custom_length").addClass('hide');
 
 		if(this_val > 0)
 		{
@@ -98,11 +98,11 @@ jQuery(function($)
 				break;
 
 				case '3': /* input_field */
-					$(".show_validate_as, .show_custom_class, .show_placeholder, .show_fetch_from").removeClass('hide');
+					$(".show_validate_as, .show_custom_class, .show_placeholder, .show_fetch_from, .show_custom_length").removeClass('hide');
 				break;
 
 				case '4': /* textarea */
-					$(".show_placeholder, .show_custom_class, .show_fetch_from").removeClass('hide');
+					$(".show_placeholder, .show_custom_class, .show_fetch_from, .show_custom_length").removeClass('hide');
 				break;
 
 				case '5': /* text */

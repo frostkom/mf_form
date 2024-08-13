@@ -1763,6 +1763,7 @@ class mf_form
 				$this->type_placeholder = check_var('strFormTypePlaceholder');
 				$this->type_tag = check_var('strFormTypeTag');
 				$this->type_class = check_var('strFormTypeClass');
+				$this->type_length = check_var('intFormTypeLength');
 				$this->type_fetch_from = check_var('strFormTypeFetchFrom');
 				$this->type_connect_to = check_var('intFormTypeConnectTo');
 				$this->type_action_equals = check_var('strFormTypeActionEquals');
@@ -1875,7 +1876,7 @@ class mf_form
 				{
 					$intForm2TypeID = $r->form2TypeID;
 
-					$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
+					$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
 
 					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, form2TypeCreated, userID, ".$copy_fields.") (SELECT %d, NOW(), '".get_current_user_id()."', ".$copy_fields." FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
 					$intForm2TypeID_new = $wpdb->insert_id;
@@ -2016,7 +2017,7 @@ class mf_form
 
 									foreach($arr_import_rows as $import_row)
 									{
-										list($this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order) = explode(",", $import_row);
+										list($this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, $this->type_length) = explode(",", $import_row);
 
 										switch($this->type_id)
 										{
@@ -2028,7 +2029,7 @@ class mf_form
 											break;
 										}
 
-										$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d', userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, get_current_user_id()));
+										$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeLength = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d', userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_length, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, get_current_user_id()));
 
 										$intForm2TypeID = $wpdb->insert_id;
 
@@ -2156,7 +2157,7 @@ class mf_form
 						{
 							if($this->type_id > 0 && ($this->type_id == 6 || $this->type_id == 9 || $this->type_text != '')) //'space', 'referer_url'
 							{
-								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeActionEquals = %s, formTypeActionShow = %s, userID = '%d' WHERE form2TypeID = '%d'", $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_connect_to, $this->type_action_equals, $this->type_action_show, get_current_user_id(), $this->form2type_id));
+								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeLength = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeActionEquals = %s, formTypeActionShow = %s, userID = '%d' WHERE form2TypeID = '%d'", $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_length, $this->type_fetch_from, $this->type_connect_to, $this->type_action_equals, $this->type_action_show, get_current_user_id(), $this->form2type_id));
 
 								switch($this->type_id)
 								{
@@ -2166,7 +2167,7 @@ class mf_form
 									break;
 								}
 
-								$this->form2type_id = $this->type_id = $this->type_text = $this->type_placeholder = $this->check_id = $this->type_tag = $this->type_class = $this->type_fetch_from = $this->type_action_equals = $this->type_action_show = "";
+								$this->form2type_id = $this->type_id = $this->type_text = $this->type_placeholder = $this->check_id = $this->type_tag = $this->type_class = $this->type_length = $this->type_fetch_from = $this->type_action_equals = $this->type_action_show = "";
 							}
 
 							else
@@ -2181,7 +2182,7 @@ class mf_form
 							{
 								$this->form2type_order = $wpdb->get_var($wpdb->prepare("SELECT (form2TypeOrder + 1) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder DESC", $this->id));
 
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeActionEquals = %s, formTypeActionShow = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_connect_to, $this->type_action_equals, $this->type_action_show, $this->form2type_order, get_current_user_id()));
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeLength = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeActionEquals = %s, formTypeActionShow = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_length, $this->type_fetch_from, $this->type_connect_to, $this->type_action_equals, $this->type_action_show, $this->form2type_order, get_current_user_id()));
 
 								$this->form2type_id = $wpdb->insert_id;
 
@@ -2212,7 +2213,7 @@ class mf_form
 
 								if($wpdb->rows_affected > 0)
 								{
-									$this->form2type_id = $this->type_id = $this->type_text = $this->type_placeholder = $this->check_id = $this->type_tag = $this->type_class = $this->type_fetch_from = $this->type_action_equals = $this->type_action_show = "";
+									$this->form2type_id = $this->type_id = $this->type_text = $this->type_placeholder = $this->check_id = $this->type_tag = $this->type_class = $this->type_length = $this->type_fetch_from = $this->type_action_equals = $this->type_action_show = "";
 
 									if($this->form_option_exists == false)
 									{
@@ -2307,7 +2308,7 @@ class mf_form
 
 				if(!isset($_POST['btnFormAdd']) && $this->form2type_id > 0)
 				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $this->form2type_id));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $this->form2type_id));
 
 					if($wpdb->num_rows > 0)
 					{
@@ -2319,6 +2320,7 @@ class mf_form
 							$this->check_id = $r->checkID;
 							$this->type_tag = $r->formTypeTag;
 							$this->type_class = $r->formTypeClass;
+							$this->type_length = $r->formTypeLength;
 							$this->type_fetch_from = $r->formTypeFetchFrom;
 							$this->type_connect_to = $r->formTypeConnectTo;
 							$this->type_action_equals = $r->formTypeActionEquals;
@@ -3486,7 +3488,7 @@ class mf_form
 			$query_where_id = $this->id;
 		}
 
-		return $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, checkCode, checkPattern, formTypeText, formTypePlaceholder, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."form2type.form2TypeID ORDER BY form2TypeOrder ASC", $query_where_id));
+		return $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeCode, checkCode, checkPattern, formTypeText, formTypePlaceholder, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE ".$query_where." GROUP BY ".$wpdb->base_prefix."form2type.form2TypeID ORDER BY form2TypeOrder ASC", $query_where_id));
 	}
 
 	function process_link_yes_no()
@@ -5417,7 +5419,7 @@ if(class_exists('mf_export'))
 			$obj_form->id = $this->type;
 			$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeConnectTo, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
 
 			foreach($result as $r)
 			{
@@ -5466,6 +5468,7 @@ if(class_exists('mf_export'))
 					$r->formTypeAutofocus,
 					$r->formTypeRemember,
 					$r->form2TypeOrder,
+					$r->formTypeLength,
 				);
 			}
 		}
@@ -6690,7 +6693,7 @@ class mf_form_output
 			'name' => $this->query_prefix.$this->row->form2TypeID,
 		);
 
-		$class_output = $this->row->formTypeClass != '' ? " class='".$this->row->formTypeClass."'" : "";
+		$class_output = ($this->row->formTypeClass != '' ? " class='".$this->row->formTypeClass."'" : "");
 		$class_output_small = ($this->row->formTypeClass != '' ? " ".$this->row->formTypeClass : "");
 
 		switch($this->row->formTypeCode)
@@ -6894,6 +6897,11 @@ class mf_form_output
 				$field_data['placeholder'] = $this->row->formTypePlaceholder;
 				$field_data['pattern'] = $this->row->checkPattern;
 
+				if($this->row->formTypeLength > 0)
+				{
+					$field_data['maxlength'] = $this->row->formTypeLength;
+				}
+
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
@@ -6907,6 +6915,11 @@ class mf_form_output
 				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
 				$field_data['class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
 				$field_data['placeholder'] = $this->row->formTypePlaceholder;
+
+				if($this->row->formTypeLength > 0)
+				{
+					$field_data['xtra'] = " maxlength='".$this->row->formTypeLength."'";
+				}
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textarea($field_data);
