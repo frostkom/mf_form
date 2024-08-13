@@ -647,7 +647,7 @@ class mf_form
 		$plugin_version = get_plugin_version(__FILE__);
 
 		mf_enqueue_style('style_form', $plugin_include_url."style.css", $plugin_version);
-		mf_enqueue_script('script_form', $plugin_include_url."script.js", array('ajax_url' => admin_url('admin-ajax.php'), 'plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version);
+		mf_enqueue_script('script_form', $plugin_include_url."script.js", array('plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version); //'ajax_url' => admin_url('admin-ajax.php'), 
 	}
 
 	function admin_init()
@@ -4749,7 +4749,7 @@ class mf_form
 
 							$obj_form_output = new mf_form_output(array('id' => $this->id, 'answer_id' => $this->answer_id, 'result' => $r, 'in_edit_mode' => $this->edit_mode, 'query_prefix' => $this->prefix));
 
-							$obj_form_output->calculate_value(); //$this->answer_id
+							$obj_form_output->calculate_value();
 							$obj_form_output->get_form_fields();
 
 							$out .= $obj_form_output->get_output($data);
@@ -4783,10 +4783,9 @@ class mf_form
 
 									if(does_table_exist($wpdb->base_prefix."form_nonce"))
 									{
-										$out .= input_hidden(array('name' => 'form_submit_'.$this->id, 'value' => $this->create_nonce()));
+										//$out .= input_hidden(array('name' => 'form_submit_'.$this->id, 'value' => $this->create_nonce()));
+										$out .= "<div class='get_nonce'></div>";
 									}
-
-									//$out .= wp_nonce_field('form_submit_'.$this->id, '_wpnonce_form_submit', true, false);
 
 									if($this->check_if_has_payment() && (IS_ADMINISTRATOR || isset($_GET['make_test_payment'])))
 									{
@@ -4848,9 +4847,30 @@ class mf_form
 		{
 			$this->prefix = $this->get_post_info()."_";
 
-			if(isset($_POST[$this->prefix.'btnFormSubmit']) && $this->is_correct_form($data) && (!does_table_exist($wpdb->base_prefix."form_nonce") || (isset($_POST['form_submit_'.$this->id]) && $this->check_nonce($_POST['form_submit_'.$this->id]))))
+			if(isset($_POST[$this->prefix.'btnFormSubmit']))
 			{
-				$out .= $this->process_submit();
+				$form_nonce = check_var('form_submit_'.$this->id);
+
+				if($this->is_correct_form($data) == false)
+				{
+					$error_text = __("It is not the correct form. Please try again or contact an admin.", 'lang_form');
+				}
+
+				else if(!does_table_exist($wpdb->base_prefix."form_nonce"))
+				{
+					$error_text = __("The site has not been properly setup just yet. Wait a few minutes and try again or contact an admin regarding this.", 'lang_form');
+				}
+
+				else if($this->check_nonce($form_nonce) == false)
+				{
+					$error_text = __("The form was not processed properly. Try again but if the problem persists, contact an admin to report this.", 'lang_form');
+					//$error_text .= "(".$form_nonce.")";
+				}
+
+				else
+				{
+					$out .= $this->process_submit();
+				}
 			}
 
 			/*else if($_SERVER['REMOTE_ADDR'] == "")

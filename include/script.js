@@ -23,7 +23,7 @@ jQuery(function($)
 	});
 	/* ################### */
 
-	/*  */
+	/* Connect To */
 	/* ################### */
 	function do_form_type_connect_to(dom_obj)
 	{
@@ -468,6 +468,32 @@ jQuery(function($)
 		hide_form_overlay();
 	});
 
+	/* Submit */
+	/* ################### */
+	$(".mf_form .get_nonce").each(function()
+	{
+		var dom_obj = $(this),
+			form_id = dom_obj.parents(".mf_form").attr('id').replace('form_', '');
+
+		$.ajax(
+		{
+			url: script_form.plugin_url + 'api/?type=get_nonce',
+			type: 'post',
+			dataType: 'json',
+			data:
+			{
+				form_id: form_id
+			},
+			success: function(data)
+			{
+				if(data.success)
+				{
+					dom_obj.html(data.response);
+				}
+			}			
+		});
+	});
+
 	$(document).on('click', ".mf_form_submit .button-primary", function()
 	{
 		var dom_obj = $(this);
@@ -497,4 +523,5 @@ jQuery(function($)
 			}
 		}
 	});
+	/* ################### */
 });

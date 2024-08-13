@@ -23,36 +23,36 @@ $type = check_var('type', 'char');
 $arr_input = explode("/", $type);
 
 $type_action = $arr_input[0];
-$type_table = isset($arr_input[1]) ? $arr_input[1] : "";
-$type_id = isset($arr_input[2]) ? $arr_input[2] : "";
-$state_id = isset($arr_input[3]) ? $arr_input[3] : "";
+$type_table = (isset($arr_input[1]) ? $arr_input[1] : "");
+$type_id = (isset($arr_input[2]) ? $arr_input[2] : "");
+$state_id = (isset($arr_input[3]) ? $arr_input[3] : "");
 
-if(is_user_logged_in())
+switch($type_action)
 {
-	switch($type_action)
-	{
-		case 'autofocus':
-			if($type_table == 'type')
+	case 'autofocus':
+		if(is_user_logged_in() && $type_table == 'type')
+		{
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $type_id));
+
+			foreach($result as $r)
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $type_id));
-
-				foreach($result as $r)
-				{
-					$intFormID = $r->formID;
-				}
-
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeAutofocus = '0' WHERE formID = '%d'", $intFormID));
-
-				if($state_id == "true")
-				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeAutofocus = '1' WHERE form2TypeID = '%d'", $type_id));
-				}
-
-				$json_output['success'] = true;
+				$intFormID = $r->formID;
 			}
-		break;
 
-		case 'delete':
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeAutofocus = '0' WHERE formID = '%d'", $intFormID));
+
+			if($state_id == "true")
+			{
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeAutofocus = '1' WHERE form2TypeID = '%d'", $type_id));
+			}
+
+			$json_output['success'] = true;
+		}
+	break;
+
+	case 'delete':
+		if(is_user_logged_in())
+		{
 			switch($type_table)
 			{
 				case 'answer':
@@ -123,43 +123,53 @@ if(is_user_logged_in())
 					}
 				break;
 			}
-		break;
+		}
+	break;
 
-		case 'display':
-		case 'remember':
-		case 'require':
-			if($type_table == 'type')
+	case 'display':
+	case 'remember':
+	case 'require':
+		if(is_user_logged_in() && $type_table == 'type')
+		{
+			switch($type_action)
 			{
-				switch($type_action)
-				{
-					case 'display':
-						$type_field = "formTypeDisplay";
-					break;
+				case 'display':
+					$type_field = "formTypeDisplay";
+				break;
 
-					case 'require':
-						$type_field = "formTypeRequired";
-					break;
+				case 'require':
+					$type_field = "formTypeRequired";
+				break;
 
-					case 'remember':
-						$type_field = "formTypeRemember";
-					break;
-				}
-
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET ".$type_field." = '%d' WHERE form2TypeID = '%d'", ($state_id == "true" ? 1 : 0), $type_id));
-
-				if($wpdb->rows_affected > 0)
-				{
-					$json_output['success'] = true;
-				}
-
-				else
-				{
-					$json_output['error'] = mysql_error();
-				}
+				case 'remember':
+					$type_field = "formTypeRemember";
+				break;
 			}
-		break;
 
-		case 'sortOrder':
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET ".$type_field." = '%d' WHERE form2TypeID = '%d'", ($state_id == "true" ? 1 : 0), $type_id));
+
+			if($wpdb->rows_affected > 0)
+			{
+				$json_output['success'] = true;
+			}
+
+			else
+			{
+				$json_output['error'] = mysql_error();
+			}
+		}
+	break;
+
+	case 'get_nonce':
+		$form_id = check_var('form_id', 'int');
+
+		$json_output['success'] = true;
+		$json_output['response'] = input_hidden(array('name' => 'form_submit_'.$form_id, 'value' => $obj_form->create_nonce()));
+	break;
+
+	case 'sortOrder':
+		if(is_user_logged_in())
+		{
 			$updated = false;
 
 			$strOrder = check_var('strOrder');
@@ -189,30 +199,29 @@ if(is_user_logged_in())
 			{
 				$json_output['success'] = true;
 			}
-		break;
-	}
-}
+		}
+	break;
 
-if($type_action == 'zipcode')
-{
-	do_action('run_cache', array('suffix' => 'json'));
+	case 'zipcode':
+		do_action('run_cache', array('suffix' => 'json'));
 
-	$search = str_replace(" ", "", $type_id);
-	$city_name = "";
+		$search = str_replace(" ", "", $type_id);
+		$city_name = "";
 
-	if(get_bloginfo('language') == "sv-SE")
-	{
-		include_once("../class_zipcode.php");
-		$obj_zipcode = new mf_zipcode();
+		if(get_bloginfo('language') == "sv-SE")
+		{
+			include_once("../class_zipcode.php");
+			$obj_zipcode = new mf_zipcode();
 
-		$city_name = $obj_zipcode->get_city($search);
-	}
+			$city_name = $obj_zipcode->get_city($search);
+		}
 
-	if($city_name != '')
-	{
-		$json_output['success'] = true;
-		$json_output['response'] = $city_name;
-	}
+		if($city_name != '')
+		{
+			$json_output['success'] = true;
+			$json_output['response'] = $city_name;
+		}
+	break;
 }
 
 echo json_encode($json_output);
