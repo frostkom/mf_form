@@ -3356,7 +3356,7 @@ class mf_form
 
 		else
 		{
-			$link_base_url = get_form_url($this->id)."?btnVar"
+			$link_base_url = $this->get_form_url($this->id)."?btnVar"
 				."&answer_email=".$data['mail_to']
 				."&answer_id=".$this->answer_id
 				."&product_id=".$intProductID
