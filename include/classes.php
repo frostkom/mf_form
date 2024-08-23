@@ -70,6 +70,7 @@ class mf_form
 	var $type_placeholder = "";
 	var $type_tag = "";
 	var $type_class = "";
+	var $type_length;
 	var $type_fetch_from = "";
 	var $type_connect_to = "";
 	var $type_action_equals = "";
@@ -2478,6 +2479,51 @@ class mf_form
 				else if(isset($_GET['btnAnswerSpam']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_spam'], 'answer_spam_'.$this->answer_id))
 				{
 					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d'", $this->answer_id));
+
+					$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, answerIP FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $this->answer_id));
+
+					foreach($result as $r)
+					{
+						$intAnswerID = $r->answerID;
+						$strAnswerIP = $r->answerIP;
+
+						$intForm2TypeID = $this->get_form_email_field();
+						$strAnswerEmail = $this->get_answer_email($intAnswerID);
+
+						if($strAnswerIP != '')
+						{
+							$resultIP = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerIP = %s", $strAnswerIP));
+
+							if($wpdb->num_rows > 0)
+							{
+								do_log("btnAnswerSpam - IP: ".$wpdb->last_query);
+
+								foreach($resultIP as $r)
+								{
+									$intAnswerID_temp = $r->answerID;
+
+									//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d' AND answerSpam = '0'", $intAnswerID_temp));
+								}
+							}
+						}
+
+						if($strAnswerEmail != '')
+						{
+							$resultEmail = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE form2TypeID = '%d' AND answerText = %s", $intForm2TypeID, $strAnswerEmail));
+
+							if($wpdb->num_rows > 0)
+							{
+								//do_log("btnAnswerSpam - Email: ".$wpdb->last_query);
+
+								foreach($resultEmail as $r)
+								{
+									$intAnswerID_temp = $r->answerID;
+
+									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d' AND answerSpam = '0'", $intAnswerID_temp));
+								}
+							}
+						}
+					}
 
 					$done_text = __("I have marked the email as spam for you", 'lang_form');
 				}
