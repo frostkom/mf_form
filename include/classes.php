@@ -317,12 +317,12 @@ class mf_form
 
 		$args = array(
 			'labels' => $labels,
-			'public' => is_user_logged_in(), // Previously true but changed to hide publicly in sitemap.xml
+			'public' => true,
 			'show_ui' => true,
 			'show_in_menu' => false,
 			'exclude_from_search' => true,
 			'rewrite' => array(
-				'slug' => "form",
+				'slug' => 'form',
 			),
 		);
 
