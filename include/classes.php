@@ -2492,29 +2492,27 @@ class mf_form
 
 						if($strAnswerIP != '')
 						{
-							$resultIP = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerIP = %s", $strAnswerIP));
+							$resultIP = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE answerID != '%d' AND answerIP = %s", $this->answer_id, $strAnswerIP));
 
 							if($wpdb->num_rows > 0)
 							{
-								do_log("btnAnswerSpam - IP: ".$wpdb->last_query);
+								//do_log("btnAnswerSpam - IP: ".$wpdb->last_query);
 
 								foreach($resultIP as $r)
 								{
 									$intAnswerID_temp = $r->answerID;
 
-									//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d' AND answerSpam = '0'", $intAnswerID_temp));
+									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d' AND answerSpam = '0'", $intAnswerID_temp));
 								}
 							}
 						}
 
 						if($strAnswerEmail != '')
 						{
-							$resultEmail = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE form2TypeID = '%d' AND answerText = %s", $intForm2TypeID, $strAnswerEmail));
+							$resultEmail = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer INNER JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE answerID != '%d' AND form2TypeID = '%d' AND answerText = %s", $this->answer_id, $intForm2TypeID, $strAnswerEmail));
 
 							if($wpdb->num_rows > 0)
 							{
-								//do_log("btnAnswerSpam - Email: ".$wpdb->last_query);
-
 								foreach($resultEmail as $r)
 								{
 									$intAnswerID_temp = $r->answerID;
