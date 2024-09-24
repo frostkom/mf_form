@@ -3280,9 +3280,19 @@ class mf_form
 
 		if($form_id > 0)
 		{
-			foreach(get_pages_from_shortcode("[mf_form id=".$form_id."]") as $post_id)
+			$arr_posts = get_pages_from_shortcode("[mf_form id=".$form_id."]");
+
+			if(is_array($arr_posts) && count($arr_posts) > 0)
 			{
-				$out = get_permalink($post_id);
+				foreach($arr_posts as $post_id)
+				{
+					$out = get_permalink($post_id);
+				}
+			}
+
+			else
+			{
+				$out = get_permalink($this->get_post_id($form_id));
 			}
 		}
 
