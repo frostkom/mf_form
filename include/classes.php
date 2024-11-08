@@ -297,7 +297,7 @@ class mf_form
 
 		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)
 		{
-			$out = "<div>" // class=''
+			$out = "<div".(isset($attributes['className']) && $attributes['className'] != '' ? " class='".$attributes['className']."'" : "").">"
 				.apply_filters('the_content', "[mf_form id=".$attributes['form_id']."]")
 			."</div>";
 		}

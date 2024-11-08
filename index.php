@@ -570,6 +570,8 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		if($post->post_type == $obj_form->post_type)
 		{
+			// Get HTML from a generic page instead
+
 			$single_template = plugin_dir_path(__FILE__)."templates/single-".$post->post_type.".php";
 		}
 
