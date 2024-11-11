@@ -32,7 +32,6 @@ if($obj_form->check_allow_edit())
 
 				$form_answer_page_shortcodes = "&content=".sprintf(__("%sDisplay this...%s%s...or this%s", 'lang_form'), "[if id > 1]", "[end_if]", "[else]", "[end_else]");
 
-				//$arr_data_pages = $obj_form->get_pages_for_select();
 				$arr_data_pages = array();
 				get_post_children(array('add_choose_here' => true), $arr_data_pages);
 
@@ -317,9 +316,10 @@ if($obj_form->check_allow_edit())
 						<form method='post' action='' class='mf_form mf_settings'>
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Save", 'lang_form')."</span></h3>
-								<div class='inside'>"
-									.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => true, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
-									.show_textfield(array('name' => 'strFormURL', 'text' => __("URL", 'lang_form'), 'value' => $obj_form->url, 'maxlength' => 100));
+								<div class='inside'>";
+
+									/*echo show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => true, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
+									.show_textfield(array('name' => 'strFormURL', 'text' => __("URL", 'lang_form'), 'value' => $obj_form->url, 'maxlength' => 100));*/
 
 									if($form_output != '')
 									{
@@ -342,30 +342,6 @@ if($obj_form->check_allow_edit())
 											}
 
 										echo "</div>";
-
-										if($obj_form->id > 0)
-										{
-											$result = $wpdb->get_results($wpdb->prepare("SELECT formCreated, userID, postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
-
-											foreach($result as $r)
-											{
-												$dteFormCreated = $r->formCreated;
-												$intUserID = $r->userID;
-												$intPostID = $r->postID;
-
-												echo "<p><em>".sprintf(__("Created %s by %s", 'lang_form'), format_date($dteFormCreated), get_user_info(array('id' => $intUserID)))."</em></p>";
-
-												$result = $wpdb->get_results($wpdb->prepare("SELECT post_modified, post_author FROM ".$wpdb->posts." WHERE ID = '%d' AND post_modified > %s", $intPostID, $dteFormCreated));
-
-												foreach($result as $r)
-												{
-													$post_modified = $r->post_modified;
-													$post_author = $r->post_author;
-
-													echo "<p><em>".sprintf(__("Updated %s by %s", 'lang_form'), format_date($post_modified), get_user_info(array('id' => $post_author)))."</em></p>";
-												}
-											}
-										}
 									}
 
 								echo "</div>
@@ -387,7 +363,7 @@ if($obj_form->check_allow_edit())
 
 											if($obj_form->is_poll())
 											{
-												echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => $obj_form->show_answers)); //array('return_integer' => true)
+												echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormShowAnswers', 'text' => __("Show Answers", 'lang_form'), 'value' => $obj_form->show_answers));
 											}
 
 											echo show_select(array('data' => get_yes_no_for_select(), 'name' => 'strFormSaveIP', 'value' => $obj_form->save_ip, 'text' => __("Save IP", 'lang_form')))

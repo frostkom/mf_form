@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.3.8
+Version: 1.1.4.1
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -38,6 +38,14 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_filter('filter_sites_table_settings', array($obj_form, 'filter_sites_table_settings'));
 		add_filter('filter_sites_table_pages', array($obj_form, 'filter_sites_table_pages'));
 
+		add_filter('manage_'.$obj_form->post_type.'_posts_columns', array($obj_form, 'column_header'), 5);
+		add_action('manage_'.$obj_form->post_type.'_posts_custom_column', array($obj_form, 'column_cell'), 5, 2);
+
+		add_filter('post_row_actions', array($obj_form, 'row_actions'), 10, 2);
+		add_filter('page_row_actions', array($obj_form, 'row_actions'), 10, 2);
+
+		add_action('rwmb_meta_boxes', array($obj_form, 'rwmb_meta_boxes'));
+
 		add_action('wp_trash_post', array($obj_form, 'wp_trash_post'));
 		add_action('deleted_user', array($obj_form, 'deleted_user'));
 
@@ -54,8 +62,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_filter('get_shortcode_list', array($obj_form, 'get_shortcode_list'));
 
 		add_filter('filter_cookie_types', array($obj_form, 'filter_cookie_types'));
-
-		//add_filter('get_user_reminders', array($obj_form, 'get_user_reminders'), 10, 1);
 	}
 
 	else
@@ -95,7 +101,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			blogID TINYINT UNSIGNED,
 			postID INT UNSIGNED NOT NULL DEFAULT '0',
-			formName VARCHAR(100) DEFAULT NULL,
 			formAcceptDuplicates ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
 			formSaveIP ENUM('no', 'yes') NOT NULL DEFAULT 'no',
 			formAnswerURL VARCHAR(20) DEFAULT NULL,
@@ -137,16 +142,18 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			PRIMARY KEY (formID),
 			KEY blogID (blogID),
 			KEY postID (postID)
-		) DEFAULT CHARSET=".$default_charset);
+		) DEFAULT CHARSET=".$default_charset); //formName VARCHAR(100) DEFAULT NULL,
 
 		$arr_add_column[$wpdb->base_prefix."form"] = array(
 			'formButtonDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER formMandatoryText", //220927
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form"] = array(
-			'formShowAnswers' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('no', 'yes', '1') NOT NULL DEFAULT 'no'", // 221024
+			'formShowAnswers' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('no', 'yes', '1') NOT NULL DEFAULT 'no'", //221024
 			'formAcceptDuplicates' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes'", //230202
 		);
+
+		// Delete (formName)
 
 		$wpdb->query("UPDATE ".$wpdb->base_prefix."form SET formShowAnswers = 'yes' WHERE formShowAnswers = '1'");
 		$wpdb->query("UPDATE ".$wpdb->base_prefix."form SET formShowAnswers = 'no' WHERE (formShowAnswers = '0' OR formShowAnswers = '' OR formShowAnswers IS null)");
@@ -329,148 +336,179 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		run_queries($arr_run_query);
 
-		// Convert wp_query to wp_posts
+		// Convert wp_form to wp_posts
 		#################################
-		/*$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d') AND formDeleted = '0' AND formConverted = '0'", $wpdb->blogid));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID, formButtonDisplay, formButtonSymbol, formButtonText, formAnswerURL, formMandatoryText, formDeadline, formAcceptDuplicates, formShowAnswers, formSaveIP, formEmailName, formEmailNotify, formEmail, formEmailNotifyFrom, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyPage, formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmailConditions, formPaymentProvider, formPaymentMerchant, formPaymentPassword, formPaymentHmac, formTermsPage, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d') AND formDeleted = '0'", $wpdb->blogid));
 
 		foreach($result as $r)
 		{
 			$intFormID = $r->formID;
-			//...
+			$post_id = $r->postID;
 
-			//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formConverted = '1' WHERE formID = '%d'", $intFormID));
-		}*/
-		#################################
-
-		// Make sure that forms exists both in wp_form and wp_posts[post_type=mf_form]
-		#################################
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, blogID, postID, formName, formDeleted FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d')", $wpdb->blogid));
-
-		foreach($result as $r)
-		{
-			if($r->formName != '')
+			if($r->formButtonDisplay != '')
 			{
-				$post_title = get_post_title($r->postID);
+				replace_post_meta(array('old' => 'button_display', 'new' => $this->meta_prefix.'button_display'));
 
-				if($r->postID > 0 && $post_title == $r->formName)
-				{
-					if($wpdb->blogid > 0 && $r->blogID != $wpdb->blogid)
-					{
-						//do_log("Update blogID (".$r->formName." == ".$post_title.", blogID:".$r->blogID.", postID:".$r->postID.")");
-
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formDeleted = '0', formDeletedDate = null WHERE formID = '%d'", $wpdb->blogid, $r->formID));
-					}
-				}
-
-				else
-				{
-					$post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = %s", $obj_form->post_type, $r->formName));
-
-					if($post_id > 0)
-					{
-						if($wpdb->blogid != $r->blogID && $post_id != $r->postID)
-						{
-							do_log("Same Name (".$r->formName.", blogID:".$r->blogID.", ".$wpdb->base_prefix."form.postID:".$r->postID.", ".$wpdb->posts.".ID:".$post_id.")");
-
-							//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formDeleted = '0', formDeletedDate = null WHERE formID = '%d'", $wpdb->blogid, $post_id, $r->formID));
-						}
-					}
-
-					else
-					{
-						if($r->formDeleted == '0')
-						{
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW() WHERE formID = '%d'", $r->formID));
-						}
-					}
-				}
+				update_post_meta($post_id, $this->meta_prefix.'button_display', ($r->formButtonDisplay == 1 ? 'yes' : 'no'));
 			}
+
+			if($r->formButtonSymbol != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'button_symbol', $r->formButtonSymbol);
+			}
+
+			if($r->formButtonText != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'button_text', $r->formButtonText);
+			}
+
+			if($r->formAnswerURL != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'answer_url', $r->formAnswerURL);
+			}
+
+			if($r->formMandatoryText != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'mandatory_text', $r->formMandatoryText);
+			}
+
+			if($r->formDeadline != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'deadline', $r->formDeadline);
+			}
+
+			if($r->formAcceptDuplicates != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'accept_duplicates', $r->formAcceptDuplicates);
+			}
+
+			if($r->formShowAnswers != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'show_answers', $r->formShowAnswers);
+			}
+
+			if($r->formSaveIP != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'save_ip', $r->formSaveIP);
+			}
+
+			if($r->formEmailName != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_name', $r->formEmailName);
+			}
+
+			if($r->formEmailNotify != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_notify', ($r->formEmailNotify == 1 ? 'yes' : 'no'));
+			}
+
+			if($r->formEmail != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_admin', $r->formEmail);
+			}
+
+			if($r->formEmailNotifyFrom != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_notify_from', $r->formEmailNotifyFrom);
+			}
+
+			if($r->formEmailNotifyFromEmail != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_notify_from_email', $r->formEmailNotifyFromEmail);
+			}
+
+			if($r->formEmailNotifyFromEmailName != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_notify_from_email_name', $r->formEmailNotifyFromEmailName);
+			}
+
+			if($r->formEmailNotifyPage != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_notify_page', $r->formEmailNotifyPage);
+			}
+
+			if($r->formEmailConfirm != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_confirm', ($r->formEmailConfirm == 1 ? 'yes' : 'no'));
+			}
+
+			if($r->formEmailConfirmFromEmail != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_confirm_from_email', $r->formEmailConfirmFromEmail);
+			}
+
+			if($r->formEmailConfirmFromEmailName != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_confirm_from_email_name', $r->formEmailConfirmFromEmailName);
+			}
+
+			if($r->formEmailConfirmID != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_confirm_id', $r->formEmailConfirmID);
+			}
+
+			if($r->formEmailConfirmPage != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_confirm_page', $r->formEmailConfirmPage);
+			}
+
+			if($r->formEmailConditions != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'email_conditions', $r->formEmailConditions);
+			}
+
+			if($r->formPaymentProvider != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'payment_provider', $r->formPaymentProvider);
+			}
+
+			if($r->formPaymentMerchant != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'payment_merchant', $r->formPaymentMerchant);
+			}
+
+			if($r->formPaymentPassword != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'payment_password', $r->formPaymentPassword);
+			}
+
+			if($r->formPaymentHmac != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'payment_hmac', $r->formPaymentHmac);
+			}
+
+			if($r->formTermsPage != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'terms_page', $r->formTermsPage);
+			}
+
+			if($r->formPaymentCurrency != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'payment_currency', $r->formPaymentCurrency);
+			}
+
+			if($r->formPaymentCost != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'payment_cost', $r->formPaymentCost);
+			}
+
+			if($r->formPaymentAmount != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'payment_amount', $r->formPaymentAmount);
+			}
+
+			if($r->formPaymentTax != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'payment_tax', $r->formPaymentTax);
+			}
+
+			if($r->formPaymentCallback != '')
+			{
+				update_post_meta($post_id, $this->meta_prefix.'payment_callback', $r->formPaymentCallback);
+			}
+
+			//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formButtonDisplay = '', formButtonSymbol = '', formButtonText = '', formAnswerURL = '', formMandatoryText = '', formDeadline = '', formAcceptDuplicates = '', formShowAnswers = '', formSaveIP = '', formEmailName = '', formEmailNotify = '', formEmail = '', formEmailNotifyFrom = '', formEmailNotifyFromEmail = '', formEmailNotifyFromEmailName = '', formEmailNotifyPage = '', formEmailConfirm = '', formEmailConfirmFromEmail = '', formEmailConfirmFromEmailName = '', formEmailConfirmID = '', formEmailConfirmPage = '', formEmailConditions = '', formPaymentProvider = '', formPaymentMerchant = '', formPaymentPassword = '', formPaymentHmac = '', formTermsPage = '', formPaymentCurrency = '', formPaymentCost = '', formPaymentAmount = '', formPaymentTax = '', formPaymentCallback = '' WHERE formID = '%d'", $intFormID));
 		}
-		#################################
-
-		// Move data from old tables to new ones
-		#################################
-		/*$arr_copy = array();
-
-		$arr_copy[] = array(
-			'table_from' => "query",
-			'fields_from' => "queryID, blogID, postID, queryName, queryAnswerURL, queryEmail, queryEmailNotify, queryEmailNotifyPage, queryEmailName, queryEmailConfirm, queryEmailConfirmPage, queryShowAnswers, queryMandatoryText, queryButtonText, queryButtonSymbol, queryPaymentProvider, queryPaymentHmac, queryPaymentMerchant, queryPaymentPassword, queryPaymentCurrency, queryPaymentCheck, queryPaymentAmount, queryCreated, queryDeleted, queryDeletedDate, queryDeletedID, userID",
-
-			'table_to' => "form",
-			'fields_to' => "formID, blogID, postID, formName, formAnswerURL, formEmail, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCheck, formPaymentAmount, formCreated, formDeleted, formDeletedDate, formDeletedID, userID",
-		);
-
-		$arr_copy[] = array(
-			'table_from' => "query2type",
-			'fields_from' => "query2TypeID, query2TypeID2, queryID, queryTypeID, queryTypeText, queryTypePlaceholder, checkID, queryTypeTag, queryTypeClass, queryTypeFetchFrom, queryTypeActionEquals, queryTypeActionShow, queryTypeRequired, queryTypeAutofocus, queryTypeRemember, query2TypeOrder, query2TypeCreated, userID",
-
-			'table_to' => "form2type",
-			'fields_to' => "form2TypeID, form2TypeID2, formID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder, form2TypeCreated, userID",
-		);
-
-		$arr_copy[] = array(
-			'table_from' => "query2answer",
-			'fields_from' => "answerID, queryID, answerIP, answerSpam, answerToken, answerCreated",
-
-			'table_to' => "form2answer",
-			'fields_to' => "answerID, formID, answerIP, answerSpam, answerToken, answerCreated",
-		);
-
-		$arr_copy[] = array(
-			'table_from' => "query_answer",
-			'fields_from' => "answerID, query2TypeID, answerText",
-
-			'table_to' => "form_answer",
-			'fields_to' => "answerID, form2TypeID, answerText",
-		);
-
-		$arr_copy[] = array(
-			'table_from' => "query_answer_email",
-			'fields_from' => "answerID, answerEmail, answerType, answerSent",
-
-			'table_to' => "form_answer_email",
-			'fields_to' => "answerID, answerEmailFrom, answerEmail, answerType, answerSent",
-		);
-
-		$option_form_list_viewed = get_option('option_form_list_viewed');
-
-		foreach($arr_copy as $copy)
-		{
-			$log_message = sprintf(__("I am about to drop the table %s. Go to %sForms%s and make sure that the forms are working as they should before I do this.", 'lang_form'), $wpdb->base_prefix.$copy['table_from'], "<a href='".admin_url("admin.php?page=mf_form/list/index.php")."'>", "</a>");
-
-			if(does_table_exist($wpdb->base_prefix.$copy['table_from']))
-			{
-				$wpdb->get_results("SELECT * FROM ".$wpdb->base_prefix.$copy['table_to']." LIMIT 0, 1");
-				$table_to_rows = $wpdb->num_rows;
-
-				if($table_to_rows == 0)
-				{
-					$wpdb->query("INSERT INTO ".$wpdb->base_prefix.$copy['table_to']." (".$copy['fields_to'].") (SELECT ".$copy['fields_from']." FROM ".$wpdb->base_prefix.$copy['table_from'].")");
-				}
-
-				else
-				{
-					if($option_form_list_viewed > DEFAULT_DATE)
-					{
-						if($option_form_list_viewed < date("Y-m-d H:i:s", strtotime("-1 week")))
-						{
-							$wpdb->query("TRUNCATE ".$wpdb->base_prefix.$copy['table_from']);
-							$wpdb->query("DROP TABLE IF EXISTS ".$wpdb->base_prefix.$copy['table_from']);
-						}
-					}
-
-					else
-					{
-						do_log($log_message);
-					}
-				}
-			}
-
-			else
-			{
-				do_log($log_message, 'trash');
-			}
-		}*/
 		#################################
 
 		// Start using form_option
