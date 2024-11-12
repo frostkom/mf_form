@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.4.1
+Version: 1.1.4.2
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -338,7 +338,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		// Convert wp_form to wp_posts
 		#################################
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID, formButtonDisplay, formButtonSymbol, formButtonText, formAnswerURL, formMandatoryText, formDeadline, formAcceptDuplicates, formShowAnswers, formSaveIP, formEmailName, formEmailNotify, formEmail, formEmailNotifyFrom, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyPage, formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmailConditions, formPaymentProvider, formPaymentMerchant, formPaymentPassword, formPaymentHmac, formTermsPage, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d') AND formDeleted = '0'", $wpdb->blogid));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID, formButtonDisplay, formButtonSymbol, formButtonText, formAnswerURL, formMandatoryText, formAcceptDuplicates, formShowAnswers, formSaveIP, formEmailName, formEmailNotify, formEmail, formEmailNotifyFrom, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyPage, formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmailConditions, formPaymentProvider, formPaymentMerchant, formPaymentPassword, formPaymentHmac, formTermsPage, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d') AND formDeleted = '0'", $wpdb->blogid));
 
 		foreach($result as $r)
 		{
@@ -370,11 +370,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			if($r->formMandatoryText != '')
 			{
 				update_post_meta($post_id, $this->meta_prefix.'mandatory_text', $r->formMandatoryText);
-			}
-
-			if($r->formDeadline != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'deadline', $r->formDeadline);
 			}
 
 			if($r->formAcceptDuplicates != '')
@@ -507,7 +502,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 				update_post_meta($post_id, $this->meta_prefix.'payment_callback', $r->formPaymentCallback);
 			}
 
-			//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formButtonDisplay = '', formButtonSymbol = '', formButtonText = '', formAnswerURL = '', formMandatoryText = '', formDeadline = '', formAcceptDuplicates = '', formShowAnswers = '', formSaveIP = '', formEmailName = '', formEmailNotify = '', formEmail = '', formEmailNotifyFrom = '', formEmailNotifyFromEmail = '', formEmailNotifyFromEmailName = '', formEmailNotifyPage = '', formEmailConfirm = '', formEmailConfirmFromEmail = '', formEmailConfirmFromEmailName = '', formEmailConfirmID = '', formEmailConfirmPage = '', formEmailConditions = '', formPaymentProvider = '', formPaymentMerchant = '', formPaymentPassword = '', formPaymentHmac = '', formTermsPage = '', formPaymentCurrency = '', formPaymentCost = '', formPaymentAmount = '', formPaymentTax = '', formPaymentCallback = '' WHERE formID = '%d'", $intFormID));
+			//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formButtonDisplay = '', formButtonSymbol = '', formButtonText = '', formAnswerURL = '', formMandatoryText = '', formAcceptDuplicates = '', formShowAnswers = '', formSaveIP = '', formEmailName = '', formEmailNotify = '', formEmail = '', formEmailNotifyFrom = '', formEmailNotifyFromEmail = '', formEmailNotifyFromEmailName = '', formEmailNotifyPage = '', formEmailConfirm = '', formEmailConfirmFromEmail = '', formEmailConfirmFromEmailName = '', formEmailConfirmID = '', formEmailConfirmPage = '', formEmailConditions = '', formPaymentProvider = '', formPaymentMerchant = '', formPaymentPassword = '', formPaymentHmac = '', formTermsPage = '', formPaymentCurrency = '', formPaymentCost = '', formPaymentAmount = '', formPaymentTax = '', formPaymentCallback = '' WHERE formID = '%d'", $intFormID));
 		}
 		#################################
 
