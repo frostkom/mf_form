@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.4.2
+Version: 1.1.4.5
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -338,171 +338,67 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		// Convert wp_form to wp_posts
 		#################################
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID, formButtonDisplay, formButtonSymbol, formButtonText, formAnswerURL, formMandatoryText, formAcceptDuplicates, formShowAnswers, formSaveIP, formEmailName, formEmailNotify, formEmail, formEmailNotifyFrom, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyPage, formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmailConditions, formPaymentProvider, formPaymentMerchant, formPaymentPassword, formPaymentHmac, formTermsPage, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d') AND formDeleted = '0'", $wpdb->blogid));
+		$arr_fields_db = $arr_fields_meta = array();
+
+		$arr_fields_db[] = 'formButtonDisplay';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'button_display';
+		$arr_fields_db[] = 'formButtonSymbol';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_symbol';
+		$arr_fields_db[] = 'formButtonText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_text';
+		$arr_fields_db[] = 'formAnswerURL';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'answer_url';
+		$arr_fields_db[] = 'formMandatoryText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'mandatory_text';
+		$arr_fields_db[] = 'formAcceptDuplicates';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'accept_duplicates';
+		$arr_fields_db[] = 'formShowAnswers';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'show_answers';
+		$arr_fields_db[] = 'formSaveIP';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'save_ip';
+		$arr_fields_db[] = 'formEmailName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_name';
+		$arr_fields_db[] = 'formEmailNotify';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_notify';
+		$arr_fields_db[] = 'formEmail';						$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin';
+		$arr_fields_db[] = 'formEmailNotifyFrom';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from';
+		$arr_fields_db[] = 'formEmailNotifyFromEmail';		$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from_email';
+		$arr_fields_db[] = 'formEmailNotifyFromEmailName';	$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from_email_name';
+		$arr_fields_db[] = 'formEmailNotifyPage';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_page';
+		$arr_fields_db[] = 'formEmailConfirm';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_confirm';
+		$arr_fields_db[] = 'formEmailConfirmFromEmail';		$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_from_email';
+		$arr_fields_db[] = 'formEmailConfirmFromEmailName';	$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_from_email_name';
+		$arr_fields_db[] = 'formEmailConfirmID';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_id';
+		$arr_fields_db[] = 'formEmailConfirmPage';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_page';
+		$arr_fields_db[] = 'formEmailConditions';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_conditions';
+		$arr_fields_db[] = 'formPaymentProvider';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_provider';
+		$arr_fields_db[] = 'formPaymentMerchant';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_merchant';
+		$arr_fields_db[] = 'formPaymentPassword';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_password';
+		$arr_fields_db[] = 'formPaymentHmac';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_hmac';
+		$arr_fields_db[] = 'formTermsPage';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'terms_page';
+		$arr_fields_db[] = 'formPaymentCurrency';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_currency';
+		$arr_fields_db[] = 'formPaymentCost';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_cost';
+		$arr_fields_db[] = 'formPaymentAmount';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_amount';
+		$arr_fields_db[] = 'formPaymentTax';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_tax';
+		$arr_fields_db[] = 'formPaymentCallback';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_callback';
+
+		$count_temp = count($arr_fields_db);
+
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID, ".implode(", ", $arr_fields_db)." FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d') AND formDeleted = '0'", $wpdb->blogid), ARRAY_A);
 
 		foreach($result as $r)
 		{
-			$intFormID = $r->formID;
-			$post_id = $r->postID;
+			$intFormID = $r['formID'];
+			$post_id = $r['postID'];
 
-			if($r->formButtonDisplay != '')
+			for($i = 0; $i < $count_temp; $i++)
 			{
-				replace_post_meta(array('old' => 'button_display', 'new' => $this->meta_prefix.'button_display'));
+				if($r[$arr_fields_db[$i]] != '')
+				{
+					replace_post_meta(array('old' => $arr_fields_meta[$i], 'new' => $obj_form->meta_prefix.$arr_fields_meta[$i]));
 
-				update_post_meta($post_id, $this->meta_prefix.'button_display', ($r->formButtonDisplay == 1 ? 'yes' : 'no'));
+					update_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], ($arr_fields_db_bool[$i] == true && $r[$arr_fields_db[$i]] == 1 ? 'yes' : 'no'));
+				}
 			}
 
-			if($r->formButtonSymbol != '')
+			/*$query_set = "";
+
+			for($i = 0; $i < $count_temp; $i++)
 			{
-				update_post_meta($post_id, $this->meta_prefix.'button_symbol', $r->formButtonSymbol);
+				$query_set .= ($i > 0 ? ", " : "")$arr_fields_db[$i]." = ''";
 			}
 
-			if($r->formButtonText != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'button_text', $r->formButtonText);
-			}
-
-			if($r->formAnswerURL != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'answer_url', $r->formAnswerURL);
-			}
-
-			if($r->formMandatoryText != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'mandatory_text', $r->formMandatoryText);
-			}
-
-			if($r->formAcceptDuplicates != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'accept_duplicates', $r->formAcceptDuplicates);
-			}
-
-			if($r->formShowAnswers != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'show_answers', $r->formShowAnswers);
-			}
-
-			if($r->formSaveIP != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'save_ip', $r->formSaveIP);
-			}
-
-			if($r->formEmailName != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_name', $r->formEmailName);
-			}
-
-			if($r->formEmailNotify != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_notify', ($r->formEmailNotify == 1 ? 'yes' : 'no'));
-			}
-
-			if($r->formEmail != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_admin', $r->formEmail);
-			}
-
-			if($r->formEmailNotifyFrom != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_notify_from', $r->formEmailNotifyFrom);
-			}
-
-			if($r->formEmailNotifyFromEmail != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_notify_from_email', $r->formEmailNotifyFromEmail);
-			}
-
-			if($r->formEmailNotifyFromEmailName != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_notify_from_email_name', $r->formEmailNotifyFromEmailName);
-			}
-
-			if($r->formEmailNotifyPage != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_notify_page', $r->formEmailNotifyPage);
-			}
-
-			if($r->formEmailConfirm != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_confirm', ($r->formEmailConfirm == 1 ? 'yes' : 'no'));
-			}
-
-			if($r->formEmailConfirmFromEmail != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_confirm_from_email', $r->formEmailConfirmFromEmail);
-			}
-
-			if($r->formEmailConfirmFromEmailName != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_confirm_from_email_name', $r->formEmailConfirmFromEmailName);
-			}
-
-			if($r->formEmailConfirmID != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_confirm_id', $r->formEmailConfirmID);
-			}
-
-			if($r->formEmailConfirmPage != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_confirm_page', $r->formEmailConfirmPage);
-			}
-
-			if($r->formEmailConditions != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'email_conditions', $r->formEmailConditions);
-			}
-
-			if($r->formPaymentProvider != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'payment_provider', $r->formPaymentProvider);
-			}
-
-			if($r->formPaymentMerchant != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'payment_merchant', $r->formPaymentMerchant);
-			}
-
-			if($r->formPaymentPassword != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'payment_password', $r->formPaymentPassword);
-			}
-
-			if($r->formPaymentHmac != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'payment_hmac', $r->formPaymentHmac);
-			}
-
-			if($r->formTermsPage != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'terms_page', $r->formTermsPage);
-			}
-
-			if($r->formPaymentCurrency != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'payment_currency', $r->formPaymentCurrency);
-			}
-
-			if($r->formPaymentCost != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'payment_cost', $r->formPaymentCost);
-			}
-
-			if($r->formPaymentAmount != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'payment_amount', $r->formPaymentAmount);
-			}
-
-			if($r->formPaymentTax != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'payment_tax', $r->formPaymentTax);
-			}
-
-			if($r->formPaymentCallback != '')
-			{
-				update_post_meta($post_id, $this->meta_prefix.'payment_callback', $r->formPaymentCallback);
-			}
-
-			//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formButtonDisplay = '', formButtonSymbol = '', formButtonText = '', formAnswerURL = '', formMandatoryText = '', formAcceptDuplicates = '', formShowAnswers = '', formSaveIP = '', formEmailName = '', formEmailNotify = '', formEmail = '', formEmailNotifyFrom = '', formEmailNotifyFromEmail = '', formEmailNotifyFromEmailName = '', formEmailNotifyPage = '', formEmailConfirm = '', formEmailConfirmFromEmail = '', formEmailConfirmFromEmailName = '', formEmailConfirmID = '', formEmailConfirmPage = '', formEmailConditions = '', formPaymentProvider = '', formPaymentMerchant = '', formPaymentPassword = '', formPaymentHmac = '', formTermsPage = '', formPaymentCurrency = '', formPaymentCost = '', formPaymentAmount = '', formPaymentTax = '', formPaymentCallback = '' WHERE formID = '%d'", $intFormID));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET ".$query_set." WHERE formID = '%d'", $intFormID));*/
 		}
 		#################################
 

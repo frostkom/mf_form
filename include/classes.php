@@ -341,7 +341,7 @@ class mf_form
 		$plugin_version = get_plugin_version(__FILE__);
 
 		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-editor'), $plugin_version);
-		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array('form_id' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false))));
+		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array('form_id' => $this->get_for_select(array('force_has_page' => false))));
 
 		register_block_type('mf/form', array(
 			'editor_script' => 'script_form_block_wp',
@@ -482,7 +482,7 @@ class mf_form
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		echo show_select(array('data' => $this->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => $this->get_option_form_suffix(array('value' => $option)), 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
+		echo show_select(array('data' => $this->get_for_select(array('force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => $this->get_option_form_suffix(array('value' => $option)), 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 	}
 
 	function setting_replacement_form_text_callback()
@@ -1813,7 +1813,7 @@ class mf_form
 
 	function widgets_init()
 	{
-		if(count($this->get_for_select(array('local_only' => true, 'force_has_page' => false))) > 1)
+		if(count($this->get_for_select(array('force_has_page' => false))) > 1)
 		{
 			register_widget('widget_form');
 		}
@@ -3463,19 +3463,9 @@ class mf_form
 	{
 		global $wpdb;
 
-		if(!isset($data['local_only'])){		$data['local_only'] = false;}
 		if(!isset($data['force_has_page'])){	$data['force_has_page'] = true;}
 		if(!isset($data['is_payment'])){		$data['is_payment'] = false;}
 		if(!isset($data['where'])){				$data['where'] = "";}
-
-		$arr_data = array(
-			'' => "-- ".__("Choose Here", 'lang_form')." --"
-		);
-
-		if($data['local_only'] == true)
-		{
-			$data['where'] .= " AND (blogID = '".$wpdb->blogid."' OR blogID IS null)";
-		}
 
 		if($data['is_payment'] == true)
 		{
@@ -3487,27 +3477,39 @@ class mf_form
 			$data['where'] .= " AND (formPaymentProvider = 0 OR formPaymentProvider IS null OR formPaymentProvider = '')";
 		}
 
-		$result = $wpdb->get_results("SELECT formID, postID FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".$data['where']." ORDER BY formCreated DESC"); //, formName
+		$arr_data = array(
+			'' => "-- ".__("Choose Here", 'lang_form')." --"
+		);
+
+		$arr_data_posts = array();
+		get_post_children(array('add_choose_here' => false, 'post_type' => $this->post_type), $arr_data_posts);
+
+		foreach($arr_data_posts as $key => $value)
+		{
+			$intFormID = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE postID = '%d'".$data['where'], $key));
+
+			if($intFormID > 0 && ($data['force_has_page'] == false || count(get_pages_from_shortcode("[mf_form id=".$intFormID."]")) > 0))
+			{
+				$arr_data[$intFormID] = $value;
+			}
+		}
+
+		//$arr_data = $arr_data_posts;
+
+		/*$result = $wpdb->get_results("SELECT formID, blogID, postID FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".$data['where']." ORDER BY blogID ASC, formCreated DESC");
 
 		foreach($result as $r)
 		{
 			$intFormID = $r->formID;
+			$blog_id = $r->blog_id;
 			$post_id = $r->postID;
-			//$strFormName = $r->formName;
 			$strFormName = get_post_title($post_id);
-
-			/*$result = $wpdb->get_results($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." WHERE post_type = %s AND ID = '%d'", $this->post_type, $post_id));
-
-			foreach($result as $r)
-			{
-				$strFormName = $r->post_title;
-			}*/
 
 			if($data['force_has_page'] == false || count(get_pages_from_shortcode("[mf_form id=".$intFormID."]")) > 0)
 			{
 				$arr_data[$intFormID] = $strFormName;
 			}
-		}
+		}*/
 
 		return $arr_data;
 	}
@@ -7856,7 +7858,7 @@ class widget_form extends WP_Widget
 
 		echo "<div class='mf_form'>"
 			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
-			.show_select(array('data' => $this->obj_form->get_for_select(array('local_only' => true, 'force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'text' => __("Form", 'lang_form'), 'value' => $instance['form_id'], 'suffix' => $obj_form->get_option_form_suffix(array('value' => $instance['form_id']))))
+			.show_select(array('data' => $this->obj_form->get_for_select(array('force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'text' => __("Form", 'lang_form'), 'value' => $instance['form_id'], 'suffix' => $obj_form->get_option_form_suffix(array('value' => $instance['form_id']))))
 		."</div>";
 	}
 }

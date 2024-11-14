@@ -25,6 +25,8 @@
 		{
 			float: right;
 			line-height: 2.8;
+			padding-left: 0;
+			padding-right: 0;
 			width: 80%;
 		}
 
