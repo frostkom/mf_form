@@ -5309,8 +5309,8 @@ class mf_form
 			$strFormShowAnswers = $r->formShowAnswers;
 			$strFormAnswerURL = $r->formAnswerURL;
 			$intFormButtonDisplay = $r->formButtonDisplay;
-			$strFormButtonText = ($r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form'));
 			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag(array('symbol' => $r->formButtonSymbol));
+			$strFormButtonText = ($r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form'));
 			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
 
 			if($strFormAnswerURL != '' && preg_match("/_/", $strFormAnswerURL))
@@ -5405,7 +5405,7 @@ class mf_form
 
 						if($this->answer_id > 0)
 						{
-							$out .= "<div class='form_button'>"
+							$out .= "<div".get_form_button_classes().">"
 								.show_button(array('name' => 'btnFormUpdate', 'text' => __("Update", 'lang_form')))
 								.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
 								.input_hidden(array('name' => 'intAnswerID', 'value' => $this->answer_id))
@@ -5425,8 +5425,8 @@ class mf_form
 
 							if($intFormButtonDisplay != 0)
 							{
-								$out .= "<div class='form_button'>"
-									.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => $strFormButtonSymbol.$strFormButtonText))
+								$out .= "<div".get_form_button_classes().">"
+									.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText))
 									.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
 
 									if(does_table_exist($wpdb->base_prefix."form_nonce"))
