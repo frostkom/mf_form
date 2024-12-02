@@ -284,15 +284,6 @@ class mf_form
 
 	function block_render_callback($attributes)
 	{
-		/* var_export($attributes, true) -> array (
-			'align' => 'full', // .alignfull
-			'style' => array (
-				'color' => array (
-					'background' => '#d5e0f0ad', // background: #d5e0f0ad
-				),
-			),
-		)*/
-
 		$out = "";
 
 		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)

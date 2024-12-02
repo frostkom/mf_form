@@ -9,9 +9,9 @@
 	{
 		title: __("Form", 'lang_form'),
 		description: __("Display a Form", 'lang_form'),
-		icon: 'forms', /* https://developer.wordpress.org/resource/dashicons/ */
-		category: 'widgets', /* common, formatting, layout, widgets, embed */
-		'attributes': /* https://developer.wordpress.org/block-editor/reference-guides/block-api/block-supports/ */
+		icon: 'forms',
+		category: 'widgets',
+		'attributes':
 		{
 			'align':
 			{
@@ -46,36 +46,43 @@
 				}
 			}*/
 		},
-		'supports': {
-			/*'className': false,
-			'customClassName': false,
-			'anchor': true,*/
+		'supports':
+		{
 			'html': false,
 			'multiple': false,
 			'align': true,
 			/*'align': [ 'left', 'right', 'center', 'wide', 'full' ],
 			'alignWide': false,*/
-			'spacing': {
+			'spacing':
+			{
 				'margin': true,
 				'padding': true
 				/*blockGap: true,*/
 			},
-			'color': {
+			'color':
+			{
 				'background': true,
 				'gradients': false,
 				'text': true
 				/*'link': true,*/
 			},
 			'defaultStylePicker': true,
-			'typography': {
+			'typography':
+			{
 				'fontSize': true,
 				'lineHeight': true
+			},
+			"__experimentalBorder":
+			{
+				"radius": true
 			}/*,
-			'dimensions': {
+			'dimensions':
+			{
 				'aspectRatio': true,
 				'minHeight': true
 			},
-			'position': {
+			'position':
+			{
 				'sticky': true
 			}*/
 		},

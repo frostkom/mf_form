@@ -242,12 +242,12 @@ jQuery(function($)
 				{
 					if(remember_count > 0)
 					{
-						$(".form_button .button-secondary").removeClass("hide");
+						$(".form_button .button-secondary, .wp-block-button .button-secondary").removeClass("hide");
 					}
 
 					else
 					{
-						$(".form_button .button-secondary").addClass("hide");
+						$(".form_button .button-secondary, .wp-block-button .button-secondary").addClass("hide");
 					}
 				}
 
@@ -297,7 +297,7 @@ jQuery(function($)
 					show_or_hide_clear_button();
 				});
 
-				$(".form_button button[name=btnFormClear]").on('click', function()
+				$(".form_button button[name=btnFormClear], .wp-block-button button[name=btnFormClear]").on('click', function()
 				{
 					remember_fields.each(function()
 					{

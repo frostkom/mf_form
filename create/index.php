@@ -332,7 +332,7 @@ if($obj_form->check_allow_edit())
 
 									if($obj_form->post_status == 'publish' && $obj_form->id > 0)
 									{
-										echo "<div class='form_buttons display_on_hover'>";
+										echo "<div".get_form_button_classes("display_on_hover").">";
 
 											$actions = $obj_form->filter_actions(array('class' => "button"));
 
