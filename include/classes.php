@@ -298,6 +298,8 @@ class mf_form
 
 	function init()
 	{
+		load_plugin_textdomain('lang_form', false, str_replace("/include", "", dirname(plugin_basename(__FILE__)))."/lang/");
+
 		// Post types
 		#######################
 		$labels = array(
