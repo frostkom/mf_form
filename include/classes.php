@@ -776,13 +776,13 @@ class mf_form
 		return $cols;
 	}
 
-	function column_cell($col, $id)
+	function column_cell($col, $post_id)
 	{
 		global $wpdb;
 
-		$this->get_form_id($id);
+		$this->get_form_id($post_id);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT post_status, post_author, post_date, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND ID = '%d'", $this->post_type, $id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT post_status, post_author, post_date, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND ID = '%d'", $this->post_type, $post_id));
 
 		foreach($result as $r)
 		{
@@ -2476,10 +2476,10 @@ class mf_form
 						}
 					}
 
-					if($data['include_answers'] == true)
+					/*if($data['include_answers'] == true)
 					{
 						do_log("Cloned answers from ".$intFormID." -> ".$intFormID_new);
-					}
+					}*/
 				}
 			}
 
