@@ -5696,11 +5696,10 @@ class mf_form_payment
 				$obj_form = new mf_form();
 			}
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id)); //formName, 
+			$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
 
 			foreach($result as $r)
 			{
-				//$this->name = $r->formName;
 				$this->name = get_post_title($obj_form->post_id);
 				$this->provider = $r->formPaymentProvider;
 				$this->hmac = $r->formPaymentHmac;
@@ -5724,78 +5723,7 @@ class mf_form_payment
 					$this->base_callback_url = get_permalink($obj_form->post_id)."?";
 				}
 			}
-
-			/*$result = $wpdb->get_results($wpdb->prepare("SELECT post_title FROM ".$wpdb->posts." WHERE post_type = %s AND ID = '%d'", $this->post_type, $obj_form->post_id));
-
-			foreach($result as $r)
-			{
-				$this->name = $r->post_title;
-			}*/
 		}
-	}
-
-	function get_site_language($data) //sv_SE, en_US etc.
-	{
-		if(!isset($data['language'])){			$data['language'] = get_bloginfo('language');}
-		if(!isset($data['type'])){				$data['type'] = '';}
-		if(!isset($data['uc'])){				$data['uc'] = true;}
-		if(!isset($data['return_separator'])){	$data['return_separator'] = "_";}
-
-		if(preg_match("/\_/", $data['language']))
-		{
-			$arr_language = explode("_", $data['language']);
-		}
-
-		else
-		{
-			$arr_language = explode("-", $data['language']);
-		}
-
-		$out = "";
-
-		switch($data['type'])
-		{
-			case 'first': //sv, en etc.
-				if(isset($arr_language[0]))
-				{
-					$out = $arr_language[0];
-
-					if($data['uc'] == true)
-					{
-						$out = strtoupper($out);
-					}
-				}
-
-				else
-				{
-					do_log("Wrong lang[0]: ".var_export($data, true));
-				}
-			break;
-
-			case 'last': //SE, US etc.
-				if(isset($arr_language[1]))
-				{
-					$out = $arr_language[1];
-
-					if($data['uc'] == true)
-					{
-						$out = strtoupper($out);
-					}
-				}
-
-				else
-				{
-					do_log("Wrong lang[1]: ".var_export($data, true));
-				}
-			break;
-
-			default:
-				//$out = $data['language'];
-				$out = $arr_language[0].$data['return_separator'].$arr_language[1];
-			break;
-		}
-
-		return $out;
 	}
 
 	function process_passthru($data)
