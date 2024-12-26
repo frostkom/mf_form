@@ -49,7 +49,7 @@
 		'supports':
 		{
 			'html': false,
-			'multiple': false,
+			'multiple': true,
 			'align': true,
 			/*'align': [ 'left', 'right', 'center', 'wide', 'full' ],
 			'alignWide': false,*/
@@ -103,46 +103,22 @@
 		],*/
 		edit: function(props)
 		{
-			var arr_options = [];
-
-			jQuery.each(script_form_block_wp.form_id, function(index, value)
-			{
-				if(index == "")
-				{
-					index = 0;
-				}
-
-				arr_options.push({label: value, value: index});
-			});
-
-			if(arr_options.length > 0)
-			{
-				return el(
-					'div',
-					{className: "wp_mf_block " + props.className},
-					el(
-						SelectControl,
+			return el(
+				'div',
+				{className: "wp_mf_block " + props.className},
+				el(
+					SelectControl,
+					{
+						label: __("Select a Form", 'lang_form'),
+						value: props.attributes.form_id,
+						options: convert_php_array_to_block_js(script_form_block_wp.form_id),
+						onChange: function(value)
 						{
-							label: __("Select a Form", 'lang_form'),
-							value: props.attributes.form_id,
-							options: arr_options,
-							onChange: function(value)
-							{
-								props.setAttributes({form_id: value});
-							}
+							props.setAttributes({form_id: value});
 						}
-					)
-				);
-			}
-
-			else
-			{
-				return el(
-					'em',
-					{className: "wp_mf_block " + props.className},
-					__("There are no forms yet. Create one and then you can add it here", 'lang_form')
-				);
-			}
+					}
+				)
+			);
 		},
 		save: function()
 		{

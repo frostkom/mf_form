@@ -345,8 +345,9 @@ if($obj_form->check_allow_edit())
 									}
 
 								echo "</div>
-							</div>
-							<div class='postbox'>
+							</div>";
+
+							/*echo "<div class='postbox'>
 								<h3 class='hndle'><span>".__("Settings", 'lang_form')."</span></h3>
 								<div class='inside'>"
 									.show_checkbox(array('name' => 'intFormButtonDisplay', 'text' => __("Display Button", 'lang_form'), 'value' => 1, 'compare' => $obj_form->button_display))
@@ -370,8 +371,9 @@ if($obj_form->check_allow_edit())
 										."</div>"
 									."</div>"
 								."</div>
-							</div>
-							<div class='postbox'>
+							</div>";*/
+
+							echo "<div class='postbox'>
 								<h3 class='hndle'><span>".__("E-mail", 'lang_form')."</span></h3>
 								<div class='inside'>";
 

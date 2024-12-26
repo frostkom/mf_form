@@ -633,10 +633,11 @@ class mf_form
 			}
 		}
 
-		else
+		// Is this even used on any site anymore?
+		/*else if(!FLBuilderModel::is_builder_active())
 		{
 			$html = preg_replace(array("/\[if(.*?)\](.*?)?\[end_if\](\<br\>)?/is", "/\[else\](\<br\>)?/i", "/\[end_else\](\<br\>)?/i"), "", $html);
-		}
+		}*/
 
 		return $html;
 	}
@@ -1733,6 +1734,8 @@ class mf_form
 
 		$form_id_with_ip = 0;
 
+		do_log(__FUNCTION__.": Get save_ip from meta instead of formSaveIP");
+
 		$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' AND formSaveIP = %s AND formDeleted = '0' LIMIT 0, 1", $wpdb->blogid, 'yes'));
 
 		foreach($result as $r)
@@ -2259,7 +2262,7 @@ class mf_form
 					//$this->url = check_var('strFormURL');
 				}
 
-				$this->deadline = check_var('dteFormDeadline');
+				//$this->deadline = check_var('dteFormDeadline');
 
 				$this->form2type_id = check_var('intForm2TypeID');
 				$this->form2type_order = check_var('intForm2TypeOrder');
@@ -2269,10 +2272,10 @@ class mf_form
 				$this->email_confirm_from_email_name = check_var('strFormEmailConfirmFromEmailName');
 				$this->email_confirm_id = check_var('intFormEmailConfirmID');
 				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
-				$this->show_answers = check_var('strFormShowAnswers');
-				$this->accept_duplicates = check_var('strFormAcceptDuplicates', 'char', true, 'yes');
-				$this->save_ip = check_var('strFormSaveIP');
-				$this->answer_url = check_var('strFormAnswerURL');
+				//$this->show_answers = check_var('strFormShowAnswers');
+				//$this->accept_duplicates = check_var('strFormAcceptDuplicates', 'char', true, 'yes');
+				//$this->save_ip = check_var('strFormSaveIP');
+				//$this->answer_url = check_var('strFormAnswerURL');
 				$this->email_admin = check_var('strFormEmail', 'email');
 				$this->email_admin_name = check_var('strFormFromName');
 				$this->email_conditions = check_var('strFormEmailConditions');
@@ -2282,10 +2285,10 @@ class mf_form
 				$this->email_notify_from = check_var('strFormEmailNotifyFrom');
 				$this->email_notify_page = check_var('intFormEmailNotifyPage');
 				$this->email_name = check_var('strFormEmailName');
-				$this->mandatory_text = check_var('strFormMandatoryText');
-				$this->button_display = check_var('intFormButtonDisplay');
-				$this->button_text = check_var('strFormButtonText');
-				$this->button_symbol = check_var('strFormButtonSymbol');
+				//$this->mandatory_text = check_var('strFormMandatoryText');
+				//$this->button_display = check_var('intFormButtonDisplay');
+				//$this->button_text = check_var('strFormButtonText');
+				//$this->button_symbol = check_var('strFormButtonSymbol');
 
 				// Payments
 				$this->payment_provider = check_var('intFormPaymentProvider');
@@ -2376,7 +2379,7 @@ class mf_form
 		{
 			$intFormID = $r->formID;
 
-			$copy_fields_to = $copy_fields_from = "blogID, formAnswerURL, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formMandatoryText, formButtonDisplay, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback";
+			$copy_fields_to = $copy_fields_from = "blogID, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formAnswerURL, formShowAnswers, formMandatoryText, formButtonDisplay, formButtonText, formButtonSymbol
 
 			if($data['create_new_page'] == true)
 			{
@@ -2519,15 +2522,15 @@ class mf_form
 								//'post_name' => $this->url,
 								'post_author' => get_current_user_id(),
 								'meta_input' => array(
-									$this->meta_prefix.'button_display' => ($this->button_display == 1 ? 'yes' : 'no'),
-									$this->meta_prefix.'button_symbol' => $this->button_symbol,
-									$this->meta_prefix.'button_text' => $this->button_text,
-									$this->meta_prefix.'answer_url' => $this->answer_url,
-									$this->meta_prefix.'mandatory_text' => $this->mandatory_text,
-									$this->meta_prefix.'deadline' => $this->deadline,
-									$this->meta_prefix.'accept_duplicates' => $this->accept_duplicates,
-									$this->meta_prefix.'show_answers' => $this->show_answers,
-									$this->meta_prefix.'save_ip' => $this->save_ip,
+									//$this->meta_prefix.'button_display' => ($this->button_display == 1 ? 'yes' : 'no'),
+									//$this->meta_prefix.'button_symbol' => $this->button_symbol,
+									//$this->meta_prefix.'button_text' => $this->button_text,
+									//$this->meta_prefix.'answer_url' => $this->answer_url,
+									//$this->meta_prefix.'mandatory_text' => $this->mandatory_text,
+									//$this->meta_prefix.'deadline' => $this->deadline,
+									//$this->meta_prefix.'accept_duplicates' => $this->accept_duplicates,
+									//$this->meta_prefix.'show_answers' => $this->show_answers,
+									//$this->meta_prefix.'save_ip' => $this->save_ip,
 									$this->meta_prefix.'email_name' => $this->email_name,
 									$this->meta_prefix.'email_notify' => ($this->email_notify == 1 ? 'yes' : 'no'),
 									$this->meta_prefix.'email_admin' => $this->email_admin,
@@ -2556,7 +2559,7 @@ class mf_form
 
 							wp_update_post($post_data);
 
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formShowAnswers = %s, formAcceptDuplicates = %s, formSaveIP = %s, formAnswerURL = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formMandatoryText = %s, formButtonDisplay = '%d', formButtonText = %s, formButtonSymbol = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->show_answers, $this->accept_duplicates, $this->save_ip, $this->answer_url, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->mandatory_text, $this->button_display, $this->button_text, $this->button_symbol, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id)); //, formName = %s, $this->name
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id)); //, formShowAnswers = %s, formAcceptDuplicates = %s, formSaveIP = %s, formMandatoryText = %s, formButtonDisplay = '%d', formButtonText = %s, formButtonSymbol = %s, formAnswerURL = %s, $this->show_answers, $this->accept_duplicates, $this->save_ip, $this->mandatory_text, $this->button_display, $this->button_text, $this->button_symbol, $this->answer_url
 
 							do_action('update_form_fields', $this);
 
@@ -2582,7 +2585,7 @@ class mf_form
 
 								$this->post_id = wp_insert_post($post_data);
 
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formCreated = NOW(), userID = '%d'", $wpdb->blogid, $this->post_id, get_current_user_id())); //, formName = %s, $this->name
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formCreated = NOW(), userID = '%d'", $wpdb->blogid, $this->post_id, get_current_user_id()));
 								$this->id = $wpdb->insert_id;
 
 								if($this->import != '')
@@ -2828,7 +2831,7 @@ class mf_form
 						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $this->id));
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formMandatoryText, formButtonDisplay, formButtonText, formButtonSymbol, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formMandatoryText, formButtonDisplay, formButtonText, formButtonSymbol
 
 					if($wpdb->num_rows > 0)
 					{
@@ -2839,10 +2842,10 @@ class mf_form
 							$this->email_confirm_from_email_name = $r->formEmailConfirmFromEmailName;
 							$this->email_confirm_id = $r->formEmailConfirmID;
 							$this->email_confirm_page = $r->formEmailConfirmPage;
-							$this->show_answers = $r->formShowAnswers;
-							$this->accept_duplicates = $r->formAcceptDuplicates;
-							$this->save_ip = $r->formSaveIP;
-							$this->answer_url = $r->formAnswerURL;
+							//$this->show_answers = $r->formShowAnswers;
+							//$this->accept_duplicates = $r->formAcceptDuplicates;
+							//$this->save_ip = $r->formSaveIP;
+							//$this->answer_url = $r->formAnswerURL;
 							$this->email_admin = $r->formEmail;
 							$this->email_admin_name = $r->formFromName;
 							$this->email_conditions = $r->formEmailConditions;
@@ -2852,10 +2855,10 @@ class mf_form
 							$this->email_notify_from = $r->formEmailNotifyFrom;
 							$this->email_notify_page = $r->formEmailNotifyPage;
 							$this->email_name = $r->formEmailName;
-							$this->mandatory_text = $r->formMandatoryText;
-							$this->button_display = $r->formButtonDisplay;
-							$this->button_text = $r->formButtonText;
-							$this->button_symbol = $r->formButtonSymbol;
+							//$this->mandatory_text = $r->formMandatoryText;
+							//$this->button_display = $r->formButtonDisplay;
+							//$this->button_text = $r->formButtonText;
+							//$this->button_symbol = $r->formButtonSymbol;
 							$this->payment_provider = $r->formPaymentProvider;
 							$this->payment_hmac = $r->formPaymentHmac;
 							$this->terms_page = $r->formTermsPage;
@@ -2872,6 +2875,14 @@ class mf_form
 						$this->name = $this->get_post_info(array('select' => "post_title"));
 						$this->url = $this->get_post_info();
 						$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
+						$this->show_answers = get_post_meta($this->post_id, $this->meta_prefix.'show_answers', true);
+						$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
+						$this->save_ip = get_post_meta($this->post_id, $this->meta_prefix.'save_ip', true);
+						$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
+						$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
+						$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
+						$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
+						$this->button_symbol = get_post_meta($this->post_id, $this->meta_prefix.'button_symbol', true);
 					}
 
 					else
@@ -3327,11 +3338,6 @@ class mf_form
 
 		if(!isset($data['id'])){	$data['id'] = $this->id;}
 
-		/*if($this->accept_duplicates == "")
-		{
-			$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $data['id']));
-		}*/
-
 		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('1', '8', '10', '11', '16', '17') LIMIT 0, 1", $data['id']));
 		$rows_poll_fields = $wpdb->num_rows;
 
@@ -3348,7 +3354,10 @@ class mf_form
 
 		if(!isset($this->accept_duplicates))
 		{
-			$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $this->id));
+			//$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $this->id));
+
+			$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
+			$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
 		}
 
 		if($this->accept_duplicates == 'no' || $this->is_poll())
@@ -3528,11 +3537,17 @@ class mf_form
 		return ($form_name != '' ? $form_name: __("Unknown", 'lang_form')." (#".$id.")");
 	}
 
-	function get_form_id($id)
+	function get_form_id($post_id)
 	{
 		global $wpdb;
 
-		$this->id = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE postID = '%d'", $id));
+		$this->id = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE postID = '%d'", $post_id));
+
+		if(!($this->id > 0))
+		{
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formCreated = NOW(), userID = '%d'", $wpdb->blogid, $post_id, get_current_user_id()));
+			$this->id = $wpdb->insert_id;
+		}
 
 		return $this->id;
 	}
@@ -4743,14 +4758,20 @@ class mf_form
 	{
 		global $wpdb;
 
-		return $wpdb->get_var($wpdb->prepare("SELECT formSaveIP FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		//return $wpdb->get_var($wpdb->prepare("SELECT formSaveIP FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+
+		$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
+		return get_post_meta($this->post_id, $this->meta_prefix.'save_ip', true);
 	}
 
 	function get_mandatory_text()
 	{
 		global $wpdb;
 
-		$out = $wpdb->get_var($wpdb->prepare("SELECT formMandatoryText FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		//$out = $wpdb->get_var($wpdb->prepare("SELECT formMandatoryText FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+
+		$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
+		$out = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
 
 		if($out == '')
 		{
@@ -5293,28 +5314,41 @@ class mf_form
 			$obj_font_icons = new mf_font_icons();
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formAcceptDuplicates, formShowAnswers, formAnswerURL, formButtonDisplay, formButtonText, formButtonSymbol, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); // AND blogID = '%d', $wpdb->blogid
+		$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); // AND blogID = '%d', $wpdb->blogid, formAcceptDuplicates, formShowAnswers, formAnswerURL, formButtonDisplay, formButtonSymbol, formButtonText
 
 		foreach($result as $r)
 		{
-			$post_id = $r->postID;
-			$this->accept_duplicates = $r->formAcceptDuplicates;
-			$strFormShowAnswers = $r->formShowAnswers;
-			$strFormAnswerURL = $r->formAnswerURL;
-			$intFormButtonDisplay = $r->formButtonDisplay;
-			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag(array('symbol' => $r->formButtonSymbol));
-			$strFormButtonText = ($r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form'));
+			$this->post_id = $post_id = $r->postID;
+			//$this->accept_duplicates = $r->formAcceptDuplicates;
+			//$this->show_answers = $r->formShowAnswers;
+			//$this->answer_url = $r->formAnswerURL;
+			//$this->button_display = $r->formButtonDisplay;
+			//$this->button_symbol = $obj_font_icons->get_symbol_tag(array('symbol' => $r->formButtonSymbol));
+			//$this->button_text = ($r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form'));
 			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
 
-			if($strFormAnswerURL != '' && preg_match("/_/", $strFormAnswerURL))
+			//$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
+			$this->show_answers = get_post_meta($this->post_id, $this->meta_prefix.'show_answers', true);
+			$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
+			//$this->save_ip = get_post_meta($this->post_id, $this->meta_prefix.'save_ip', true);
+			$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
+			//$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
+			$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
+			$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
+			$this->button_symbol = get_post_meta($this->post_id, $this->meta_prefix.'button_symbol', true);
+
+			$strFormButtonSymbol = $obj_font_icons->get_symbol_tag(array('symbol' => $this->button_symbol));
+			$strFormButtonText = ($this->button_text != '' ? $this->button_text : __("Submit", 'lang_form'));
+
+			if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
 			{
-				list($blog_id, $intFormAnswerURL) = explode("_", $strFormAnswerURL);
+				list($blog_id, $intFormAnswerURL) = explode("_", $this->answer_url);
 			}
 
 			else
 			{
 				$blog_id = 0;
-				$intFormAnswerURL = $strFormAnswerURL;
+				$intFormAnswerURL = $this->answer_url;
 			}
 
 			$dteFormDeadline = get_post_meta($post_id, $this->meta_prefix.'deadline', true);
@@ -5325,7 +5359,7 @@ class mf_form
 
 				$out .= "<div class='mf_form mf_form_results'>";
 
-					if($strFormShowAnswers == 'yes' && $data['total_answers'] > 0)
+					if($this->show_answers == 'yes' && $data['total_answers'] > 0)
 					{
 						$out .= $this->get_poll_results($data);
 					}
@@ -5356,7 +5390,7 @@ class mf_form
 					{
 						$done_text = __("Thank You!", 'lang_form');
 
-						$out .= get_notification();
+						$out .= get_notification(array('add_container' => true));
 					}
 
 				$out .= "</div>";
@@ -5416,7 +5450,7 @@ class mf_form
 
 							$out .= apply_filters('filter_form_after_fields', '');
 
-							if($intFormButtonDisplay != 0)
+							if($this->button_display == 'yes')
 							{
 								$out .= "<div".get_form_button_classes().">"
 									.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText))
