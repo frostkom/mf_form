@@ -1734,7 +1734,24 @@ class mf_form
 
 		$form_id_with_ip = 0;
 
-		do_log(__FUNCTION__.": Get save_ip from meta instead of formSaveIP");
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' AND formDeleted = '0'", $wpdb->blogid));
+
+		foreach($result as $r)
+		{
+			if(get_post_meta($r->postID, $this->meta_prefix.'save_ip', true) == 'yes')
+			{
+				$form_id_with_ip = $r->formID;
+				break;
+			}
+
+			else if($this->is_poll(array('id' => $r->formID)))
+			{
+				$form_id_with_ip = $r->formID;
+				break;
+			}
+		}
+
+		/*do_log(__FUNCTION__.": Get save_ip from meta instead of formSaveIP");
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' AND formSaveIP = %s AND formDeleted = '0' LIMIT 0, 1", $wpdb->blogid, 'yes'));
 
@@ -1755,7 +1772,7 @@ class mf_form
 					break;
 				}
 			}
-		}
+		}*/
 
 		if($form_id_with_ip > 0)
 		{
@@ -3344,7 +3361,6 @@ class mf_form
 		$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID IN('2', '3', '4', '7', '9', '12', '15') LIMIT 0, 1", $data['id']));
 		$rows_input_fields = $wpdb->num_rows;
 
-		//return ($this->accept_duplicates == 'no' || ($rows_poll_fields > 0 && $rows_input_fields == 0));
 		return ($rows_poll_fields > 0 && $rows_input_fields == 0);
 	}
 
@@ -3354,8 +3370,6 @@ class mf_form
 
 		if(!isset($this->accept_duplicates))
 		{
-			//$this->accept_duplicates = $wpdb->get_var($wpdb->prepare("SELECT formAcceptDuplicates FROM ".$wpdb->base_prefix."form WHERE formID = '%d' LIMIT 0, 1", $this->id));
-
 			$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
 			$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
 		}
@@ -4757,8 +4771,6 @@ class mf_form
 	function allow_save_ip()
 	{
 		global $wpdb;
-
-		//return $wpdb->get_var($wpdb->prepare("SELECT formSaveIP FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
 		return get_post_meta($this->post_id, $this->meta_prefix.'save_ip', true);
