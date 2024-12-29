@@ -333,8 +333,13 @@ class mf_form
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		$plugin_version = get_plugin_version(__FILE__);
 
-		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-editor'), $plugin_version);
-		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array('form_id' => $this->get_for_select(array('force_has_page' => false))));
+		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-element', 'wp-components', 'wp-editor', 'wp-block-editor'), $plugin_version);
+		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array(
+			'block_title' => __("Form", 'lang_form'),
+			'block_description' => __("Display a Form", 'lang_form'),
+			'form_id_label' => __("Select", 'lang_form'),
+			'form_id' => $this->get_for_select(array('force_has_page' => false),
+		)));
 
 		register_block_type('mf/form', array(
 			'editor_script' => 'script_form_block_wp',
