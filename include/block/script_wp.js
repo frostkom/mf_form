@@ -23,29 +23,7 @@
 			{
                 'type': 'string',
                 'default': ''
-            },/*,
-			backgroundColor: {
-				type: 'string',
-				default: 'some-preset-background-slug',
-			},
-			fontSize: {
-				type: 'string',
-				default: 'some-value',
-			},
-			style: {
-				dimensions: {
-					aspectRatio: '16/9',
-					minHeight: '50vh'
-				},
-				margin: 'value',
-				padding: {
-					top: 'value',
-				},
-				position: {
-					type: 'sticky',
-					top: '0px'
-				}
-			}*/
+            }
 		},
 		'supports':
 		{
@@ -72,16 +50,7 @@
 			"__experimentalBorder":
 			{
 				"radius": true
-			}/*,
-			'dimensions':
-			{
-				'aspectRatio': true,
-				'minHeight': true
-			},
-			'position':
-			{
-				'sticky': true
-			}*/
+			}
 		},
 		edit: function(props)
 		{
