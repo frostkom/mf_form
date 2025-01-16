@@ -2282,10 +2282,7 @@ class mf_form
 				{
 					$this->name = check_var('strFormName');
 					$this->import = check_var('strFormImport');
-					//$this->url = check_var('strFormURL');
 				}
-
-				//$this->deadline = check_var('dteFormDeadline');
 
 				$this->form2type_id = check_var('intForm2TypeID');
 				$this->form2type_order = check_var('intForm2TypeOrder');
@@ -2295,10 +2292,6 @@ class mf_form
 				$this->email_confirm_from_email_name = check_var('strFormEmailConfirmFromEmailName');
 				$this->email_confirm_id = check_var('intFormEmailConfirmID');
 				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
-				//$this->show_answers = check_var('strFormShowAnswers');
-				//$this->accept_duplicates = check_var('strFormAcceptDuplicates', 'char', true, 'yes');
-				//$this->save_ip = check_var('strFormSaveIP');
-				//$this->answer_url = check_var('strFormAnswerURL');
 				$this->email_admin = check_var('strFormEmail', 'email');
 				$this->email_admin_name = check_var('strFormFromName');
 				$this->email_conditions = check_var('strFormEmailConditions');
@@ -2308,10 +2301,6 @@ class mf_form
 				$this->email_notify_from = check_var('strFormEmailNotifyFrom');
 				$this->email_notify_page = check_var('intFormEmailNotifyPage');
 				$this->email_name = check_var('strFormEmailName');
-				//$this->mandatory_text = check_var('strFormMandatoryText');
-				//$this->button_display = check_var('intFormButtonDisplay');
-				//$this->button_text = check_var('strFormButtonText');
-				//$this->button_symbol = check_var('strFormButtonSymbol');
 
 				// Payments
 				$this->payment_provider = check_var('intFormPaymentProvider');
@@ -2402,7 +2391,7 @@ class mf_form
 		{
 			$intFormID = $r->formID;
 
-			$copy_fields_to = $copy_fields_from = "blogID, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback"; //, formAnswerURL, formShowAnswers, formMandatoryText, formButtonDisplay, formButtonText, formButtonSymbol
+			$copy_fields_to = $copy_fields_from = "blogID, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback";
 
 			if($data['create_new_page'] == true)
 			{
@@ -2529,165 +2518,146 @@ class mf_form
 			case 'create':
 				if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce_form_update'], 'form_update_'.$this->id))
 				{
-					/*if($this->name == '')
+					if($this->id > 0)
 					{
-						$error_text = __("Please, enter all required fields", 'lang_form');
+						$post_data = array(
+							'ID' => $this->post_id,
+							'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
+							'post_author' => get_current_user_id(),
+							'meta_input' => array(
+								$this->meta_prefix.'email_name' => $this->email_name,
+								$this->meta_prefix.'email_notify' => ($this->email_notify == 1 ? 'yes' : 'no'),
+								$this->meta_prefix.'email_admin' => $this->email_admin,
+								$this->meta_prefix.'email_notify_from' => $this->email_notify_from,
+								$this->meta_prefix.'email_notify_from_email' => $this->email_notify_from_email,
+								$this->meta_prefix.'email_notify_from_email_name' => $this->email_notify_from_email_name,
+								$this->meta_prefix.'email_notify_page' => $this->email_notify_page,
+								$this->meta_prefix.'email_confirm' => ($this->email_confirm == 1 ? 'yes' : 'no'),
+								$this->meta_prefix.'email_confirm_from_email' => $this->email_confirm_from_email,
+								$this->meta_prefix.'email_confirm_from_email_name' => $this->email_confirm_from_email_name,
+								$this->meta_prefix.'email_confirm_id' => $this->email_confirm_id,
+								$this->meta_prefix.'email_confirm_page' => $this->email_confirm_page,
+								$this->meta_prefix.'email_conditions' => $this->email_conditions,
+								$this->meta_prefix.'payment_provider' => $this->payment_provider,
+								$this->meta_prefix.'payment_merchant' => $this->payment_merchant,
+								$this->meta_prefix.'payment_password' => $this->payment_password,
+								$this->meta_prefix.'payment_hmac' => $this->payment_hmac,
+								$this->meta_prefix.'terms_page' => $this->terms_page,
+								$this->meta_prefix.'payment_currency' => $this->payment_currency,
+								$this->meta_prefix.'payment_cost' => $this->payment_cost,
+								$this->meta_prefix.'payment_amount' => $this->payment_amount,
+								$this->meta_prefix.'payment_tax' => $this->payment_tax,
+								$this->meta_prefix.'payment_callback' => $this->payment_callback,
+							),
+						);
+
+						wp_update_post($post_data);
+
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
+
+						do_action('update_form_fields', $this);
+
+						$done_text = __("I have updated the form for you", 'lang_form');
 					}
 
 					else
-					{*/
-						if($this->id > 0)
+					{
+						$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = '%d' LIMIT 0, 1", $this->post_type, $this->name));
+
+						if($wpdb->num_rows > 0)
 						{
-							$post_data = array(
-								'ID' => $this->post_id,
-								'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
-								//'post_title' => $this->name,
-								//'post_name' => $this->url,
-								'post_author' => get_current_user_id(),
-								'meta_input' => array(
-									//$this->meta_prefix.'button_display' => ($this->button_display == 1 ? 'yes' : 'no'),
-									//$this->meta_prefix.'button_symbol' => $this->button_symbol,
-									//$this->meta_prefix.'button_text' => $this->button_text,
-									//$this->meta_prefix.'answer_url' => $this->answer_url,
-									//$this->meta_prefix.'mandatory_text' => $this->mandatory_text,
-									//$this->meta_prefix.'deadline' => $this->deadline,
-									//$this->meta_prefix.'accept_duplicates' => $this->accept_duplicates,
-									//$this->meta_prefix.'show_answers' => $this->show_answers,
-									//$this->meta_prefix.'save_ip' => $this->save_ip,
-									$this->meta_prefix.'email_name' => $this->email_name,
-									$this->meta_prefix.'email_notify' => ($this->email_notify == 1 ? 'yes' : 'no'),
-									$this->meta_prefix.'email_admin' => $this->email_admin,
-									$this->meta_prefix.'email_notify_from' => $this->email_notify_from,
-									$this->meta_prefix.'email_notify_from_email' => $this->email_notify_from_email,
-									$this->meta_prefix.'email_notify_from_email_name' => $this->email_notify_from_email_name,
-									$this->meta_prefix.'email_notify_page' => $this->email_notify_page,
-									$this->meta_prefix.'email_confirm' => ($this->email_confirm == 1 ? 'yes' : 'no'),
-									$this->meta_prefix.'email_confirm_from_email' => $this->email_confirm_from_email,
-									$this->meta_prefix.'email_confirm_from_email_name' => $this->email_confirm_from_email_name,
-									$this->meta_prefix.'email_confirm_id' => $this->email_confirm_id,
-									$this->meta_prefix.'email_confirm_page' => $this->email_confirm_page,
-									$this->meta_prefix.'email_conditions' => $this->email_conditions,
-									$this->meta_prefix.'payment_provider' => $this->payment_provider,
-									$this->meta_prefix.'payment_merchant' => $this->payment_merchant,
-									$this->meta_prefix.'payment_password' => $this->payment_password,
-									$this->meta_prefix.'payment_hmac' => $this->payment_hmac,
-									$this->meta_prefix.'terms_page' => $this->terms_page,
-									$this->meta_prefix.'payment_currency' => $this->payment_currency,
-									$this->meta_prefix.'payment_cost' => $this->payment_cost,
-									$this->meta_prefix.'payment_amount' => $this->payment_amount,
-									$this->meta_prefix.'payment_tax' => $this->payment_tax,
-									$this->meta_prefix.'payment_callback' => $this->payment_callback,
-								),
-							);
-
-							wp_update_post($post_data);
-
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id)); //, formShowAnswers = %s, formAcceptDuplicates = %s, formSaveIP = %s, formMandatoryText = %s, formButtonDisplay = '%d', formButtonText = %s, formButtonSymbol = %s, formAnswerURL = %s, $this->show_answers, $this->accept_duplicates, $this->save_ip, $this->mandatory_text, $this->button_display, $this->button_text, $this->button_symbol, $this->answer_url
-
-							do_action('update_form_fields', $this);
-
-							$done_text = __("I have updated the form for you", 'lang_form');
+							$error_text = __("There is already a form with that name. Try with another one.", 'lang_form');
 						}
 
 						else
 						{
-							$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = '%d' LIMIT 0, 1", $this->post_type, $this->name));
+							$post_data = array(
+								'post_type' => $this->post_type,
+								'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
+								'post_title' => $this->name,
+							);
 
-							if($wpdb->num_rows > 0)
+							$this->post_id = wp_insert_post($post_data);
+
+							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formCreated = NOW(), userID = '%d'", $wpdb->blogid, $this->post_id, get_current_user_id()));
+							$this->id = $wpdb->insert_id;
+
+							if($this->import != '')
 							{
-								$error_text = __("There is already a form with that name. Try with another one.", 'lang_form');
-							}
+								$arr_import_rows = explode("\n", $this->import);
 
-							else
-							{
-								$post_data = array(
-									'post_type' => $this->post_type,
-									'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
-									'post_title' => $this->name,
-								);
-
-								$this->post_id = wp_insert_post($post_data);
-
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formCreated = NOW(), userID = '%d'", $wpdb->blogid, $this->post_id, get_current_user_id()));
-								$this->id = $wpdb->insert_id;
-
-								if($this->import != '')
+								foreach($arr_import_rows as $import_row)
 								{
-									$arr_import_rows = explode("\n", $this->import);
+									list($this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, $this->type_length) = explode(",", $import_row);
 
-									foreach($arr_import_rows as $import_row)
+									switch($this->type_id)
 									{
-										list($this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, $this->type_length) = explode(",", $import_row);
+										case 10:
+										case 11:
+										case 16:
+										case 17:
+											list($this->type_text, $strFormOptions) = explode(":", $this->type_text, 2);
+										break;
+									}
 
-										switch($this->type_id)
-										{
-											case 10:
-											case 11:
-											case 16:
-											case 17:
-												list($this->type_text, $strFormOptions) = explode(":", $this->type_text, 2);
-											break;
-										}
+									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeLength = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d', userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_length, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, get_current_user_id()));
 
-										$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeLength = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d', userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_length, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, get_current_user_id()));
+									$intForm2TypeID = $wpdb->insert_id;
 
-										$intForm2TypeID = $wpdb->insert_id;
+									if($this->type_connect_to > 0)
+									{
+										do_log("Connect the copied field in ".$this->id."->".$intForm2TypeID." to ".$this->type_connect_to." if possible...");
+									}
 
-										if($this->type_connect_to > 0)
-										{
-											do_log("Connect the copied field in ".$this->id."->".$intForm2TypeID." to ".$this->type_connect_to." if possible...");
-										}
+									switch($this->type_id)
+									{
+										case 10:
+										case 11:
+										case 16:
+										case 17:
+											$arr_options = explode(";", $strFormOptions);
 
-										switch($this->type_id)
-										{
-											case 10:
-											case 11:
-											case 16:
-											case 17:
-												$arr_options = explode(";", $strFormOptions);
+											$success = true;
+											$i = 0;
 
-												$success = true;
-												$i = 0;
+											foreach($arr_options as $str_option)
+											{
+												@list($option_key, $option_value, $option_limit, $option_action) = explode("|", $str_option, 4);
 
-												foreach($arr_options as $str_option)
+												if($option_value != '')
 												{
-													@list($option_key, $option_value, $option_limit, $option_action) = explode("|", $str_option, 4);
+													$intFormOptionID = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE (form2TypeID = '%d' OR form2TypeID = '0') AND (formOptionKey = %s OR formOptionValue = %s)", $intForm2TypeID, $option_key, $option_value));
 
-													if($option_value != '')
+													if($intFormOptionID > 0)
 													{
-														$intFormOptionID = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE (form2TypeID = '%d' OR form2TypeID = '0') AND (formOptionKey = %s OR formOptionValue = %s)", $intForm2TypeID, $option_key, $option_value));
-
-														if($intFormOptionID > 0)
-														{
-															$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d' WHERE formOptionID = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $option_action, $i, $intFormOptionID));
-														}
-
-														else
-														{
-															$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $option_action, $i));
-
-															$intFormOptionID = $wpdb->insert_id;
-														}
-
-														$i++;
+														$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d' WHERE formOptionID = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $option_action, $i, $intFormOptionID));
 													}
 
 													else
 													{
-														$success = false;
+														$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $option_action, $i));
 
-														do_log("There was no value for the option (2) (".$this->id.", ".$intForm2TypeID.", ".$this->type_text." -> ".$strFormOptions." -> ".$str_option.")");
+														$intFormOptionID = $wpdb->insert_id;
 													}
+
+													$i++;
 												}
-											break;
-										}
+
+												else
+												{
+													$success = false;
+
+													do_log("There was no value for the option (2) (".$this->id.", ".$intForm2TypeID.", ".$this->type_text." -> ".$strFormOptions." -> ".$str_option.")");
+												}
+											}
+										break;
 									}
 								}
-
-								$done_text = __("I have created the form for you", 'lang_form');
 							}
+
+							$done_text = __("I have created the form for you", 'lang_form');
 						}
-					//}
+					}
 				}
 
 				else if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce_form_add'], 'form_add_'.$this->id))
@@ -2854,7 +2824,7 @@ class mf_form
 						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $this->id));
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //, formShowAnswers, formAcceptDuplicates, formSaveIP, formAnswerURL, formMandatoryText, formButtonDisplay, formButtonText, formButtonSymbol
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 					if($wpdb->num_rows > 0)
 					{
@@ -2865,10 +2835,6 @@ class mf_form
 							$this->email_confirm_from_email_name = $r->formEmailConfirmFromEmailName;
 							$this->email_confirm_id = $r->formEmailConfirmID;
 							$this->email_confirm_page = $r->formEmailConfirmPage;
-							//$this->show_answers = $r->formShowAnswers;
-							//$this->accept_duplicates = $r->formAcceptDuplicates;
-							//$this->save_ip = $r->formSaveIP;
-							//$this->answer_url = $r->formAnswerURL;
 							$this->email_admin = $r->formEmail;
 							$this->email_admin_name = $r->formFromName;
 							$this->email_conditions = $r->formEmailConditions;
@@ -2878,10 +2844,6 @@ class mf_form
 							$this->email_notify_from = $r->formEmailNotifyFrom;
 							$this->email_notify_page = $r->formEmailNotifyPage;
 							$this->email_name = $r->formEmailName;
-							//$this->mandatory_text = $r->formMandatoryText;
-							//$this->button_display = $r->formButtonDisplay;
-							//$this->button_text = $r->formButtonText;
-							//$this->button_symbol = $r->formButtonSymbol;
 							$this->payment_provider = $r->formPaymentProvider;
 							$this->payment_hmac = $r->formPaymentHmac;
 							$this->terms_page = $r->formTermsPage;
@@ -3171,7 +3133,7 @@ class mf_form
 
 				else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
 				{
-					$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $this->answer_id)); // AND answerSent = '0'
+					$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $this->answer_id));
 
 					if($wpdb->num_rows > 0)
 					{
@@ -5332,17 +5294,11 @@ class mf_form
 			$obj_font_icons = new mf_font_icons();
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); // AND blogID = '%d', $wpdb->blogid, formAcceptDuplicates, formShowAnswers, formAnswerURL, formButtonDisplay, formButtonSymbol, formButtonText
+		$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
 			$this->post_id = $post_id = $r->postID;
-			//$this->accept_duplicates = $r->formAcceptDuplicates;
-			//$this->show_answers = $r->formShowAnswers;
-			//$this->answer_url = $r->formAnswerURL;
-			//$this->button_display = $r->formButtonDisplay;
-			//$this->button_symbol = $obj_font_icons->get_symbol_tag(array('symbol' => $r->formButtonSymbol));
-			//$this->button_text = ($r->formButtonText != '' ? $r->formButtonText : __("Submit", 'lang_form'));
 			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
 
 			//$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
