@@ -5348,7 +5348,6 @@ class mf_form
 			//$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
 			$this->show_answers = get_post_meta($this->post_id, $this->meta_prefix.'show_answers', true);
 			$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
-			//$this->save_ip = get_post_meta($this->post_id, $this->meta_prefix.'save_ip', true);
 			$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
 			//$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
 			$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
