@@ -334,7 +334,7 @@ class mf_form
 		$plugin_version = get_plugin_version(__FILE__);
 
 		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-element', 'wp-components', 'wp-editor', 'wp-block-editor'), $plugin_version);
-		
+
 		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array(
 			'block_title' => __("Form", 'lang_form'),
 			'block_description' => __("Display a Form", 'lang_form'),

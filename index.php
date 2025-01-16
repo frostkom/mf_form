@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.5.3
+Version: 1.1.5.4
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -390,7 +390,14 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 					if(get_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i]) == '')
 					{
-						update_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], ($arr_fields_db_bool[$i] == true && $r[$arr_fields_db[$i]] == 1 ? 'yes' : 'no'));
+						$default_value = "";
+
+						if($arr_fields_db_bool[$i] == true)
+						{
+							$default_value = ($r[$arr_fields_db[$i]] == 1 ? 'yes' : 'no');
+						}
+
+						update_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], $default_value);
 					}
 				}
 			}

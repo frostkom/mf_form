@@ -43,13 +43,7 @@
 
 			.mf_form .fontawesome ul
 			{
-				display: -webkit-box;
-				display: -ms-flexbox;
-				display: -webkit-flex;
 				display: flex;
-				-webkit-box-flex-wrap: wrap;
-				-webkit-flex-wrap: wrap;
-				-ms-flex-wrap: wrap;
 				flex-wrap: wrap;
 				list-style: none;
 				padding: .5em .6em 0 .2em;
@@ -57,9 +51,6 @@
 
 				.mf_form .fontawesome li
 				{
-					-webkit-box-flex: 1 1 50%;
-					-webkit-flex: 1 1 50%;
-					-ms-flex: 1 1 50%;
 					flex: 1 1 50%;
 					overflow: initial;
 					position: relative;
@@ -254,9 +245,6 @@
 
 			.select_rows .option
 			{
-				display: -webkit-box;
-				display: -ms-flexbox;
-				display: -webkit-flex;
 				display: flex;
 				overflow: hidden;
 			}
@@ -264,9 +252,6 @@
 				.select_rows .option .form_textfield
 				{
 					display: block;
-					-webkit-box-flex: 0 1 0;
-					-webkit-flex: 0 1 0;
-					-ms-flex: 0 1 0;
 					flex: 0 1 0;
 				}
 
@@ -277,9 +262,6 @@
 
 						.select_rows .option .option_value
 						{
-							-webkit-box-flex: 2 1 0;
-							-webkit-flex: 2 1 0;
-							-ms-flex: 2 1 0;
 							flex: 2 1 0;
 						}
 
