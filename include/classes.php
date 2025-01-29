@@ -340,6 +340,10 @@ class mf_form
 			'block_description' => __("Display a Form", 'lang_form'),
 			'form_id_label' => __("Select", 'lang_form'),
 			'form_id' => $this->get_for_select(array('force_has_page' => false),
+			//'form_edit_link_label' => __("Edit Content", 'lang_form'),
+			//'form_edit_link' => admin_url("admin.php?page=mf_form/create/index.php&intFormID="),
+			//'form_list_link_label' => __("List", 'lang_form'),
+			//'form_list_link' => admin_url("edit.php?post_type=".$wpdb->post_type), //<i class='fas fa-external-link-alt'></i>
 		)));
 
 		register_block_type('mf/form', array(
@@ -651,10 +655,9 @@ class mf_form
 	function combined_head()
 	{
 		$plugin_include_url = plugin_dir_url(__FILE__);
-		$plugin_version = get_plugin_version(__FILE__);
 
-		mf_enqueue_style('style_form', $plugin_include_url."style.css", $plugin_version);
-		mf_enqueue_script('script_form', $plugin_include_url."script.js", array('plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form')), $plugin_version); //'ajax_url' => admin_url('admin-ajax.php'), 
+		mf_enqueue_style('style_form', $plugin_include_url."style.css");
+		mf_enqueue_script('script_form', $plugin_include_url."script.js", array('plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form'))); //'ajax_url' => admin_url('admin-ajax.php'), 
 	}
 
 	function admin_init()
@@ -668,11 +671,10 @@ class mf_form
 			$page = check_var('page');
 
 			$plugin_include_url = plugin_dir_url(__FILE__);
-			$plugin_version = get_plugin_version(__FILE__);
 
 			/*if($page == 'mf_form/list/index.php')
 			{
-				mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
+				mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')));
 			}
 
 			else
@@ -682,13 +684,13 @@ class mf_form
 					$plugin_base_include_url = plugins_url()."/mf_base/include/";
 
 					wp_enqueue_script('jquery-ui-sortable');
-					mf_enqueue_script('script_touch', $plugin_base_include_url."jquery.ui.touch-punch.min.js", $plugin_version);
+					mf_enqueue_script('script_touch', $plugin_base_include_url."jquery.ui.touch-punch.min.js");
 				}
 
 				if($page == 'mf_form/create/index.php' || $page == 'mf_form/answer/index.php')
 				{
-					mf_enqueue_style('style_forms_wp', $plugin_include_url."style_wp.css", $plugin_version);
-					mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')), $plugin_version);
+					mf_enqueue_style('style_forms_wp', $plugin_include_url."style_wp.css");
+					mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')));
 				}
 			//}
 		}

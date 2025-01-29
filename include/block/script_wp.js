@@ -72,7 +72,23 @@
 									props.setAttributes({form_id: value});
 								}
 							}
-						)
+						),
+						/*props.attributes.form_id && el(
+							'a',
+							{
+								href: script_form_block_wp.form_edit_link + '${props.attributes.form_id}',
+								target: '_blank',
+								rel: 'noopener noreferrer'
+							},
+							script_form_block_wp.form_edit_link_label
+						),*/
+						/*el(
+							'a',
+							{
+								href: script_form_block_wp.form_list_link,
+							},
+							script_form_block_wp.form_list_link_label
+						),*/
 					),
 					el(
 						'strong',
