@@ -17,7 +17,7 @@ class mf_form
 	var $send_to = '';
 	var $answer_id = '';
 	var $prefix = '';
-	var $accept_duplicates = '';
+	//var $accept_duplicates = '';
 	var $provider = '';
 	var $has_payment = false;
 	var $payment_provider = "";
@@ -40,8 +40,8 @@ class mf_form
 	var $email_confirm_from_email_name = "";
 	var $email_confirm_id = "";
 	var $email_confirm_page = "";
-	var $show_answers = "";
-	var $save_ip = "";
+	//var $show_answers = "";
+	//var $save_ip = "";
 	var $answer_url = "";
 	var $email_admin = "";
 	var $email_admin_name = "";
@@ -1118,7 +1118,7 @@ class mf_form
 					'condition_value' => 'yes',
 				),
 			),
-			array(
+			/*array(
 				'name' => __("Accept Duplicates", 'lang_form'),
 				'id' => $this->meta_prefix.'accept_duplicates',
 				'type' => 'select',
@@ -1129,11 +1129,11 @@ class mf_form
 					'condition_selector' => $this->meta_prefix.'button_display',
 					'condition_value' => 'yes',
 				),
-			),
+			),*/
 		);
 
 		/*if($this->is_poll())
-		{*/
+		{
 			$arr_fields[] = array(
 				'name' => __("Show Answers", 'lang_form'),
 				'id' => $this->meta_prefix.'show_answers',
@@ -1146,9 +1146,9 @@ class mf_form
 					'condition_value' => 'yes',
 				),
 			);
-		//}
+		}*/
 
-		$arr_fields[] = array(
+		/*$arr_fields[] = array(
 			'name' => __("Save IP", 'lang_form'),
 			'id' => $this->meta_prefix.'save_ip',
 			'type' => 'select',
@@ -1159,7 +1159,7 @@ class mf_form
 				'condition_selector' => $this->meta_prefix.'button_display',
 				'condition_value' => 'yes',
 			),
-		);
+		);*/
 
 		$meta_boxes[] = array(
 			'id' => $this->meta_prefix.'settings',
@@ -1734,60 +1734,6 @@ class mf_form
 		}
 
 		return array($post_id, $content_list);
-	}
-
-	function filter_cookie_types($array)
-	{
-		global $wpdb;
-
-		$form_id_with_ip = 0;
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' AND formDeleted = '0'", $wpdb->blogid));
-
-		foreach($result as $r)
-		{
-			if(get_post_meta($r->postID, $this->meta_prefix.'save_ip', true) == 'yes')
-			{
-				$form_id_with_ip = $r->formID;
-				break;
-			}
-
-			else if($this->is_poll(array('id' => $r->formID)))
-			{
-				$form_id_with_ip = $r->formID;
-				break;
-			}
-		}
-
-		/*do_log(__FUNCTION__.": Get save_ip from meta instead of formSaveIP");
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' AND formSaveIP = %s AND formDeleted = '0' LIMIT 0, 1", $wpdb->blogid, 'yes'));
-
-		foreach($result as $r)
-		{
-			$form_id_with_ip = $r->formID;
-		}
-
-		if($form_id_with_ip == 0)
-		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' AND formSaveIP = %s AND formDeleted = '0'", $wpdb->blogid, 'no'));
-
-			foreach($result as $r)
-			{
-				if($this->is_poll(array('id' => $r->formID)))
-				{
-					$form_id_with_ip = $r->formID;
-					break;
-				}
-			}
-		}*/
-
-		if($form_id_with_ip > 0)
-		{
-			$array['ip']['form_save_ip'] = array('label' => sprintf(__("The form %s collects IP address", 'lang_form'), "<em>".$this->get_form_name($form_id_with_ip)."</em>"), 'used' => false, 'lifetime' => "1 year");
-		}
-
-		return $array;
 	}
 
 	function delete_answer($answer_id)
@@ -2862,9 +2808,9 @@ class mf_form
 						$this->name = $this->get_post_info(array('select' => "post_title"));
 						$this->url = $this->get_post_info();
 						$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
-						$this->show_answers = get_post_meta($this->post_id, $this->meta_prefix.'show_answers', true);
-						$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
-						$this->save_ip = get_post_meta($this->post_id, $this->meta_prefix.'save_ip', true);
+						//$this->show_answers = get_post_meta($this->post_id, $this->meta_prefix.'show_answers', true);
+						//$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
+						//$this->save_ip = get_post_meta($this->post_id, $this->meta_prefix.'save_ip', true);
 						$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
 						$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
 						$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
@@ -3334,7 +3280,7 @@ class mf_form
 		return ($rows_poll_fields > 0 && $rows_input_fields == 0);
 	}
 
-	function is_duplicate()
+	/*function is_duplicate()
 	{
 		global $wpdb;
 
@@ -3365,7 +3311,7 @@ class mf_form
 		}
 
 		return false;
-	}
+	}*/
 
 	function is_correct_form($data)
 	{
@@ -4738,14 +4684,6 @@ class mf_form
 		}
 	}
 
-	function allow_save_ip()
-	{
-		global $wpdb;
-
-		$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
-		return get_post_meta($this->post_id, $this->meta_prefix.'save_ip', true);
-	}
-
 	function get_mandatory_text()
 	{
 		global $wpdb;
@@ -4787,13 +4725,13 @@ class mf_form
 
 		$dblQueryPaymentAmount_value = 0;
 
-		if($this->is_duplicate())
+		/*if($this->is_duplicate())
 		{
 			$this->is_sent = true;
 		}
 
 		else
-		{
+		{*/
 			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeCode, formTypeText, checkCode, formTypeRequired FROM ".$wpdb->base_prefix."form_check RIGHT JOIN ".$wpdb->base_prefix."form2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."form_type USING (formTypeID) WHERE formID = '%d' AND formTypeDisplay = '1' AND formTypeCode NOT IN('custom_tag', 'custom_tag_end') ORDER BY form2TypeOrder ASC", $this->id)); // AND formTypeResult = '1'
 
 			foreach($result as $r)
@@ -5053,7 +4991,7 @@ class mf_form
 					$error_text = $this->get_mandatory_text()." (".$this->label.")";
 				}
 			}
-		}
+		//}
 
 		if($error_text == '' && $this->is_sent == false && count($this->arr_answer_queries) > 0)
 		{
@@ -5071,23 +5009,7 @@ class mf_form
 				}
 			}
 
-			if($this->allow_save_ip() == 'yes')
-			{
-				if(apply_filters('get_allow_cookies', true) == true)
-				{
-					$current_visitor_ip = get_current_visitor_ip();
-				}
-
-				else
-				{
-					$current_visitor_ip = md5((defined('NONCE_SALT') ? NONCE_SALT : '').get_current_visitor_ip());
-				}
-			}
-
-			else
-			{
-				$current_visitor_ip = '';
-			}
+			$current_visitor_ip = md5((defined('NONCE_SALT') ? NONCE_SALT : '').get_current_visitor_ip());
 
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, $current_visitor_ip, $this->is_spam, $this->is_spam_id));
 			$this->answer_id = $wpdb->insert_id;
@@ -5114,10 +5036,10 @@ class mf_form
 
 					$this->process_transactional_emails();
 
-					if(is_user_logged_in())
+					/*if(is_user_logged_in())
 					{
 						$this->set_meta(array('id' => $this->answer_id, 'key' => 'user_id', 'value' => get_current_user_id()));
-					}
+					}*/
 
 					//$this->set_meta(array('id' => $this->answer_id, 'key' => 'user_agent', 'value' => $_SERVER['HTTP_USER_AGENT']));
 
@@ -5304,8 +5226,8 @@ class mf_form
 			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
 
 			//$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
-			$this->show_answers = get_post_meta($this->post_id, $this->meta_prefix.'show_answers', true);
-			$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
+			//$this->show_answers = get_post_meta($this->post_id, $this->meta_prefix.'show_answers', true);
+			//$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
 			$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
 			//$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
 			$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
@@ -5328,13 +5250,13 @@ class mf_form
 
 			$dteFormDeadline = get_post_meta($post_id, $this->meta_prefix.'deadline', true);
 
-			if($this->edit_mode == false && ($this->is_sent == true || $this->is_duplicate() && $this->accept_duplicates == 'no'))
+			if($this->edit_mode == false && $this->is_sent == true) // || $this->is_duplicate() && $this->accept_duplicates == 'no'
 			{
-				$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID IN('5', '8', '17')", $this->id));
+				//$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID IN('5', '8', '17')", $this->id));
 
 				$out .= "<div class='mf_form mf_form_results'>";
 
-					if($this->show_answers == 'yes' && $data['total_answers'] > 0)
+					/*if($this->show_answers == 'yes' && $data['total_answers'] > 0)
 					{
 						$out .= $this->get_poll_results($data);
 					}
@@ -5362,16 +5284,16 @@ class mf_form
 					}
 
 					else
-					{
+					{*/
 						$done_text = __("Thank You!", 'lang_form');
 
 						$out .= get_notification(array('add_container' => true));
-					}
+					//}
 
 				$out .= "</div>";
 			}
 
-			else if($this->edit_mode == false && $dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
+			if($this->edit_mode == false && $dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
 			{
 				$error_text = __("This form is not open for submissions anymore", 'lang_form');
 
@@ -6770,14 +6692,13 @@ if(class_exists('mf_list_table'))
 				case 'answerCreated':
 					$obj_form->answer_column = 0;
 
-					$actions = array(
-						'id' => __("ID", 'lang_form').": ".$intAnswerID,
-					);
+					$actions = array();
+					//$actions['id'] = __("ID", 'lang_form').": ".$intAnswerID;
 
-					if($item['answerIP'] != '')
+					/*if($item['answerIP'] != '')
 					{
 						$actions['ip'] = __("IP", 'lang_form').": ".$item['answerIP'];
-					}
+					}*/
 
 					if($item['answerToken'] != '')
 					{
@@ -6804,13 +6725,13 @@ if(class_exists('mf_list_table'))
 									$meta_data_title .= __("Test Payment", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
 								break;
 
-								case 'user_agent':
+								/*case 'user_agent':
 									$meta_data_title .= __("Browser", 'lang_form').": ".$r->metaValue;
-								break;
+								break;*/
 
-								case 'user_id':
+								/*case 'user_id':
 									$meta_data_title .= __("User", 'lang_form').": ".get_user_info(array('id' => $r->metaValue));
-								break;
+								break;*/
 
 								default:
 									$meta_data_title .= $r->metaKey.": ".$r->metaValue;

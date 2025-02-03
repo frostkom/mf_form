@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.5.7
+Version: 1.1.5.8
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -60,8 +60,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_filter('count_shortcode_button', array($obj_form, 'count_shortcode_button'));
 		add_filter('get_shortcode_output', array($obj_form, 'get_shortcode_output'));
 		add_filter('get_shortcode_list', array($obj_form, 'get_shortcode_list'));
-
-		add_filter('filter_cookie_types', array($obj_form, 'filter_cookie_types'));
 	}
 
 	else
@@ -264,7 +262,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form2answer"] = array(
-			'answerIP' => "ALTER TABLE [table] CHANGE [column] answerIP VARCHAR(32) DEFAULT NULL", //221007
+			//'answerIP' => "ALTER TABLE [table] CHANGE [column] answerIP VARCHAR(32) DEFAULT NULL", //221007
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer (
@@ -346,9 +344,9 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		$arr_fields_db[] = 'formButtonText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_text';
 		$arr_fields_db[] = 'formAnswerURL';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'answer_url';
 		$arr_fields_db[] = 'formMandatoryText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'mandatory_text';
-		$arr_fields_db[] = 'formAcceptDuplicates';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'accept_duplicates';
-		$arr_fields_db[] = 'formShowAnswers';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'show_answers';
-		$arr_fields_db[] = 'formSaveIP';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'save_ip';
+		//$arr_fields_db[] = 'formAcceptDuplicates';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'accept_duplicates';
+		//$arr_fields_db[] = 'formShowAnswers';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'show_answers';
+		//$arr_fields_db[] = 'formSaveIP';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'save_ip';
 		$arr_fields_db[] = 'formEmailName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_name';
 		$arr_fields_db[] = 'formEmailNotify';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_notify';
 		$arr_fields_db[] = 'formEmail';						$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin';
