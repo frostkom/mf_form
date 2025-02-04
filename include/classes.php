@@ -4472,7 +4472,7 @@ class mf_form
 
 		// From admin
 		###################
-		if($this->email_admin != '')
+		/*if($this->email_admin != '')
 		{
 			if(strpos($this->email_admin, "<"))
 			{
@@ -4494,7 +4494,10 @@ class mf_form
 				$email_from_admin_address = $this->email_admin;
 				$email_from_admin = "From: ".($this->email_admin_name != '' ? $this->email_admin_name : $this->email_admin)." <".$this->email_admin.">\r\n";
 			}
-		}
+		}*/
+
+		$email_from_admin_address = get_bloginfo('admin_email');
+		$email_from_admin = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
 		###################
 
 		// From other
