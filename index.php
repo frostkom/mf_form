@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.5.10
+Version: 1.1.5.11
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -100,8 +100,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			blogID TINYINT UNSIGNED,
 			postID INT UNSIGNED NOT NULL DEFAULT '0',
-			formAcceptDuplicates ENUM('no', 'yes') NOT NULL DEFAULT 'yes',
-			formSaveIP ENUM('no', 'yes') NOT NULL DEFAULT 'no',
 			formAnswerURL VARCHAR(20) DEFAULT NULL,
 			formEmail VARCHAR(100) DEFAULT NULL,
 			formFromName VARCHAR(100) DEFAULT NULL,
@@ -117,7 +115,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formEmailConfirmFromEmail VARCHAR(100) DEFAULT NULL,
 			formEmailConfirmFromEmailName VARCHAR(100) DEFAULT NULL,
 			formEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',
-			formShowAnswers ENUM('no', 'yes') NOT NULL DEFAULT 'no',
 			formMandatoryText VARCHAR(100) DEFAULT NULL,
 			formButtonDisplay ENUM('0', '1') NOT NULL DEFAULT '1',
 			formButtonText VARCHAR(100) DEFAULT NULL,
@@ -141,21 +138,18 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			PRIMARY KEY (formID),
 			KEY blogID (blogID),
 			KEY postID (postID)
-		) DEFAULT CHARSET=".$default_charset); //formName VARCHAR(100) DEFAULT NULL,
+		) DEFAULT CHARSET=".$default_charset);
 
 		$arr_add_column[$wpdb->base_prefix."form"] = array(
 			'formButtonDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER formMandatoryText", //220927
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form"] = array(
-			'formShowAnswers' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('no', 'yes', '1') NOT NULL DEFAULT 'no'", //221024
-			'formAcceptDuplicates' => "ALTER TABLE [table] CHANGE [column] [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes'", //230202
+			'formName' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
+			'formAcceptDuplicates' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
+			'formSaveIP' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
+			'formShowAnswers' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
 		);
-
-		// Delete (formName)
-
-		$wpdb->query("UPDATE ".$wpdb->base_prefix."form SET formShowAnswers = 'yes' WHERE formShowAnswers = '1'");
-		$wpdb->query("UPDATE ".$wpdb->base_prefix."form SET formShowAnswers = 'no' WHERE (formShowAnswers = '0' OR formShowAnswers = '' OR formShowAnswers IS null)");
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_nonce (
 			nonceID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -344,9 +338,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		$arr_fields_db[] = 'formButtonText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_text';
 		$arr_fields_db[] = 'formAnswerURL';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'answer_url';
 		$arr_fields_db[] = 'formMandatoryText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'mandatory_text';
-		//$arr_fields_db[] = 'formAcceptDuplicates';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'accept_duplicates';
-		//$arr_fields_db[] = 'formShowAnswers';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'show_answers';
-		//$arr_fields_db[] = 'formSaveIP';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'save_ip';
 		$arr_fields_db[] = 'formEmailName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_name';
 		$arr_fields_db[] = 'formEmailNotify';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_notify';
 		$arr_fields_db[] = 'formEmail';						$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin';

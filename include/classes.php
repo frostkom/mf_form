@@ -599,7 +599,7 @@ class mf_form
 			{
 				$if_parts = explode(" ", $if_statement);
 
-				$log_message = $post->ID." -> <a href='".get_permalink($post->ID)."'>".get_post_title($post->ID)."</a> -> ".$if_statement;
+				$log_message = $post->ID." -> <a href='".get_permalink($post->ID)."'>".get_the_title($post->ID)."</a> -> ".$if_statement;
 
 				switch($if_parts[0])
 				{
@@ -1118,48 +1118,7 @@ class mf_form
 					'condition_value' => 'yes',
 				),
 			),
-			/*array(
-				'name' => __("Accept Duplicates", 'lang_form'),
-				'id' => $this->meta_prefix.'accept_duplicates',
-				'type' => 'select',
-				'options' => get_yes_no_for_select(),
-				'std' => 'yes',
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'button_display',
-					'condition_value' => 'yes',
-				),
-			),*/
 		);
-
-		/*if($this->is_poll())
-		{
-			$arr_fields[] = array(
-				'name' => __("Show Answers", 'lang_form'),
-				'id' => $this->meta_prefix.'show_answers',
-				'type' => 'select',
-				'options' => get_yes_no_for_select(),
-				'std' => 'no',
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'button_display',
-					'condition_value' => 'yes',
-				),
-			);
-		}*/
-
-		/*$arr_fields[] = array(
-			'name' => __("Save IP", 'lang_form'),
-			'id' => $this->meta_prefix.'save_ip',
-			'type' => 'select',
-			'options' => get_yes_no_for_select(),
-			'std' => 'no',
-			'attributes' => array(
-				'condition_type' => 'show_this_if',
-				'condition_selector' => $this->meta_prefix.'button_display',
-				'condition_value' => 'yes',
-			),
-		);*/
 
 		$meta_boxes[] = array(
 			'id' => $this->meta_prefix.'settings',
@@ -1501,14 +1460,16 @@ class mf_form
 		{
 			$this->get_form_id($post_id);
 
-			do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form with formID (#".$this->id.")");
+			$query_form_options = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID IN (SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d')", $this->id);
+			$query_form2type = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $this->id);
+			$query_form_answer = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form_answer WHERE answerID IN (SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d')", $this->id);
+			$query_form_answer_email = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID IN (SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d')", $this->id);
+			$query_form2answer = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d'", $this->id);
+			//$query_form = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id);
 
-			/*$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = (SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d')", $this->id));
+			do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form with formID (#".$this->id.") [".$query_form_options." / ".$query_form2type." / ".$query_form_answer." / ".$query_form_answer_email." / ".$query_form2answer."]");
 
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $this->id));
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = (SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d')", $this->id));
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d'", $this->id));
-			$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));*/
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW(), formDeletedID = '".get_current_user_id()."' WHERE formID = '%d'", $this->id));
 		}
 	}
 
@@ -2363,7 +2324,7 @@ class mf_form
 				$copy_fields_from .= ", postID";
 			}
 
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formCreated, userID, ".$copy_fields_to.") (SELECT NOW(), '%d', ".$copy_fields_from." FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", get_current_user_id(), $intFormID)); //formName, CONCAT(formName, ' (".__("copy", 'lang_form').")'), 
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formCreated, userID, ".$copy_fields_to.") (SELECT NOW(), '%d', ".$copy_fields_from." FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", get_current_user_id(), $intFormID));
 			$intFormID_new = $wpdb->insert_id;
 
 			if($intFormID_new > 0)
@@ -2808,9 +2769,6 @@ class mf_form
 						$this->name = $this->get_post_info(array('select' => "post_title"));
 						$this->url = $this->get_post_info();
 						$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
-						//$this->show_answers = get_post_meta($this->post_id, $this->meta_prefix.'show_answers', true);
-						//$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
-						//$this->save_ip = get_post_meta($this->post_id, $this->meta_prefix.'save_ip', true);
 						$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
 						$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
 						$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
@@ -3280,39 +3238,6 @@ class mf_form
 		return ($rows_poll_fields > 0 && $rows_input_fields == 0);
 	}
 
-	/*function is_duplicate()
-	{
-		global $wpdb;
-
-		if(!isset($this->accept_duplicates))
-		{
-			$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
-			$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
-		}
-
-		if($this->accept_duplicates == 'no' || $this->is_poll())
-		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND (answerIP = %s OR answerIP = %s OR answerIP = %s) LIMIT 0, 1", $this->id, get_current_visitor_ip(), md5(get_current_visitor_ip()), md5((defined('NONCE_SALT') ? NONCE_SALT : '').get_current_visitor_ip())));
-
-			if($wpdb->num_rows > 0)
-			{
-				return true;
-			}
-
-			else if(is_user_logged_in())
-			{
-				$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer INNER JOIN ".$wpdb->base_prefix."form_answer_meta USING (answerID) WHERE formID = '%d' AND metaKey = %s AND metaValue = %s LIMIT 0, 1", $this->id, 'user_id', get_current_user_id()));
-
-				if($wpdb->num_rows > 0)
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}*/
-
 	function is_correct_form($data)
 	{
 		if(isset($data['send_to']) && $data['send_to'] != '')
@@ -3425,23 +3350,6 @@ class mf_form
 				$arr_data[$intFormID] = $value;
 			}
 		}
-
-		//$arr_data = $arr_data_posts;
-
-		/*$result = $wpdb->get_results("SELECT formID, blogID, postID FROM ".$wpdb->base_prefix."form WHERE formDeleted = '0'".$data['where']." ORDER BY blogID ASC, formCreated DESC");
-
-		foreach($result as $r)
-		{
-			$intFormID = $r->formID;
-			$blog_id = $r->blog_id;
-			$post_id = $r->postID;
-			$strFormName = get_post_title($post_id);
-
-			if($data['force_has_page'] == false || count(get_pages_from_shortcode("[mf_form id=".$intFormID."]")) > 0)
-			{
-				$arr_data[$intFormID] = $strFormName;
-			}
-		}*/
 
 		return $arr_data;
 	}
@@ -4691,8 +4599,6 @@ class mf_form
 	{
 		global $wpdb;
 
-		//$out = $wpdb->get_var($wpdb->prepare("SELECT formMandatoryText FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
-
 		$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
 		$out = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
 
@@ -5229,8 +5135,6 @@ class mf_form
 			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
 
 			//$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
-			//$this->show_answers = get_post_meta($this->post_id, $this->meta_prefix.'show_answers', true);
-			//$this->accept_duplicates = get_post_meta($this->post_id, $this->meta_prefix.'accept_duplicates', true);
 			$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
 			//$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
 			$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
@@ -5474,8 +5378,10 @@ class mf_form
 
 			if($rows > 0)
 			{
-				mf_enqueue_script('jquery-flot', plugins_url()."/mf_base/include/jquery.flot.min.0.7.js", '0.7'); //Should be placed in admin_init
-				mf_enqueue_script('jquery-flot-pie', plugins_url()."/mf_base/include/jquery.flot.pie.min.js", '1.1');
+				$plugin_include_url = plugin_dir_url(__FILE__);
+
+				mf_enqueue_script('jquery-flot', $plugin_include_url."jquery.flot.min.0.7.js", '0.7'); //Should be placed in admin_init
+				mf_enqueue_script('jquery-flot-pie', $plugin_include_url."jquery.flot.pie.min.js", '1.1');
 
 				$js_out = "";
 				$arr_data_pie = array();
@@ -5630,22 +5536,24 @@ class mf_form_payment
 				$obj_form = new mf_form();
 			}
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formAnswerURL, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id)); //, formAnswerURL
 
 			foreach($result as $r)
 			{
-				$this->name = get_post_title($obj_form->post_id);
+				$this->name = get_the_title($obj_form->post_id);
 				$this->provider = $r->formPaymentProvider;
 				$this->hmac = $r->formPaymentHmac;
 				$this->terms_page = $r->formTermsPage;
 				$this->merchant = $r->formPaymentMerchant;
 				$this->password = $r->formPaymentPassword;
 				$this->currency = $r->formPaymentCurrency;
-				$this->answer_url = $r->formAnswerURL;
+				//$this->answer_url = $r->formAnswerURL;
 				$this->payment_cost = $r->formPaymentCost;
 				$this->payment_amount = $r->formPaymentAmount;
 				$this->payment_tax_rate = ($r->formPaymentTax != '' ? $r->formPaymentTax : 25);
 				$this->payment_callback = $r->formPaymentCallback;
+
+				$this->answer_url = get_post_meta($obj_form->post_id, $this->meta_prefix.'answer_url', true);
 
 				$obj_form->id = $this->form_id;
 
