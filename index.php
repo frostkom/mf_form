@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.5.12
+Version: 1.1.5.13
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -91,6 +91,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		{
 			$obj_form = new mf_form();
 		}
+
+		replace_option(array('old' => 'setting_redirect_emails', 'new' => 'setting_form_redirect_emails'));
+		replace_option(array('old' => 'setting_replacement_form_text', 'new' => 'setting_form_replacement_text'));
+		replace_option(array('old' => 'setting_replacement_form', 'new' => 'setting_form_replacement'));
 
 		$default_charset = (DB_CHARSET != '' ? DB_CHARSET : 'utf8');
 
@@ -495,7 +499,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		mf_uninstall_plugin(array(
 			'uploads' => $obj_form->post_type,
-			'options' => array('setting_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_replacement_form', 'setting_replacement_form_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'),
+			'options' => array('setting_form_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_form_replacement', 'setting_form_replacement_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'),
 			'meta' => array('meta_forms_viewed'),
 			'post_types' => array($obj_form->post_type),
 			'tables' => array('form', 'form_option', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),

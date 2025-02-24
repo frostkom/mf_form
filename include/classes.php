@@ -364,7 +364,7 @@ class mf_form
 		add_settings_section($options_area, "", array($this, $options_area."_callback"), BASE_OPTIONS_PAGE);
 
 		$arr_settings = array(
-			'setting_redirect_emails' => __("Redirect all e-mails", 'lang_form'),
+			'setting_form_redirect_emails' => __("Redirect all e-mails", 'lang_form'),
 			'setting_form_test_emails' => __("Redirect test e-mails", 'lang_form'),
 			'setting_form_permission_see_all' => __("View All", 'lang_form'),
 			'setting_form_permission_edit_all' => __("Edit All", 'lang_form'),
@@ -378,11 +378,11 @@ class mf_form
 			$arr_settings['setting_form_clear_spam'] = __("Clear Spam", 'lang_form');
 		}
 
-		$arr_settings['setting_replacement_form'] = __("Form to replace all e-mail links", 'lang_form');
+		$arr_settings['setting_form_replacement'] = __("Form to replace all e-mail links", 'lang_form');
 
-		if(get_option('setting_replacement_form') > 0)
+		if(get_option('setting_form_replacement') > 0)
 		{
-			$arr_settings['setting_replacement_form_text'] = __("Text to replace all e-mail links", 'lang_form');
+			$arr_settings['setting_form_replacement_text'] = __("Text to replace all e-mail links", 'lang_form');
 		}
 
 		if($this->has_confirm_template() && is_plugin_active("mf_webshop/index.php"))
@@ -406,7 +406,7 @@ class mf_form
 		echo settings_header($setting_key, __("Forms", 'lang_form'));
 	}
 
-	function setting_redirect_emails_callback()
+	function setting_form_redirect_emails_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key, 'no');
@@ -480,7 +480,7 @@ class mf_form
 		return $out;
 	}
 
-	function setting_replacement_form_callback()
+	function setting_form_replacement_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
@@ -488,7 +488,7 @@ class mf_form
 		echo show_select(array('data' => $this->get_for_select(array('force_has_page' => false)), 'name' => $setting_key, 'value' => $option, 'suffix' => $this->get_option_form_suffix(array('value' => $option)), 'description' => __("If you would like all e-mail links in text to be replaced by a form, choose one here", 'lang_form')));
 	}
 
-	function setting_replacement_form_text_callback()
+	function setting_form_replacement_text_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
@@ -548,10 +548,10 @@ class mf_form
 
 		if($title == $email || strpos($title, $email))
 		{
-			$title = get_option_or_default('setting_replacement_form_text', __("Click here to send e-mail", 'lang_form'));
+			$title = get_option_or_default('setting_form_replacement_text', __("Click here to send e-mail", 'lang_form'));
 		}
 
-		$this->id = get_option('setting_replacement_form');
+		$this->id = get_option('setting_form_replacement');
 
 		$form_md5 = md5("form_link_".$email."_".mt_rand(1, 1000));
 
@@ -577,7 +577,7 @@ class mf_form
 	{
 		global $wpdb, $post;
 
-		if(get_option('setting_replacement_form') > 0)
+		if(get_option('setting_form_replacement') > 0)
 		{
 			$char_before = "?<=^|\s|\(|\[";
 			$chars = "[-A-Za-z\d_.]+[@][A-Za-z\d_-]+([.][A-Za-z\d_-]+)*[.][A-Za-z]{2,8}";
@@ -715,7 +715,7 @@ class mf_form
 	function filter_sites_table_settings($arr_settings)
 	{
 		$arr_settings['settings_form'] = array(
-			'setting_redirect_emails' => array(
+			'setting_form_redirect_emails' => array(
 				'type' => 'bool',
 				'global' => false,
 				'icon' => "fas fa-share",
@@ -727,7 +727,7 @@ class mf_form
 				'icon' => "fas fa-share",
 				'name' => __("Redirect test e-mails", 'lang_form'),
 			),
-			'setting_replacement_form' => array(
+			'setting_form_replacement' => array(
 				'type' => 'string',
 				'global' => false,
 				'icon' => "fas fa-at",
@@ -1767,7 +1767,7 @@ class mf_form
 			}
 		}
 
-		else if(get_option('setting_redirect_emails') == 'yes')
+		else if(get_option('setting_form_redirect_emails') == 'yes')
 		{
 			$mail_to = $phpmailer->getToAddresses();
 			$mail_to_old = $mail_to[0][0];
