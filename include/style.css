@@ -44,7 +44,7 @@
 		.mf_form .form_zipcode input
 		{
 			float: left;
-			max-width: 70px;
+			max-width: 4em;
 			text-align: center;
 		}
 
