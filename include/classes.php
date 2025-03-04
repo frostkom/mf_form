@@ -310,7 +310,7 @@ class mf_form
 
 		$args = array(
 			'labels' => $labels,
-			'public' => true,
+			'public' => false, // Previously true but we always want this to go through a page and don't want it to show up in get_post_types_for_metabox()
 			'show_ui' => true,
 			'show_in_menu' => true,
 			'exclude_from_search' => true,
@@ -650,6 +650,13 @@ class mf_form
 		}*/
 
 		return $html;
+	}
+
+	function get_post_types_for_metabox($array)
+	{
+		$array[] = $this->post_type;
+
+		return $array;
 	}
 
 	function combined_head()
