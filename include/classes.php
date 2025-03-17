@@ -302,14 +302,12 @@ class mf_form
 
 		// Post types
 		#######################
-		$labels = array(
-			'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
-			'singular_name' => _x(__("Form", 'lang_form'), 'post type singular name'),
-			'menu_name' => __("Forms", 'lang_form'),
-		);
-
-		$args = array(
-			'labels' => $labels,
+		register_post_type($this->post_type, array(
+			'labels' => array(
+				'name' => _x(__("Forms", 'lang_form'), 'post type general name'),
+				'singular_name' => _x(__("Form", 'lang_form'), 'post type singular name'),
+				'menu_name' => __("Forms", 'lang_form'),
+			),
 			'public' => false, // Previously true but we always want this to go through a page and don't want it to show up in get_post_types_for_metabox()
 			'show_ui' => true,
 			'show_in_menu' => true,
@@ -320,9 +318,7 @@ class mf_form
 			'rewrite' => array(
 				'slug' => 'form',
 			),
-		);
-
-		register_post_type($this->post_type, $args);
+		));
 
 		remove_post_type_support($this->post_type, 'comments');
 	    remove_post_type_support($this->post_type, 'trackbacks');

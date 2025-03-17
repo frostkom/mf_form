@@ -35,17 +35,17 @@ if($obj_form->id > 0)
 
 		$tbl_group = new mf_answer_table();
 
-		if($tbl_group->search == '')
-		{
-			echo $obj_form->get_pie_chart();
-		}
-
 		$tbl_group->select_data(array(
 			'select' => "answerID, answerCreated, answerIP, answerSpam, spamID, answerToken",
 			//'debug' => true,
 		));
 
 		$tbl_group->do_display();
+
+		if($tbl_group->search == '')
+		{
+			echo $obj_form->get_pie_chart();
+		}
 
 	echo "</div>";
 }

@@ -167,7 +167,7 @@ switch($type_action)
 		$json_output['response'] = input_hidden(array('name' => 'form_submit_'.$form_id, 'value' => $obj_form->create_nonce()));
 	break;
 
-	case 'sortOrder':
+	/*case 'sortOrder':
 		if(is_user_logged_in())
 		{
 			$updated = false;
@@ -200,7 +200,7 @@ switch($type_action)
 				$json_output['success'] = true;
 			}
 		}
-	break;
+	break;*/
 
 	case 'zipcode':
 		do_action('run_cache', array('suffix' => 'json'));
