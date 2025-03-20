@@ -477,11 +477,12 @@ jQuery(function($)
 
 		$.ajax(
 		{
-			url: script_form.plugin_url + 'api/?type=get_nonce',
+			url: script_form.plugin_url + 'api/',
 			type: 'post',
 			dataType: 'json',
 			data:
 			{
+				type: 'get_nonce',
 				form_id: form_id
 			},
 			success: function(data)

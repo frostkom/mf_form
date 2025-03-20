@@ -203,8 +203,6 @@ switch($type_action)
 	break;*/
 
 	case 'zipcode':
-		do_action('run_cache', array('suffix' => 'json'));
-
 		$search = str_replace(" ", "", $type_id);
 		$city_name = "";
 
