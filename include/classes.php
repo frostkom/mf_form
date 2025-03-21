@@ -660,7 +660,12 @@ class mf_form
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
 		mf_enqueue_style('style_form', $plugin_include_url."style.css");
-		mf_enqueue_script('script_form', $plugin_include_url."script.js", array('plugins_url' => plugins_url(), 'plugin_url' => $plugin_include_url, 'please_wait' => __("Please wait", 'lang_form'))); //'ajax_url' => admin_url('admin-ajax.php'), 
+		mf_enqueue_script('script_form', $plugin_include_url."script.js", array(
+			'plugins_url' => plugins_url(),
+			'ajax_url' => admin_url('admin-ajax.php'), 
+			'plugin_url' => $plugin_include_url,
+			'please_wait' => __("Please wait", 'lang_form'),
+		));
 	}
 
 	function admin_init()
@@ -1783,6 +1788,20 @@ class mf_form
 				$phpmailer->addAddress($mail_to_new);
 			}
 		}
+	}
+
+	function api_form_nonce()
+	{
+		$form_id = check_var('form_id', 'int');
+
+		$json_output = array(
+			'success' => true,
+			'response' => input_hidden(array('name' => 'form_submit_'.$form_id, 'value' => $this->create_nonce())),
+		);
+
+		header("Content-Type: application/json");
+		echo json_encode($json_output);
+		die();
 	}
 
 	function save_options($intForm2TypeID, $arrFormTypeSelect_id, $arrFormTypeSelect_key, $arrFormTypeSelect_value, $arrFormTypeSelect_limit, $arrFormTypeSelect_action)
@@ -5265,7 +5284,7 @@ class mf_form
 
 									if(does_table_exist($wpdb->base_prefix."form_nonce"))
 									{
-										$out .= "<div class='get_nonce'></div>";
+										$out .= "<div class='api_form_nonce'></div>";
 									}
 
 									if($this->check_if_has_payment() && (IS_ADMINISTRATOR || isset($_GET['make_test_payment'])))

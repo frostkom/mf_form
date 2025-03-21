@@ -160,12 +160,12 @@ switch($type_action)
 		}
 	break;
 
-	case 'get_nonce':
+	/*case 'api_form_nonce':
 		$form_id = check_var('form_id', 'int');
 
 		$json_output['success'] = true;
 		$json_output['response'] = input_hidden(array('name' => 'form_submit_'.$form_id, 'value' => $obj_form->create_nonce()));
-	break;
+	break;*/
 
 	/*case 'sortOrder':
 		if(is_user_logged_in())

@@ -470,19 +470,19 @@ jQuery(function($)
 
 	/* Submit */
 	/* ################### */
-	$(".mf_form .get_nonce").each(function()
+	$(".mf_form .api_form_nonce").each(function()
 	{
 		var dom_obj = $(this),
 			form_id = dom_obj.parents(".mf_form").attr('id').replace('form_', '');
 
 		$.ajax(
 		{
-			url: script_form.plugin_url + 'api/',
+			url: script_form.ajax_url,
 			type: 'post',
 			dataType: 'json',
 			data:
 			{
-				type: 'get_nonce',
+				action: 'api_form_nonce',
 				form_id: form_id
 			},
 			success: function(data)
