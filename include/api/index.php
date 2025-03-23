@@ -160,13 +160,6 @@ switch($type_action)
 		}
 	break;
 
-	/*case 'api_form_nonce':
-		$form_id = check_var('form_id', 'int');
-
-		$json_output['success'] = true;
-		$json_output['response'] = input_hidden(array('name' => 'form_submit_'.$form_id, 'value' => $obj_form->create_nonce()));
-	break;*/
-
 	/*case 'sortOrder':
 		if(is_user_logged_in())
 		{
@@ -202,7 +195,7 @@ switch($type_action)
 		}
 	break;*/
 
-	case 'zipcode':
+	/*case 'zipcode':
 		$search = str_replace(" ", "", $type_id);
 		$city_name = "";
 
@@ -219,7 +212,7 @@ switch($type_action)
 			$json_output['success'] = true;
 			$json_output['response'] = $city_name;
 		}
-	break;
+	break;*/
 }
 
 echo json_encode($json_output);

@@ -337,9 +337,13 @@ jQuery(function($)
 		{
 			$.ajax(
 			{
-				url: script_form.plugin_url + 'api/?type=zipcode/search/' + search,
-				type: 'get',
+				url: script_form.ajax_url,
+				type: 'post',
 				dataType: 'json',
+				data: {
+					action: 'zipcode',
+					search: search
+				},
 				success: function(data)
 				{
 					if(data.success)

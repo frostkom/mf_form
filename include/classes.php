@@ -663,8 +663,8 @@ class mf_form
 		mf_enqueue_script('script_form', $plugin_include_url."script.js", array(
 			'plugins_url' => plugins_url(),
 			'ajax_url' => admin_url('admin-ajax.php'), 
-			'plugin_url' => $plugin_include_url,
-			'please_wait' => __("Please wait", 'lang_form'),
+			//'plugin_url' => $plugin_include_url,
+			//'please_wait' => __("Please wait", 'lang_form'),
 		));
 	}
 
@@ -1798,6 +1798,35 @@ class mf_form
 			'success' => true,
 			'response' => input_hidden(array('name' => 'form_submit_'.$form_id, 'value' => $this->create_nonce())),
 		);
+
+		header("Content-Type: application/json");
+		echo json_encode($json_output);
+		die();
+	}
+
+	function api_form_zipcode()
+	{
+		$json_output = array(
+			'success' => false,
+		);
+
+		$city_name = "";
+
+		if(get_bloginfo('language') == "sv-SE")
+		{
+			include_once("../class_zipcode.php");
+			$obj_zipcode = new mf_zipcode();
+
+			$search = check_var('search');
+
+			$city_name = $obj_zipcode->get_city($search);
+
+			if($city_name != '')
+			{
+				$json_output['success'] = true;
+				$json_output['response'] = $city_name;
+			}
+		}
 
 		header("Content-Type: application/json");
 		echo json_encode($json_output);
