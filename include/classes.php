@@ -1776,6 +1776,8 @@ class mf_form
 
 	function shortcode_form($atts)
 	{
+		global $post;
+
 		$out = "";
 
 		/*extract(shortcode_atts(array(
@@ -1789,7 +1791,7 @@ class mf_form
 
 		$out = $this->process_form();*/
 
-		do_log(__FUNCTION__.": Add a block instead (".var_export($atts, true).")");
+		do_log(__FUNCTION__.": Add a block instead (#".$post->ID.", ".var_export($atts, true).")");
 
 		return $out;
 	}
