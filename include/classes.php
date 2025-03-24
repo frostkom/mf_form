@@ -194,6 +194,58 @@ class mf_form
 
 		if($obj_cron->is_running == false)
 		{
+			// Delete orphan data
+			#######################
+			$result = $wpdb->get_results("SELECT ".$wpdb->base_prefix."form2type.formID FROM ".$wpdb->base_prefix."form2type LEFT JOIN ".$wpdb->base_prefix."form USING (formID) WHERE ".$wpdb->base_prefix."form.formID IS null");
+
+			if($wpdb->num_rows > 0)
+			{
+				//do_log(__FUNCTION__." - Dead form2type: ".$wpdb->last_query);
+
+				foreach($result as $r)
+				{
+					$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $r->formID);
+
+					do_log(__FUNCTION__.": ".$wpdb->last_query);
+				}
+			}
+
+			$result = $wpdb->get_results("SELECT ".$wpdb->base_prefix."form_option.form2TypeID FROM ".$wpdb->base_prefix."form_option LEFT JOIN ".$wpdb->base_prefix."form2type USING (form2TypeID) WHERE ".$wpdb->base_prefix."form2type.form2TypeID IS null");
+
+			if($wpdb->num_rows > 0)
+			{
+				do_log(__FUNCTION__." - Dead form_option: ".$wpdb->last_query);
+			}
+
+			$result = $wpdb->get_results("SELECT ".$wpdb->base_prefix."form_answer.answerID FROM ".$wpdb->base_prefix."form_answer LEFT JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2answer.answerID IS null");
+
+			if($wpdb->num_rows > 0)
+			{
+				do_log(__FUNCTION__." - Dead form_answer: ".$wpdb->last_query);
+			}
+
+			$result = $wpdb->get_results("SELECT ".$wpdb->base_prefix."form_answer_email.answerID FROM ".$wpdb->base_prefix."form_answer_email LEFT JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2answer.answerID IS null");
+
+			if($wpdb->num_rows > 0)
+			{
+				//do_log(__FUNCTION__." - Dead form_answer_email: ".$wpdb->last_query);
+
+				foreach($result as $r)
+				{
+					$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $r->answerID);
+
+					do_log(__FUNCTION__.": ".$wpdb->last_query);
+				}
+			}
+
+			$result = $wpdb->get_results("SELECT ".$wpdb->base_prefix."form2answer.formID FROM ".$wpdb->base_prefix."form2answer LEFT JOIN ".$wpdb->base_prefix."form USING (formID) WHERE ".$wpdb->base_prefix."form.formID IS null");
+
+			if($wpdb->num_rows > 0)
+			{
+				do_log(__FUNCTION__." - Dead form2answer: ".$wpdb->last_query);
+			}
+			#######################
+
 			// Delete old nonces
 			#######################
 			if(does_table_exist($wpdb->base_prefix."form_nonce"))
@@ -204,51 +256,48 @@ class mf_form
 
 			// Look for empty answers
 			#######################
-			if(!is_multisite() || is_main_site())
+			$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE ".$wpdb->base_prefix."form_answer.answerID IS null");
+			$last_query = $wpdb->last_query;
+			$num_rows = $wpdb->num_rows;
+
+			if($num_rows > 0)
 			{
-				$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."form2answer LEFT JOIN ".$wpdb->base_prefix."form_answer USING (answerID) WHERE ".$wpdb->base_prefix."form_answer.answerID IS null");
-				$last_query = $wpdb->last_query;
-				$num_rows = $wpdb->num_rows;
+				$i = 0;
 
-				if($num_rows > 0)
+				foreach($result as $r)
 				{
-					$i = 0;
+					$has_data = false;
 
-					foreach($result as $r)
+					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $r->answerID));
+
+					if($wpdb->num_rows > 0)
 					{
-						$has_data = false;
-
-						$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $r->answerID));
-
-						if($wpdb->num_rows > 0)
-						{
-							$has_data = true;
-						}
-
-						$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d'", $r->answerID));
-
-						if($wpdb->num_rows > 0)
-						{
-							$has_data = true;
-						}
-
-						$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
-
-						if($wpdb->num_rows > 0)
-						{
-							$has_data = true;
-						}
-
-						if($has_data == false)
-						{
-							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $r->answerID));
-
-							//$i++;
-						}
+						$has_data = true;
 					}
 
-					//do_log("There are ".$num_rows." (".$i.") empty answers (".$last_query.")");
+					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_meta WHERE answerID = '%d'", $r->answerID));
+
+					if($wpdb->num_rows > 0)
+					{
+						$has_data = true;
+					}
+
+					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
+
+					if($wpdb->num_rows > 0)
+					{
+						$has_data = true;
+					}
+
+					if($has_data == false)
+					{
+						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $r->answerID));
+
+						//$i++;
+					}
 				}
+
+				//do_log("There are ".$num_rows." (".$i.") empty answers (".$last_query.")");
 			}
 			#######################
 
@@ -308,7 +357,7 @@ class mf_form
 				'singular_name' => _x(__("Form", 'lang_form'), 'post type singular name'),
 				'menu_name' => __("Forms", 'lang_form'),
 			),
-			'public' => false, // Previously true but we always want this to go through a page and don't want it to show up in get_post_types_for_metabox()
+			'public' => (wp_is_block_theme() == false), // Previously true but we want them to go through a page when the theme is a block theme
 			'show_ui' => true,
 			'show_in_menu' => true,
 			'exclude_from_search' => true,
@@ -648,12 +697,12 @@ class mf_form
 		return $html;
 	}
 
-	function get_post_types_for_metabox($array)
+	/*function get_post_types_for_metabox($array)
 	{
 		$array[] = $this->post_type;
 
 		return $array;
-	}
+	}*/
 
 	function combined_head()
 	{
@@ -662,9 +711,7 @@ class mf_form
 		mf_enqueue_style('style_form', $plugin_include_url."style.css");
 		mf_enqueue_script('script_form', $plugin_include_url."script.js", array(
 			'plugins_url' => plugins_url(),
-			'ajax_url' => admin_url('admin-ajax.php'), 
-			//'plugin_url' => $plugin_include_url,
-			//'please_wait' => __("Please wait", 'lang_form'),
+			'ajax_url' => admin_url('admin-ajax.php'),
 		));
 	}
 
@@ -1468,15 +1515,6 @@ class mf_form
 		{
 			$this->get_form_id($post_id);
 
-			$query_form_options = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID IN (SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d')", $this->id);
-			$query_form2type = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $this->id);
-			$query_form_answer = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form_answer WHERE answerID IN (SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d')", $this->id);
-			$query_form_answer_email = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID IN (SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d')", $this->id);
-			$query_form2answer = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d'", $this->id);
-			//$query_form = $wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id);
-
-			do_log("Delete postID (#".$post_id.") from ".$wpdb->base_prefix."form with formID (#".$this->id.") [".$query_form_options." / ".$query_form2type." / ".$query_form_answer." / ".$query_form_answer_email." / ".$query_form2answer."]");
-
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW(), formDeletedID = '".get_current_user_id()."' WHERE formID = '%d'", $this->id));
 		}
 	}
@@ -1735,7 +1773,9 @@ class mf_form
 
 	function shortcode_form($atts)
 	{
-		extract(shortcode_atts(array(
+		$out = "";
+
+		/*extract(shortcode_atts(array(
 			'id' => '',
 		), $atts));
 
@@ -1744,7 +1784,11 @@ class mf_form
 		unset($atts['id']);
 		$this->form_atts = $atts;
 
-		return $this->process_form();
+		$out = $this->process_form();*/
+
+		do_log(__FUNCTION__.": Add a block instead (".var_export($atts, true).")");
+
+		return $out;
 	}
 
 	function widgets_init()
@@ -2921,7 +2965,7 @@ class mf_form
 
 					else
 					{
-						do_log("No results from btnFormAdd (".$this->id.", ".$wpdb->last_query.")");
+						//do_log("No results from btnFormAdd (".$this->id.", ".$wpdb->last_query.")");
 					}
 				}
 			break;
