@@ -112,11 +112,11 @@ class mf_form
 		$block_code = '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->';
 		$arr_ids = apply_filters('get_page_from_block_code', array(), $block_code);
 
-		if(count($arr_ids) == 0)
+		/*if(count($arr_ids) == 0)
 		{
 			$shortcode = "[mf_form id=".$this->id."]";
 			$arr_ids = get_pages_from_shortcode($shortcode);
-		}
+		}*/
 
 		if(count($arr_ids) > 0)
 		{
@@ -145,10 +145,10 @@ class mf_form
 
 			$data['actions']['create_page'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/create/index.php&btnPageCreate&intFormID=".$this->id."&strFormName=".$this->name), 'page_create_'.$this->id, '_wpnonce_page_create')."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("Add New Page", 'lang_form')."</a>";
 
-			if(isset($shortcode))
+			/*if(isset($shortcode))
 			{
-				//$data['actions']['create'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$this->name."&content=".$shortcode)."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("Add New Page", 'lang_form')."</a>";
-			}
+				$data['actions']['create'] = "<a href='".admin_url("post-new.php?post_type=page&post_title=".$this->name."&content=".$shortcode)."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("Add New Page", 'lang_form')."</a>";
+			}*/
 		}
 
 		return $data['actions'];
@@ -204,9 +204,9 @@ class mf_form
 
 				foreach($result as $r)
 				{
-					$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $r->formID);
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $r->formID));
 
-					do_log(__FUNCTION__.": ".$wpdb->last_query);
+					//do_log(__FUNCTION__.": ".$wpdb->last_query);
 				}
 			}
 
@@ -232,9 +232,9 @@ class mf_form
 
 				foreach($result as $r)
 				{
-					$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $r->answerID);
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
 
-					do_log(__FUNCTION__.": ".$wpdb->last_query);
+					//do_log(__FUNCTION__.": ".$wpdb->last_query);
 				}
 			}
 
@@ -337,8 +337,11 @@ class mf_form
 
 		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)
 		{
+			$this->id = $attributes['form_id'];
+
 			$out = "<div".parse_block_attributes(array('attributes' => $attributes)).">" //'class' => "widget form", 
-				.apply_filters('the_content', "[mf_form id=".$attributes['form_id']."]")
+				//.apply_filters('the_content', "[mf_form id=".$attributes['form_id']."]")
+				.$this->process_form()
 			."</div>";
 		}
 
