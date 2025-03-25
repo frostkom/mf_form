@@ -17,7 +17,6 @@ class mf_form
 	var $send_to = '';
 	var $answer_id = '';
 	var $prefix = '';
-	//var $accept_duplicates = '';
 	var $provider = '';
 	var $has_payment = false;
 	var $payment_provider = "";
@@ -40,8 +39,6 @@ class mf_form
 	var $email_confirm_from_email_name = "";
 	var $email_confirm_id = "";
 	var $email_confirm_page = "";
-	//var $show_answers = "";
-	//var $save_ip = "";
 	var $answer_url = "";
 	var $email_admin = "";
 	var $email_admin_name = "";
@@ -3544,7 +3541,7 @@ class mf_form
 		return $post_name;
 	}
 
-	function pre_format_date($date)
+	/*function pre_format_date($date)
 	{
 		if($date != '')
 		{
@@ -3562,7 +3559,7 @@ class mf_form
 		}
 
 		return $date;
-	}
+	}*/
 
 	function get_form_id_from_post_content($post_id)
 	{
@@ -5257,47 +5254,13 @@ class mf_form
 
 			$dteFormDeadline = get_post_meta($post_id, $this->meta_prefix.'deadline', true);
 
-			if($this->edit_mode == false && $this->is_sent == true) // || $this->is_duplicate() && $this->accept_duplicates == 'no'
+			if($this->edit_mode == false && $this->is_sent == true)
 			{
-				//$data['total_answers'] = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."form2type INNER JOIN ".$wpdb->base_prefix."form_answer USING (form2TypeID) WHERE formID = '%d' AND formTypeID IN('5', '8', '17')", $this->id));
+				$done_text = __("Thank You!", 'lang_form');
 
-				$out .= "<div class='mf_form mf_form_results'>";
-
-					/*if($this->show_answers == 'yes' && $data['total_answers'] > 0)
-					{
-						$out .= $this->get_poll_results($data);
-					}
-
-					else if($intFormAnswerURL > 0)
-					{
-						if($blog_id > 0)
-						{
-							switch_to_blog($blog_id);
-						}
-
-						if($data['do_redirect'] == true && isset($wp_query->post->ID) && ($intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID)))
-						{
-							$out .= "<i class='fa fa-spinner fa-spin fa-3x'></i>";
-
-							echo $out;
-
-							mf_redirect(get_permalink($intFormAnswerURL));
-						}
-
-						if($blog_id > 0)
-						{
-							restore_current_blog();
-						}
-					}
-
-					else
-					{*/
-						$done_text = __("Thank You!", 'lang_form');
-
-						$out .= get_notification(array('add_container' => true));
-					//}
-
-				$out .= "</div>";
+				$out .= "<div class='mf_form mf_form_results'>"
+					.get_notification(array('add_container' => true))
+				."</div>";
 			}
 
 			if($this->edit_mode == false && $dteFormDeadline > DEFAULT_DATE && $dteFormDeadline < date("Y-m-d"))
@@ -6871,7 +6834,7 @@ if(class_exists('mf_list_table'))
 									break;
 
 									case 'datepicker':
-										$strAnswerText = $obj_form->pre_format_date($strAnswerText);
+										//$strAnswerText = $obj_form->pre_format_date($strAnswerText);
 									break;
 
 									case 'select':
@@ -7026,12 +6989,13 @@ class mf_form_output
 					break;
 
 					case 'datepicker':
-						if(!isset($obj_form))
+						/*if(!isset($obj_form))
 						{
 							$obj_form = new mf_form();
 						}
 
-						$this->answer_text = $obj_form->pre_format_date($r->answerText);
+						$this->answer_text = $obj_form->pre_format_date($r->answerText);*/
+						$this->answer_text = $r->answerText;
 					break;
 
 					default:
