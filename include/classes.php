@@ -1073,6 +1073,14 @@ class mf_form
 
 			$actions['edit_fields'] = "<a href='".$post_edit_fields_url."'>".__("Edit Content", 'lang_form')."</a>";
 			$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$this->id), 'form_copy_'.$this->id, '_wpnonce_form_copy')."'>".__("Copy", 'lang_form')."</a>";
+
+			$post_id = apply_filters('get_block_search', 0, 'mf/form');
+
+			if($post_id > 0)
+			{
+				$actions['view'] = "<a href='".get_permalink($post_id)."'>".__("View", 'lang_form')."</a>";
+			}
+
 			$actions['export'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormExport&intFormID=".$this->id."&btnExportRun&intExportType=".$this->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("Export", 'lang_form')."</a>";
 		}
 
@@ -1358,18 +1366,20 @@ class mf_form
 
 		if($rows > 0)
 		{
+			$title = ($rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form'));
+
 			switch($data['return_type'])
 			{
 				default:
 				case 'html':
-					$out .= "&nbsp;<span class='update-plugins' title='".($rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form'))."'>
+					$out .= "&nbsp;<span class='update-plugins' title='".$title."'>
 						<span>".$rows."</span>
 					</span>";
 				break;
 
 				case 'array':
 					$out = array(
-						'title' => ($rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form')),
+						'title' => $title,
 						'tag' => 'form',
 						'link' => admin_url("edit.php?post_type=".$this->post_type),
 					);

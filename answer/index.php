@@ -48,6 +48,8 @@ if($obj_form->id > 0)
 		}
 
 	echo "</div>";
+
+	update_user_meta(get_current_user_id(), 'meta_forms_viewed', date("Y-m-d H:i:s"));
 }
 
 else
