@@ -5015,7 +5015,7 @@ class mf_form
 				}
 			}
 
-			$current_visitor_ip = md5((defined('NONCE_SALT') ? NONCE_SALT : '').get_current_visitor_ip());
+			$current_visitor_ip = md5((defined('NONCE_SALT') ? NONCE_SALT : '').apply_filters('get_current_visitor_ip', $_SERVER['REMOTE_ADDR']));
 
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2answer SET formID = '%d', answerIP = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, $current_visitor_ip, $this->is_spam, $this->is_spam_id));
 			$this->answer_id = $wpdb->insert_id;
@@ -5195,7 +5195,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		$nonce_key = md5((defined('NONCE_SALT') ? NONCE_SALT : '').get_current_visitor_ip().date("YmdHis"));
+		$nonce_key = md5((defined('NONCE_SALT') ? NONCE_SALT : '').apply_filters('get_current_visitor_ip', $_SERVER['REMOTE_ADDR']).date("YmdHis"));
 
 		$wpdb->get_var($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_nonce SET nonceKey = %s, nonceCreated = NOW()", $nonce_key));
 
