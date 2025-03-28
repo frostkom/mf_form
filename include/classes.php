@@ -1285,7 +1285,7 @@ class mf_form
 			echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $obj_form->email_name, 'maxlength' => 100));
 		}
 
-		echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 1, 'compare' => $obj_form->email_notify))
+		echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 'yes', 'compare' => $obj_form->email_notify))
 		.show_textfield(array('name' => 'strFormEmail', 'text' => __("Send To", 'lang_form'), 'value' => $obj_form->email_admin, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
 
 		formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
@@ -1301,7 +1301,7 @@ class mf_form
 		if($int_email_fields > 0)
 		{
 			formEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
-			echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 1, 'compare' => $obj_form->email_confirm))
+			echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 'yes', 'compare' => $obj_form->email_confirm))
 			."<div class='email_confirm_div'>"
 				.show_textfield(array('name' => 'strFormEmailConfirmFromEmail', 'text' => __("Send From", 'lang_form'), 'value' => $obj_form->email_confirm_from_email, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('admin_email')
 				.show_textfield(array('name' => 'strFormEmailConfirmFromEmailName', 'text' => __("Send From", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $obj_form->email_confirm_from_email_name, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('name')
@@ -1799,7 +1799,7 @@ class mf_form
 		return $erasers;
 	}
 
-	function count_shortcode_button($count)
+	/*function count_shortcode_button($count)
 	{
 		if($count == 0 && $this->get_amount(array('post_status' => 'publish')) > 0)
 		{
@@ -1807,9 +1807,9 @@ class mf_form
 		}
 
 		return $count;
-	}
+	}*/
 
-	function get_shortcode_output($out)
+	/*function get_shortcode_output($out)
 	{
 		$tbl_group = new mf_form_table();
 
@@ -1833,9 +1833,9 @@ class mf_form
 		}
 
 		return $out;
-	}
+	}*/
 
-	function get_shortcode_list($data)
+	/*function get_shortcode_list($data)
 	{
 		$post_id = $data[0];
 		$content_list = $data[1];
@@ -1851,7 +1851,7 @@ class mf_form
 		}
 
 		return array($post_id, $content_list);
-	}
+	}*/
 
 	function delete_answer($answer_id)
 	{
@@ -2192,7 +2192,6 @@ class mf_form
 		if(!isset($data['form_type_id'])){		$data['form_type_id'] = 0;}
 
 		$arr_data = array();
-		
 		$arr_data[''] = "-- ".__("Choose Here", 'lang_form')." --";
 
 		foreach($this->arr_form_types as $key => $arr_value)
@@ -2599,7 +2598,7 @@ class mf_form
 							'ID' => $this->post_id,
 							'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
 							'post_author' => get_current_user_id(),
-							'meta_input' => array(
+							'meta_input' => apply_filters('filter_meta_input', array(
 								$this->meta_prefix.'email_admin_name' => $this->email_admin_name,
 								$this->meta_prefix.'email_name' => $this->email_name,
 								$this->meta_prefix.'email_notify' => ($this->email_notify == 1 ? 'yes' : 'no'),
@@ -2624,7 +2623,7 @@ class mf_form
 								$this->meta_prefix.'payment_amount' => $this->payment_amount,
 								$this->meta_prefix.'payment_tax' => $this->payment_tax,
 								$this->meta_prefix.'payment_callback' => $this->payment_callback,
-							),
+							)),
 						);
 
 						wp_update_post($post_data);
@@ -4091,7 +4090,7 @@ class mf_form
 
 		foreach($result as $r)
 		{
-			if($this->arr_form_check[$r->checkID]['code'] == 'email')
+			if($r->checkID > 0 && $this->arr_form_check[$r->checkID]['code'] == 'email')
 			{
 				$out++;
 			}
@@ -5670,7 +5669,7 @@ class mf_form_payment
 
 			$obj_form->id = $this->form_id;
 			$this->name = get_the_title($obj_form->post_id);
-			
+
 			$this->hmac = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_hmac', true);
 			$this->provider = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_provider', true);
 			$this->merchant = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_merchant', true);
@@ -7433,7 +7432,7 @@ class mf_form_output
 			break;
 
 			case 'input_field':
-				if($obj_form->arr_form_check[$this->row->checkID]['code'] == 'zip')
+				if($this->row->checkID > 0 && $obj_form->arr_form_check[$this->row->checkID]['code'] == 'zip')
 				{
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_zipcode";
 				}
@@ -7444,9 +7443,9 @@ class mf_form_output
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
 				$field_data['xtra_class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
-				$field_data['type'] = $obj_form->arr_form_check[$this->row->checkID]['code'];
+				$field_data['type'] = ($this->row->checkID > 0 ? $obj_form->arr_form_check[$this->row->checkID]['code'] : 'char');
 				$field_data['placeholder'] = $this->row->formTypePlaceholder;
-				$field_data['pattern'] = $obj_form->arr_form_check[$this->row->checkID]['pattern'];
+				$field_data['pattern'] = ($this->row->checkID > 0 ? $obj_form->arr_form_check[$this->row->checkID]['pattern'] : '');
 
 				if($this->row->formTypeLength > 0)
 				{

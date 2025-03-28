@@ -353,7 +353,7 @@ if($obj_form->check_allow_edit())
 										echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $obj_form->email_name, 'maxlength' => 100));
 									}
 
-									echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 1, 'compare' => $obj_form->email_notify))
+									echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 'yes', 'compare' => $obj_form->email_notify))
 									.show_textfield(array('name' => 'strFormEmail', 'text' => __("Send To", 'lang_form'), 'value' => $obj_form->email_admin, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
 
 									/*if($obj_form->email_admin != '' && strpos($obj_form->email_admin, "<") == false && strpos($obj_form->email_admin, ",") == false)
@@ -372,7 +372,7 @@ if($obj_form->check_allow_edit())
 
 									if($int_email_fields > 0)
 									{
-										echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 1, 'compare' => $obj_form->email_confirm))
+										echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 'yes', 'compare' => $obj_form->email_confirm))
 										."<div class='email_confirm_div'>"
 											.show_textfield(array('name' => 'strFormEmailConfirmFromEmail', 'text' => __("Send From", 'lang_form'), 'value' => $obj_form->email_confirm_from_email, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('admin_email')
 											.show_textfield(array('name' => 'strFormEmailConfirmFromEmailName', 'text' => __("Send From", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $obj_form->email_confirm_from_email_name, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('name')

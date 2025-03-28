@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.6.8
+Version: 1.1.6.9
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -57,9 +57,9 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_filter('wp_privacy_personal_data_exporters', array($obj_form, 'wp_privacy_personal_data_exporters'), 10);
 		add_filter('wp_privacy_personal_data_erasers', array($obj_form, 'wp_privacy_personal_data_erasers'), 10);
 
-		add_filter('count_shortcode_button', array($obj_form, 'count_shortcode_button'));
-		add_filter('get_shortcode_output', array($obj_form, 'get_shortcode_output'));
-		add_filter('get_shortcode_list', array($obj_form, 'get_shortcode_list'));
+		//add_filter('count_shortcode_button', array($obj_form, 'count_shortcode_button'));
+		//add_filter('get_shortcode_output', array($obj_form, 'get_shortcode_output'));
+		//add_filter('get_shortcode_list', array($obj_form, 'get_shortcode_list'));
 	}
 
 	else
@@ -324,14 +324,17 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 					if(get_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], true) == '')
 					{
-						$default_value = "";
+						$default_value = '';
 
 						if($arr_fields_db_bool[$i] == true)
 						{
 							$default_value = ($r[$arr_fields_db[$i]] == 1 ? 'yes' : 'no');
 						}
 
-						update_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], $default_value);
+						if($default_value != '')
+						{
+							update_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], $default_value);
+						}
 					}
 				}
 
@@ -426,7 +429,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		#################################
 		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_answer_meta WHERE metaKey IN ('user_id', 'user_agent')");
 		#################################
-		
+
 		mf_uninstall_plugin(array(
 			'options' => array('setting_form_permission', 'setting_form_reload'),
 			'meta' => array('meta_answer_viewed'),
