@@ -249,7 +249,7 @@ jQuery(function($)
 		$(e.currentTarget).parents("mf-form-row").toggleClass('active').siblings("mf-form-row").removeClass('active');
 	});
 
-	/*var dom_sortable = $(".mf_form.mf_sortable");
+	var dom_sortable = $(".mf_form.mf_sortable");
 
 	if(dom_sortable.length > 0)
 	{
@@ -278,7 +278,7 @@ jQuery(function($)
 				});
 			}
 		});
-	}*/
+	}
 
 	var dom_button_display = $("#intFormButtonDisplay"),
 		dom_button_display_div = $(".button_display_div"),

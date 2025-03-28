@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.6.5
+Version: 1.1.6.6
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -28,7 +28,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	if(is_admin())
 	{
 		register_activation_hook(__FILE__, 'activate_form');
-		register_deactivation_hook(__FILE__, 'deactivate_form');
 		register_uninstall_hook(__FILE__, 'uninstall_form');
 
 		add_action('admin_init', array($obj_form, 'settings_form'));
@@ -47,6 +46,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_action('rwmb_meta_boxes', array($obj_form, 'rwmb_meta_boxes'));
 
 		add_action('wp_trash_post', array($obj_form, 'wp_trash_post'));
+		add_action('wp_delete_post', array($obj_form, 'wp_delete_post'));
 		add_action('deleted_user', array($obj_form, 'deleted_user'));
 
 		add_action('do_clone_site', array($obj_form, 'do_clone_site'));
@@ -111,38 +111,38 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form (
 			formID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			blogID TINYINT UNSIGNED,
-			postID INT UNSIGNED NOT NULL DEFAULT '0',
-			formAnswerURL VARCHAR(20) DEFAULT NULL,
-			formEmail VARCHAR(100) DEFAULT NULL,
-			formFromName VARCHAR(100) DEFAULT NULL,
-			formEmailConditions TEXT DEFAULT NULL,
-			formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
-			formEmailNotifyFrom ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin',
-			formEmailNotifyFromEmail VARCHAR(100) DEFAULT NULL,
-			formEmailNotifyFromEmailName VARCHAR(100) DEFAULT NULL,
-			formEmailNotifyPage INT UNSIGNED NOT NULL DEFAULT '0',
-			formEmailName VARCHAR(100) DEFAULT NULL,
-			formEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
-			formEmailConfirmID INT UNSIGNED DEFAULT NULL,
-			formEmailConfirmFromEmail VARCHAR(100) DEFAULT NULL,
-			formEmailConfirmFromEmailName VARCHAR(100) DEFAULT NULL,
-			formEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',
-			formMandatoryText VARCHAR(100) DEFAULT NULL,
-			formButtonDisplay ENUM('0', '1') NOT NULL DEFAULT '1',
-			formButtonText VARCHAR(100) DEFAULT NULL,
-			formButtonSymbol VARCHAR(20) DEFAULT NULL,
-			formPaymentProvider INT DEFAULT NULL,
-			formPaymentHmac VARCHAR(200) DEFAULT NULL,
-			formTermsPage INT UNSIGNED DEFAULT NULL,
-			formPaymentMerchant VARCHAR(100) DEFAULT NULL,
-			formPaymentPassword VARCHAR(100) DEFAULT NULL,
-			formPaymentCurrency VARCHAR(3),
-			formPaymentCheck INT DEFAULT NULL,
-			formPaymentCost DOUBLE UNSIGNED DEFAULT NULL,
-			formPaymentAmount INT UNSIGNED DEFAULT NULL,
-			formPaymentTax TINYINT UNSIGNED DEFAULT NULL,
-			formPaymentCallback VARCHAR(100) DEFAULT NULL,
-			formCreated DATETIME DEFAULT NULL,
+			postID INT UNSIGNED NOT NULL DEFAULT '0',"
+			//."formAnswerURL VARCHAR(20) DEFAULT NULL,"
+			."formEmail VARCHAR(100) DEFAULT NULL,"
+			."formFromName VARCHAR(100) DEFAULT NULL,"
+			."formEmailConditions TEXT DEFAULT NULL,"
+			."formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',"
+			."formEmailNotifyFrom ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin',"
+			."formEmailNotifyFromEmail VARCHAR(100) DEFAULT NULL,"
+			."formEmailNotifyFromEmailName VARCHAR(100) DEFAULT NULL,"
+			."formEmailNotifyPage INT UNSIGNED NOT NULL DEFAULT '0',"
+			."formEmailName VARCHAR(100) DEFAULT NULL,"
+			."formEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',"
+			."formEmailConfirmID INT UNSIGNED DEFAULT NULL,"
+			."formEmailConfirmFromEmail VARCHAR(100) DEFAULT NULL,"
+			."formEmailConfirmFromEmailName VARCHAR(100) DEFAULT NULL,"
+			."formEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',"
+			//."formMandatoryText VARCHAR(100) DEFAULT NULL,"
+			//."formButtonDisplay ENUM('0', '1') NOT NULL DEFAULT '1',"
+			//."formButtonText VARCHAR(100) DEFAULT NULL,"
+			//."formButtonSymbol VARCHAR(20) DEFAULT NULL,"
+			."formPaymentProvider INT DEFAULT NULL,"
+			."formPaymentHmac VARCHAR(200) DEFAULT NULL,"
+			."formTermsPage INT UNSIGNED DEFAULT NULL,"
+			."formPaymentMerchant VARCHAR(100) DEFAULT NULL,"
+			."formPaymentPassword VARCHAR(100) DEFAULT NULL,"
+			."formPaymentCurrency VARCHAR(3),"
+			."formPaymentCheck INT DEFAULT NULL,"
+			."formPaymentCost DOUBLE UNSIGNED DEFAULT NULL,"
+			."formPaymentAmount INT UNSIGNED DEFAULT NULL,"
+			."formPaymentTax TINYINT UNSIGNED DEFAULT NULL,"
+			."formPaymentCallback VARCHAR(100) DEFAULT NULL,"
+			."formCreated DATETIME DEFAULT NULL,
 			userID INT UNSIGNED DEFAULT NULL,
 			formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',
 			formDeletedDate DATETIME DEFAULT NULL,
@@ -153,7 +153,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		) DEFAULT CHARSET=".$default_charset);
 
 		$arr_add_column[$wpdb->base_prefix."form"] = array(
-			'formButtonDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER formMandatoryText", //220927
+			//'formButtonDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER formMandatoryText", //220927
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form"] = array(
@@ -161,41 +161,38 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'formAcceptDuplicates' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
 			'formSaveIP' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
 			'formShowAnswers' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
+			'formButtonDisplay' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
+			'formAnswerURL' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
+			'formButtonText' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
+			'formButtonSymbol' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
+			'formMandatoryText' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
 		);
 
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_nonce (
+		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_nonce (
 			nonceID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			nonceKey VARCHAR(32),
 			nonceCreated DATETIME DEFAULT NULL,
 			PRIMARY KEY (nonceID),
 			KEY nonceKey (nonceKey)
-		) DEFAULT CHARSET=".$default_charset);
+		) DEFAULT CHARSET=".$default_charset);*/
 
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (
-			checkID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			checkPublic ENUM('0','1'),
-			checkName VARCHAR(50),
+		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (
+			checkID INT UNSIGNED NOT NULL AUTO_INCREMENT,"
+			//."checkPublic ENUM('0','1'),"
+			."checkName VARCHAR(50),
 			checkCode VARCHAR(10),
 			checkPattern VARCHAR(200),
 			PRIMARY KEY (checkID),
 			KEY checkCode (checkCode)
-		) DEFAULT CHARSET=".$default_charset);
+		) DEFAULT CHARSET=".$default_charset);*/
 
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_type (
+		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_type (
 			formTypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			formTypeCode VARCHAR(30),
 			formTypeName VARCHAR(40) DEFAULT NULL,
 			formTypeDesc TEXT DEFAULT NULL,
 			PRIMARY KEY (formTypeID)
-		) DEFAULT CHARSET=".$default_charset);
-
-		$arr_add_column[$wpdb->base_prefix."form_type"] = array(
-			//'' => "ALTER TABLE [table] ADD [column] VARCHAR(40) DEFAULT NULL AFTER ",
-		);
-
-		$arr_update_column[$wpdb->base_prefix."form_type"] = array(
-			//'' => "ALTER TABLE [table] DROP COLUMN [column]",
-		);
+		) DEFAULT CHARSET=".$default_charset);*/
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
 			form2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -306,50 +303,27 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_columns($arr_add_column);
 		add_index($arr_add_index);
 
-		$arr_run_query = array();
+		/*$arr_run_query = array();
 
-		foreach($obj_form->get_form_types() as $key => $value)
+		foreach($obj_form->arr_form_types as $key => $value)
 		{
 			$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_type SET formTypeID = '%d', formTypeCode = %s, formTypeName = %s, formTypeDesc = %s", $key, $value['code'], $value['name'], $value['desc']);
 		}
 
-		$arr_form_check = array(
-			1 => array('name' => __("Number", 'lang_form'),				'code' => 'int',		'pattern' => '[0-9]*'),
-			2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip',		'pattern' => '[0-9]{5}'),
-			5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email',		'pattern' => ''),
-			6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno',		'pattern' => '\d*'),
-			7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
-			8 => array('name' => __("URL", 'lang_form'),				'code' => 'url',		'pattern' => ''),
-			9 => array('name' => __("Name", 'lang_form'),				'code' => 'name',		'pattern' => ''),
-			10 => array('name' => __("Street Address", 'lang_form'),	'code' => 'address',	'pattern' => ''),
-			11 => array('name' => __("City", 'lang_form'),				'code' => 'city',		'pattern' => ''),
-			11 => array('name' => __("Country", 'lang_form'),			'code' => 'country',	'pattern' => ''),
-		);
-
-		if(get_bloginfo('language') == "sv-SE")
+		foreach($obj_form->arr_form_check as $key => $value)
 		{
-			$arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc',	'pattern' => '[0-9]{10}');
-			$arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",	'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
+			$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_check SET checkID = '%d', checkName = %s, checkCode = %s, checkPattern = %s", $key, $value['name'], $value['code'], $value['pattern']);
 		}
 
-		foreach($arr_form_check as $key => $value)
-		{
-			if(!isset($value['public'])){	$value['public'] = 1;}
-
-			$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_check SET checkID = '%d', checkPublic = '%d', checkName = %s, checkCode = %s, checkPattern = %s", $key, $value['public'], $value['name'], $value['code'], $value['pattern']);
-		}
-
-		run_queries($arr_run_query);
+		run_queries($arr_run_query);*/
 
 		// Convert wp_form to wp_posts
 		#################################
 		$arr_fields_db = $arr_fields_meta = array();
 
-		$arr_fields_db[] = 'formButtonDisplay';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'button_display';
-		$arr_fields_db[] = 'formButtonSymbol';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_symbol';
-		$arr_fields_db[] = 'formButtonText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_text';
-		$arr_fields_db[] = 'formAnswerURL';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'answer_url';
-		$arr_fields_db[] = 'formMandatoryText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'mandatory_text';
+		//$arr_fields_db[] = 'formButtonSymbol';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_symbol';
+		//$arr_fields_db[] = 'formButtonText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_text';
+		//$arr_fields_db[] = 'formMandatoryText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'mandatory_text';
 		$arr_fields_db[] = 'formEmailName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_name';
 		$arr_fields_db[] = 'formEmailNotify';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_notify';
 		$arr_fields_db[] = 'formEmail';						$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin';
@@ -488,14 +462,16 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			}
 		}
 		#################################
-	}
 
-	function deactivate_form()
-	{
+		// Remove answer_meta
+		#################################
+		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_answer_meta WHERE metaKey IN ('user_id', 'user_agent')");
+		#################################
+		
 		mf_uninstall_plugin(array(
 			'options' => array('setting_form_permission', 'setting_form_reload'),
 			'meta' => array('meta_answer_viewed'),
-			'tables' => array('form_check', 'form_type', 'form_spam', 'form_zipcode', 'query_check', 'query_type', 'query_zipcode'),
+			'tables' => array('form_type', 'form_check', 'form_nonce', 'form_spam', 'form_zipcode', 'query_check', 'query_type', 'query_zipcode'),
 		));
 	}
 
@@ -510,7 +486,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'options' => array('setting_form_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_form_replacement', 'setting_form_replacement_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'),
 			'meta' => array('meta_forms_viewed'),
 			'post_types' => array($obj_form->post_type),
-			'tables' => array('form', 'form_option', 'form2answer', 'form2type', 'form_answer', 'form_answer_email'),
+			'tables' => array('form', 'form_check', 'form_type', 'form_option', 'form2answer', 'form2type', 'form_answer', 'form_answer_email', 'form_nonce'),
 		));
 	}
 

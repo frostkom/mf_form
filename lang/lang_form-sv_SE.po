@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-29 05:32+0100\n"
+"POT-Creation-Date: 2025-03-28 07:44+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,63 +15,11 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../index.php:313
-msgid "Number"
-msgstr "Nummer"
-
-#: ../index.php:314
-msgid "Zip Code"
-msgstr "Postnummer"
-
-#: ../index.php:315
-#: ../create/index.php:377
-#: ../create/index.php:435
-msgid "E-mail"
-msgstr "E-post"
-
-#: ../index.php:316
-msgid "Phone no"
-msgstr "Telefonnummer"
-
-#: ../index.php:317
-msgid "Decimal number"
-msgstr "Decimaltal"
-
-#: ../index.php:318
-msgid "URL"
-msgstr ""
-
-#: ../index.php:319
-#: ../create/index.php:396
-#: ../create/index.php:407
-#: ../create/index.php:513
-#: ../create/index.php:514
-#: ../include/classes.php:6303
-msgid "Name"
-msgstr "Namn"
-
-#: ../index.php:320
-msgid "Street Address"
-msgstr "Gatuadress"
-
-#: ../index.php:321
-msgid "City"
-msgstr "Ort"
-
-#: ../index.php:322
-msgid "Country"
-msgstr "Land"
-
-#: ../index.php:327
-#: ../index.php:328
-msgid "Social security no"
-msgstr "Personnummer"
-
 #: ../answer/index.php:13
-#: ../answer/index.php:56
-#: ../include/classes.php:776
-#: ../include/classes.php:1481
-#: ../include/classes.php:6305
+#: ../answer/index.php:58
+#: ../include/classes.php:919
+#: ../include/classes.php:1593
+#: ../include/classes.php:6222
 msgid "Answers"
 msgstr "Svar"
 
@@ -80,19 +28,19 @@ msgstr "Svar"
 msgid "Export as %s"
 msgstr "Exportera som %s"
 
-#: ../answer/index.php:57
+#: ../answer/index.php:59
 #, php-format
 msgid "I could not find a form with the ID %s"
 msgstr "Jag kunde inte hitta ett formulär med ID %s"
 
 #: ../create/index.php:17
-#: ../create/index.php:280
-#: ../include/classes.php:5453
+#: ../create/index.php:281
+#: ../include/classes.php:5368
 msgid "Update"
 msgstr "Uppdatera"
 
 #: ../create/index.php:17
-#: ../include/classes.php:1478
+#: ../include/classes.php:1590
 #: ../list/index.php:10
 msgid "Add New"
 msgstr "Lägg till ny"
@@ -118,13 +66,13 @@ msgid "%sDisplay this...%s%s...or this%s"
 msgstr "%sVisa detta...%s%s...eller detta%s"
 
 #: ../create/index.php:56
-#: ../include/classes.php:775
-#: ../include/classes.php:6304
+#: ../include/classes.php:918
+#: ../include/classes.php:6221
 msgid "Content"
 msgstr "Innehåll"
 
 #: ../create/index.php:63
-#: ../include/classes.php:2076
+#: ../include/classes.php:113
 msgid "Text"
 msgstr ""
 
@@ -183,1144 +131,1152 @@ msgstr "Detta fält är kopplat till %s och kan inte redigeras"
 
 #: ../create/index.php:99
 #: ../create/index.php:107
-#: ../include/classes.php:1703
-#: ../include/classes.php:2104
-#: ../include/classes.php:2151
-#: ../include/classes.php:2173
-#: ../include/classes.php:2195
-#: ../include/classes.php:2206
-#: ../include/classes.php:3502
-#: ../include/classes.php:4119
+#: ../include/classes.php:1820
+#: ../include/classes.php:2193
+#: ../include/classes.php:2254
+#: ../include/classes.php:2268
+#: ../include/classes.php:2279
+#: ../include/classes.php:3501
+#: ../include/classes.php:4128
 msgid "Choose Here"
 msgstr "Välj här"
 
 #: ../create/index.php:99
 #: ../create/index.php:107
-#: ../create/index.php:227
+#: ../create/index.php:228
 msgid "No"
 msgstr "Nej"
 
 #: ../create/index.php:99
 #: ../create/index.php:107
-#: ../create/index.php:228
+#: ../create/index.php:229
 msgid "Yes"
 msgstr "Ja"
 
-#: ../create/index.php:141
-#: ../create/index.php:163
-msgid "Key"
-msgstr "Nyckel"
-
-#: ../create/index.php:142
-#: ../create/index.php:164
+#: ../create/index.php:143
+#: ../create/index.php:165
 msgid "Enter Option Here"
 msgstr "Fyll i alternativ här"
 
-#: ../create/index.php:142
+#: ../create/index.php:143
 msgid "This option has been chosen in a previous answer, so be careful with what you change it to. If you still want to edit this option, just double click on the field."
 msgstr "Detta alternativ har redan valts i ett tidigare svar, så var försiktig med vad du ändrar det till. Om du fortfarande vill ändra detta alternativ så är det bara att dubbelklicka på fältet."
 
-#: ../create/index.php:175
+#: ../create/index.php:164
+msgid "Key"
+msgstr "Nyckel"
+
+#: ../create/index.php:176
 msgid "Advanced"
 msgstr "Avancerat"
 
-#: ../create/index.php:176
+#: ../create/index.php:177
 msgid "Custom HTML Tag"
 msgstr "Anpassad HTML-tagg"
 
-#: ../create/index.php:177
+#: ../create/index.php:178
 msgid "Custom CSS class"
 msgstr "Anpassad CSS-klass"
 
-#: ../create/index.php:178
+#: ../create/index.php:179
 msgid "Max Length"
 msgstr "Max antal tecken"
 
-#: ../create/index.php:188
-#: ../create/index.php:193
+#: ../create/index.php:189
+#: ../create/index.php:194
 #, php-format
 msgid "Try it out by %sgoing here%s"
 msgstr "Testa detta genom att %sgå hit%s"
 
-#: ../create/index.php:196
+#: ../create/index.php:197
 msgid "Change Default Value"
 msgstr "Ändra standardvärde"
 
-#: ../create/index.php:196
+#: ../create/index.php:197
 msgid "or"
 msgstr "eller"
 
-#: ../create/index.php:196
+#: ../create/index.php:197
 msgid "Assign handle or shortcode"
 msgstr "Tilldela handtag eller kortkod"
 
-#: ../create/index.php:209
+#: ../create/index.php:210
 msgid "Connect to"
 msgstr "Koppla ihop med"
 
-#: ../create/index.php:261
+#: ../create/index.php:262
 msgid "If this equals..."
 msgstr "Om detta är lika med..."
 
-#: ../create/index.php:262
+#: ../create/index.php:263
 msgid "...display this..."
 msgstr "...visa detta..."
 
-#: ../create/index.php:280
-#: ../create/index.php:515
+#: ../create/index.php:281
+#: ../create/index.php:487
 msgid "Add"
 msgstr "Lägg till"
 
-#: ../create/index.php:285
+#: ../create/index.php:286
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: ../create/index.php:298
+#: ../create/index.php:299
 msgid "Overview"
 msgstr "Överblick"
 
-#: ../create/index.php:308
+#: ../create/index.php:309
 msgid "There are no fields in this form so far. Add a few and they will display here."
 msgstr "Det finns inga fält i detta formulär än så länge. Lägg till några så kommer de att visas här."
 
-#: ../create/index.php:318
-#: ../create/index.php:326
+#: ../create/index.php:319
+#: ../create/index.php:324
 msgid "Save"
 msgstr "Spara"
 
-#: ../create/index.php:326
+#: ../create/index.php:324
 msgid "Publish"
 msgstr "Publicera"
 
-#: ../create/index.php:329
+#: ../create/index.php:327
 msgid "Save Draft"
 msgstr "Spara utkast"
 
-#: ../create/index.php:382
+#: ../create/index.php:349
+#: ../create/index.php:407
+#: ../include/classes.php:131
+msgid "E-mail"
+msgstr "E-post"
+
+#: ../create/index.php:354
 msgid "Subject"
 msgstr "Ämne"
 
-#: ../create/index.php:385
+#: ../create/index.php:357
 msgid "Send to Admin"
 msgstr "Skicka till admin"
 
-#: ../create/index.php:386
+#: ../create/index.php:358
 msgid "Send To"
 msgstr "Skicka till"
 
-#: ../create/index.php:393
+#: ../create/index.php:365
 msgid "From"
 msgstr "Från"
 
-#: ../create/index.php:395
-#: ../create/index.php:396
-#: ../create/index.php:406
-#: ../create/index.php:407
+#: ../create/index.php:367
+#: ../create/index.php:368
+#: ../create/index.php:378
+#: ../create/index.php:379
 msgid "Send From"
 msgstr "Skicka från"
 
-#: ../create/index.php:398
-#: ../create/index.php:415
+#: ../create/index.php:368
+#: ../create/index.php:379
+#: ../create/index.php:485
+#: ../create/index.php:486
+#: ../include/classes.php:135
+#: ../include/classes.php:6220
+msgid "Name"
+msgstr "Namn"
+
+#: ../create/index.php:370
+#: ../create/index.php:387
 msgid "Template"
 msgstr "Mall"
 
-#: ../create/index.php:404
+#: ../create/index.php:376
 msgid "Send to Visitor"
 msgstr "Skicka till besökare"
 
-#: ../create/index.php:412
+#: ../create/index.php:384
 msgid "Field"
 msgstr "Fält"
 
-#: ../create/index.php:418
+#: ../create/index.php:390
 msgid "Conditions"
 msgstr "Villkor"
 
-#: ../create/index.php:427
-#: ../include/classes.php:6153
-#: ../include/classes.php:6713
+#: ../create/index.php:399
+#: ../include/classes.php:6067
+#: ../include/classes.php:6633
 msgid "Payment"
 msgstr "Betalning"
 
-#: ../create/index.php:429
-#: ../include/classes.php:861
-#: ../include/classes.php:6456
+#: ../create/index.php:401
+#: ../include/classes.php:1004
+#: ../include/classes.php:6373
 msgid "Provider"
 msgstr "Leverantör"
 
-#: ../create/index.php:435
+#: ../create/index.php:407
 msgid "Merchant ID"
 msgstr "HandlarID"
 
-#: ../create/index.php:440
+#: ../create/index.php:412
 msgid "Username"
 msgstr "Användarnamn"
 
-#: ../create/index.php:445
+#: ../create/index.php:417
 msgid "Store ID"
 msgstr "ButiksID"
 
-#: ../create/index.php:450
+#: ../create/index.php:422
 msgid "Password"
 msgstr "Lösenord"
 
-#: ../create/index.php:455
+#: ../create/index.php:427
 msgid "Secret Key"
 msgstr "Hemlig nyckel"
 
-#: ../create/index.php:455
+#: ../create/index.php:427
 msgid "Signature"
 msgstr "Signatur"
 
-#: ../create/index.php:463
+#: ../create/index.php:435
 msgid "Terms"
 msgstr "Villkor"
 
-#: ../create/index.php:465
+#: ../create/index.php:437
 msgid "Terms Page"
 msgstr "Villkorssida"
 
-#: ../create/index.php:472
+#: ../create/index.php:444
 msgid "Currency"
 msgstr "Valuta"
 
-#: ../create/index.php:473
+#: ../create/index.php:445
 msgid "Payment Cost"
 msgstr "Kostnad"
 
-#: ../create/index.php:473
+#: ../create/index.php:445
 msgid "excl. taxes"
 msgstr "exkl. moms"
 
-#: ../create/index.php:479
+#: ../create/index.php:451
 msgid "Field for Payment Amount"
 msgstr "Fält för antal"
 
-#: ../create/index.php:482
+#: ../create/index.php:454
 msgid "Tax"
 msgstr "Moms"
 
-#: ../create/index.php:488
+#: ../create/index.php:460
 msgid "The action that you have entered either does not exist or is not accessible when the success is triggered"
 msgstr "Den åtgärd som du har angett finns antingen inte eller så är den inte möjlig att anropa när betalningen är genomförd"
 
-#: ../create/index.php:491
+#: ../create/index.php:463
 msgid "Action on Successful Payment"
 msgstr "Åtgärd vid lyckad betalning"
 
-#: ../create/index.php:514
+#: ../create/index.php:486
 msgid "Import Form Fields"
 msgstr "Importera formulärfält"
 
-#: ../create/index.php:529
+#: ../create/index.php:501
 msgid "You do not have permission to edit this form"
 msgstr "Du har inte behörighet att redigera detta formulär"
 
-#: ../include/classes.php:127
+#: ../include/classes.php:109
+#: ../include/classes.php:1042
+#: ../include/classes.php:6411
+msgid "Checkbox"
+msgstr "Kryssruta"
+
+#: ../include/classes.php:109
+#: ../include/classes.php:119
+#: ../include/classes.php:124
+msgid "To choose one or many alternatives"
+msgstr "För att kunna välja ett eller flera alternativ"
+
+#: ../include/classes.php:110
+#: ../include/classes.php:1047
+#: ../include/classes.php:6416
+msgid "Range"
+msgstr "Spann"
+
+#: ../include/classes.php:110
+msgid "To choose a min and max value and create a slider for that"
+msgstr "För att kunna välja min-/maxvärde"
+
+#: ../include/classes.php:111
+msgid "Input Field"
+msgstr "Textfält"
+
+#: ../include/classes.php:111
+msgid "To enter a short text"
+msgstr "För att kunna skriva i en kort text"
+
+#: ../include/classes.php:112
+msgid "Textarea"
+msgstr "Textområde"
+
+#: ../include/classes.php:112
+msgid "To enter a longer text on multiple rows"
+msgstr "För att kunna skriva en längre text med flera rader"
+
+#: ../include/classes.php:113
+msgid "To present information to the visitor"
+msgstr "För att visa information för besökaren"
+
+#: ../include/classes.php:114
+#: ../include/classes.php:7487
+msgid "Space"
+msgstr "Mellanrum"
+
+#: ../include/classes.php:114
+msgid "To separate fields in the form with empty space"
+msgstr "För att separera fält i formuläret med tomrum"
+
+#: ../include/classes.php:115
+#: ../include/classes.php:1052
+#: ../include/classes.php:6421
+msgid "Datepicker"
+msgstr "Datumväljare"
+
+#: ../include/classes.php:115
+msgid "To choose a date"
+msgstr "För att välja ett datum"
+
+#: ../include/classes.php:116
+msgid "Radio Button"
+msgstr "Alternativ"
+
+#: ../include/classes.php:116
+#: ../include/classes.php:118
+#: ../include/classes.php:125
+msgid "To choose one alternative"
+msgstr "För att kunna välja ett alternativ"
+
+#: ../include/classes.php:117
+msgid "Referer URL"
+msgstr "Referens-URL"
+
+#: ../include/classes.php:117
+msgid "To get which URL the visitor came from"
+msgstr "För att få fram vilken URL besökaren kom från"
+
+#: ../include/classes.php:118
+#: ../include/classes.php:1037
+#: ../include/classes.php:6406
+msgid "Dropdown"
+msgstr "Rullgardin"
+
+#: ../include/classes.php:119
+msgid "Multiple Selection"
+msgstr "Rullgardin (flerval)"
+
+#: ../include/classes.php:120
+msgid "Hidden Field"
+msgstr "Dolt fält"
+
+#: ../include/classes.php:120
+msgid "To add hidden data to the form"
+msgstr "För att lägga till dold data i formuläret"
+
+#: ../include/classes.php:121
+#: ../include/classes.php:4142
+msgid "Custom Tag"
+msgstr "Anpassat element"
+
+#: ../include/classes.php:121
+msgid "To add a custom tag"
+msgstr "För att lägga till anpassat element"
+
+#: ../include/classes.php:122
+msgid "Custom Tag (end)"
+msgstr "Anpassat element (slut)"
+
+#: ../include/classes.php:122
+msgid "To add a custom end tag"
+msgstr "För att lägga till anpassat slutelement"
+
+#: ../include/classes.php:123
+#: ../include/classes.php:1062
+#: ../include/classes.php:6431
+msgid "File"
+msgstr "Fil"
+
+#: ../include/classes.php:123
+msgid "To add a file upload to the form"
+msgstr "För att lägga till filuppladdning i formulär"
+
+#: ../include/classes.php:124
+msgid "Multiple Checkboxes"
+msgstr "Kryssrutor (flerval)"
+
+#: ../include/classes.php:125
+msgid "Multiple Radio Buttons"
+msgstr "Flera alternativ"
+
+#: ../include/classes.php:129
+msgid "Number"
+msgstr "Nummer"
+
+#: ../include/classes.php:130
+msgid "Zip Code"
+msgstr "Postnummer"
+
+#: ../include/classes.php:132
+msgid "Phone no"
+msgstr "Telefonnummer"
+
+#: ../include/classes.php:133
+msgid "Decimal number"
+msgstr "Decimaltal"
+
+#: ../include/classes.php:134
+msgid "URL"
+msgstr ""
+
+#: ../include/classes.php:136
+msgid "Street Address"
+msgstr "Gatuadress"
+
+#: ../include/classes.php:137
+msgid "City"
+msgstr "Ort"
+
+#: ../include/classes.php:138
+msgid "Country"
+msgstr "Land"
+
+#: ../include/classes.php:143
+#: ../include/classes.php:144
+msgid "Social security no"
+msgstr "Personnummer"
+
+#: ../include/classes.php:162
 msgid "Edit Page"
 msgstr "Redigera sida"
 
-#: ../include/classes.php:130
-#: ../include/classes.php:142
-#: ../include/classes.php:933
-#: ../include/classes.php:6528
+#: ../include/classes.php:165
+#: ../include/classes.php:177
+#: ../include/classes.php:1076
+#: ../include/classes.php:1166
+#: ../include/classes.php:6445
 msgid "View"
 msgstr "Visa"
 
-#: ../include/classes.php:146
+#: ../include/classes.php:181
 msgid "Add New Page"
 msgstr "Skapa ny sida"
 
-#: ../include/classes.php:306
-#: ../include/classes.php:308
-#: ../include/classes.php:401
-#: ../include/classes.php:707
-#: ../include/classes.php:742
-#: ../include/classes.php:1594
-#: ../include/classes.php:1634
-#: ../include/classes.php:1675
+#: ../include/classes.php:436
+#: ../include/classes.php:443
+#: ../include/classes.php:536
+#: ../include/classes.php:850
+#: ../include/classes.php:885
+#: ../include/classes.php:1711
+#: ../include/classes.php:1751
+#: ../include/classes.php:1792
 #: ../list/index.php:9
 msgid "Forms"
 msgstr "Formulär"
 
-#: ../include/classes.php:307
-#: ../include/classes.php:338
-#: ../include/classes.php:7774
-#: ../include/classes.php:7833
+#: ../include/classes.php:437
+#: ../include/classes.php:469
+#: ../include/classes.php:7683
+#: ../include/classes.php:7742
 msgid "Form"
 msgstr "Formulär"
 
-#: ../include/classes.php:339
+#: ../include/classes.php:470
 msgid "Display a Form"
 msgstr "Visa ett formulär"
 
-#: ../include/classes.php:340
+#: ../include/classes.php:471
 msgid "Select"
 msgstr "Välj"
 
-#: ../include/classes.php:362
-#: ../include/classes.php:719
+#: ../include/classes.php:497
+#: ../include/classes.php:862
 msgid "Redirect all e-mails"
 msgstr "Omdirigera alla meddelanden"
 
-#: ../include/classes.php:363
-#: ../include/classes.php:725
+#: ../include/classes.php:498
+#: ../include/classes.php:868
 msgid "Redirect test e-mails"
 msgstr "Omdirigera testmeddelanden"
 
-#: ../include/classes.php:364
+#: ../include/classes.php:499
 msgid "View All"
 msgstr "Visa alla"
 
-#: ../include/classes.php:365
+#: ../include/classes.php:500
 msgid "Edit All"
 msgstr "Redigera alla"
 
-#: ../include/classes.php:366
+#: ../include/classes.php:501
 msgid "Spam Filter"
 msgstr "Spamfilter"
 
-#: ../include/classes.php:373
+#: ../include/classes.php:508
 msgid "Clear Spam"
 msgstr "Rensa spam"
 
-#: ../include/classes.php:376
-#: ../include/classes.php:731
+#: ../include/classes.php:511
+#: ../include/classes.php:874
 msgid "Form to replace all e-mail links"
 msgstr "Formulär för att ersätta alla e-postlänkar"
 
-#: ../include/classes.php:380
+#: ../include/classes.php:515
 msgid "Text to replace all e-mail links"
 msgstr "Text för att ersätta alla e-postlänkar"
 
-#: ../include/classes.php:385
+#: ../include/classes.php:520
 msgid "Text to send as positive response"
 msgstr "Meddelande att skicka som positivt svar"
 
-#: ../include/classes.php:389
+#: ../include/classes.php:524
 msgid "Text to send as negative response"
 msgstr "Meddelande att skicka som negativt svar"
 
-#: ../include/classes.php:390
+#: ../include/classes.php:525
 msgid "Thank you message after sending response"
 msgstr "Tack-meddelande efter skickat svar"
 
-#: ../include/classes.php:411
+#: ../include/classes.php:546
 msgid "When a visitor sends an e-mail through the site it is redirected to the admins address"
 msgstr "När en besökare skickar e-post via webbsidan skickas det till administratörens adress istället"
 
-#: ../include/classes.php:421
+#: ../include/classes.php:556
 msgid "When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address"
 msgstr "När en administratör är inloggad och testar att skicka e-post går alla utgående meddelanden till administratörens adress"
 
-#: ../include/classes.php:443
-#: ../include/classes.php:4335
+#: ../include/classes.php:578
+#: ../include/classes.php:4325
 msgid "Honeypot"
 msgstr ""
 
-#: ../include/classes.php:444
-#: ../include/classes.php:4334
+#: ../include/classes.php:579
+#: ../include/classes.php:4324
 msgid "Recurring E-mail"
 msgstr "Återkommande e-post"
 
-#: ../include/classes.php:445
+#: ../include/classes.php:580
 #, php-format
 msgid "%s and Links"
 msgstr "%s och länkar"
 
-#: ../include/classes.php:446
-#: ../include/classes.php:4340
+#: ../include/classes.php:581
+#: ../include/classes.php:4330
 msgid "Contains URLs"
 msgstr "Innehåller URLer"
 
-#: ../include/classes.php:447
-#: ../include/classes.php:4341
+#: ../include/classes.php:582
+#: ../include/classes.php:4331
 msgid "Contains E-mails"
 msgstr "Innehåller e-postadresser"
 
-#: ../include/classes.php:448
-#: ../include/classes.php:4343
+#: ../include/classes.php:583
+#: ../include/classes.php:4333
 msgid "Contains Phone Numbers"
 msgstr "Innehåller telefonnummer"
 
-#: ../include/classes.php:449
-#: ../include/classes.php:4342
+#: ../include/classes.php:584
+#: ../include/classes.php:4332
 msgid "Contains Page Title"
 msgstr "Innehåller sidtitel"
 
-#: ../include/classes.php:483
+#: ../include/classes.php:618
 msgid "If you would like all e-mail links in text to be replaced by a form, choose one here"
 msgstr "Om du vill att alla e-postlänkar i text ska ersättas med ett formulär, välj det här"
 
-#: ../include/classes.php:491
-#: ../include/classes.php:546
+#: ../include/classes.php:626
+#: ../include/classes.php:681
 msgid "Click here to send e-mail"
 msgstr "Klicka här för att skicka e-post"
 
-#: ../include/classes.php:499
+#: ../include/classes.php:634
 msgid "months"
 msgstr "månader"
 
-#: ../include/classes.php:656
-msgid "Please wait"
-msgstr "Var vänlig vänta"
-
-#: ../include/classes.php:690
+#: ../include/classes.php:833
 msgid "Are you sure?"
 msgstr "Är du säker?"
 
-#: ../include/classes.php:699
+#: ../include/classes.php:842
 msgid "Forms that collect personal information stores the data in the database to make sure that the entered information is sent to the correct recipient."
 msgstr "Formulär som samlar in personlig information sparar datan i databasen för att se till så att den angivna informationen skickas till korrekt mottagare."
 
-#: ../include/classes.php:704
+#: ../include/classes.php:847
 #, php-format
 msgid "When a visitor enters personal information in a form it is also saved in the so called %s which makes the browser remember what was last entered in each field. This is only used for return visitors and can be removed by the visitor."
 msgstr "När en besökare anger personlig information i ett formulär så sparas det även i den sk. %s vilket gör att webbläsaren kommer ihåg vad som senast fylldes i i respektive fält. Detta används för återkommande besökare och kan tas bort av besökaren."
 
-#: ../include/classes.php:777
-#: ../include/classes.php:970
-#: ../include/classes.php:6306
-#: ../include/classes.php:6565
-#: ../include/classes.php:6656
-#: ../include/classes.php:6664
+#: ../include/classes.php:920
+#: ../include/classes.php:1113
+#: ../include/classes.php:6223
+#: ../include/classes.php:6482
+#: ../include/classes.php:6573
+#: ../include/classes.php:6581
 msgid "Spam"
 msgstr "Skräp"
 
-#: ../include/classes.php:778
-#: ../include/classes.php:6307
+#: ../include/classes.php:921
+#: ../include/classes.php:6224
 msgid "Latest Answer"
 msgstr "Senaste svar"
 
-#: ../include/classes.php:779
-#: ../include/classes.php:1612
-#: ../include/classes.php:6156
-#: ../include/classes.php:6308
-#: ../include/classes.php:6716
+#: ../include/classes.php:922
+#: ../include/classes.php:1729
+#: ../include/classes.php:6070
+#: ../include/classes.php:6225
+#: ../include/classes.php:6636
 msgid "Created"
 msgstr "Skapad"
 
-#: ../include/classes.php:780
-#: ../include/classes.php:6309
+#: ../include/classes.php:923
+#: ../include/classes.php:6226
 msgid "Modified"
 msgstr "Uppdaterad"
 
-#: ../include/classes.php:806
-#: ../include/classes.php:6296
-#: ../include/classes.php:6401
+#: ../include/classes.php:949
+#: ../include/classes.php:6213
+#: ../include/classes.php:6318
 msgid "Public"
 msgstr "Publik"
 
-#: ../include/classes.php:822
-#: ../include/classes.php:6417
+#: ../include/classes.php:965
+#: ../include/classes.php:6334
 #, php-format
 msgid "A notification email based on a template will be sent to %s"
 msgstr "Ett meddelande baserat på en mall kommer att skickas till %s"
 
-#: ../include/classes.php:827
-#: ../include/classes.php:6422
+#: ../include/classes.php:970
+#: ../include/classes.php:6339
 #, php-format
 msgid "E-mails will be sent to %s on every answer"
 msgstr "E-post kommer att skickas till %s vid varje svar"
 
-#: ../include/classes.php:832
-#: ../include/classes.php:6427
+#: ../include/classes.php:975
+#: ../include/classes.php:6344
 msgid "Message will be sent to different e-mails because there are conditions"
 msgstr "Meddelandet kommer att skickas till olika e-post eftersom det finns villkor"
 
-#: ../include/classes.php:839
-#: ../include/classes.php:6434
+#: ../include/classes.php:982
+#: ../include/classes.php:6351
 msgid "A confirmation email based on a template will be sent to the visitor"
 msgstr "En bekräftelse baserat på en mall kommer att skickas till besökaren"
 
-#: ../include/classes.php:844
-#: ../include/classes.php:6439
+#: ../include/classes.php:987
+#: ../include/classes.php:6356
 msgid "A confirmation email will be sent to the visitor"
 msgstr "Ett bekräftelseepost baserat på en mall kommer att skickas till besökaren"
 
-#: ../include/classes.php:867
-#: ../include/classes.php:6462
+#: ../include/classes.php:1010
+#: ../include/classes.php:6379
 msgid "There are hidden fields"
 msgstr "Det finns dolda fält"
 
-#: ../include/classes.php:872
-#: ../include/classes.php:6467
+#: ../include/classes.php:1015
+#: ../include/classes.php:6384
 msgid "There are required fields"
 msgstr "Det finns obligatoriska fält"
 
-#: ../include/classes.php:877
-#: ../include/classes.php:6472
+#: ../include/classes.php:1020
+#: ../include/classes.php:6389
 msgid "There are autofocus fields"
 msgstr "Det finns autofokus-fält"
 
-#: ../include/classes.php:882
-#: ../include/classes.php:6477
+#: ../include/classes.php:1025
+#: ../include/classes.php:6394
 msgid "There are remembered fields"
 msgstr "Det finns kom-ihåg-fält"
 
-#: ../include/classes.php:889
-#: ../include/classes.php:6484
+#: ../include/classes.php:1032
+#: ../include/classes.php:6401
 msgid "There is a field for entering email adress"
 msgstr "Det finns ett fält för att fylla i epostadress"
 
-#: ../include/classes.php:894
-#: ../include/classes.php:2081
-#: ../include/classes.php:6489
-msgid "Dropdown"
-msgstr "Rullgardin"
-
-#: ../include/classes.php:899
-#: ../include/classes.php:2072
-#: ../include/classes.php:6494
-msgid "Checkbox"
-msgstr "Kryssruta"
-
-#: ../include/classes.php:904
-#: ../include/classes.php:2073
-#: ../include/classes.php:6499
-msgid "Range"
-msgstr "Spann"
-
-#: ../include/classes.php:909
-#: ../include/classes.php:2078
-#: ../include/classes.php:6504
-msgid "Datepicker"
-msgstr "Datumväljare"
-
-#: ../include/classes.php:914
-#: ../include/classes.php:6509
+#: ../include/classes.php:1057
+#: ../include/classes.php:6426
 msgid "Radio button"
 msgstr "Alternativ"
 
-#: ../include/classes.php:919
-#: ../include/classes.php:2086
-#: ../include/classes.php:6514
-msgid "File"
-msgstr "Fil"
-
-#: ../include/classes.php:1016
+#: ../include/classes.php:1159
 msgid "Edit Content"
 msgstr "Redigera innehåll"
 
-#: ../include/classes.php:1017
-#: ../include/classes.php:6370
-#: ../include/classes.php:7688
+#: ../include/classes.php:1160
+#: ../include/classes.php:6287
+#: ../include/classes.php:7603
 msgid "Copy"
 msgstr "Kopiera"
 
-#: ../include/classes.php:1018
-#: ../include/classes.php:6372
+#: ../include/classes.php:1169
+#: ../include/classes.php:6289
 msgid "Export"
 msgstr "Exportera"
 
-#: ../include/classes.php:1056
+#: ../include/classes.php:1207
 msgid "Display Button"
 msgstr "Visa knapp"
 
-#: ../include/classes.php:1063
+#: ../include/classes.php:1214
 msgid "Button Symbol"
 msgstr "Knappsymbol"
 
-#: ../include/classes.php:1074
+#: ../include/classes.php:1225
 msgid "Button Text"
 msgstr "Knapptext"
 
-#: ../include/classes.php:1077
-#: ../include/classes.php:5358
+#: ../include/classes.php:1228
+#: ../include/classes.php:5295
 msgid "Submit"
 msgstr "Skicka"
 
-#: ../include/classes.php:1086
+#: ../include/classes.php:1237
 msgid "Confirmation Page"
 msgstr "Bekräftelsesida"
 
-#: ../include/classes.php:1097
+#: ../include/classes.php:1248
 msgid "Text regarding mandatory fields"
 msgstr "Text gällande obligatoriska fält"
 
-#: ../include/classes.php:1100
+#: ../include/classes.php:1251
 msgid "Please enter all required fields"
 msgstr "Var vänlig fyll i alla obligatoriska fält"
 
-#: ../include/classes.php:1109
+#: ../include/classes.php:1260
 msgid "Deadline"
 msgstr ""
 
-#: ../include/classes.php:1119
-msgid "Accept Duplicates"
-msgstr "Tillåt dubletter"
-
-#: ../include/classes.php:1135
-msgid "Show Answers"
-msgstr "Visa svar"
-
-#: ../include/classes.php:1149
-msgid "Save IP"
-msgstr "Spara IP"
-
-#: ../include/classes.php:1163
-#: ../include/classes.php:1471
+#: ../include/classes.php:1273
+#: ../include/classes.php:1583
 msgid "Settings"
 msgstr "Inställningar"
 
-#: ../include/classes.php:1324
-#: ../include/classes.php:1329
+#: ../include/classes.php:1434
+#: ../include/classes.php:1439
 #, php-format
 msgid "There are %d unsent messages"
 msgstr "Det finns %d oskickade meddelanden"
 
-#: ../include/classes.php:1324
-#: ../include/classes.php:1329
+#: ../include/classes.php:1434
+#: ../include/classes.php:1439
 msgid "There is one unset message"
 msgstr "Det finns ett oskickat meddelande"
 
-#: ../include/classes.php:1348
-#: ../include/classes.php:1355
+#: ../include/classes.php:1454
 #, php-format
 msgid "There are %d new answers"
 msgstr "Det finns %d nya svar"
 
-#: ../include/classes.php:1348
-#: ../include/classes.php:1355
+#: ../include/classes.php:1454
 msgid "There is one new answer"
 msgstr "Det finns ett nytt svar"
 
-#: ../include/classes.php:1397
+#: ../include/classes.php:1509
 #, php-format
 msgid "There are no answers since %s"
 msgstr "Det finns inga svar sedan %s"
 
-#: ../include/classes.php:1475
+#: ../include/classes.php:1587
 msgid "List"
 msgstr "Lista"
 
-#: ../include/classes.php:1484
+#: ../include/classes.php:1596
 msgid "Edit Answer"
 msgstr "Redigera svar"
 
-#: ../include/classes.php:1534
-#: ../include/classes.php:3014
+#: ../include/classes.php:1651
+#: ../include/classes.php:3046
 msgid "The form was successfully copied"
 msgstr "Formuläret kopierades"
 
-#: ../include/classes.php:1539
-#: ../include/classes.php:3019
+#: ../include/classes.php:1656
+#: ../include/classes.php:3051
 msgid "Something went wrong. Contact your admin and add this URL as reference"
 msgstr "Något gick fel. Kontakta en administratör och skicka med denna URL som referens"
 
-#: ../include/classes.php:1711
+#: ../include/classes.php:1828
 msgid "Choose a Form"
 msgstr "Välj ett formulär"
 
-#: ../include/classes.php:1784
-#, php-format
-msgid "The form %s collects IP address"
-msgstr "Formuläret %s samlar in IP-adress"
-
-#: ../include/classes.php:1854
+#: ../include/classes.php:1926
 msgid "Redirect Test"
 msgstr "Omdirigera test"
 
-#: ../include/classes.php:1868
+#: ../include/classes.php:1940
 msgid "Redirect All"
 msgstr "Omdirigera alla"
 
-#: ../include/classes.php:2072
-#: ../include/classes.php:2082
-#: ../include/classes.php:2087
-msgid "To choose one or many alternatives"
-msgstr "För att kunna välja ett eller flera alternativ"
-
-#: ../include/classes.php:2073
-msgid "To choose a min and max value and create a slider for that"
-msgstr "För att kunna välja min-/maxvärde"
-
-#: ../include/classes.php:2074
-msgid "Input Field"
-msgstr "Textfält"
-
-#: ../include/classes.php:2074
-msgid "To enter a short text"
-msgstr "För att kunna skriva i en kort text"
-
-#: ../include/classes.php:2075
-msgid "Textarea"
-msgstr "Textområde"
-
-#: ../include/classes.php:2075
-msgid "To enter a longer text on multiple rows"
-msgstr "För att kunna skriva en längre text med flera rader"
-
-#: ../include/classes.php:2076
-msgid "To present information to the visitor"
-msgstr "För att visa information för besökaren"
-
-#: ../include/classes.php:2077
-#: ../include/classes.php:7572
-msgid "Space"
-msgstr "Mellanrum"
-
-#: ../include/classes.php:2077
-msgid "To separate fields in the form with empty space"
-msgstr "För att separera fält i formuläret med tomrum"
-
-#: ../include/classes.php:2078
-msgid "To choose a date"
-msgstr "För att välja ett datum"
-
-#: ../include/classes.php:2079
-msgid "Radio Button"
-msgstr "Alternativ"
-
-#: ../include/classes.php:2079
-#: ../include/classes.php:2081
-#: ../include/classes.php:2088
-msgid "To choose one alternative"
-msgstr "För att kunna välja ett alternativ"
-
-#: ../include/classes.php:2080
-msgid "Referer URL"
-msgstr "Referens-URL"
-
-#: ../include/classes.php:2080
-msgid "To get which URL the visitor came from"
-msgstr "För att få fram vilken URL besökaren kom från"
-
-#: ../include/classes.php:2082
-msgid "Multiple Selection"
-msgstr "Rullgardin (flerval)"
-
-#: ../include/classes.php:2083
-msgid "Hidden Field"
-msgstr "Dolt fält"
-
-#: ../include/classes.php:2083
-msgid "To add hidden data to the form"
-msgstr "För att lägga till dold data i formuläret"
-
-#: ../include/classes.php:2084
-#: ../include/classes.php:4133
-msgid "Custom Tag"
-msgstr "Anpassat element"
-
-#: ../include/classes.php:2084
-msgid "To add a custom tag"
-msgstr "För att lägga till anpassat element"
-
-#: ../include/classes.php:2085
-msgid "Custom Tag (end)"
-msgstr "Anpassat element (slut)"
-
-#: ../include/classes.php:2085
-msgid "To add a custom end tag"
-msgstr "För att lägga till anpassat slutelement"
-
-#: ../include/classes.php:2086
-msgid "To add a file upload to the form"
-msgstr "För att lägga till filuppladdning i formulär"
-
-#: ../include/classes.php:2087
-msgid "Multiple Checkboxes"
-msgstr "Kryssrutor (flerval)"
-
-#: ../include/classes.php:2088
-msgid "Multiple Radio Buttons"
-msgstr "Flera alternativ"
-
-#: ../include/classes.php:2212
-#: ../include/classes.php:2228
+#: ../include/classes.php:2285
+#: ../include/classes.php:2301
 msgid "Danish Krone"
 msgstr "Danska kronor"
 
-#: ../include/classes.php:2213
-#: ../include/classes.php:2229
+#: ../include/classes.php:2286
+#: ../include/classes.php:2302
 msgid "Euro"
 msgstr ""
 
-#: ../include/classes.php:2214
-#: ../include/classes.php:2230
+#: ../include/classes.php:2287
+#: ../include/classes.php:2303
 msgid "US Dollar"
 msgstr "Amerikanska dollar"
 
-#: ../include/classes.php:2215
-#: ../include/classes.php:2231
+#: ../include/classes.php:2288
+#: ../include/classes.php:2304
 msgid "English Pound"
 msgstr "Brittiska pund"
 
-#: ../include/classes.php:2216
-#: ../include/classes.php:2232
+#: ../include/classes.php:2289
+#: ../include/classes.php:2305
 msgid "Swedish Krona"
 msgstr "Svenska kronor"
 
-#: ../include/classes.php:2217
-#: ../include/classes.php:2233
+#: ../include/classes.php:2290
+#: ../include/classes.php:2306
 msgid "Australian Dollar"
 msgstr "Australiensiska dollar"
 
-#: ../include/classes.php:2218
-#: ../include/classes.php:2234
+#: ../include/classes.php:2291
+#: ../include/classes.php:2307
 msgid "Canadian Dollar"
 msgstr "Kanadensiska dollar"
 
-#: ../include/classes.php:2219
-#: ../include/classes.php:2235
+#: ../include/classes.php:2292
+#: ../include/classes.php:2308
 msgid "Icelandic Krona"
 msgstr "Isländska kronor"
 
-#: ../include/classes.php:2220
-#: ../include/classes.php:2236
+#: ../include/classes.php:2293
+#: ../include/classes.php:2309
 msgid "Japanese Yen"
 msgstr "Japanska yen"
 
-#: ../include/classes.php:2221
-#: ../include/classes.php:2237
+#: ../include/classes.php:2294
+#: ../include/classes.php:2310
 msgid "New Zealand Dollar"
 msgstr "Nya Zeeländska dollar"
 
-#: ../include/classes.php:2222
-#: ../include/classes.php:2238
+#: ../include/classes.php:2295
+#: ../include/classes.php:2311
 msgid "Norwegian Krone"
 msgstr "Norska kronor"
 
-#: ../include/classes.php:2223
-#: ../include/classes.php:2239
+#: ../include/classes.php:2296
+#: ../include/classes.php:2312
 msgid "Swiss Franc"
 msgstr "Schweiziska franc"
 
-#: ../include/classes.php:2224
-#: ../include/classes.php:2240
+#: ../include/classes.php:2297
+#: ../include/classes.php:2313
 msgid "Turkish Lira"
 msgstr "Turkiska lira"
 
-#: ../include/classes.php:2413
+#: ../include/classes.php:2475
 msgid "copy"
 msgstr "kopia"
 
-#: ../include/classes.php:2588
+#: ../include/classes.php:2632
 msgid "I have updated the form for you"
 msgstr "Jag har uppdaterat formuläret åt dig"
 
-#: ../include/classes.php:2597
+#: ../include/classes.php:2641
 msgid "There is already a form with that name. Try with another one."
 msgstr "Det finns redan ett formulär med det namnet. Försök med ett annat."
 
-#: ../include/classes.php:2686
+#: ../include/classes.php:2730
 msgid "I have created the form for you"
 msgstr "Jag har skapat formuläret åt dig"
 
-#: ../include/classes.php:2711
-#: ../include/classes.php:4795
+#: ../include/classes.php:2754
+#: ../include/classes.php:4778
 msgid "Please, enter all required fields"
 msgstr "Var vänlig fyll i alla obligatoriska fält"
 
-#: ../include/classes.php:2774
+#: ../include/classes.php:2817
 msgid "I could not update the field"
 msgstr "Jag kunde inte uppdatera fältet"
 
-#: ../include/classes.php:2826
+#: ../include/classes.php:2869
 msgid "I could not insert the new field for you"
 msgstr "Jag kunde inte att lägga in det nya fältet åt dig"
 
-#: ../include/classes.php:2912
+#: ../include/classes.php:2944
 msgid "I could not find the form you were looking for. If the problem persists, please contact an admin"
 msgstr "Jag kunde inte hitta formuläret som du sökte efter. Om problemet kvarstår, kontakta en administratör"
 
-#: ../include/classes.php:3132
+#: ../include/classes.php:3164
 msgid "I have marked the email as spam for you"
 msgstr "Jag har markerat eposten som spam åt dig"
 
-#: ../include/classes.php:3139
+#: ../include/classes.php:3171
 msgid "I have approved the answer for you"
 msgstr "Jag har godkänt svaret åt dig"
 
-#: ../include/classes.php:3151
-#: ../include/classes.php:5883
+#: ../include/classes.php:3183
+#: ../include/classes.php:5796
 msgid "Paid and Verified"
 msgstr "Betald och verifierad"
 
-#: ../include/classes.php:3161
+#: ../include/classes.php:3193
 msgid "I have verified the payment for you"
 msgstr "Jag har verifierat betalningen åt dig"
 
-#: ../include/classes.php:3166
+#: ../include/classes.php:3198
 msgid "I could not verify the payment for you"
 msgstr "Jag kunde inte verifiera betalningen åt dig"
 
-#: ../include/classes.php:3326
+#: ../include/classes.php:3358
 msgid "I have resent the messages for you"
 msgstr "Jag har skickat meddelandena åt dig igen"
 
-#: ../include/classes.php:3331
+#: ../include/classes.php:3363
 msgid "I could not resend the messages for you"
 msgstr "Jag kunde inte skicka om meddelandena åt dig"
 
-#: ../include/classes.php:3541
+#: ../include/classes.php:3523
 msgid "Admin"
 msgstr ""
 
-#: ../include/classes.php:3542
+#: ../include/classes.php:3524
 msgid "Visitor"
 msgstr "Besökare"
 
-#: ../include/classes.php:3543
+#: ../include/classes.php:3525
 msgid "Other"
 msgstr "Annan"
 
-#: ../include/classes.php:3556
+#: ../include/classes.php:3538
 msgid "Unknown"
 msgstr "Okänd"
 
-#: ../include/classes.php:4211
+#: ../include/classes.php:4201
 msgid "The message has been sent!"
 msgstr "Meddelandet har skickats!"
 
-#: ../include/classes.php:4219
+#: ../include/classes.php:4209
 msgid "I am sorry, but I could not send the message that was requested"
 msgstr "Jag är ledsen, men jag kunde inte skicka meddelandet som du önskade"
 
-#: ../include/classes.php:4227
+#: ../include/classes.php:4217
 #, php-format
 msgid "There was no content to send. You have to enter text into the field Text to send as positive response in %sMy Settings%s"
 msgstr "Det fanns inget innehåll att skicka. Du behöver fylla i text i fältet Text att skicka som positivt svar i %sMina inställningar%s"
 
-#: ../include/classes.php:4232
+#: ../include/classes.php:4222
 #, php-format
 msgid "There was no content to send. You have to enter text into the field Text to send as negative response in %sMy Settings%s"
 msgstr "Det fanns inget innehåll att skicka. Du behöver fylla i text i fältet Text att skicka som negativt svar i %sMina inställningar%s"
 
-#: ../include/classes.php:4239
+#: ../include/classes.php:4229
 msgid "Oops! You do not seam to have the correct link or it has expired"
 msgstr "Hoppsan! Du verkar inte ha en korrekt länk, eller så har den gått ut"
 
-#: ../include/classes.php:4329
+#: ../include/classes.php:4319
 #, php-format
 msgid "Contains %s"
 msgstr "Innehåller %s"
 
-#: ../include/classes.php:4330
+#: ../include/classes.php:4320
 #, php-format
 msgid "Link including %s"
 msgstr "Länk inkl. %s"
 
-#: ../include/classes.php:4331
+#: ../include/classes.php:4321
 msgid "Question Marks"
 msgstr "Frågetecken"
 
-#: ../include/classes.php:4332
+#: ../include/classes.php:4322
 msgid "Shortening Links"
 msgstr "Förkortande länkar"
 
-#: ../include/classes.php:4333
+#: ../include/classes.php:4323
 msgid "URL Shortcodes"
 msgstr "Kortkoder för länkar"
 
-#: ../include/classes.php:4766
+#: ../include/classes.php:4759
 msgid "It is already full. Try with another alternative"
 msgstr "Det är redan fullt. Välj ett annat alternativ"
 
-#: ../include/classes.php:4975
+#: ../include/classes.php:4953
 msgid "You have to submit a file"
 msgstr "Du måste skicka med en fil"
 
-#: ../include/classes.php:4983
+#: ../include/classes.php:4961
 msgid "The file was not uploaded"
 msgstr "Filen laddades inte upp"
 
-#: ../include/classes.php:5145
+#: ../include/classes.php:5091
 msgid "Sent From"
 msgstr "Skickat från"
 
-#: ../include/classes.php:5161
+#: ../include/classes.php:5107
 msgid "Sent to processing"
 msgstr "Skickad för bearbetning"
 
-#: ../include/classes.php:5408
-#: ../include/classes.php:5943
+#: ../include/classes.php:5312
+#: ../include/classes.php:5856
 msgid "Thank You!"
 msgstr "Tack så mycket!"
 
-#: ../include/classes.php:5418
+#: ../include/classes.php:5321
 msgid "This form is not open for submissions anymore"
 msgstr "Detta formulär är inte öppet längre"
 
-#: ../include/classes.php:5465
+#: ../include/classes.php:5380
 msgid "This field should not be visible"
 msgstr "Detta fält borde inte synas"
 
-#: ../include/classes.php:5474
+#: ../include/classes.php:5389
 msgid "Clear"
 msgstr "Rensa"
 
-#: ../include/classes.php:5483
+#: ../include/classes.php:5398
 msgid "Perform test payment"
 msgstr "Genomför testbetalning"
 
-#: ../include/classes.php:5547
+#: ../include/classes.php:5462
 msgid "It is not the correct form. Please try again or contact an admin."
 msgstr "Det är inte korrekt formulär. Var vänlig försök igen eller kontakta en administratör."
 
-#: ../include/classes.php:5552
-msgid "The site has not been properly setup just yet. Wait a few minutes and try again or contact an admin regarding this."
-msgstr "Webbplatsen har inte blivit korrekt uppdaterad ännu. Var vänlig vänta ett par minuter och försök igen eller kontakta en administratör angående detta."
-
-#: ../include/classes.php:5557
+#: ../include/classes.php:5473
 msgid "The form was not processed properly. Try again but if the problem persists, contact an admin to report this."
 msgstr "Formuläret behandlades inte korrekt. Försök igen, men om problemet kvarstår, kontakta en administratör för att rapportera detta."
 
-#: ../include/classes.php:5864
+#: ../include/classes.php:5777
 msgid "User canceled"
 msgstr "Användaren avbröt"
 
-#: ../include/classes.php:5866
+#: ../include/classes.php:5779
 msgid "Your payment was cancelled"
 msgstr "Din betalning avbröts"
 
-#: ../include/classes.php:5893
+#: ../include/classes.php:5806
 msgid "User has paid. Waiting for confirmation..."
 msgstr "Användaren har betalat. Väntar på bekräftelse..."
 
-#: ../include/classes.php:6020
+#: ../include/classes.php:5933
 msgid "Processing"
 msgstr "Bearbetar"
 
-#: ../include/classes.php:6295
-#: ../include/classes.php:6655
+#: ../include/classes.php:6212
+#: ../include/classes.php:6572
 msgid "All"
 msgstr "Alla"
 
-#: ../include/classes.php:6297
+#: ../include/classes.php:6214
 msgid "Draft"
 msgstr "Utkast"
 
-#: ../include/classes.php:6298
+#: ../include/classes.php:6215
 msgid "Trash"
 msgstr "Papperskorg"
 
-#: ../include/classes.php:6360
-#: ../include/classes.php:7080
-#: ../include/classes.php:7725
+#: ../include/classes.php:6277
+#: ../include/classes.php:7001
+#: ../include/classes.php:7635
 #: ../view/index.php:8
 msgid "Edit"
 msgstr "Redigera"
 
-#: ../include/classes.php:6366
-#: ../include/classes.php:7081
-#: ../include/classes.php:7695
+#: ../include/classes.php:6283
+#: ../include/classes.php:7002
+#: ../include/classes.php:7610
 msgid "Delete"
 msgstr "Radera"
 
-#: ../include/classes.php:6382
+#: ../include/classes.php:6299
 msgid "Recover"
 msgstr "Återställ"
 
-#: ../include/classes.php:6717
+#: ../include/classes.php:6637
 msgid "Sent"
 msgstr "Skickat"
 
-#: ../include/classes.php:6753
+#: ../include/classes.php:6673
 msgid "Approve"
 msgstr "Godkänn"
 
-#: ../include/classes.php:6770
-#: ../include/classes.php:6846
+#: ../include/classes.php:6690
+#: ../include/classes.php:6765
 msgid "Test Payment"
 msgstr "Testbetalning"
 
-#: ../include/classes.php:6790
+#: ../include/classes.php:6710
 msgid "Verify"
 msgstr "Verifiera"
 
-#: ../include/classes.php:6816
-msgid "ID"
-msgstr ""
-
-#: ../include/classes.php:6821
-msgid "IP"
-msgstr ""
-
-#: ../include/classes.php:6826
+#: ../include/classes.php:6745
 msgid "Token"
 msgstr "Behörighetsnyckel"
 
-#: ../include/classes.php:6842
+#: ../include/classes.php:6761
 msgid "Verified by"
 msgstr "Verifierad av"
 
-#: ../include/classes.php:6850
-msgid "Browser"
-msgstr "Webbläsare"
-
-#: ../include/classes.php:6854
-msgid "User"
-msgstr "Användare"
-
-#: ../include/classes.php:6863
+#: ../include/classes.php:6782
 msgid "Meta Data"
 msgstr "Metadata"
 
-#: ../include/classes.php:6878
+#: ../include/classes.php:6797
 msgid "Sent To"
 msgstr "Skickat till"
 
-#: ../include/classes.php:6933
+#: ../include/classes.php:6852
 msgid "Do you want to send the message again?"
 msgstr "Vill du skicka meddelandet igen?"
 
-#: ../include/classes.php:7018
+#: ../include/classes.php:6939
 msgid "Re"
 msgstr "Sv"
 
-#: ../include/classes.php:7022
+#: ../include/classes.php:6943
 msgid "Mark as Spam"
 msgstr "Markera som spam"
 
-#: ../include/classes.php:7230
+#: ../include/classes.php:7153
 msgid "Full"
 msgstr "Fullt"
 
-#: ../include/classes.php:7235
+#: ../include/classes.php:7158
 msgid "left"
 msgstr "kvar"
 
-#: ../include/classes.php:7580
-#: ../include/classes.php:7598
+#: ../include/classes.php:7495
+#: ../include/classes.php:7513
 msgid "Hidden"
 msgstr "Dold"
 
-#: ../include/classes.php:7669
+#: ../include/classes.php:7584
 msgid "Display"
 msgstr "Visa"
 
-#: ../include/classes.php:7673
+#: ../include/classes.php:7588
 msgid "Required"
 msgstr "Obligatoriskt"
 
-#: ../include/classes.php:7678
+#: ../include/classes.php:7593
 msgid "Autofocus"
 msgstr "Fokusera automatiskt"
 
-#: ../include/classes.php:7683
+#: ../include/classes.php:7598
 msgid "Remember Answer"
 msgstr "Kom ihåg svar"
 
-#: ../include/classes.php:7700
+#: ../include/classes.php:7615
 #, php-format
 msgid "For use in templates this field has got %s and %s"
 msgstr "För användning i mallar så har detta fält %s och %s"
 
-#: ../include/classes.php:7713
+#: ../include/classes.php:7627
 msgid "The field is hidden by a rule in the form"
 msgstr "Fältet är dolt av en regel i formuläret"
 
-#: ../include/classes.php:7736
+#: ../include/classes.php:7645
 msgid "The field is hidden by the creator of the form"
 msgstr "Fältet är dolt av skaparen av formuläret"
 
-#: ../include/classes.php:7771
+#: ../include/classes.php:7680
 msgid "Display a form that you have previously created"
 msgstr "Visa ett formulär som har skapat"
 
-#: ../include/classes.php:7832
+#: ../include/classes.php:7741
 msgid "Heading"
 msgstr "Rubrik"
 
@@ -1336,8 +1292,49 @@ msgstr "Formuläret kan inte raderas eftersom det finns svar"
 msgid "It looks like the form already has been deleted"
 msgstr "Det verkar som att formuläret redan har blivit raderat"
 
-#~ msgid "Select a Form"
-#~ msgstr "Välj"
+#~ msgid "Add New Form"
+#~ msgstr "Lägg till nytt formulär"
+
+#~ msgid "Edit Form"
+#~ msgstr "Redigera formulär"
+
+#~ msgid "View Form"
+#~ msgstr "Visa formulär"
+
+#~ msgid "Search Forms"
+#~ msgstr "Sök formulär"
+
+#~ msgid "No Forms Found"
+#~ msgstr "Inga formulär hittades"
+
+#~ msgid ""
+#~ "The site has not been properly setup just yet. Wait a few minutes and try "
+#~ "again or contact an admin regarding this."
+#~ msgstr ""
+#~ "Webbplatsen har inte blivit korrekt uppdaterad ännu. Var vänlig vänta ett "
+#~ "par minuter och försök igen eller kontakta en administratör angående "
+#~ "detta."
+
+#~ msgid "Please wait"
+#~ msgstr "Var vänlig vänta"
+
+#~ msgid "Accept Duplicates"
+#~ msgstr "Tillåt dubletter"
+
+#~ msgid "Show Answers"
+#~ msgstr "Visa svar"
+
+#~ msgid "Save IP"
+#~ msgstr "Spara IP"
+
+#~ msgid "The form %s collects IP address"
+#~ msgstr "Formuläret %s samlar in IP-adress"
+
+#~ msgid "Browser"
+#~ msgstr "Webbläsare"
+
+#~ msgid "User"
+#~ msgstr "Användare"
 
 #~ msgid "Text when mandatory fields have not been entered"
 #~ msgstr "Text när obligatoriska fält inte har fyllts i"

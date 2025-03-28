@@ -160,7 +160,7 @@ switch($type_action)
 		}
 	break;
 
-	/*case 'sortOrder':
+	case 'sortOrder':
 		if(is_user_logged_in())
 		{
 			$updated = false;
@@ -193,7 +193,7 @@ switch($type_action)
 				$json_output['success'] = true;
 			}
 		}
-	break;*/
+	break;
 
 	/*case 'zipcode':
 		$search = str_replace(" ", "", $type_id);

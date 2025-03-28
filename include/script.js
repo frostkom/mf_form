@@ -491,10 +491,7 @@ jQuery(function($)
 			},
 			success: function(data)
 			{
-				if(data.success)
-				{
-					dom_obj.html(data.response);
-				}
+				dom_obj.html(data.html);
 			}
 		});
 	});

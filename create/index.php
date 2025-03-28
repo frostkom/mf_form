@@ -123,9 +123,9 @@ if($obj_form->check_allow_edit())
 
 													if($has_single_action == false || $has_multiple_action == true)
 													{
-														list($result, $rows) = $obj_form->get_form_type_info(array('query_type_code' => array('checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'custom_tag', 'checkbox_multiple', 'radio_multiple'), 'query_exclude_id' => $obj_form->form2type_id));
+														$result = $obj_form->get_form_type_info(array('query_type_code' => array('checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'custom_tag', 'checkbox_multiple', 'radio_multiple'), 'query_exclude_id' => $obj_form->form2type_id));
 
-														if($rows > 0)
+														if(count($result) > 0)
 														{
 															$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
 														}
@@ -200,9 +200,9 @@ if($obj_form->check_allow_edit())
 												##############################
 												if($obj_form->form_option_exists)
 												{
-													list($result, $rows) = $obj_form->get_form_type_info(array('query_type_code' => array('select'), 'query_exclude_id' => $obj_form->form2type_id));
+													$result = $obj_form->get_form_type_info(array('query_type_code' => array('select'), 'query_exclude_id' => $obj_form->form2type_id));
 
-													if($rows > 0)
+													if(count($result) > 0)
 													{
 														$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
 
@@ -252,9 +252,9 @@ if($obj_form->check_allow_edit())
 
 													if(count($arr_data_equals) > 1)
 													{
-														list($result, $rows) = $obj_form->get_form_type_info(array('query_type_code' => array('checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'custom_tag', 'checkbox_multiple', 'radio_multiple'), 'query_exclude_id' => $obj_form->form2type_id));
+														$result = $obj_form->get_form_type_info(array('query_type_code' => array('checkbox', 'range', 'input_field', 'textarea', 'text', 'datepicker', 'radio_button', 'select', 'select_multiple', 'custom_tag', 'checkbox_multiple', 'radio_multiple'), 'query_exclude_id' => $obj_form->form2type_id));
 
-														if($rows > 0)
+														if(count($result) > 0)
 														{
 															$arr_data_show = $obj_form->get_form_type_for_select(array('result' => $result, 'add_choose_here' => true));
 
@@ -318,9 +318,6 @@ if($obj_form->check_allow_edit())
 							<div class='postbox'>
 								<h3 class='hndle'><span>".__("Save", 'lang_form')."</span></h3>
 								<div class='inside'>";
-
-									/*echo show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => true, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
-									.show_textfield(array('name' => 'strFormURL', 'text' => __("URL", 'lang_form'), 'value' => $obj_form->url, 'maxlength' => 100));*/
 
 									if($form_output != '')
 									{
