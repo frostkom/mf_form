@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.6.6
+Version: 1.1.6.7
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -168,32 +168,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'formMandatoryText' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
 		);
 
-		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_nonce (
-			nonceID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			nonceKey VARCHAR(32),
-			nonceCreated DATETIME DEFAULT NULL,
-			PRIMARY KEY (nonceID),
-			KEY nonceKey (nonceKey)
-		) DEFAULT CHARSET=".$default_charset);*/
-
-		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_check (
-			checkID INT UNSIGNED NOT NULL AUTO_INCREMENT,"
-			//."checkPublic ENUM('0','1'),"
-			."checkName VARCHAR(50),
-			checkCode VARCHAR(10),
-			checkPattern VARCHAR(200),
-			PRIMARY KEY (checkID),
-			KEY checkCode (checkCode)
-		) DEFAULT CHARSET=".$default_charset);*/
-
-		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_type (
-			formTypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			formTypeCode VARCHAR(30),
-			formTypeName VARCHAR(40) DEFAULT NULL,
-			formTypeDesc TEXT DEFAULT NULL,
-			PRIMARY KEY (formTypeID)
-		) DEFAULT CHARSET=".$default_charset);*/
-
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
 			form2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			form2TypeID2 INT UNSIGNED NOT NULL DEFAULT '0',
@@ -302,20 +276,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		update_columns($arr_update_column);
 		add_columns($arr_add_column);
 		add_index($arr_add_index);
-
-		/*$arr_run_query = array();
-
-		foreach($obj_form->arr_form_types as $key => $value)
-		{
-			$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_type SET formTypeID = '%d', formTypeCode = %s, formTypeName = %s, formTypeDesc = %s", $key, $value['code'], $value['name'], $value['desc']);
-		}
-
-		foreach($obj_form->arr_form_check as $key => $value)
-		{
-			$arr_run_query[] = $wpdb->prepare("INSERT IGNORE INTO ".$wpdb->base_prefix."form_check SET checkID = '%d', checkName = %s, checkCode = %s, checkPattern = %s", $key, $value['name'], $value['code'], $value['pattern']);
-		}
-
-		run_queries($arr_run_query);*/
 
 		// Convert wp_form to wp_posts
 		#################################

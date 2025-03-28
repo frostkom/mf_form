@@ -138,7 +138,6 @@ if($obj_form->check_allow_edit())
 															$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $obj_form->form2type_id, 'option_id' => $obj_form->arr_type_select_id[$i]));
 
 															echo "<div class='option'>"
-																//.show_textfield(array('name' => 'arrFormTypeSelect_key[]', 'value' => $obj_form->arr_type_select_key[$i], 'placeholder' => __("Key", 'lang_form'), 'xtra_class' => "option_key")) //, 'readonly' => $is_select_value_used //input text is needed when using payment price as ID
 																.input_hidden(array('name' => 'arrFormTypeSelect_key[]', 'value' => $obj_form->arr_type_select_key[$i]))
 																.show_textfield(array('name' => 'arrFormTypeSelect_value[]', 'value' => $obj_form->arr_type_select_value[$i], 'placeholder' => __("Enter Option Here", 'lang_form'), 'xtra_class' => "option_value", 'readonly' => $is_select_value_used, 'xtra' => ($is_select_value_used ? " title='".__("This option has been chosen in a previous answer, so be careful with what you change it to. If you still want to edit this option, just double click on the field.", 'lang_form')."'" : "")))
 																.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_limit[]', 'value' => $obj_form->arr_type_select_limit[$i], 'xtra' => " min='0'", 'xtra_class' => "option_limit"));

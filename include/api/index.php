@@ -194,25 +194,6 @@ switch($type_action)
 			}
 		}
 	break;
-
-	/*case 'zipcode':
-		$search = str_replace(" ", "", $type_id);
-		$city_name = "";
-
-		if(get_bloginfo('language') == "sv-SE")
-		{
-			include_once("../class_zipcode.php");
-			$obj_zipcode = new mf_zipcode();
-
-			$city_name = $obj_zipcode->get_city($search);
-		}
-
-		if($city_name != '')
-		{
-			$json_output['success'] = true;
-			$json_output['response'] = $city_name;
-		}
-	break;*/
 }
 
 echo json_encode($json_output);
