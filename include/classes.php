@@ -949,16 +949,19 @@ class mf_form
 					echo "<i class='fa fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
 				}
 
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailConditions, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
+				$this->get_post_id();
+
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
 
 				foreach($result as $r)
 				{
 					$strFormEmail = ($r->formEmail != '' ? $r->formEmail : get_bloginfo('admin_email'));
-					$strFormEmailConditions = $r->formEmailConditions;
-					$intFormEmailNotifyPage = $r->formEmailNotifyPage;
-					$intFormEmailConfirm = $r->formEmailConfirm;
-					$intFormEmailConfirmPage = $r->formEmailConfirmPage;
-					$intFormPaymentProvider = $r->formPaymentProvider;
+
+					$intFormEmailNotifyPage = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
+					$intFormEmailConfirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
+					$intFormEmailConfirmPage = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
+					$strFormEmailConditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
+					$intFormPaymentProvider = get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
 
 					if($intFormEmailNotifyPage > 0)
 					{
@@ -2463,7 +2466,7 @@ class mf_form
 		{
 			$intFormID = $r->formID;
 
-			$copy_fields_to = $copy_fields_from = "blogID, formEmail, formFromName, formEmailNotify, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formEmailConfirm, formEmailConfirmID, formEmailConfirmPage, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentCurrency, formPaymentCheck, formPaymentCost, formPaymentTax, formPaymentCallback";
+			$copy_fields_to = $copy_fields_from = "blogID";
 
 			if($data['create_new_page'] == true)
 			{
@@ -2597,6 +2600,7 @@ class mf_form
 							'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
 							'post_author' => get_current_user_id(),
 							'meta_input' => array(
+								$this->meta_prefix.'email_admin_name' => $this->email_admin_name,
 								$this->meta_prefix.'email_name' => $this->email_name,
 								$this->meta_prefix.'email_notify' => ($this->email_notify == 1 ? 'yes' : 'no'),
 								$this->meta_prefix.'email_admin' => $this->email_admin,
@@ -2625,7 +2629,7 @@ class mf_form
 
 						wp_update_post($post_data);
 
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formEmailConfirm = '%d', formEmailConfirmFromEmail = %s, formEmailConfirmFromEmailName = %s, formEmailConfirmID = '%d', formEmailConfirmPage = %s, formEmail = %s, formFromName = %s, formEmailConditions = %s, formEmailNotify = '%d', formEmailNotifyFromEmail = %s, formEmailNotifyFromEmailName = %s, formEmailNotifyFrom = %s, formEmailNotifyPage = %s, formEmailName = %s, formPaymentProvider = '%d', formPaymentHmac = %s, formTermsPage = '%d', formPaymentMerchant = %s, formPaymentPassword = %s, formPaymentCurrency = %s, formPaymentCost = '%f', formPaymentAmount = '%d', formPaymentTax = '%d', formPaymentCallback = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_confirm, $this->email_confirm_from_email, $this->email_confirm_from_email_name, $this->email_confirm_id, $this->email_confirm_page, $this->email_admin, $this->email_admin_name, $this->email_conditions, $this->email_notify, $this->email_notify_from_email, $this->email_notify_from_email_name, $this->email_notify_from, $this->email_notify_page, $this->email_name, $this->payment_provider, $this->payment_hmac, $this->terms_page, $this->payment_merchant, $this->payment_password, $this->payment_currency, $this->payment_cost, $this->payment_amount, $this->payment_tax, $this->payment_callback, $this->id));
+						//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formFromName = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_admin_name, $this->id));
 
 						do_action('update_form_fields', $this);
 
@@ -2896,38 +2900,15 @@ class mf_form
 						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $this->id));
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback, formCreated FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+					/*$result = $wpdb->get_results($wpdb->prepare("SELECT formFromName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //, formCreated
 
 					if($wpdb->num_rows > 0)
 					{
 						foreach($result as $r)
 						{
-							$this->email_confirm = $r->formEmailConfirm;
-							$this->email_confirm_from_email = $r->formEmailConfirmFromEmail;
-							$this->email_confirm_from_email_name = $r->formEmailConfirmFromEmailName;
-							$this->email_confirm_id = $r->formEmailConfirmID;
-							$this->email_confirm_page = $r->formEmailConfirmPage;
-							$this->email_admin = $r->formEmail;
 							$this->email_admin_name = $r->formFromName;
-							$this->email_conditions = $r->formEmailConditions;
-							$this->email_notify = $r->formEmailNotify;
-							$this->email_notify_from_email = $r->formEmailNotifyFromEmail;
-							$this->email_notify_from_email_name = $r->formEmailNotifyFromEmailName;
-							$this->email_notify_from = $r->formEmailNotifyFrom;
-							$this->email_notify_page = $r->formEmailNotifyPage;
-							$this->email_name = $r->formEmailName;
-							$this->payment_provider = $r->formPaymentProvider;
-							$this->payment_hmac = $r->formPaymentHmac;
-							$this->terms_page = $r->formTermsPage;
-							$this->payment_merchant = $r->formPaymentMerchant;
-							$this->payment_password = $r->formPaymentPassword;
-							$this->payment_currency = $r->formPaymentCurrency;
-							$this->payment_cost = $r->formPaymentCost;
-							$this->payment_amount = $r->formPaymentAmount;
-							$this->payment_tax = $r->formPaymentTax;
-							$this->payment_callback = $r->formPaymentCallback;
-							$strFormCreated = $r->formCreated;
-						}
+							//$strFormCreated = $r->formCreated;
+						}*/
 
 						$this->name = $this->get_post_info(array('select' => "post_title"));
 						$this->url = $this->get_post_info();
@@ -2937,12 +2918,39 @@ class mf_form
 						$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
 						$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
 						$this->button_symbol = get_post_meta($this->post_id, $this->meta_prefix.'button_symbol', true);
-					}
+						$this->email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_name', true);
+						$this->email_admin = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
+						$this->email_admin_name = get_post_meta($this->post_id, $this->meta_prefix.'email_admin_name', true);
+
+						$this->email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
+						$this->email_notify_from = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from', true);
+						$this->email_notify_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email', true);
+						$this->email_notify_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email_name', true);
+						$this->email_notify_page = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
+
+						$this->email_confirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
+						$this->email_confirm_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email', true);
+						$this->email_confirm_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email_name', true);
+						$this->email_confirm_id = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_id', true);
+						$this->email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
+						$this->email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
+
+						$this->payment_provider = get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
+						$this->payment_hmac = get_post_meta($this->post_id, $this->meta_prefix.'payment_hmac', true);
+						$this->payment_merchant = get_post_meta($this->post_id, $this->meta_prefix.'payment_merchant', true);
+						$this->payment_password = get_post_meta($this->post_id, $this->meta_prefix.'payment_password', true);
+						$this->terms_page = get_post_meta($this->post_id, $this->meta_prefix.'terms_page', true);
+						$this->payment_currency = get_post_meta($this->post_id, $this->meta_prefix.'payment_currency', true);
+						$this->payment_cost = get_post_meta($this->post_id, $this->meta_prefix.'payment_cost', true);
+						$this->payment_amount = get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
+						$this->payment_tax = get_post_meta($this->post_id, $this->meta_prefix.'payment_tax', true);
+						$this->payment_callback = get_post_meta($this->post_id, $this->meta_prefix.'payment_callback', true);
+					/*}
 
 					else
 					{
 						$error_text = __("I could not find the form you were looking for. If the problem persists, please contact an admin", 'lang_form');
-					}
+					}*/
 				}
 
 				if(!isset($_POST['btnFormAdd']) && $this->form2type_id > 0)
@@ -3173,30 +3181,27 @@ class mf_form
 
 				else if(isset($_GET['btnAnswerVerifyPayment']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_verify_payment'], 'answer_verify_payment_'.$this->answer_id))
 				{
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentAmount, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
+					$this->get_post_id();
 
-					foreach($result as $r)
+					$intFormPaymentAmount = get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
+					$strFormPaymentCallback = get_post_meta($this->post_id, $this->meta_prefix.'payment_callback', true);
+
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid and Verified", 'lang_form'), $this->answer_id, '116:%'));
+
+					if($wpdb->rows_affected > 0 && $intFormPaymentAmount > 0 && $strFormPaymentCallback != '')
 					{
-						$intFormPaymentAmount = $r->formPaymentAmount;
-						$strFormPaymentCallback = $r->formPaymentCallback;
+						$paid = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intFormPaymentAmount));
 
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '0' AND answerText NOT LIKE %s", "116: ".__("Paid and Verified", 'lang_form'), $this->answer_id, '116:%'));
+						call_user_func($strFormPaymentCallback, array('paid' => $paid, 'answer_id' => $this->answer_id));
 
-						if($wpdb->rows_affected > 0 && $intFormPaymentAmount > 0 && $strFormPaymentCallback != '')
-						{
-							$paid = $wpdb->get_var($wpdb->prepare("SELECT answerText FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intFormPaymentAmount));
+						$this->set_meta(array('id' => $this->answer_id, 'key' => 'payment_verified_by', 'value' => get_current_user_id()));
 
-							call_user_func($strFormPaymentCallback, array('paid' => $paid, 'answer_id' => $this->answer_id));
+						$done_text = __("I have verified the payment for you", 'lang_form');
+					}
 
-							$this->set_meta(array('id' => $this->answer_id, 'key' => 'payment_verified_by', 'value' => get_current_user_id()));
-
-							$done_text = __("I have verified the payment for you", 'lang_form');
-						}
-
-						else
-						{
-							$error_text = __("I could not verify the payment for you", 'lang_form');
-						}
+					else
+					{
+						$error_text = __("I could not verify the payment for you", 'lang_form');
 					}
 				}
 
@@ -3440,16 +3445,13 @@ class mf_form
 
 		//$this->has_payment = false;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formPaymentProvider, formPaymentCost, formPaymentAmount FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$this->get_post_id();
 
-		foreach($result as $r)
-		{
-			$this->payment_provider = $r->formPaymentProvider;
-			$this->payment_cost = $r->formPaymentCost;
-			$this->payment_amount = $r->formPaymentAmount;
+		$this->payment_provider = get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
+		$this->payment_cost = get_post_meta($this->post_id, $this->meta_prefix.'payment_cost', true);
+		$this->payment_amount = get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
 
-			$this->has_payment = $this->payment_provider > 0 && ($this->payment_cost > 0 || $this->payment_amount > 0);
-		}
+		$this->has_payment = $this->payment_provider > 0 && ($this->payment_cost > 0 || $this->payment_amount > 0);
 
 		return $this->has_payment;
 	}
@@ -4413,7 +4415,8 @@ class mf_form
 	{
 		global $wpdb;
 
-		return $wpdb->get_var($wpdb->prepare("SELECT formEmailConfirmID FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$this->get_post_id();
+		return get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_id', true);
 	}
 
 	function insert_answer()
@@ -4475,25 +4478,31 @@ class mf_form
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formEmailConfirm, formEmailConfirmFromEmail, formEmailConfirmFromEmailName, formEmailConfirmID, formEmailConfirmPage, formEmail, formFromName, formEmailConditions, formEmailNotify, formEmailNotifyFromEmail, formEmailNotifyFromEmailName, formEmailNotifyFrom, formEmailNotifyPage, formEmailName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		/*$result = $wpdb->get_results($wpdb->prepare("SELECT formFromName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
-			$this->email_confirm = $r->formEmailConfirm;
-			$this->email_confirm_from_email = $r->formEmailConfirmFromEmail;
-			$this->email_confirm_from_email_name = $r->formEmailConfirmFromEmailName;
-			$this->email_confirm_id = $r->formEmailConfirmID;
-			$this->email_confirm_page = $r->formEmailConfirmPage;
-			$this->email_admin = $r->formEmail;
 			$this->email_admin_name = $r->formFromName;
-			$this->email_conditions = $r->formEmailConditions;
-			$this->email_notify = $r->formEmailNotify;
-			$this->email_notify_from_email = $r->formEmailNotifyFromEmail;
-			$this->email_notify_from_email_name = $r->formEmailNotifyFromEmailName;
-			$this->email_notify_from = $r->formEmailNotifyFrom;
-			$this->email_notify_page = $r->formEmailNotifyPage;
-			$email_subject = ($r->formEmailName != '' ? $r->formEmailName : $this->form_name);
-		}
+		}*/
+
+		$this->get_post_id();
+		$this->email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_name', true);
+		$this->email_admin = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
+		$this->email_admin_name = get_post_meta($this->post_id, $this->meta_prefix.'email_admin_name', true);
+
+		$this->email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
+		$this->email_notify_from = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from', true);
+		$this->email_notify_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email', true);
+		$this->email_notify_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email_name', true);
+		$this->email_notify_page = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
+		$this->email_confirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
+		$this->email_confirm_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email', true);
+		$this->email_confirm_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email_name', true);
+		$this->email_confirm_id = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_id', true);
+		$this->email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
+		$this->email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
+
+		$email_subject = ($this->email_name != '' ? $this->email_name : $this->form_name);
 
 		$this->page_content_data = array(
 			'subject' => $email_subject,
@@ -4770,7 +4779,7 @@ class mf_form
 	{
 		global $wpdb;
 
-		$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
+		$this->get_post_id();
 		$out = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
 
 		if($out == '')
@@ -5277,12 +5286,12 @@ class mf_form
 			$obj_font_icons = new mf_font_icons();
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT postID FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
 
 		foreach($result as $r)
 		{
 			$this->post_id = $post_id = $r->postID;
-			$this->provider = $intFormPaymentProvider = $r->formPaymentProvider;
+			$this->provider = $intFormPaymentProvider = get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
 
 			//$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
 			$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
@@ -5659,33 +5668,32 @@ class mf_form_payment
 				$obj_form = new mf_form();
 			}
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT postID, formPaymentProvider, formPaymentHmac, formTermsPage, formPaymentMerchant, formPaymentPassword, formPaymentCurrency, formPaymentCost, formPaymentAmount, formPaymentTax, formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->form_id));
+			$obj_form->id = $this->form_id;
+			$this->name = get_the_title($obj_form->post_id);
+			
+			$this->hmac = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_hmac', true);
+			$this->provider = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_provider', true);
+			$this->merchant = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_merchant', true);
+			$this->password = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_password', true);
+			$this->terms_page = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'terms_page', true);
+			$this->currency = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_currency', true);
+			$this->payment_cost = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_cost', true);
+			$this->payment_amount = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_amount', true);
+			$this->payment_tax_rate = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_tax', true);
+			$this->payment_callback = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_callback', true);
+			$this->answer_url = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'answer_url', true);
 
-			foreach($result as $r)
+			if($this->payment_tax_rate == '')
 			{
-				$this->name = get_the_title($obj_form->post_id);
-				$this->provider = $r->formPaymentProvider;
-				$this->hmac = $r->formPaymentHmac;
-				$this->terms_page = $r->formTermsPage;
-				$this->merchant = $r->formPaymentMerchant;
-				$this->password = $r->formPaymentPassword;
-				$this->currency = $r->formPaymentCurrency;
-				$this->payment_cost = $r->formPaymentCost;
-				$this->payment_amount = $r->formPaymentAmount;
-				$this->payment_tax_rate = ($r->formPaymentTax != '' ? $r->formPaymentTax : 25);
-				$this->payment_callback = $r->formPaymentCallback;
+				$this->payment_tax_rate = 25;
+			}
 
-				$this->answer_url = get_post_meta($obj_form->post_id, $this->meta_prefix.'answer_url', true);
+			$this->prefix = $obj_form->get_post_info()."_";
 
-				$obj_form->id = $this->form_id;
-
-				$this->prefix = $obj_form->get_post_info()."_";
-
-				//The callback must have a public URL
-				if(is_admin())
-				{
-					$this->base_callback_url = get_permalink($obj_form->post_id)."?";
-				}
+			//The callback must have a public URL
+			if(is_admin())
+			{
+				$this->base_callback_url = get_permalink($obj_form->post_id)."?";
 			}
 		}
 	}
@@ -6318,60 +6326,62 @@ if(class_exists('mf_list_table'))
 						$out .= "<i class='fa fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
 					}
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT formEmail, formEmailConditions, formEmailNotifyPage, formEmailConfirm, formEmailConfirmPage, formPaymentProvider FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
+					$obj_form->get_post_id();
 
-					foreach($result as $r)
+					$strFormEmail = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'email_admin', true);
+					$strFormEmailConditions = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'email_conditions', true);
+					$intFormEmailNotifyPage = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'email_notify_page', true);
+					$intFormEmailConfirm = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'email_confirm', true);
+					$intFormEmailConfirmPage = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'email_confirm_page', true);
+					$intFormPaymentProvider = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_provider', true);
+
+					if($strFormEmail == '')
 					{
-						$strFormEmail = ($r->formEmail != '' ? $r->formEmail : get_bloginfo('admin_email'));
-						$strFormEmailConditions = $r->formEmailConditions;
-						$intFormEmailNotifyPage = $r->formEmailNotifyPage;
-						$intFormEmailConfirm = $r->formEmailConfirm;
-						$intFormEmailConfirmPage = $r->formEmailConfirmPage;
-						$intFormPaymentProvider = $r->formPaymentProvider;
+						$strFormEmail = get_bloginfo('admin_email');
+					}
 
-						if($intFormEmailNotifyPage > 0)
+					if($intFormEmailNotifyPage > 0)
+					{
+						$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
+					}
+
+					else
+					{
+						$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
+					}
+
+					if($strFormEmailConditions != '')
+					{
+						$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
+					}
+
+					if($intFormEmailConfirm > 0)
+					{
+						if($intFormEmailConfirmPage > 0)
 						{
-							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
 						}
 
 						else
 						{
-							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
+							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
 						}
+					}
 
-						if($strFormEmailConditions != '')
+					if($intFormPaymentProvider > 0)
+					{
+						switch($intFormPaymentProvider)
 						{
-							$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
+							case 3:
+								$icon = "fab fa-paypal";
+							break;
+
+							default:
+								$icon = "fa fa-shopping-cart";
+							break;
 						}
 
-						if($intFormEmailConfirm > 0)
-						{
-							if($intFormEmailConfirmPage > 0)
-							{
-								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
-							}
-
-							else
-							{
-								$out .= "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
-							}
-						}
-
-						if($intFormPaymentProvider > 0)
-						{
-							switch($intFormPaymentProvider)
-							{
-								case 3:
-									$icon = "fab fa-paypal";
-								break;
-
-								default:
-									$icon = "fa fa-shopping-cart";
-								break;
-							}
-
-							$out .= "<i class='".$icon." fa-lg grey' title='".__("Provider", 'lang_form')."'></i> ";
-						}
+						$out .= "<i class='".$icon." fa-lg grey' title='".__("Provider", 'lang_form')."'></i> ";
 					}
 
 					if($obj_form->is_form_field_type_used(array('display' => '0')))
@@ -6703,7 +6713,8 @@ if(class_exists('mf_list_table'))
 						{
 							case 101:
 							case 102:
-								$strFormPaymentCallback = $wpdb->get_var($wpdb->prepare("SELECT formPaymentCallback FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $obj_form->id));
+								$obj_form->get_post_id();
+								$strFormPaymentCallback = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_callback', true);
 
 								if($strFormPaymentCallback != '')
 								{
@@ -6880,7 +6891,7 @@ if(class_exists('mf_list_table'))
 							$intForm2TypeID = $r->form2TypeID;
 							$strFormTypeCode = $obj_form->arr_form_types[$r->formTypeID]['code'];
 							$obj_form->label = $r->formTypeText;
-							$strCheckCode = $obj_form->arr_form_check[$r->checkID]['code'];
+							$strCheckCode = ($r->checkID > 0 ? $obj_form->arr_form_check[$r->checkID]['code'] : '');
 
 							if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
 							{

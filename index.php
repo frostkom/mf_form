@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.6.7
+Version: 1.1.6.8
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -112,7 +112,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			blogID TINYINT UNSIGNED,
 			postID INT UNSIGNED NOT NULL DEFAULT '0',"
-			//."formAnswerURL VARCHAR(20) DEFAULT NULL,"
 			."formEmail VARCHAR(100) DEFAULT NULL,"
 			."formFromName VARCHAR(100) DEFAULT NULL,"
 			."formEmailConditions TEXT DEFAULT NULL,"
@@ -127,7 +126,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			."formEmailConfirmFromEmail VARCHAR(100) DEFAULT NULL,"
 			."formEmailConfirmFromEmailName VARCHAR(100) DEFAULT NULL,"
 			."formEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',"
-			//."formMandatoryText VARCHAR(100) DEFAULT NULL,"
 			//."formButtonDisplay ENUM('0', '1') NOT NULL DEFAULT '1',"
 			//."formButtonText VARCHAR(100) DEFAULT NULL,"
 			//."formButtonSymbol VARCHAR(20) DEFAULT NULL,"
@@ -153,7 +151,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		) DEFAULT CHARSET=".$default_charset);
 
 		$arr_add_column[$wpdb->base_prefix."form"] = array(
-			//'formButtonDisplay' => "ALTER TABLE [table] ADD [column] ENUM('0', '1') NOT NULL DEFAULT '1' AFTER formMandatoryText", //220927
+			//'' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER ",
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form"] = array(
@@ -284,6 +282,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		//$arr_fields_db[] = 'formButtonSymbol';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_symbol';
 		//$arr_fields_db[] = 'formButtonText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_text';
 		//$arr_fields_db[] = 'formMandatoryText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'mandatory_text';
+		$arr_fields_db[] = 'formFromName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin_name';
 		$arr_fields_db[] = 'formEmailName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_name';
 		$arr_fields_db[] = 'formEmailNotify';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_notify';
 		$arr_fields_db[] = 'formEmail';						$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin';
@@ -431,7 +430,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		mf_uninstall_plugin(array(
 			'options' => array('setting_form_permission', 'setting_form_reload'),
 			'meta' => array('meta_answer_viewed'),
-			'tables' => array('form_type', 'form_check', 'form_nonce', 'form_spam', 'form_zipcode', 'query_check', 'query_type', 'query_zipcode'),
+			'tables' => array('form_check', 'form_nonce', 'form_spam', 'form_zipcode', 'query_check', 'query_type', 'query_zipcode'), //'form_type', 
 		));
 	}
 
