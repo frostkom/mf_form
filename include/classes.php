@@ -3715,7 +3715,7 @@ class mf_form
 		{
 			if(isset($data['check_code']) && $data['check_code'] != '')
 			{
-				if($this->arr_form_check[$r->checkID]['code'] == $data['check_code'])
+				if($r->checkID > 0 && $this->arr_form_check[$r->checkID]['code'] == $data['check_code'])
 				{
 					$out++;
 				}
@@ -7246,6 +7246,11 @@ class mf_form_output
 		$class_output = ($this->row->formTypeClass != '' ? " class='".$this->row->formTypeClass."'" : "");
 		$class_output_small = ($this->row->formTypeClass != '' ? " ".$this->row->formTypeClass : "");
 
+		if(!($this->row->formTypeID > 0))
+		{
+			do_log(__FUNCTION__." - No formTypeID - Backtrace: ".var_export(debug_backtrace(), true));
+		}
+
 		switch($obj_form->arr_form_types[$this->row->formTypeID]['code'])
 		{
 			case 'checkbox':
@@ -7576,7 +7581,7 @@ class mf_form_output
 			break;
 
 			default:
-				do_log("There was no code for this type (".$obj_form->arr_form_types[$this->row->formTypeID]['code'].")");
+				do_log(__FUNCTION__."- No code for this formTypeID (".$obj_form->arr_form_types[$this->row->formTypeID]['code'].")");
 			break;
 		}
 
