@@ -18,7 +18,6 @@ class mf_form
 	var $answer_id = '';
 	var $prefix = '';
 	var $provider = '';
-	var $has_payment = false;
 	var $payment_provider = "";
 	var $payment_cost = "";
 	var $payment_amount = "";
@@ -1162,11 +1161,19 @@ class mf_form
 			$actions['edit_fields'] = "<a href='".$post_edit_fields_url."'>".__("Edit Content", 'lang_form')."</a>";
 			$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$this->id), 'form_copy_'.$this->id, '_wpnonce_form_copy')."'>".__("Copy", 'lang_form')."</a>";
 
-			$post_id = apply_filters('get_block_search', 0, 'mf/form');
-
+			/*$post_id = apply_filters('get_block_search', 0, 'mf/form');
+			
 			if($post_id > 0)
 			{
 				$actions['view'] = "<a href='".get_permalink($post_id)."'>".__("View", 'lang_form')."</a>";
+			}*/
+
+			$block_code = '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->';
+			$arr_ids = apply_filters('get_page_from_block_code', array(), $block_code);
+
+			foreach($arr_ids as $post_id)
+			{
+				$actions['view_'.$post_id] = "<a href='".get_permalink($post_id)."'>".__("View", 'lang_form')."</a>";
 			}
 
 			$actions['export'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormExport&intFormID=".$this->id."&btnExportRun&intExportType=".$this->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>".__("Export", 'lang_form')."</a>";
@@ -2940,8 +2947,8 @@ class mf_form
 						$this->payment_password = get_post_meta($this->post_id, $this->meta_prefix.'payment_password', true);
 						$this->terms_page = get_post_meta($this->post_id, $this->meta_prefix.'terms_page', true);
 						$this->payment_currency = get_post_meta($this->post_id, $this->meta_prefix.'payment_currency', true);
-						$this->payment_cost = get_post_meta($this->post_id, $this->meta_prefix.'payment_cost', true);
-						$this->payment_amount = get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
+						$this->payment_cost = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_cost', true);
+						$this->payment_amount = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
 						$this->payment_tax = get_post_meta($this->post_id, $this->meta_prefix.'payment_tax', true);
 						$this->payment_callback = get_post_meta($this->post_id, $this->meta_prefix.'payment_callback', true);
 					/*}
@@ -3442,17 +3449,13 @@ class mf_form
 	{
 		global $wpdb;
 
-		//$this->has_payment = false;
-
 		$this->get_post_id();
 
-		$this->payment_provider = get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
-		$this->payment_cost = get_post_meta($this->post_id, $this->meta_prefix.'payment_cost', true);
-		$this->payment_amount = get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
+		$this->payment_provider = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
+		$this->payment_cost = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_cost', true);
+		$this->payment_amount = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
 
-		$this->has_payment = $this->payment_provider > 0 && ($this->payment_cost > 0 || $this->payment_amount > 0);
-
-		return $this->has_payment;
+		return ($this->payment_provider > 0 && ($this->payment_cost > 0 || $this->payment_amount > 0));
 	}
 
 	function get_form_status($data = array())
@@ -5676,8 +5679,8 @@ class mf_form_payment
 			$this->password = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_password', true);
 			$this->terms_page = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'terms_page', true);
 			$this->currency = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_currency', true);
-			$this->payment_cost = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_cost', true);
-			$this->payment_amount = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_amount', true);
+			$this->payment_cost = (int)get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_cost', true);
+			$this->payment_amount = (int)get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_amount', true);
 			$this->payment_tax_rate = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_tax', true);
 			$this->payment_callback = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'payment_callback', true);
 			$this->answer_url = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'answer_url', true);
