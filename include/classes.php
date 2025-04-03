@@ -278,7 +278,11 @@ class mf_form
 
 			if($wpdb->num_rows > 0)
 			{
-				do_log(__FUNCTION__." - Dead form_answer: ".$wpdb->last_query);
+				foreach($result as $r)
+				{
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $r->answerID));
+				}
+				//do_log(__FUNCTION__." - Dead form_answer: ".$wpdb->last_query);
 			}
 
 			$result = $wpdb->get_results("SELECT ".$wpdb->base_prefix."form_answer_email.answerID FROM ".$wpdb->base_prefix."form_answer_email LEFT JOIN ".$wpdb->base_prefix."form2answer USING (answerID) WHERE ".$wpdb->base_prefix."form2answer.answerID IS null");
