@@ -420,7 +420,6 @@ class mf_form
 			$this->id = $attributes['form_id'];
 
 			$out = "<div".parse_block_attributes(array('attributes' => $attributes)).">" //'class' => "widget form", 
-				//.apply_filters('the_content', "[mf_form id=".$attributes['form_id']."]")
 				.$this->process_form()
 			."</div>";
 		}
@@ -7588,7 +7587,7 @@ class mf_form_output
 			break;
 
 			default:
-				do_log(__FUNCTION__."- No code for this formTypeID (".$obj_form->arr_form_types[$this->row->formTypeID]['code'].")");
+				do_log(__FUNCTION__." - No code for this formTypeID (".$this->row->formTypeID." - ".var_export($obj_form->arr_form_types, true).")");
 			break;
 		}
 

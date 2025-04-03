@@ -16,11 +16,19 @@ get_header();
 
 				if($post_status == 'publish')
 				{
-					$intFormID = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE postID = '%d'", $post_id));
+					global $obj_form;
+
+					if(!isset($obj_form))
+					{
+						$obj_form = new mf_form();
+					}
+
+					$obj_form->id = $intFormID = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE postID = '%d'", $post_id));
 
 					echo "<h1>".$post_title."</h1>
 					<section>"
-						.apply_filters('the_content', "[mf_form id=".$intFormID."]")
+						.$obj_form->process_form()
+						//.apply_filters('the_content', "[mf_form id=".$intFormID."]")
 					."</section>";
 				}
 
