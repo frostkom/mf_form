@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.6.15
+Version: 1.1.6.16
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -99,10 +99,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		{
 			$obj_form = new mf_form();
 		}
-
-		replace_option(array('old' => 'setting_redirect_emails', 'new' => 'setting_form_redirect_emails'));
-		replace_option(array('old' => 'setting_replacement_form_text', 'new' => 'setting_form_replacement_text'));
-		replace_option(array('old' => 'setting_replacement_form', 'new' => 'setting_form_replacement'));
 
 		$default_charset = (DB_CHARSET != '' ? DB_CHARSET : 'utf8');
 
@@ -274,167 +270,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		update_columns($arr_update_column);
 		add_columns($arr_add_column);
 		add_index($arr_add_index);
-
-		// Convert wp_form to wp_posts
-		#################################
-		$arr_fields_db = $arr_fields_meta = array();
-
-		//$arr_fields_db[] = 'formButtonSymbol';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_symbol';
-		//$arr_fields_db[] = 'formButtonText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_text';
-		//$arr_fields_db[] = 'formMandatoryText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'mandatory_text';
-		$arr_fields_db[] = 'formFromName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin_name';
-		$arr_fields_db[] = 'formEmailName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_name';
-		$arr_fields_db[] = 'formEmailNotify';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_notify';
-		$arr_fields_db[] = 'formEmail';						$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin';
-		$arr_fields_db[] = 'formEmailNotifyFrom';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from';
-		$arr_fields_db[] = 'formEmailNotifyFromEmail';		$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from_email';
-		$arr_fields_db[] = 'formEmailNotifyFromEmailName';	$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from_email_name';
-		$arr_fields_db[] = 'formEmailNotifyPage';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_page';
-		$arr_fields_db[] = 'formEmailConfirm';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_confirm';
-		$arr_fields_db[] = 'formEmailConfirmFromEmail';		$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_from_email';
-		$arr_fields_db[] = 'formEmailConfirmFromEmailName';	$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_from_email_name';
-		$arr_fields_db[] = 'formEmailConfirmID';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_id';
-		$arr_fields_db[] = 'formEmailConfirmPage';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_page';
-		$arr_fields_db[] = 'formEmailConditions';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_conditions';
-		$arr_fields_db[] = 'formPaymentProvider';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_provider';
-		$arr_fields_db[] = 'formPaymentMerchant';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_merchant';
-		$arr_fields_db[] = 'formPaymentPassword';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_password';
-		$arr_fields_db[] = 'formPaymentHmac';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_hmac';
-		$arr_fields_db[] = 'formTermsPage';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'terms_page';
-		$arr_fields_db[] = 'formPaymentCurrency';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_currency';
-		$arr_fields_db[] = 'formPaymentCost';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_cost';
-		$arr_fields_db[] = 'formPaymentAmount';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_amount';
-		$arr_fields_db[] = 'formPaymentTax';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_tax';
-		$arr_fields_db[] = 'formPaymentCallback';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_callback';
-
-		$count_temp = count($arr_fields_db);
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID, ".implode(", ", $arr_fields_db)." FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d') AND formDeleted = '0'", $wpdb->blogid), ARRAY_A);
-
-		foreach($result as $r)
-		{
-			$intFormID = $r['formID'];
-			$post_id = $r['postID'];
-
-			for($i = 0; $i < $count_temp; $i++)
-			{
-				if($r[$arr_fields_db[$i]] != '')
-				{
-					//replace_post_meta(array('old' => $arr_fields_meta[$i], 'new' => $obj_form->meta_prefix.$arr_fields_meta[$i]));
-
-					if(get_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], true) == '')
-					{
-						$default_value = '';
-
-						if($arr_fields_db_bool[$i] == true)
-						{
-							$default_value = ($r[$arr_fields_db[$i]] == 1 ? 'yes' : 'no');
-						}
-
-						if($default_value != '')
-						{
-							update_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], $default_value);
-						}
-					}
-				}
-
-				// Correct a previous bug
-				if($arr_fields_db_bool[$i] == false)
-				{
-					if(get_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], true) == 'no')
-					{
-						update_post_meta($post_id, $obj_form->meta_prefix.$arr_fields_meta[$i], "");
-					}
-				}
-			}
-
-			/*$query_set = "";
-
-			for($i = 0; $i < $count_temp; $i++)
-			{
-				$query_set .= ($i > 0 ? ", " : "")$arr_fields_db[$i]." = ''";
-			}
-
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET ".$query_set." WHERE formID = '%d'", $intFormID));*/
-		}
-		#################################
-
-		// Start using form_option
-		#################################
-		if($obj_form->form_option_exists)
-		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formID, form2TypeID, formTypeText FROM ".$wpdb->base_prefix."form2type WHERE formTypeID IN ('10', '11', '16', '17') AND formTypeText LIKE %s", "%|%"));
-
-			if($wpdb->num_rows > 0)
-			{
-				foreach($result as $r)
-				{
-					$intFormID = $r->formID;
-					$intForm2TypeID = $r->form2TypeID;
-					$strFormTypeText = $r->formTypeText;
-
-					list($strFormLabel, $strFormOptions) = explode(":", $strFormTypeText, 2);
-
-					$arr_options = explode(",", $strFormOptions);
-
-					$success = true;
-					$i = 0;
-
-					foreach($arr_options as $str_option)
-					{
-						@list($option_key, $option_value, $option_limit) = explode("|", $str_option, 3);
-
-						if($option_value != '')
-						{
-							$intFormOptionID = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND (formOptionKey = %s OR formOptionValue = %s)", $intForm2TypeID, $option_key, $option_value));
-
-							if($intFormOptionID > 0)
-							{
-								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d' WHERE formOptionID = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i, $intFormOptionID));
-							}
-
-							else
-							{
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i));
-
-								$intFormOptionID = $wpdb->insert_id;
-							}
-
-							if($option_key != '')
-							{
-								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '%d' WHERE form2TypeID = '%d' AND answerText = %s", $intFormOptionID, $intForm2TypeID, $option_key));
-							}
-
-							$i++;
-						}
-
-						else
-						{
-							$success = false;
-
-							do_log("There was no value for the option (1) (".$intFormID.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
-						}
-					}
-
-					if($success == true)
-					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s WHERE form2TypeID = '%d'", $strFormLabel, $intForm2TypeID));
-					}
-				}
-			}
-		}
-		#################################
-
-		// Remove answer_meta
-		#################################
-		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_answer_meta WHERE metaKey IN ('user_id', 'user_agent')");
-		#################################
-
-		mf_uninstall_plugin(array(
-			'options' => array('setting_form_permission', 'setting_form_reload'),
-			'meta' => array('meta_answer_viewed'),
-			'tables' => array('form_check', 'form_nonce', 'form_spam', 'form_zipcode', 'query_check', 'query_type', 'query_zipcode'), //'form_type', 
-		));
 	}
 
 	function uninstall_form()

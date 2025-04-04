@@ -255,6 +255,171 @@ class mf_form
 
 		if($obj_cron->is_running == false)
 		{
+			replace_option(array('old' => 'setting_redirect_emails', 'new' => 'setting_form_redirect_emails'));
+			replace_option(array('old' => 'setting_replacement_form_text', 'new' => 'setting_form_replacement_text'));
+			replace_option(array('old' => 'setting_replacement_form', 'new' => 'setting_form_replacement'));
+
+			// Convert wp_form to wp_posts
+			#################################
+			$arr_fields_db = $arr_fields_meta = array();
+
+			//$arr_fields_db[] = 'formButtonSymbol';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_symbol';
+			//$arr_fields_db[] = 'formButtonText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_text';
+			//$arr_fields_db[] = 'formMandatoryText';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'mandatory_text';
+			$arr_fields_db[] = 'formFromName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin_name';
+			$arr_fields_db[] = 'formEmailName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_name';
+			$arr_fields_db[] = 'formEmailNotify';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_notify';
+			$arr_fields_db[] = 'formEmail';						$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin';
+			$arr_fields_db[] = 'formEmailNotifyFrom';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from';
+			$arr_fields_db[] = 'formEmailNotifyFromEmail';		$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from_email';
+			$arr_fields_db[] = 'formEmailNotifyFromEmailName';	$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from_email_name';
+			$arr_fields_db[] = 'formEmailNotifyPage';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_page';
+			$arr_fields_db[] = 'formEmailConfirm';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_confirm';
+			$arr_fields_db[] = 'formEmailConfirmFromEmail';		$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_from_email';
+			$arr_fields_db[] = 'formEmailConfirmFromEmailName';	$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_from_email_name';
+			$arr_fields_db[] = 'formEmailConfirmID';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_id';
+			$arr_fields_db[] = 'formEmailConfirmPage';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_confirm_page';
+			$arr_fields_db[] = 'formEmailConditions';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_conditions';
+			$arr_fields_db[] = 'formPaymentProvider';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_provider';
+			$arr_fields_db[] = 'formPaymentMerchant';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_merchant';
+			$arr_fields_db[] = 'formPaymentPassword';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_password';
+			$arr_fields_db[] = 'formPaymentHmac';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_hmac';
+			$arr_fields_db[] = 'formTermsPage';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'terms_page';
+			$arr_fields_db[] = 'formPaymentCurrency';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_currency';
+			$arr_fields_db[] = 'formPaymentCost';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_cost';
+			$arr_fields_db[] = 'formPaymentAmount';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_amount';
+			$arr_fields_db[] = 'formPaymentTax';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_tax';
+			$arr_fields_db[] = 'formPaymentCallback';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'payment_callback';
+
+			$count_temp = count($arr_fields_db);
+
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID, ".implode(", ", $arr_fields_db)." FROM ".$wpdb->base_prefix."form WHERE (blogID = '0' OR blogID = '%d') AND formDeleted = '0'", $wpdb->blogid), ARRAY_A);
+
+			foreach($result as $r)
+			{
+				$intFormID = $r['formID'];
+				$post_id = $r['postID'];
+
+				for($i = 0; $i < $count_temp; $i++)
+				{
+					if($r[$arr_fields_db[$i]] != '')
+					{
+						//replace_post_meta(array('old' => $arr_fields_meta[$i], 'new' => $this->meta_prefix.$arr_fields_meta[$i]));
+
+						if(get_post_meta($post_id, $this->meta_prefix.$arr_fields_meta[$i], true) == '')
+						{
+							$default_value = '';
+
+							if($arr_fields_db_bool[$i] == true)
+							{
+								$default_value = ($r[$arr_fields_db[$i]] == 1 ? 'yes' : 'no');
+							}
+
+							if($default_value != '')
+							{
+								update_post_meta($post_id, $this->meta_prefix.$arr_fields_meta[$i], $default_value);
+							}
+						}
+					}
+
+					// Correct a previous bug
+					if($arr_fields_db_bool[$i] == false)
+					{
+						if(get_post_meta($post_id, $this->meta_prefix.$arr_fields_meta[$i], true) == 'no')
+						{
+							update_post_meta($post_id, $this->meta_prefix.$arr_fields_meta[$i], "");
+						}
+					}
+				}
+
+				/*$query_set = "";
+
+				for($i = 0; $i < $count_temp; $i++)
+				{
+					$query_set .= ($i > 0 ? ", " : "")$arr_fields_db[$i]." = ''";
+				}
+
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET ".$query_set." WHERE formID = '%d'", $intFormID));*/
+			}
+			#################################
+
+			// Start using form_option
+			#################################
+			if($this->form_option_exists)
+			{
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formID, form2TypeID, formTypeText FROM ".$wpdb->base_prefix."form2type WHERE formTypeID IN ('10', '11', '16', '17') AND formTypeText LIKE %s", "%|%"));
+
+				if($wpdb->num_rows > 0)
+				{
+					foreach($result as $r)
+					{
+						$intFormID = $r->formID;
+						$intForm2TypeID = $r->form2TypeID;
+						$strFormTypeText = $r->formTypeText;
+
+						list($strFormLabel, $strFormOptions) = explode(":", $strFormTypeText, 2);
+
+						$arr_options = explode(",", $strFormOptions);
+
+						$success = true;
+						$i = 0;
+
+						foreach($arr_options as $str_option)
+						{
+							@list($option_key, $option_value, $option_limit) = explode("|", $str_option, 3);
+
+							if($option_value != '')
+							{
+								$intFormOptionID = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND (formOptionKey = %s OR formOptionValue = %s)", $intForm2TypeID, $option_key, $option_value));
+
+								if($intFormOptionID > 0)
+								{
+									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d' WHERE formOptionID = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i, $intFormOptionID));
+								}
+
+								else
+								{
+									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i));
+
+									$intFormOptionID = $wpdb->insert_id;
+								}
+
+								if($option_key != '')
+								{
+									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '%d' WHERE form2TypeID = '%d' AND answerText = %s", $intFormOptionID, $intForm2TypeID, $option_key));
+								}
+
+								$i++;
+							}
+
+							else
+							{
+								$success = false;
+
+								do_log("There was no value for the option (1) (".$intFormID.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
+							}
+						}
+
+						if($success == true)
+						{
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s WHERE form2TypeID = '%d'", $strFormLabel, $intForm2TypeID));
+						}
+					}
+				}
+			}
+			#################################
+
+			// Remove answer_meta
+			#################################
+			$wpdb->query("DELETE FROM ".$wpdb->base_prefix."form_answer_meta WHERE metaKey IN ('user_id', 'user_agent')");
+			#################################
+
+			mf_uninstall_plugin(array(
+				'options' => array('setting_form_permission', 'setting_form_reload'),
+				'meta' => array('meta_answer_viewed'),
+				'tables' => array('form_check', 'form_nonce', 'form_spam', 'form_zipcode', 'query_check', 'query_type', 'query_zipcode'), //'form_type', 
+			));
+
 			// Delete orphan data
 			#######################
 			$result = $wpdb->get_results("SELECT ".$wpdb->base_prefix."form2type.formID FROM ".$wpdb->base_prefix."form2type LEFT JOIN ".$wpdb->base_prefix."form USING (formID) WHERE ".$wpdb->base_prefix."form.formID IS null");
@@ -1247,7 +1412,7 @@ class mf_form
 				),
 			),
 			array(
-				'name' => __("Confirmation Page", 'lang_form'), //." <a href='".admin_url("post-new.php?post_type=page".$form_answer_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>")) //, 'suffix' => get_option_page_suffix(array('value' => $obj_form->answer_url))
+				'name' => __("Confirmation Page", 'lang_form'), //." <a href='".admin_url("post-new.php?post_type=page".$form_answer_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>")) //, 'suffix' => get_option_page_suffix(array('value' => $this->answer_url))
 				'id' => $this->meta_prefix.'answer_url',
 				'type' => 'select',
 				'options' => $arr_data_pages,
@@ -1290,77 +1455,77 @@ class mf_form
 			'fields' => $arr_fields,
 		);
 
-		/*if($obj_form->email_name != '')
+		/*if($this->email_name != '')
 		{
-			echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $obj_form->email_name, 'maxlength' => 100));
+			echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $this->email_name, 'maxlength' => 100));
 		}
 
-		echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 'yes', 'compare' => $obj_form->email_notify))
-		.show_textfield(array('name' => 'strFormEmail', 'text' => __("Send To", 'lang_form'), 'value' => $obj_form->email_admin, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
+		echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 'yes', 'compare' => $this->email_notify))
+		.show_textfield(array('name' => 'strFormEmail', 'text' => __("Send To", 'lang_form'), 'value' => $this->email_admin, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
 
 		formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
-		echo show_select(array('data' => $obj_form->get_email_notify_from_for_select(), 'name' => 'strFormEmailNotifyFrom', 'value' => $obj_form->email_notify_from, 'text' => __("From", 'lang_form')))
+		echo show_select(array('data' => $this->get_email_notify_from_for_select(), 'name' => 'strFormEmailNotifyFrom', 'value' => $this->email_notify_from, 'text' => __("From", 'lang_form')))
 		."<div class='email_notify_div'>"
-			.show_textfield(array('name' => 'strFormEmailNotifyFromEmail', 'text' => __("Send From", 'lang_form'), 'value' => $obj_form->email_notify_from_email, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('admin_email')
-			.show_textfield(array('name' => 'strFormEmailNotifyFromEmailName', 'text' => __("Send From", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $obj_form->email_notify_from_email_name, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('name')
-			.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $obj_form->email_notify_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_email_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+			.show_textfield(array('name' => 'strFormEmailNotifyFromEmail', 'text' => __("Send From", 'lang_form'), 'value' => $this->email_notify_from_email, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('admin_email')
+			.show_textfield(array('name' => 'strFormEmailNotifyFromEmailName', 'text' => __("Send From", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $this->email_notify_from_email_name, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('name')
+			.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $this->email_notify_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_email_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 		."</div>"
 
-		$int_email_fields = $obj_form->has_email_field();
+		$int_email_fields = $this->has_email_field();
 
 		if($int_email_fields > 0)
 		{
 			formEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',
-			echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 'yes', 'compare' => $obj_form->email_confirm))
+			echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 'yes', 'compare' => $this->email_confirm))
 			."<div class='email_confirm_div'>"
-				.show_textfield(array('name' => 'strFormEmailConfirmFromEmail', 'text' => __("Send From", 'lang_form'), 'value' => $obj_form->email_confirm_from_email, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('admin_email')
-				.show_textfield(array('name' => 'strFormEmailConfirmFromEmailName', 'text' => __("Send From", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $obj_form->email_confirm_from_email_name, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('name')
+				.show_textfield(array('name' => 'strFormEmailConfirmFromEmail', 'text' => __("Send From", 'lang_form'), 'value' => $this->email_confirm_from_email, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('admin_email')
+				.show_textfield(array('name' => 'strFormEmailConfirmFromEmailName', 'text' => __("Send From", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $this->email_confirm_from_email_name, 'maxlength' => 100)) //, 'placeholder' => get_bloginfo('name')
 			."</div>";
 
 			if($int_email_fields > 1)
 			{
-				echo show_select(array('data' => $obj_form->get_email_fields_for_select(), 'name' => 'intFormEmailConfirmID', 'value' => $obj_form->email_confirm_id, 'text' => __("Field", 'lang_form')));
+				echo show_select(array('data' => $this->get_email_fields_for_select(), 'name' => 'intFormEmailConfirmID', 'value' => $this->email_confirm_id, 'text' => __("Field", 'lang_form')));
 			}
 
-			echo show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $obj_form->email_confirm_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_email_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
+			echo show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $this->email_confirm_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_email_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
 		}
 
-		echo show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $obj_form->email_conditions, 'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email')))
+		echo show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $this->email_conditions, 'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email')))
 
-		$arr_data_providers = $obj_form->get_payment_providers_for_select();
+		$arr_data_providers = $this->get_payment_providers_for_select();
 
 		if(count($arr_data_providers) > 1)
 		{
 			echo "<div class='postbox'>
 				<h3 class='hndle'><span>".__("Payment", 'lang_form')."</span></h3>
 				<div class='inside'>"
-					.show_select(array('data' => $arr_data_providers, 'name' => 'intFormPaymentProvider', 'value' => $obj_form->payment_provider, 'text' => __("Provider", 'lang_form')));
+					.show_select(array('data' => $arr_data_providers, 'name' => 'intFormPaymentProvider', 'value' => $this->payment_provider, 'text' => __("Provider", 'lang_form')));
 
-					$arr_fields = apply_filters('form_payment_fields', array(), $obj_form->payment_provider);
+					$arr_fields = apply_filters('form_payment_fields', array(), $this->payment_provider);
 
 					if(in_array('merchant_id', $arr_fields))
 					{
-						echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID", 'lang_form')." / ".__("E-mail", 'lang_form'), 'value' => $obj_form->payment_merchant, 'maxlength' => 100));
+						echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Merchant ID", 'lang_form')." / ".__("E-mail", 'lang_form'), 'value' => $this->payment_merchant, 'maxlength' => 100));
 					}
 
 					if(in_array('merchant_username', $arr_fields))
 					{
-						echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Username", 'lang_form'), 'value' => $obj_form->payment_merchant, 'maxlength' => 100));
+						echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Username", 'lang_form'), 'value' => $this->payment_merchant, 'maxlength' => 100));
 					}
 
 					if(in_array('merchant_store', $arr_fields))
 					{
-						echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Store ID", 'lang_form'), 'value' => $obj_form->payment_merchant, 'maxlength' => 100));
+						echo show_textfield(array('name' => 'strFormPaymentMerchant', 'text' => __("Store ID", 'lang_form'), 'value' => $this->payment_merchant, 'maxlength' => 100));
 					}
 
 					if(in_array('password', $arr_fields))
 					{
-						echo show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password"), 'value' => $obj_form->payment_password, 'maxlength' => 100, 'xtra' => " autocomplete='new-password'"));
+						echo show_password_field(array('name' => 'strFormPaymentPassword', 'text' => __("Password"), 'value' => $this->payment_password, 'maxlength' => 100, 'xtra' => " autocomplete='new-password'"));
 					}
 
 					if(in_array('secret_key', $arr_fields))
 					{
-						echo show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key", 'lang_form')." / ".__("Signature", 'lang_form'), 'value' => $obj_form->payment_hmac, 'xtra' => " autocomplete='new-password'", 'maxlength' => 200));
+						echo show_password_field(array('name' => 'strFormPaymentHmac', 'text' => __("Secret Key", 'lang_form')." / ".__("Signature", 'lang_form'), 'value' => $this->payment_hmac, 'xtra' => " autocomplete='new-password'", 'maxlength' => 200));
 					}
 
 					if(in_array('terms_page', $arr_fields))
@@ -1370,33 +1535,33 @@ class mf_form
 
 						$post_title = __("Terms", 'lang_form');
 
-						echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $obj_form->terms_page, 'required' => true, 'suffix' => get_option_page_suffix(array('value' => $obj_form->terms_page, 'title' => $post_title))));
+						echo show_select(array('data' => $arr_data, 'name' => 'intFormTermsPage', 'text' => __("Terms Page", 'lang_form'), 'value' => $this->terms_page, 'required' => true, 'suffix' => get_option_page_suffix(array('value' => $this->terms_page, 'title' => $post_title))));
 					}
 
-					do_action('display_form_fields', $obj_form);
+					do_action('display_form_fields', $this);
 
-					if($obj_form->payment_provider > 0 && ($obj_form->payment_merchant != '' || $obj_form->payment_hmac != ''))
+					if($this->payment_provider > 0 && ($this->payment_merchant != '' || $this->payment_hmac != ''))
 					{
-						echo show_select(array('data' => $obj_form->get_payment_currency_for_select($obj_form->payment_provider), 'name' => 'strFormPaymentCurrency', 'value' => $obj_form->payment_currency, 'text' => __("Currency", 'lang_form')))
-						.show_textfield(array('type' => 'number', 'name' => 'dblFormPaymentCost', 'value' => $obj_form->payment_cost, 'text' => __("Payment Cost", 'lang_form')." (".__("excl. taxes", 'lang_form').")", 'xtra' => "min='0' step='0.1'"));
+						echo show_select(array('data' => $this->get_payment_currency_for_select($this->payment_provider), 'name' => 'strFormPaymentCurrency', 'value' => $this->payment_currency, 'text' => __("Currency", 'lang_form')))
+						.show_textfield(array('type' => 'number', 'name' => 'dblFormPaymentCost', 'value' => $this->payment_cost, 'text' => __("Payment Cost", 'lang_form')." (".__("excl. taxes", 'lang_form').")", 'xtra' => "min='0' step='0.1'"));
 
-						$arr_data_amount = $obj_form->get_payment_amount_for_select();
+						$arr_data_amount = $this->get_payment_amount_for_select();
 
 						if(count($arr_data_amount) > 1)
 						{
-							echo show_select(array('data' => $arr_data_amount, 'name' => 'intFormPaymentAmount', 'value' => $obj_form->payment_amount, 'text' => __("Field for Payment Amount", 'lang_form')));
+							echo show_select(array('data' => $arr_data_amount, 'name' => 'intFormPaymentAmount', 'value' => $this->payment_amount, 'text' => __("Field for Payment Amount", 'lang_form')));
 						}
 
-						echo show_textfield(array('type' => 'number', 'name' => 'intFormPaymentTax', 'value' => $obj_form->payment_tax, 'text' => __("Tax", 'lang_form'), 'xtra' => " min='0' max='25'"));
+						echo show_textfield(array('type' => 'number', 'name' => 'intFormPaymentTax', 'value' => $this->payment_tax, 'text' => __("Tax", 'lang_form'), 'xtra' => " min='0' max='25'"));
 
 						$description = "";
 
-						if($obj_form->payment_callback != '' && !function_exists($obj_form->payment_callback))
+						if($this->payment_callback != '' && !function_exists($this->payment_callback))
 						{
 							$description = "<i class='fa fa-exclamation-triangle yellow'></i> ".__("The action that you have entered either does not exist or is not accessible when the success is triggered", 'lang_form');
 						}
 
-						echo show_textfield(array('name' => 'strFormPaymentCallback', 'text' => __("Action on Successful Payment", 'lang_form'), 'value' => $obj_form->payment_callback, 'maxlength' => 100, 'description' => $description));
+						echo show_textfield(array('name' => 'strFormPaymentCallback', 'text' => __("Action on Successful Payment", 'lang_form'), 'value' => $this->payment_callback, 'maxlength' => 100, 'description' => $description));
 					}
 
 				echo "</div>
