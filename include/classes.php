@@ -49,8 +49,8 @@ class mf_form
 	var $email_notify_page = "";
 	var $email_name = "";
 	var $mandatory_text = "";
-	var $button_display = "";
-	var $button_text = "";
+	var $button_display;
+	var $button_text;
 	var $button_symbol = "";
 	var $payment_hmac = "";
 	var $terms_page = "";
@@ -5396,7 +5396,7 @@ class mf_form
 
 							$out .= apply_filters('filter_form_after_fields', '');
 
-							if($this->button_display == 'yes')
+							if($this->button_display != 'no')
 							{
 								$out .= "<div".get_form_button_classes().">"
 									.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText))
