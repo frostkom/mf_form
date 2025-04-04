@@ -1165,7 +1165,7 @@ class mf_form
 			$actions['copy'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/list/index.php&btnFormCopy&intFormID=".$this->id), 'form_copy_'.$this->id, '_wpnonce_form_copy')."'>".__("Copy", 'lang_form')."</a>";
 
 			/*$post_id = apply_filters('get_block_search', 0, 'mf/form');
-			
+
 			if($post_id > 0)
 			{
 				$actions['view'] = "<a href='".get_permalink($post_id)."'>".__("View", 'lang_form')."</a>";
@@ -1909,7 +1909,7 @@ class mf_form
 
 		$out = $this->process_form();*/
 
-		do_log(__FUNCTION__.": Add a block instead (#".$post->ID.", ".var_export($atts, true).")");
+		do_log(__FUNCTION__.": Add a block instead (#".$post->ID.", ".var_export($atts, true).")", 'publish', false);
 
 		return $out;
 	}
@@ -5663,8 +5663,7 @@ class mf_form_payment
 		}
 
 		$this->form_id = $id;
-		$this->base_form_url = $site_url.$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
-		$this->base_callback_url = $site_url.$_SERVER['REQUEST_URI'].(preg_match("/\?/", $_SERVER['REQUEST_URI']) ? "&" : "?");
+		$this->base_form_url = $this->base_callback_url = $site_url.$_SERVER['REQUEST_URI'].(strpos($_SERVER['REQUEST_URI'], "?") ? "&" : "?");
 
 		if($this->form_id > 0)
 		{
@@ -5843,7 +5842,7 @@ class mf_form_payment
 
 					$strFormAnswerURL = get_permalink($intFormAnswerURL);
 
-					$strFormAnswerURL .= (preg_match("/\?/", $strFormAnswerURL) ? "&" : "?")."answer_id=".$this->answer_id;
+					$strFormAnswerURL .= (strpos($strFormAnswerURL, "?") ? "&" : "?")."answer_id=".$this->answer_id;
 
 					mf_redirect($strFormAnswerURL);
 				}
@@ -7706,6 +7705,8 @@ class widget_form extends WP_Widget
 
 	function widget($args, $instance)
 	{
+		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
+
 		global $obj_form;
 
 		if(!isset($obj_form))
