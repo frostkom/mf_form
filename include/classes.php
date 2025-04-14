@@ -566,10 +566,13 @@ class mf_form
 
 			// Delete old uploads
 			#######################
-			list($upload_path, $upload_url) = get_uploads_folder($this->post_type);
+			list($upload_path, $upload_url) = get_uploads_folder($this->post_type, true, false);
 
-			get_file_info(array('path' => $upload_path, 'callback' => 'delete_files_callback', 'time_limit' => WEEK_IN_SECONDS));
-			get_file_info(array('path' => $upload_path, 'folder_callback' => 'delete_empty_folder_callback'));
+			if($upload_path != '')
+			{
+				get_file_info(array('path' => $upload_path, 'callback' => 'delete_files_callback', 'time_limit' => WEEK_IN_SECONDS));
+				get_file_info(array('path' => $upload_path, 'folder_callback' => 'delete_empty_folder_callback'));
+			}
 			#######################
 		}
 
@@ -6216,8 +6219,8 @@ if(class_exists('mf_export'))
 			{
 				$intForm2TypeID = $r->form2TypeID;
 				$obj_form->label = $r->formTypeText;
-				//$intFormTypeID = $r->formTypeID;
-				$strFormTypeCode = $this->arr_form_types[$r->formTypeID]['code'];
+				$intFormTypeID = ($r->formTypeID > 0 ? $r->formTypeID : 3);
+				$strFormTypeCode = $this->arr_form_types[$intFormTypeID]['code'];
 
 				if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
 				{
@@ -6285,8 +6288,8 @@ if(class_exists('mf_export'))
 				{
 					$intForm2TypeID = $r->form2TypeID;
 					$obj_form->label = $r->formTypeText;
-					//$intFormTypeID = $r->formTypeID;
-					$strFormTypeCode = $this->arr_form_types[$r->formTypeID]['code'];
+					$intFormTypeID = ($r->formTypeID > 0 ? $r->formTypeID : 3);
+					$strFormTypeCode = $this->arr_form_types[$intFormTypeID]['code'];
 
 					if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
 					{
