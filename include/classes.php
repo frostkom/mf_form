@@ -6219,8 +6219,7 @@ if(class_exists('mf_export'))
 			{
 				$intForm2TypeID = $r->form2TypeID;
 				$obj_form->label = $r->formTypeText;
-				$intFormTypeID = ($r->formTypeID > 0 ? $r->formTypeID : 3);
-				$strFormTypeCode = $this->arr_form_types[$intFormTypeID]['code'];
+				$strFormTypeCode = $obj_form->arr_form_types[$r->formTypeID]['code'];
 
 				if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
 				{
@@ -6288,8 +6287,7 @@ if(class_exists('mf_export'))
 				{
 					$intForm2TypeID = $r->form2TypeID;
 					$obj_form->label = $r->formTypeText;
-					$intFormTypeID = ($r->formTypeID > 0 ? $r->formTypeID : 3);
-					$strFormTypeCode = $this->arr_form_types[$intFormTypeID]['code'];
+					$strFormTypeCode = $obj_form->arr_form_types[$r->formTypeID]['code'];
 
 					if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
 					{
@@ -7422,6 +7420,8 @@ class mf_form_output
 		if(!($this->row->formTypeID > 0))
 		{
 			do_log(__FUNCTION__." - No formTypeID - Backtrace: ".var_export(debug_backtrace(), true));
+
+			$this->row->formTypeID = 3;
 		}
 
 		switch($obj_form->arr_form_types[$this->row->formTypeID]['code'])
