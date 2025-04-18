@@ -2084,9 +2084,12 @@ class mf_form
 
 	function widgets_init()
 	{
-		if(count($this->get_for_select(array('force_has_page' => false))) > 1)
+		if(wp_is_block_theme() == false)
 		{
-			register_widget('widget_form');
+			if(count($this->get_for_select(array('force_has_page' => false))) > 1)
+			{
+				register_widget('widget_form');
+			}
 		}
 	}
 
