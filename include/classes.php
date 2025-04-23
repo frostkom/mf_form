@@ -4286,7 +4286,7 @@ class mf_form
 
 		foreach($result as $r)
 		{
-			if($this->arr_form_check[$r->checkID]['code'] == 'email')
+			if(isset($this->arr_form_check[$r->checkID]) && $this->arr_form_check[$r->checkID]['code'] == 'email')
 			{
 				$arr_data[$r->form2TypeID] = $r->formTypeText;
 			}
