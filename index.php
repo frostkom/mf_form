@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.6.21
+Version: 1.1.6.22
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -106,14 +106,14 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			blogID TINYINT UNSIGNED,
 			postID INT UNSIGNED NOT NULL DEFAULT '0',"
 			."formEmail VARCHAR(100) DEFAULT NULL,"
-			."formFromName VARCHAR(100) DEFAULT NULL,"
+			//."formFromName VARCHAR(100) DEFAULT NULL,"
 			."formEmailConditions TEXT DEFAULT NULL,"
 			."formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',"
 			."formEmailNotifyFrom ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin',"
 			."formEmailNotifyFromEmail VARCHAR(100) DEFAULT NULL,"
 			."formEmailNotifyFromEmailName VARCHAR(100) DEFAULT NULL,"
 			."formEmailNotifyPage INT UNSIGNED NOT NULL DEFAULT '0',"
-			."formEmailName VARCHAR(100) DEFAULT NULL,"
+			//."formEmailName VARCHAR(100) DEFAULT NULL,"
 			."formEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',"
 			."formEmailConfirmID INT UNSIGNED DEFAULT NULL,"
 			."formEmailConfirmFromEmail VARCHAR(100) DEFAULT NULL,"
@@ -133,12 +133,12 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			."formPaymentAmount INT UNSIGNED DEFAULT NULL,"
 			."formPaymentTax TINYINT UNSIGNED DEFAULT NULL,"
 			."formPaymentCallback VARCHAR(100) DEFAULT NULL,"
-			."formCreated DATETIME DEFAULT NULL,
-			userID INT UNSIGNED DEFAULT NULL,
+			//."formCreated DATETIME DEFAULT NULL,"
+			."userID INT UNSIGNED DEFAULT NULL,
 			formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',
-			formDeletedDate DATETIME DEFAULT NULL,
-			formDeletedID INT UNSIGNED DEFAULT NULL,
-			PRIMARY KEY (formID),
+			formDeletedDate DATETIME DEFAULT NULL,"
+			//."formDeletedID INT UNSIGNED DEFAULT NULL,"
+			."PRIMARY KEY (formID),
 			KEY blogID (blogID),
 			KEY postID (postID)
 		) DEFAULT CHARSET=".$default_charset);
@@ -157,6 +157,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'formButtonText' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
 			'formButtonSymbol' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
 			'formMandatoryText' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
+			'formDeletedID' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+			'formCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+			'formFromName' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+			'formEmailName' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (

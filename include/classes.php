@@ -40,7 +40,7 @@ class mf_form
 	var $email_confirm_page = "";
 	var $answer_url = "";
 	var $email_admin = "";
-	var $email_admin_name = "";
+	//var $email_admin_name = "";
 	var $email_conditions = "";
 	var $email_notify = "";
 	var $email_notify_from_email = "";
@@ -266,8 +266,8 @@ class mf_form
 			//$arr_fields_db[] = 'formButtonSymbol';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_symbol';
 			//$arr_fields_db[] = 'formButtonText';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'button_text';
 			//$arr_fields_db[] = 'formMandatoryText';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'mandatory_text';
-			$arr_fields_db[] = 'formFromName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin_name';
-			$arr_fields_db[] = 'formEmailName';					$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_name';
+			//$arr_fields_db[] = 'formFromName';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin_name';
+			//$arr_fields_db[] = 'formEmailName';				$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_name';
 			$arr_fields_db[] = 'formEmailNotify';				$arr_fields_db_bool[] = true;		$arr_fields_meta[] = 'email_notify';
 			$arr_fields_db[] = 'formEmail';						$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_admin';
 			$arr_fields_db[] = 'formEmailNotifyFrom';			$arr_fields_db_bool[] = false;		$arr_fields_meta[] = 'email_notify_from';
@@ -1458,12 +1458,7 @@ class mf_form
 			'fields' => $arr_fields,
 		);
 
-		/*if($this->email_name != '')
-		{
-			echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $this->email_name, 'maxlength' => 100));
-		}
-
-		echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 'yes', 'compare' => $this->email_notify))
+		/*echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 'yes', 'compare' => $this->email_notify))
 		.show_textfield(array('name' => 'strFormEmail', 'text' => __("Send To", 'lang_form'), 'value' => $this->email_admin, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')));
 
 		formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',
@@ -1791,7 +1786,7 @@ class mf_form
 		{
 			$this->get_form_id($post_id);
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW(), formDeletedID = '".get_current_user_id()."' WHERE formID = '%d'", $this->id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW() WHERE formID = '%d'", $this->id)); //, formDeletedID = '".get_current_user_id()."'
 		}
 	}
 
@@ -2548,14 +2543,14 @@ class mf_form
 				$this->email_confirm_id = check_var('intFormEmailConfirmID');
 				$this->email_confirm_page = check_var('intFormEmailConfirmPage');
 				$this->email_admin = check_var('strFormEmail', 'email');
-				$this->email_admin_name = check_var('strFormFromName');
+				//$this->email_admin_name = check_var('strFormFromName');
 				$this->email_conditions = check_var('strFormEmailConditions');
 				$this->email_notify = check_var('intFormEmailNotify');
 				$this->email_notify_from_email = check_var('strFormEmailNotifyFromEmail');
 				$this->email_notify_from_email_name = check_var('strFormEmailNotifyFromEmailName');
 				$this->email_notify_from = check_var('strFormEmailNotifyFrom');
 				$this->email_notify_page = check_var('intFormEmailNotifyPage');
-				$this->email_name = check_var('strFormEmailName');
+				//$this->email_name = check_var('strFormEmailName');
 
 				// Payments
 				$this->payment_provider = check_var('intFormPaymentProvider');
@@ -2670,7 +2665,7 @@ class mf_form
 				$copy_fields_from .= ", postID";
 			}
 
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (formCreated, userID, ".$copy_fields_to.") (SELECT NOW(), '%d', ".$copy_fields_from." FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", get_current_user_id(), $intFormID));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (userID, ".$copy_fields_to.") (SELECT '%d', ".$copy_fields_from." FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0')", get_current_user_id(), $intFormID)); //formCreated, NOW(), 
 			$intFormID_new = $wpdb->insert_id;
 
 			if($intFormID_new > 0)
@@ -2780,8 +2775,10 @@ class mf_form
 							'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
 							'post_author' => get_current_user_id(),
 							'meta_input' => apply_filters('filter_meta_input', array(
-								$this->meta_prefix.'email_admin_name' => $this->email_admin_name,
-								$this->meta_prefix.'email_name' => $this->email_name,
+								//$this->meta_prefix.'email_admin_name' => $this->email_admin_name,
+								//$this->meta_prefix.'email_name' => $this->email_name,
+								$this->meta_prefix.'email_admin_name' => '',
+								$this->meta_prefix.'email_name' => '',
 								$this->meta_prefix.'email_notify' => ($this->email_notify == 1 ? 'yes' : 'no'),
 								$this->meta_prefix.'email_admin' => $this->email_admin,
 								$this->meta_prefix.'email_notify_from' => $this->email_notify_from,
@@ -2809,8 +2806,6 @@ class mf_form
 
 						wp_update_post($post_data);
 
-						//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET blogID = '%d', formFromName = %s WHERE formID = '%d' AND formDeleted = '0'", $wpdb->blogid, $this->email_admin_name, $this->id));
-
 						do_action('update_form_fields', $this);
 
 						$done_text = __("I have updated the form for you", 'lang_form');
@@ -2835,7 +2830,7 @@ class mf_form
 
 							$this->post_id = wp_insert_post($post_data);
 
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formCreated = NOW(), userID = '%d'", $wpdb->blogid, $this->post_id, get_current_user_id()));
+							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', userID = '%d'", $wpdb->blogid, $this->post_id, get_current_user_id())); //, formCreated = NOW()
 							$this->id = $wpdb->insert_id;
 
 							if($this->import != '')
@@ -3080,57 +3075,41 @@ class mf_form
 						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0' WHERE formID = '%d'", $this->id));
 					}
 
-					/*$result = $wpdb->get_results($wpdb->prepare("SELECT formFromName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id)); //, formCreated
+					$this->name = $this->get_post_info(array('select' => "post_title"));
+					$this->url = $this->get_post_info();
+					$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
+					$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
+					$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
+					$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
+					$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
+					$this->button_symbol = get_post_meta($this->post_id, $this->meta_prefix.'button_symbol', true);
+					//$this->email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_name', true);
+					$this->email_admin = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
+					//$this->email_admin_name = get_post_meta($this->post_id, $this->meta_prefix.'email_admin_name', true);
 
-					if($wpdb->num_rows > 0)
-					{
-						foreach($result as $r)
-						{
-							$this->email_admin_name = $r->formFromName;
-							//$strFormCreated = $r->formCreated;
-						}*/
+					$this->email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
+					$this->email_notify_from = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from', true);
+					$this->email_notify_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email', true);
+					$this->email_notify_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email_name', true);
+					$this->email_notify_page = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
 
-						$this->name = $this->get_post_info(array('select' => "post_title"));
-						$this->url = $this->get_post_info();
-						$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
-						$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
-						$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
-						$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
-						$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
-						$this->button_symbol = get_post_meta($this->post_id, $this->meta_prefix.'button_symbol', true);
-						$this->email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_name', true);
-						$this->email_admin = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
-						$this->email_admin_name = get_post_meta($this->post_id, $this->meta_prefix.'email_admin_name', true);
+					$this->email_confirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
+					$this->email_confirm_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email', true);
+					$this->email_confirm_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email_name', true);
+					$this->email_confirm_id = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_id', true);
+					$this->email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
+					$this->email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
 
-						$this->email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
-						$this->email_notify_from = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from', true);
-						$this->email_notify_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email', true);
-						$this->email_notify_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email_name', true);
-						$this->email_notify_page = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
-
-						$this->email_confirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
-						$this->email_confirm_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email', true);
-						$this->email_confirm_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email_name', true);
-						$this->email_confirm_id = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_id', true);
-						$this->email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
-						$this->email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
-
-						$this->payment_provider = get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
-						$this->payment_hmac = get_post_meta($this->post_id, $this->meta_prefix.'payment_hmac', true);
-						$this->payment_merchant = get_post_meta($this->post_id, $this->meta_prefix.'payment_merchant', true);
-						$this->payment_password = get_post_meta($this->post_id, $this->meta_prefix.'payment_password', true);
-						$this->terms_page = get_post_meta($this->post_id, $this->meta_prefix.'terms_page', true);
-						$this->payment_currency = get_post_meta($this->post_id, $this->meta_prefix.'payment_currency', true);
-						$this->payment_cost = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_cost', true);
-						$this->payment_amount = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
-						$this->payment_tax = get_post_meta($this->post_id, $this->meta_prefix.'payment_tax', true);
-						$this->payment_callback = get_post_meta($this->post_id, $this->meta_prefix.'payment_callback', true);
-					/*}
-
-					else
-					{
-						$error_text = __("I could not find the form you were looking for. If the problem persists, please contact an admin", 'lang_form');
-					}*/
+					$this->payment_provider = get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
+					$this->payment_hmac = get_post_meta($this->post_id, $this->meta_prefix.'payment_hmac', true);
+					$this->payment_merchant = get_post_meta($this->post_id, $this->meta_prefix.'payment_merchant', true);
+					$this->payment_password = get_post_meta($this->post_id, $this->meta_prefix.'payment_password', true);
+					$this->terms_page = get_post_meta($this->post_id, $this->meta_prefix.'terms_page', true);
+					$this->payment_currency = get_post_meta($this->post_id, $this->meta_prefix.'payment_currency', true);
+					$this->payment_cost = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_cost', true);
+					$this->payment_amount = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
+					$this->payment_tax = get_post_meta($this->post_id, $this->meta_prefix.'payment_tax', true);
+					$this->payment_callback = get_post_meta($this->post_id, $this->meta_prefix.'payment_callback', true);
 				}
 
 				if(!isset($_POST['btnFormAdd']) && $this->form2type_id > 0)
@@ -3724,7 +3703,7 @@ class mf_form
 
 		if(!($this->id > 0))
 		{
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', formCreated = NOW(), userID = '%d'", $wpdb->blogid, $post_id, get_current_user_id()));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d', userID = '%d'", $wpdb->blogid, $post_id, get_current_user_id())); //, formCreated = NOW()
 			$this->id = $wpdb->insert_id;
 		}
 
@@ -4654,17 +4633,10 @@ class mf_form
 	{
 		global $wpdb;
 
-		/*$result = $wpdb->get_results($wpdb->prepare("SELECT formFromName FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND formDeleted = '0'", $this->id));
-
-		foreach($result as $r)
-		{
-			$this->email_admin_name = $r->formFromName;
-		}*/
-
 		$this->get_post_id();
-		$this->email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_name', true);
+		//$this->email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_name', true);
 		$this->email_admin = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
-		$this->email_admin_name = get_post_meta($this->post_id, $this->meta_prefix.'email_admin_name', true);
+		//$this->email_admin_name = get_post_meta($this->post_id, $this->meta_prefix.'email_admin_name', true);
 
 		$this->email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
 		$this->email_notify_from = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from', true);
@@ -4678,7 +4650,8 @@ class mf_form
 		$this->email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
 		$this->email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
 
-		$email_subject = ($this->email_name != '' ? $this->email_name : $this->form_name);
+		//$email_subject = ($this->email_name != '' ? $this->email_name : $this->form_name);
+		$email_subject = $this->form_name;
 
 		$this->page_content_data = array(
 			'subject' => $email_subject,
@@ -4736,30 +4709,6 @@ class mf_form
 
 		// From admin
 		###################
-		/*if($this->email_admin != '')
-		{
-			if(strpos($this->email_admin, "<"))
-			{
-				$email_from_admin_address = $this->email_admin;
-				$email_from_admin = "From: ".$this->email_admin."\r\n";
-			}
-
-			else if(strpos($this->email_admin, ","))
-			{
-				$arr_email_admin = explode(",", $this->email_admin);
-				$email_admin = trim($arr_email_admin[0]);
-
-				$email_from_admin_address = $email_admin;
-				$email_from_admin = "From: ".$email_admin." <".$email_admin.">\r\n";
-			}
-
-			else
-			{
-				$email_from_admin_address = $this->email_admin;
-				$email_from_admin = "From: ".($this->email_admin_name != '' ? $this->email_admin_name : $this->email_admin)." <".$this->email_admin.">\r\n";
-			}
-		}*/
-
 		$email_from_admin_address = get_bloginfo('admin_email');
 		$email_from_admin = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
 		###################
@@ -5571,12 +5520,8 @@ class mf_form
 							{
 								$out .= "<div".get_form_button_classes().">"
 									.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText))
-									.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"));
-
-									/*if(does_table_exist($wpdb->base_prefix."form_nonce"))
-									{*/
-										$out .= "<div class='api_form_nonce'></div>";
-									//}
+									.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"))
+									."<div class='api_form_nonce'></div>";
 
 									if($this->check_if_has_payment() && (IS_ADMINISTRATOR || isset($_GET['make_test_payment'])))
 									{

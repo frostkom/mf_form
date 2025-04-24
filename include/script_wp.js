@@ -295,7 +295,6 @@ jQuery(function($)
 		dom_email_confirm_id_parent = $("#intFormEmailConfirmID").parent(".form_select"),
 		dom_email_confirm_page_parent = $("#intFormEmailConfirmPage").parent(".form_select"),
 		dom_form_email_parent = $("#strFormEmail").parent(".form_textfield"),
-		/*dom_form_from_name_parent = $("#strFormFromName").parent(".form_textfield"),*/
 		dom_form_email_conditions_parent = $("#strFormEmailConditions").parent(".form_textarea");
 
 	function toggle_settings()
@@ -345,14 +344,12 @@ jQuery(function($)
 		if(display_dom_form_email == true)
 		{
 			dom_form_email_parent.removeClass('hide');
-			/*dom_form_from_name_parent.removeClass('hide');*/
 			dom_form_email_conditions_parent.removeClass('hide');
 		}
 
 		else
 		{
 			dom_form_email_parent.addClass('hide');
-			/*dom_form_from_name_parent.addClass('hide');*/
 			dom_form_email_conditions_parent.addClass('hide');
 		}
 
