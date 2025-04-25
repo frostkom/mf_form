@@ -280,9 +280,7 @@ jQuery(function($)
 		});
 	}
 
-	var dom_button_display = $("#intFormButtonDisplay"),
-		dom_button_display_div = $(".button_display_div"),
-		dom_email_notify = $("#intFormEmailNotify"),
+	var dom_email_notify = $("#intFormEmailNotify"),
 		dom_email_notify_from = $("#strFormEmailNotifyFrom").parent(".form_select"),
 		dom_email_notify_div = $(".email_notify_div"),
 		dom_email_notify_from_email = $("#strFormEmailNotifyFromEmail").parent(".form_textfield"),
@@ -299,16 +297,6 @@ jQuery(function($)
 
 	function toggle_settings()
 	{
-		if(dom_button_display.is(":checked"))
-		{
-			dom_button_display_div.removeClass('hide');
-		}
-
-		else
-		{
-			dom_button_display_div.addClass('hide');
-		}
-
 		var display_dom_form_email = false;
 
 		if(dom_email_confirm.is(":checked"))
@@ -366,7 +354,7 @@ jQuery(function($)
 
 	toggle_settings();
 
-	$(document).on('click', "#intFormButtonDisplay, #intFormEmailConfirm, #intFormEmailNotify", function()
+	$(document).on('click', "#intFormEmailConfirm, #intFormEmailNotify", function()
 	{
 		toggle_settings();
 	});

@@ -339,14 +339,9 @@ if($obj_form->check_allow_edit())
 								echo "</div>
 							</div>";
 
-							echo "<div class='postbox'>
+							/*echo "<div class='postbox'>
 								<h3 class='hndle'><span>".__("E-mail", 'lang_form')."</span></h3>
 								<div class='inside'>";
-
-									/*if($obj_form->email_name != '')
-									{
-										echo show_textfield(array('name' => 'strFormEmailName', 'text' => __("Subject", 'lang_form'), 'value' => $obj_form->email_name, 'maxlength' => 100));
-									}*/
 
 									echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 'yes', 'compare' => $obj_form->email_notify))
 									.show_textfield(array('name' => 'strFormEmail', 'text' => __("Send To", 'lang_form'), 'value' => $obj_form->email_admin, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')))
@@ -377,7 +372,7 @@ if($obj_form->check_allow_edit())
 
 									echo show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $obj_form->email_conditions, 'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email')))
 								."</div>
-							</div>";
+							</div>";*/
 
 							$arr_data_providers = $obj_form->get_payment_providers_for_select();
 

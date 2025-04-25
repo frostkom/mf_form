@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.6.22
+Version: 1.1.7.1
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -23,7 +23,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	add_action('cron_base', 'activate_form', mt_rand(1, 10));
 	add_action('cron_base', array($obj_form, 'cron_base'), mt_rand(1, 10));
 
-	add_action('init', array($obj_form, 'init'), 1);
+	add_action('init', array($obj_form, 'init'));
 
 	if(is_admin())
 	{
@@ -45,7 +45,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		add_action('rwmb_meta_boxes', array($obj_form, 'rwmb_meta_boxes'));
 
-		add_action('wp_trash_post', array($obj_form, 'wp_trash_post'));
+		//add_action('wp_trash_post', array($obj_form, 'wp_trash_post'));
 		add_action('wp_delete_post', array($obj_form, 'wp_delete_post'));
 		add_action('deleted_user', array($obj_form, 'deleted_user'));
 
@@ -85,8 +85,8 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	add_action('wp_ajax_api_form_nonce', array($obj_form, 'api_form_nonce'));
 	add_action('wp_ajax_nopriv_api_form_nonce', array($obj_form, 'api_form_nonce'));
 
-	add_action('wp_ajax_api_form_zipcode', array($obj_form, 'api_form_zipcode'));
-	add_action('wp_ajax_nopriv_api_form_zipcode', array($obj_form, 'api_form_zipcode'));
+	/*add_action('wp_ajax_api_form_zipcode', array($obj_form, 'api_form_zipcode'));
+	add_action('wp_ajax_nopriv_api_form_zipcode', array($obj_form, 'api_form_zipcode'));*/
 
 	function activate_form()
 	{
@@ -105,38 +105,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			blogID TINYINT UNSIGNED,
 			postID INT UNSIGNED NOT NULL DEFAULT '0',"
-			."formEmail VARCHAR(100) DEFAULT NULL,"
-			//."formFromName VARCHAR(100) DEFAULT NULL,"
-			."formEmailConditions TEXT DEFAULT NULL,"
-			."formEmailNotify ENUM('0', '1') NOT NULL DEFAULT '1',"
-			."formEmailNotifyFrom ENUM('admin', 'visitor', 'other') NOT NULL DEFAULT 'admin',"
-			."formEmailNotifyFromEmail VARCHAR(100) DEFAULT NULL,"
-			."formEmailNotifyFromEmailName VARCHAR(100) DEFAULT NULL,"
-			."formEmailNotifyPage INT UNSIGNED NOT NULL DEFAULT '0',"
-			//."formEmailName VARCHAR(100) DEFAULT NULL,"
-			."formEmailConfirm ENUM('0', '1') NOT NULL DEFAULT '0',"
-			."formEmailConfirmID INT UNSIGNED DEFAULT NULL,"
-			."formEmailConfirmFromEmail VARCHAR(100) DEFAULT NULL,"
-			."formEmailConfirmFromEmailName VARCHAR(100) DEFAULT NULL,"
-			."formEmailConfirmPage INT UNSIGNED NOT NULL DEFAULT '0',"
-			//."formButtonDisplay ENUM('0', '1') NOT NULL DEFAULT '1',"
-			//."formButtonText VARCHAR(100) DEFAULT NULL,"
-			//."formButtonSymbol VARCHAR(20) DEFAULT NULL,"
-			."formPaymentProvider INT DEFAULT NULL,"
-			."formPaymentHmac VARCHAR(200) DEFAULT NULL,"
-			."formTermsPage INT UNSIGNED DEFAULT NULL,"
-			."formPaymentMerchant VARCHAR(100) DEFAULT NULL,"
-			."formPaymentPassword VARCHAR(100) DEFAULT NULL,"
-			."formPaymentCurrency VARCHAR(3),"
-			."formPaymentCheck INT DEFAULT NULL,"
-			."formPaymentCost DOUBLE UNSIGNED DEFAULT NULL,"
-			."formPaymentAmount INT UNSIGNED DEFAULT NULL,"
-			."formPaymentTax TINYINT UNSIGNED DEFAULT NULL,"
-			."formPaymentCallback VARCHAR(100) DEFAULT NULL,"
 			//."formCreated DATETIME DEFAULT NULL,"
-			."userID INT UNSIGNED DEFAULT NULL,
-			formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',
-			formDeletedDate DATETIME DEFAULT NULL,"
+			."userID INT UNSIGNED DEFAULT NULL,"
+			//."formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',"
+			//."formDeletedDate DATETIME DEFAULT NULL,"
 			//."formDeletedID INT UNSIGNED DEFAULT NULL,"
 			."PRIMARY KEY (formID),
 			KEY blogID (blogID),
@@ -148,19 +120,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form"] = array(
-			'formName' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
-			'formAcceptDuplicates' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
-			'formSaveIP' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
-			'formShowAnswers' => "ALTER TABLE [table] DROP COLUMN [column]", //250207
-			'formButtonDisplay' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
-			'formAnswerURL' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
-			'formButtonText' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
-			'formButtonSymbol' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
-			'formMandatoryText' => "ALTER TABLE [table] DROP COLUMN [column]", //250328
 			'formDeletedID' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
 			'formCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
-			'formFromName' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
-			'formEmailName' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+			'formDeletedDate' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+			'formDeleted' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (

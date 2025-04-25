@@ -23,12 +23,11 @@ get_header();
 						$obj_form = new mf_form();
 					}
 
-					$obj_form->id = $intFormID = $wpdb->get_var($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form WHERE postID = '%d'", $post_id));
+					$obj_form->id = get_post_meta($post_id, $obj_form->meta_prefix.'form_id', true);
 
 					echo "<h1>".$post_title."</h1>
 					<section>"
 						.$obj_form->process_form()
-						//.apply_filters('the_content', "[mf_form id=".$intFormID."]")
 					."</section>";
 				}
 

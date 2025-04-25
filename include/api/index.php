@@ -80,9 +80,7 @@ switch($type_action)
 
 					else
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '1', formDeletedDate = NOW() WHERE formID = '%d' AND formDeleted = '0'", $type_id)); //, formDeletedID = '".get_current_user_id()."'
-
-						if($wpdb->rows_affected > 0)
+						if(get_post_status($obj_form->post_id) != 'trash')
 						{
 							if(wp_trash_post($obj_form->post_id))
 							{
@@ -92,8 +90,6 @@ switch($type_action)
 
 							else
 							{
-								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET formDeleted = '0', formDeletedDate = '' WHERE formID = '%d' AND formDeleted = '1'", $type_id)); //, formDeletedID = ''
-
 								$json_output['formID'] = $type_id;
 								$json_output['postID'] = $obj_form->post_id;
 							}

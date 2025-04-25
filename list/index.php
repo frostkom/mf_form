@@ -11,7 +11,7 @@ echo "<div class='wrap'>
 	."</h2>"
 	.get_notification();
 
-	$tbl_group = new mf_form_table(array(
+	/*$tbl_group = new mf_form_table(array(
 		'remember_search' => true,
 	));
 
@@ -20,9 +20,8 @@ echo "<div class='wrap'>
 		//'debug' => true,
 	));
 
-	$tbl_group->do_display();
+	$tbl_group->do_display();*/
 
 echo "</div>";
 
 update_user_meta(get_current_user_id(), 'meta_forms_viewed', date("Y-m-d H:i:s"));
-//update_option('option_form_list_viewed', date("Y-m-d H:i:s"), false); //Temporary timestamp for updating wp_query -> wp_form
