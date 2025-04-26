@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.7.1
+Version: 1.1.7.2
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -124,6 +124,8 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'formCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
 			'formDeletedDate' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
 			'formDeleted' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+			'formPaymentFile' => "ALTER TABLE [table] DROP COLUMN [column]", //250426
+			'formPaymentCheck' => "ALTER TABLE [table] DROP COLUMN [column]", //250426
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
