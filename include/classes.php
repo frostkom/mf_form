@@ -197,7 +197,8 @@ class mf_form
 
 			if($out == false && $this->id > 0)
 			{
-				$intUserID = $wpdb->get_var($wpdb->prepare("SELECT userID FROM ".$wpdb->base_prefix."form WHERE formID = '%d'", $this->id));
+				$this->post_id = $this->get_post_id($this->id);
+				$intUserID = $this->get_post_info(array('select' => 'post_author'));
 
 				if($intUserID == get_current_user_id())
 				{
@@ -576,7 +577,7 @@ class mf_form
 
 		else
 		{
-			$this->prefix = $this->get_post_info()."_";
+			$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 
 			if(isset($_POST[$this->prefix.'btnFormSubmit']))
 			{
@@ -1120,13 +1121,6 @@ class mf_form
 		return $html;
 	}
 
-	/*function get_post_types_for_metabox($array)
-	{
-		$array[] = $this->post_type;
-
-		return $array;
-	}*/
-
 	function combined_head()
 	{
 		$plugin_include_url = plugin_dir_url(__FILE__);
@@ -1256,8 +1250,6 @@ class mf_form
 		$cols['content'] = __("Content", 'lang_form');
 		$cols['answers'] = __("Answers", 'lang_form');
 		$cols['spam'] = __("Spam", 'lang_form');
-		//$cols['answerCreated'] = __("Latest Answer", 'lang_form');
-		//$cols['post_date'] = __("Created", 'lang_form');
 		$cols['post_modified'] = __("Modified", 'lang_form');
 
 		return $cols;
@@ -1270,13 +1262,11 @@ class mf_form
 		$this->post_id = $post_id;
 		$this->get_form_id($post_id);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT post_status, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND ID = '%d'", $this->post_type, $post_id)); //, post_author, post_date
+		$result = $wpdb->get_results($wpdb->prepare("SELECT post_status, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND ID = '%d'", $this->post_type, $post_id));
 
 		foreach($result as $r)
 		{
 			$post_status = $r->post_status;
-			//$post_author = $r->post_author;
-			//$post_date = $r->post_date;
 			$post_modified = $r->post_modified;
 		}
 
@@ -1440,43 +1430,8 @@ class mf_form
 				}
 			break;
 
-			/*case 'answerCreated':
-				$dteAnswerCreated = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerSpam = '%d' ORDER BY answerCreated DESC", $this->id, '0'));
-				$dteAnswerCreated_spam = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d' AND answerSpam = '%d' ORDER BY answerCreated DESC", $this->id, '1'));
-
-				if($dteAnswerCreated > DEFAULT_DATE)
-				{
-					$actions = array();
-
-					if($dteAnswerCreated_spam > DEFAULT_DATE)
-					{
-						$actions['spam'] = __("Spam", 'lang_form').": ".format_date($dteAnswerCreated_spam);
-					}
-
-					echo format_date($dteAnswerCreated)
-					.$this->return_row_actions($actions);
-				}
-			break;*/
-
-			/*case 'post_date':
-				$actions = array();
-
-				if($post_author > 0)
-				{
-					$actions['user'] = get_user_info(array('id' => $post_author));
-				}
-
-				echo format_date($post_date)
-				.$this->return_row_actions($actions);
-			break;*/
-
 			case 'post_modified':
-				/*$actions = array();
-
-				$actions['user'] = get_user_info(array('id' => $post_author));*/
-
 				echo format_date($post_modified);
-				//.$this->return_row_actions($actions);
 			break;
 
 			/*default:
@@ -1923,9 +1878,9 @@ class mf_form
 			return $out;
 		}
 
-		if(!($data['form_id'] > 0))
+		/*if(!($data['form_id'] > 0))
 		{
-			$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->base_prefix."form2answer USING (formID) ORDER BY answerCreated DESC LIMIT 0, 2");
+			$result = $wpdb->get_results("SELECT answerCreated FROM ".$wpdb->base_prefix."form2answer ORDER BY answerCreated DESC LIMIT 0, 2");
 
 			if($wpdb->num_rows == 2)
 			{
@@ -1979,7 +1934,7 @@ class mf_form
 			}
 
 			return $out;
-		}
+		}*/
 
 		return $out;
 	}
@@ -2067,7 +2022,6 @@ class mf_form
 	{
 		global $wpdb;
 
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
 	}
 
@@ -2329,35 +2283,6 @@ class mf_form
 		echo json_encode($json_output);
 		die();
 	}
-
-	/*function api_form_zipcode()
-	{
-		$json_output = array(
-			'success' => false,
-		);
-
-		$city_name = "";
-
-		if(get_bloginfo('language') == "sv-SE")
-		{
-			include_once("../class_zipcode.php");
-			$obj_zipcode = new mf_zipcode();
-
-			$search = check_var('search');
-
-			$city_name = $obj_zipcode->get_city($search);
-
-			if($city_name != '')
-			{
-				$json_output['success'] = true;
-				$json_output['response'] = $city_name;
-			}
-		}
-
-		header("Content-Type: application/json");
-		echo json_encode($json_output);
-		die();
-	}*/
 
 	function save_options($intForm2TypeID, $arrFormTypeSelect_id, $arrFormTypeSelect_key, $arrFormTypeSelect_value, $arrFormTypeSelect_limit, $arrFormTypeSelect_action)
 	{
@@ -2853,7 +2778,7 @@ class mf_form
 			$copy_fields_from .= ", postID";
 		}
 
-		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (userID, ".$copy_fields_to.") (SELECT '%d', ".$copy_fields_from." FROM ".$wpdb->base_prefix."form WHERE formID = '%d')", get_current_user_id(), $intFormID));
+		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form (".$copy_fields_to.") (SELECT ".$copy_fields_from." FROM ".$wpdb->base_prefix."form WHERE formID = '%d')", $intFormID));
 		$intFormID_new = $wpdb->insert_id;
 
 		if($intFormID_new > 0)
@@ -2873,7 +2798,7 @@ class mf_form
 
 				$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
 
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, form2TypeCreated, userID, ".$copy_fields.") (SELECT %d, NOW(), '".get_current_user_id()."', ".$copy_fields." FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type (formID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intFormID_new, $intForm2TypeID));
 				$intForm2TypeID_new = $wpdb->insert_id;
 
 				if($intForm2TypeID_new > 0)
@@ -2953,7 +2878,7 @@ class mf_form
 			$this->post_id = $post_id;
 		}
 
-		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d'", $wpdb->blogid, $this->post_id)); //, userID = '%d', get_current_user_id()
+		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form SET blogID = '%d', postID = '%d'", $wpdb->blogid, $this->post_id));
 		$this->id = $wpdb->insert_id;
 
 		update_post_meta($this->post_id, $this->meta_prefix.'form_id', $this->id);
@@ -3054,7 +2979,7 @@ class mf_form
 										break;
 									}
 
-									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeLength = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d', userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_length, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order, get_current_user_id()));
+									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeLength = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeDisplay = '%d', formTypeRequired = '%d', formTypeAutofocus = '%d', formTypeRemember = '%d', form2TypeOrder = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_length, $this->type_fetch_from, $this->type_connect_to, $intFormTypeDisplay, $intFormTypeRequired, $intFormTypeAutofocus, $intFormTypeRemember, $this->form2type_order));
 
 									$intForm2TypeID = $wpdb->insert_id;
 
@@ -3206,7 +3131,7 @@ class mf_form
 							{
 								$this->form2type_order = $wpdb->get_var($wpdb->prepare("SELECT (form2TypeOrder + 1) FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder DESC", $this->id));
 
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeLength = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeActionEquals = %s, formTypeActionShow = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_length, $this->type_fetch_from, $this->type_connect_to, $this->type_action_equals, $this->type_action_show, $this->form2type_order, get_current_user_id()));
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET formID = '%d', formTypeID = '%d', formTypeText = %s, formTypePlaceholder = %s, checkID = '%d', formTypeTag = %s, formTypeClass = %s, formTypeLength = %s, formTypeFetchFrom = %s, formTypeConnectTo = '%d', formTypeActionEquals = %s, formTypeActionShow = %s, form2TypeOrder = '%d'", $this->id, $this->type_id, $this->type_text, $this->type_placeholder, $this->check_id, $this->type_tag, $this->type_class, $this->type_length, $this->type_fetch_from, $this->type_connect_to, $this->type_action_equals, $this->type_action_show, $this->form2type_order));
 
 								$this->form2type_id = $wpdb->insert_id;
 
@@ -3217,7 +3142,7 @@ class mf_form
 										$this->type_id = 14;
 										$this->form2type_order++;
 
-										$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET form2TypeID2 = '%d', formID = '%d', formTypeID = '%d', formTypeText = %s, form2TypeOrder = '%d', form2TypeCreated = NOW(), userID = '%d'", $this->form2type_id, $this->id, $this->type_id, $this->type_text, $this->form2type_order, get_current_user_id()));
+										$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form2type SET form2TypeID2 = '%d', formID = '%d', formTypeID = '%d', formTypeText = %s, form2TypeOrder = '%d'", $this->form2type_id, $this->id, $this->type_id, $this->type_text, $this->form2type_order));
 									break;
 
 									case 10:
@@ -3273,8 +3198,8 @@ class mf_form
 
 				if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $this->id > 0)
 				{
-					$this->name = $this->get_post_info(array('select' => "post_title"));
-					$this->url = $this->get_post_info();
+					$this->name = $this->get_post_info(array('select' => 'post_title'));
+					$this->url = $this->get_post_info(array('select' => 'post_name'));
 					$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
 					$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
 					$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
@@ -3419,7 +3344,7 @@ class mf_form
 
 				else if(isset($_POST['btnFormUpdate']))
 				{
-					$this->prefix = $this->get_post_info()."_";
+					$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 
 					$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, checkID, formTypeRequired FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND formTypeID != '%d' ORDER BY form2TypeOrder ASC", $this->id, 13));
 
@@ -3568,8 +3493,8 @@ class mf_form
 
 					if($wpdb->num_rows > 0)
 					{
-						$this->form_name = $this->get_post_info(array('select' => "post_title"));
-						$this->prefix = $this->get_post_info()."_";
+						$this->form_name = $this->get_post_info(array('select' => 'post_title'));
+						$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 
 						$this->answer_data = array();
 
@@ -3712,7 +3637,7 @@ class mf_form
 						/*$this->arr_email_content['fields'][] = array(
 							'type' => 'http_referer',
 							'label' => __("Sent From", 'lang_form'),
-							'value' => remove_protocol(array('url' => $this->get_post_info(), 'clean' => true, 'trim' => true))
+							'value' => remove_protocol(array('url' => $this->get_post_info(array('select' => 'post_name')), 'clean' => true, 'trim' => true))
 						);*/
 
 						$this->process_transactional_emails();
@@ -3799,31 +3724,6 @@ class mf_form
 		$this->payment_amount = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
 
 		return ($this->payment_provider > 0 && ($this->payment_cost > 0 || $this->payment_amount > 0));
-	}
-
-	function get_form_status($data = array())
-	{
-		global $wpdb;
-
-		if($this->post_status == '' || isset($data['form_id']) && $data['form_id'] != $this->id || isset($data['post_id']) && $data['post_id'] != $this->post_id)
-		{
-			if(isset($data['form_id']) && $data['form_id'] > 0){	$this->id = $data['form_id'];}
-			if(isset($data['post_id']) && $data['post_id'] > 0){	$this->post_id = $data['post_id'];}
-
-			if($this->id > 0)
-			{
-				$post_status = $wpdb->get_var($wpdb->prepare("SELECT post_status FROM ".$wpdb->base_prefix."form INNER JOIN ".$wpdb->posts." ON ".$wpdb->base_prefix."form.postID = ".$wpdb->posts.".ID WHERE formID = '%d'", $this->id));
-			}
-
-			else
-			{
-				$post_status = $wpdb->get_var($wpdb->prepare("SELECT post_status FROM ".$wpdb->posts." WHERE ID = '%d'", $this->post_id));
-			}
-
-			$this->post_status = $post_status;
-		}
-
-		return $this->post_status;
 	}
 
 	function get_for_select($data = array())
@@ -3930,11 +3830,9 @@ class mf_form
 		return $this->post_id;
 	}
 
-	function get_post_info($data = array())
+	function get_post_info($data)
 	{
 		global $wpdb;
-
-		if(!isset($data['select'])){	$data['select'] = "post_name";}
 
 		$out = "";
 
@@ -5136,8 +5034,8 @@ class mf_form
 
 		$setting_form_spam = get_option_or_default('setting_form_spam', array('email', 'filter', 'honeypot'));
 
-		$this->form_name = $this->get_post_info(array('select' => "post_title"));
-		$this->prefix = $this->get_post_info()."_";
+		$this->form_name = $this->get_post_info(array('select' => 'post_title'));
+		//$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 
 		$dblQueryPaymentAmount_value = 0;
 
@@ -5771,7 +5669,7 @@ class mf_form_payment
 				$this->payment_tax_rate = 25;
 			}
 
-			$this->prefix = $obj_form->get_post_info()."_";
+			$this->prefix = $obj_form->get_post_info(array('select' => 'post_name'))."_";
 
 			//The callback must have a public URL
 			if(is_admin())
@@ -6227,7 +6125,7 @@ if(class_exists('mf_export'))
 
 								case 'select_multiple':
 								case 'checkbox_multiple':
-									$obj_form->prefix = $obj_form->get_post_info()."_";
+									$obj_form->prefix = $obj_form->get_post_info(array('select' => 'post_name'))."_";
 
 									$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
 								break;
@@ -6618,7 +6516,7 @@ if(class_exists('mf_list_table'))
 
 					else
 					{
-						$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+						$strFormName = $obj_form->get_post_info(array('select' => 'post_title'));
 
 						$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, formTypeID, checkID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
 
@@ -6659,7 +6557,7 @@ if(class_exists('mf_list_table'))
 
 										case 'select_multiple':
 										case 'checkbox_multiple':
-											$obj_form->prefix = $obj_form->get_post_info()."_";
+											$obj_form->prefix = $obj_form->get_post_info(array('select' => 'post_name'))."_";
 
 											$strAnswerText = $obj_form->parse_multiple_info($strAnswerText, true);
 										break;

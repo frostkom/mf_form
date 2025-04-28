@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.7.2
+Version: 1.1.7.3
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -45,7 +45,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		add_action('rwmb_meta_boxes', array($obj_form, 'rwmb_meta_boxes'));
 
-		//add_action('wp_trash_post', array($obj_form, 'wp_trash_post'));
 		add_action('wp_delete_post', array($obj_form, 'wp_delete_post'));
 		add_action('deleted_user', array($obj_form, 'deleted_user'));
 
@@ -56,10 +55,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		add_filter('wp_privacy_personal_data_exporters', array($obj_form, 'wp_privacy_personal_data_exporters'), 10);
 		add_filter('wp_privacy_personal_data_erasers', array($obj_form, 'wp_privacy_personal_data_erasers'), 10);
-
-		//add_filter('count_shortcode_button', array($obj_form, 'count_shortcode_button'));
-		//add_filter('get_shortcode_output', array($obj_form, 'get_shortcode_output'));
-		//add_filter('get_shortcode_list', array($obj_form, 'get_shortcode_list'));
 	}
 
 	else
@@ -72,8 +67,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_filter('the_content', array($obj_form, 'the_content'));
 	}
 
-	//add_filter('get_post_types_for_metabox', array($obj_form, 'get_post_types_for_metabox'));
-
 	add_shortcode($obj_form->post_type, array($obj_form, 'shortcode_form'));
 
 	add_action('widgets_init', array($obj_form, 'widgets_init'));
@@ -84,9 +77,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 	add_action('wp_ajax_api_form_nonce', array($obj_form, 'api_form_nonce'));
 	add_action('wp_ajax_nopriv_api_form_nonce', array($obj_form, 'api_form_nonce'));
-
-	/*add_action('wp_ajax_api_form_zipcode', array($obj_form, 'api_form_zipcode'));
-	add_action('wp_ajax_nopriv_api_form_zipcode', array($obj_form, 'api_form_zipcode'));*/
 
 	function activate_form()
 	{
@@ -106,7 +96,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			blogID TINYINT UNSIGNED,
 			postID INT UNSIGNED NOT NULL DEFAULT '0',"
 			//."formCreated DATETIME DEFAULT NULL,"
-			."userID INT UNSIGNED DEFAULT NULL,"
+			//."userID INT UNSIGNED DEFAULT NULL,"
 			//."formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',"
 			//."formDeletedDate DATETIME DEFAULT NULL,"
 			//."formDeletedID INT UNSIGNED DEFAULT NULL,"
@@ -126,6 +116,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'formDeleted' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
 			'formPaymentFile' => "ALTER TABLE [table] DROP COLUMN [column]", //250426
 			'formPaymentCheck' => "ALTER TABLE [table] DROP COLUMN [column]", //250426
+			'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
@@ -147,10 +138,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formTypeRequired ENUM('0','1') NOT NULL DEFAULT '0',
 			formTypeAutofocus ENUM('0','1') NOT NULL DEFAULT '0',
 			formTypeRemember ENUM('0','1') NOT NULL DEFAULT '0',
-			form2TypeOrder INT UNSIGNED NOT NULL DEFAULT '0',
-			form2TypeCreated DATETIME DEFAULT NULL,
-			userID INT UNSIGNED DEFAULT NULL,
-			PRIMARY KEY (form2TypeID),
+			form2TypeOrder INT UNSIGNED NOT NULL DEFAULT '0',"
+			//."form2TypeCreated DATETIME DEFAULT NULL,"
+			//."userID INT UNSIGNED DEFAULT NULL,"
+			."PRIMARY KEY (form2TypeID),
 			KEY formID (formID),
 			KEY formTypeID (formTypeID)
 		) DEFAULT CHARSET=".$default_charset);
@@ -162,6 +153,8 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$arr_update_column[$wpdb->base_prefix."form2type"] = array(
 			'formTypeFetchFrom' => "ALTER TABLE [table] CHANGE [column] formTypeFetchFrom TEXT DEFAULT NULL",
+			'form2TypeCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
+			'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
 		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (

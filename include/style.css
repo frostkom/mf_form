@@ -36,7 +36,7 @@
 			width: 18%;
 		}
 
-	.mf_form .form_zipcode
+	/*.mf_form .form_zipcode
 	{
 		overflow: hidden;
 	}
@@ -53,7 +53,7 @@
 			float: left;
 			line-height: 2.7;
 			padding-left: 1em;
-		}
+		}*/
 
 	.form_textfield.form_check
 	{

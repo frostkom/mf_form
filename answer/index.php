@@ -6,7 +6,7 @@ echo $obj_form->save_data();
 
 if($obj_form->id > 0)
 {
-	$strFormName = $obj_form->get_post_info(array('select' => "post_title"));
+	$strFormName = $obj_form->get_post_info(array('select' => 'post_title'));
 
 	echo "<div class='wrap'>
 		<h2>"

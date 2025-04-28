@@ -329,7 +329,7 @@ jQuery(function($)
 
 	/* Get Municipality from Zip Code */
 	/* ################### */
-	function check_zip_code(selector)
+	/*function check_zip_code(selector)
 	{
 		var search = selector.val();
 
@@ -368,7 +368,7 @@ jQuery(function($)
 	$(document).on('blur keyup focusout', ".mf_form .form_zipcode input", function()
 	{
 		check_zip_code($(this));
-	});
+	});*/
 	/* ################### */
 
 	var dom_radio_multiple = $(".mf_form .form_radio_multiple + .form_radio_multiple");
@@ -416,10 +416,10 @@ jQuery(function($)
 		$(this).parents(".form_inline").show();
 	});
 
-	$(".mf_form .form_zipcode input").each(function()
+	/*$(".mf_form .form_zipcode input").each(function()
 	{
 		$(this).after("<span></span>");
-	});
+	});*/
 
 	$(document).on('click', ".form_link", function()
 	{

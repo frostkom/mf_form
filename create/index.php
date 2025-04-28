@@ -11,7 +11,12 @@ if($obj_form->check_allow_edit())
 
 	echo $obj_form->save_data();
 
-	$obj_form->post_status = $obj_form->get_form_status();
+	if(!($obj_form->post_id > 0))
+	{
+		$obj_form->post_id = $obj_form->get_post_id($obj_form->id);
+	}
+
+	$obj_form->post_status = get_post_status($obj_form->post_id);
 
 	echo "<div class='wrap'>
 		<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." <span>".$obj_form->name."</span>" : __("Add New", 'lang_form'))."</h2>"
@@ -179,7 +184,7 @@ if($obj_form->check_allow_edit())
 
 											if($obj_form->form2type_id > 0)
 											{
-												$handle_temp = $obj_form->get_post_info()."_".$obj_form->form2type_id;
+												$handle_temp = $obj_form->get_post_info(array('select' => 'post_name'))."_".$obj_form->form2type_id;
 
 												$description_temp = '';
 
