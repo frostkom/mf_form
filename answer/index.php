@@ -36,7 +36,7 @@ if($obj_form->id > 0)
 		$tbl_group = new mf_answer_table();
 
 		$tbl_group->select_data(array(
-			'select' => "answerID, answerCreated, answerIP, answerSpam, spamID, answerToken",
+			'select' => "answerID, answerCreated, answerIP, answerSpam, spamID",
 			//'debug' => true,
 		));
 

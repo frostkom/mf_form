@@ -280,7 +280,7 @@ jQuery(function($)
 		});
 	}
 
-	var dom_email_notify = $("#intFormEmailNotify"),
+	/*var dom_email_notify = $("#intFormEmailNotify"),
 		dom_email_notify_from = $("#strFormEmailNotifyFrom").parent(".form_select"),
 		dom_email_notify_div = $(".email_notify_div"),
 		dom_email_notify_from_email = $("#strFormEmailNotifyFromEmail").parent(".form_textfield"),
@@ -384,5 +384,5 @@ jQuery(function($)
 		}
 
 		return false;
-	});
+	});*/
 });

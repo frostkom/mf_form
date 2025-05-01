@@ -32,18 +32,19 @@ switch($type_action)
 	case 'autofocus':
 		if(is_user_logged_in() && $type_table == 'type')
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $type_id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->prefix."form2type WHERE form2TypeID = '%d'", $type_id));
 
 			foreach($result as $r)
 			{
-				$intFormID = $r->formID;
+				//$intFormID = $r->formID;
+				$intPostID = $r->postID;
 			}
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeAutofocus = '0' WHERE formID = '%d'", $intFormID));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET formTypeAutofocus = '0' WHERE postID = '%d'", $intPostID));
 
 			if($state_id == "true")
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeAutofocus = '1' WHERE form2TypeID = '%d'", $type_id));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET formTypeAutofocus = '1' WHERE form2TypeID = '%d'", $type_id));
 			}
 
 			$json_output['success'] = true;
@@ -103,16 +104,16 @@ switch($type_action)
 				break;
 
 				case 'type':
-					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $type_id));
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form2type WHERE form2TypeID = '%d'", $type_id));
 
 					if($wpdb->rows_affected > 0)
 					{
 						if($obj_form->form_option_exists)
 						{
-							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d'", $type_id));
+							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d'", $type_id));
 						}
 
-						//$wpdb->query(wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE form2TypeID = '%d'", $type_id));
+						//$wpdb->query(wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d'", $type_id));
 
 						$json_output['success'] = true;
 						$json_output['dom_id'] = $type_table."_".$type_id;
@@ -142,7 +143,7 @@ switch($type_action)
 				break;
 			}
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET ".$type_field." = '%d' WHERE form2TypeID = '%d'", ($state_id == "true" ? 1 : 0), $type_id));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET ".$type_field." = '%d' WHERE form2TypeID = '%d'", ($state_id == "true" ? 1 : 0), $type_id));
 
 			if($wpdb->rows_affected > 0)
 			{
@@ -173,7 +174,7 @@ switch($type_action)
 
 				if($sort_id > 0)
 				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET form2TypeOrder = '%d' WHERE form2TypeID = '%d'", $i, $sort_id));
+					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET form2TypeOrder = '%d' WHERE form2TypeID = '%d'", $i, $sort_id));
 
 					$i++;
 
