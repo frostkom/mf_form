@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.8.2
+Version: 1.1.8.3
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -93,23 +93,14 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		// Old
 		############################
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form (
+		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form (
 			formID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			blogID TINYINT UNSIGNED,
-			postID INT UNSIGNED NOT NULL DEFAULT '0',"
-			//."formCreated DATETIME DEFAULT NULL,"
-			//."userID INT UNSIGNED DEFAULT NULL,"
-			//."formDeleted ENUM('0', '1') NOT NULL DEFAULT '0',"
-			//."formDeletedDate DATETIME DEFAULT NULL,"
-			//."formDeletedID INT UNSIGNED DEFAULT NULL,"
-			."PRIMARY KEY (formID),
+			postID INT UNSIGNED NOT NULL DEFAULT '0',
+			PRIMARY KEY (formID),
 			KEY blogID (blogID),
 			KEY postID (postID)
-		) DEFAULT CHARSET=".$default_charset);
-
-		$arr_add_column[$wpdb->base_prefix."form"] = array(
-			//'' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'yes' AFTER ",
-		);
+		) DEFAULT CHARSET=".$default_charset);*/
 
 		$arr_update_column[$wpdb->base_prefix."form"] = array(
 			'formDeletedID' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
@@ -121,7 +112,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
 		);
 
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
+		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2type (
 			form2TypeID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			form2TypeID2 INT UNSIGNED NOT NULL DEFAULT '0',
 			formID INT UNSIGNED DEFAULT '0',
@@ -141,13 +132,11 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formTypeRequired ENUM('0','1') NOT NULL DEFAULT '0',
 			formTypeAutofocus ENUM('0','1') NOT NULL DEFAULT '0',
 			formTypeRemember ENUM('0','1') NOT NULL DEFAULT '0',
-			form2TypeOrder INT UNSIGNED NOT NULL DEFAULT '0',"
-			//."form2TypeCreated DATETIME DEFAULT NULL,"
-			//."userID INT UNSIGNED DEFAULT NULL,"
-			."PRIMARY KEY (form2TypeID),
+			form2TypeOrder INT UNSIGNED NOT NULL DEFAULT '0',
+			PRIMARY KEY (form2TypeID),
 			KEY formID (formID),
 			KEY formTypeID (formTypeID)
-		) DEFAULT CHARSET=".$default_charset);
+		) DEFAULT CHARSET=".$default_charset);*/
 
 		$arr_add_column[$wpdb->base_prefix."form2type"] = array(
 			'formTypeConnectTo' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER formTypeFetchFrom",
@@ -161,7 +150,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
 		);
 
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
+		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_option (
 			formOptionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			form2TypeID INT UNSIGNED NOT NULL,
 			formOptionKey VARCHAR(10) DEFAULT NULL,
@@ -174,48 +163,34 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			KEY formOptionOrder (formOptionOrder)
 		) DEFAULT CHARSET=".$default_charset);
 
-		$arr_add_column[$wpdb->base_prefix."form_option"] = array(
-			//'' => "ALTER TABLE [table] ADD [column] INT UNSIGNED AFTER ",
-		);
-
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form2answer (
 			answerID INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			formID INT UNSIGNED NOT NULL,
 			postID INT UNSIGNED NOT NULL,
 			answerIP VARCHAR(32) DEFAULT NULL,
 			answerSpam ENUM('0', '1') NOT NULL DEFAULT '0',
-			spamID SMALLINT NOT NULL DEFAULT '0',"
-			//."answerToken VARCHAR(100) DEFAULT NULL,"
-			."answerCreated DATETIME DEFAULT NULL,
+			spamID SMALLINT NOT NULL DEFAULT '0',
+			answerCreated DATETIME DEFAULT NULL,
 			PRIMARY KEY (answerID),
 			KEY formID (formID),
 			KEY answerCreated (answerCreated)
-		) DEFAULT CHARSET=".$default_charset);
+		) DEFAULT CHARSET=".$default_charset);*/
 
 		$arr_add_column[$wpdb->base_prefix."form2answer"] = array(
 			'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL AFTER formID",
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form2answer"] = array(
-			//'answerIP' => "ALTER TABLE [table] CHANGE [column] answerIP VARCHAR(32) DEFAULT NULL", //221007
 			'answerToken' => "ALTER TABLE [table] DROP COLUMN [column]", //250429
 		);
 
-		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer (
+		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer (
 			answerID INT UNSIGNED DEFAULT NULL,
 			form2TypeID INT UNSIGNED DEFAULT '0',
 			answerText TEXT,
 			KEY form2TypeID (form2TypeID),
 			KEY answerID (answerID)
 		) DEFAULT CHARSET=".$default_charset);
-
-		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer_meta (
-			answerID INT UNSIGNED DEFAULT NULL,
-			metaKey VARCHAR(40) DEFAULT NULL,
-			metaValue TEXT,
-			KEY answerID (answerID),
-			KEY metaKey (metaKey)
-		) DEFAULT CHARSET=".$default_charset);*/
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->base_prefix."form_answer_email (
 			answerID INT UNSIGNED DEFAULT NULL,
@@ -225,10 +200,9 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			answerSent ENUM('0', '1') NOT NULL DEFAULT '0',
 			KEY answerID (answerID),
 			KEY answerEmail (answerEmail)
-		) DEFAULT CHARSET=".$default_charset);
+		) DEFAULT CHARSET=".$default_charset);*/
 
 		$arr_add_column[$wpdb->base_prefix."form_answer_email"] = array(
-			//'' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER ",
 			'answerEmailFrom' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER answerID",
 		);
 		############################
@@ -304,14 +278,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			KEY answerID (answerID)
 		) DEFAULT CHARSET=".$default_charset);
 
-		/*$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."form_answer_meta (
-			answerID INT UNSIGNED DEFAULT NULL,
-			metaKey VARCHAR(40) DEFAULT NULL,
-			metaValue TEXT,
-			KEY answerID (answerID),
-			KEY metaKey (metaKey)
-		) DEFAULT CHARSET=".$default_charset);*/
-
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."form_answer_email (
 			answerID INT UNSIGNED DEFAULT NULL,
 			answerEmailFrom VARCHAR(100),
@@ -327,6 +293,16 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		############################
 		if($wpdb->base_prefix == $wpdb->prefix)
 		{
+			if(is_multisite())
+			{
+				$result = $wpdb->get_results("SELECT formID FROM ".$wpdb->base_prefix."form LEFT JOIN ".$wpdb->blogs." ON ".$wpdb->base_prefix."form.blogID = ".$wpdb->blogs.".blog_id WHERE blog_id IS null");
+
+				foreach($result as $r)
+				{
+					$obj_form->delete_form($r->formID);
+				}
+			}
+
 			if(does_column_exist($wpdb->prefix."form2type", "postID"))
 			{
 				$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' OR blogID IS null", $wpdb->blogid));
@@ -357,7 +333,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 				if($wpdb->num_rows > 0)
 				{
-					//$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND postID = '%d'", $intFormID, $intPostID));
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND postID = '%d'", $intFormID, $intPostID));
 				}
 
 				else

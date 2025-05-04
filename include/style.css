@@ -36,25 +36,6 @@
 			width: 18%;
 		}
 
-	/*.mf_form .form_zipcode
-	{
-		overflow: hidden;
-	}
-
-		.mf_form .form_zipcode input
-		{
-			float: left;
-			max-width: 4em;
-			text-align: center;
-		}
-
-		.mf_form .form_zipcode > span
-		{
-			float: left;
-			line-height: 2.7;
-			padding-left: 1em;
-		}*/
-
 	.form_textfield.form_check
 	{
         height: 0;

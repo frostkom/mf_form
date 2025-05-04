@@ -108,10 +108,10 @@ switch($type_action)
 
 					if($wpdb->rows_affected > 0)
 					{
-						if($obj_form->form_option_exists)
-						{
+						/*if($obj_form->form_option_exists)
+						{*/
 							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d'", $type_id));
-						}
+						//}
 
 						//$wpdb->query(wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d'", $type_id));
 

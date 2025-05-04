@@ -43,8 +43,8 @@ if($obj_form->check_allow_edit())
 				$has_single_action = ($obj_form->type_action_equals != '' && $obj_form->type_action_show > 0);
 				$has_multiple_action = false;
 
-				if($obj_form->form_option_exists)
-				{
+				/*if($obj_form->form_option_exists)
+				{*/
 					foreach($obj_form->arr_type_select_action as $key => $value)
 					{
 						if($value > 0)
@@ -53,7 +53,7 @@ if($obj_form->check_allow_edit())
 							break;
 						}
 					}
-				}
+				//}
 
 				echo "<div id='post-body' class='columns-2'>
 					<div id='post-body-content'>
@@ -97,21 +97,21 @@ if($obj_form->check_allow_edit())
 
 												if($count_temp == 0)
 												{
-													if($obj_form->form_option_exists)
-													{
+													/*if($obj_form->form_option_exists)
+													{*/
 														$obj_form->arr_type_select_id = array('', '', '');
 														$obj_form->arr_type_select_key = array('0', '1', '2');
 														$obj_form->arr_type_select_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
 														$obj_form->arr_type_select_limit = array('', '', '');
 														$obj_form->arr_type_select_action = array('', '', '');
-													}
+													/*}
 
 													else
 													{
 														$obj_form->arr_type_select_id = array('0', '1', '2');
 														$obj_form->arr_type_select_value = array("-- ".__("Choose Here", 'lang_form')." --", __("No", 'lang_form'), __("Yes", 'lang_form'));
 														$obj_form->arr_type_select_limit = array('', '', '');
-													}
+													}*/
 
 													$count_temp = count($obj_form->arr_type_select_value);
 												}
@@ -122,8 +122,8 @@ if($obj_form->check_allow_edit())
 												."Limit: ".var_export($obj_form->arr_type_select_limit, true)."<br>"
 												."Action: ".var_export($obj_form->arr_type_select_action, true)."<br>";*/
 
-												if($obj_form->form_option_exists)
-												{
+												/*if($obj_form->form_option_exists)
+												{*/
 													$arr_data_show = array();
 
 													if($has_single_action == false || $has_multiple_action == true)
@@ -156,7 +156,7 @@ if($obj_form->check_allow_edit())
 															."</div>";
 														}
 													}
-												}
+												/*}
 
 												else
 												{
@@ -170,7 +170,7 @@ if($obj_form->check_allow_edit())
 															.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_limit[]', 'value' => $obj_form->arr_type_select_limit[$i], 'xtra' => " min='0'", 'xtra_class' => "option_limit"))
 														."</div>";
 													}
-												}
+												}*/
 
 											echo "</div>
 										</div>";
@@ -202,8 +202,8 @@ if($obj_form->check_allow_edit())
 
 												// Connect to another select
 												##############################
-												if($obj_form->form_option_exists)
-												{
+												/*if($obj_form->form_option_exists)
+												{*/
 													$result = $obj_form->get_form_type_info(array('query_type_code' => array('select'), 'query_exclude_id' => $obj_form->form2type_id));
 
 													if(count($result) > 0)
@@ -214,7 +214,7 @@ if($obj_form->check_allow_edit())
 															.show_select(array('data' => $arr_data_show, 'name' => 'intFormTypeConnectTo', 'text' => __("Connect to", 'lang_form'), 'value' => $obj_form->type_connect_to))
 														."</div>";
 													}
-												}
+												//}
 												##############################
 
 												// Actions
@@ -223,8 +223,8 @@ if($obj_form->check_allow_edit())
 												{
 													$arr_data_equals = array();
 
-													if($obj_form->form_option_exists)
-													{
+													/*if($obj_form->form_option_exists)
+													{*/
 														switch($obj_form->type_id)
 														{
 															case 1:
@@ -242,7 +242,7 @@ if($obj_form->check_allow_edit())
 																}
 															break;
 														}
-													}
+													/*}
 
 													else
 													{
@@ -252,7 +252,7 @@ if($obj_form->check_allow_edit())
 														{
 															$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
 														}
-													}
+													}*/
 
 													if(count($arr_data_equals) > 1)
 													{
