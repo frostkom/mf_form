@@ -1953,51 +1953,14 @@ class mf_form
 	{
 		$menu_root = 'mf_form/';
 
-		// Old
-		######################
-		/*$count_forms = $this->get_amount();
-
-		$menu_start = ($count_forms > 0 ? $menu_root."list/index.php" : $menu_root."create/index.php");
-		$menu_capability = override_capability(array('page' => $menu_start, 'default' => 'edit_pages'));
-
-		$count_message = ($count_forms > 0 ? $this->get_count_answer_message() : "");
-
-		$menu_title = __("Forms", 'lang_form');
-		add_menu_page("", $menu_title.$count_message, $menu_capability, $menu_start, '', 'dashicons-forms', 21);
-
-		$menu_title = __("List", 'lang_form');
-		add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, $menu_start);
-
-		if($count_forms > 0)
-		{
-			$menu_title = __("Add New", 'lang_form');
-			add_submenu_page($menu_start, $menu_title, " - ".$menu_title, $menu_capability, $menu_root.'create/index.php');
-
-			$menu_title = __("Answers", 'lang_form');
-			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'answer/index.php');
-
-			$menu_title = __("Edit Answer", 'lang_form');
-			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
-		}
-
-		if(IS_EDITOR)
-		{
-			$menu_title = __("Settings", 'lang_form');
-			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, admin_url("options-general.php?page=settings_mf_base#settings_form"));
-		}*/
-		######################
-
-		// New
-		######################
 		if(IS_EDITOR)
 		{
 			$menu_start = "edit.php?post_type=".$this->post_type;
-			$menu_capability = override_capability(array('page' => $menu_start, 'default' => 'edit_posts'));
+			$menu_capability = 'edit_posts';
 
 			$menu_title = __("Settings", 'lang_form');
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, admin_url("options-general.php?page=settings_mf_base#settings_form"));
 
-			// Old
 			$menu_title = __("List", 'lang_form');
 			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'list/index.php');
 
@@ -2010,7 +1973,6 @@ class mf_form
 			$menu_title = __("Edit Answer", 'lang_form');
 			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
 		}
-		######################
 
 		remove_meta_box('commentsdiv', $this->post_type, 'normal');
 	    remove_meta_box('commentstatusdiv', $this->post_type, 'normal');
@@ -4071,7 +4033,18 @@ class mf_form
 
 		if($form_id > 0)
 		{
-			$arr_posts = get_pages_from_shortcode("[mf_form id=".$form_id."]");
+			$block_code = '<!-- wp:mf/form {"form_id":"'.$form_id.'"} /-->';
+			$arr_ids = apply_filters('get_page_from_block_code', array(), $block_code);
+
+			if(count($arr_ids) > 0)
+			{
+				foreach($arr_ids as $post_id_temp)
+				{
+					$out = get_permalink($post_id_temp);
+				}
+			}
+
+			/*$arr_posts = get_pages_from_shortcode("[mf_form id=".$form_id."]");
 
 			if(is_array($arr_posts) && count($arr_posts) > 0)
 			{
@@ -4079,7 +4052,7 @@ class mf_form
 				{
 					$out = get_permalink($post_id);
 				}
-			}
+			}*/
 
 			else
 			{

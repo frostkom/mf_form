@@ -344,41 +344,6 @@ if($obj_form->check_allow_edit())
 								echo "</div>
 							</div>";
 
-							/*echo "<div class='postbox'>
-								<h3 class='hndle'><span>".__("E-mail", 'lang_form')."</span></h3>
-								<div class='inside'>";
-
-									echo show_checkbox(array('name' => 'intFormEmailNotify', 'text' => __("Send to Admin", 'lang_form'), 'value' => 'yes', 'compare' => $obj_form->email_notify))
-									.show_textfield(array('name' => 'strFormEmail', 'text' => __("Send To", 'lang_form'), 'value' => $obj_form->email_admin, 'maxlength' => 100, 'placeholder' => get_bloginfo('admin_email')))
-									.show_select(array('data' => $obj_form->get_email_notify_from_for_select(), 'name' => 'strFormEmailNotifyFrom', 'value' => $obj_form->email_notify_from, 'text' => __("From", 'lang_form')))
-									."<div class='email_notify_div'>"
-										.show_textfield(array('name' => 'strFormEmailNotifyFromEmail', 'text' => __("Send From", 'lang_form'), 'value' => $obj_form->email_notify_from_email, 'maxlength' => 100))
-										.show_textfield(array('name' => 'strFormEmailNotifyFromEmailName', 'text' => __("Send From", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $obj_form->email_notify_from_email_name, 'maxlength' => 100))
-									."</div>"
-									.show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailNotifyPage', 'value' => $obj_form->email_notify_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_email_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
-
-									$int_email_fields = $obj_form->has_email_field();
-
-									if($int_email_fields > 0)
-									{
-										echo show_checkbox(array('name' => 'intFormEmailConfirm', 'text' => __("Send to Visitor", 'lang_form'), 'value' => 'yes', 'compare' => $obj_form->email_confirm))
-										."<div class='email_confirm_div'>"
-											.show_textfield(array('name' => 'strFormEmailConfirmFromEmail', 'text' => __("Send From", 'lang_form'), 'value' => $obj_form->email_confirm_from_email, 'maxlength' => 100))
-											.show_textfield(array('name' => 'strFormEmailConfirmFromEmailName', 'text' => __("Send From", 'lang_form')." (".__("Name", 'lang_form').")", 'value' => $obj_form->email_confirm_from_email_name, 'maxlength' => 100))
-										."</div>";
-
-										if($int_email_fields > 1)
-										{
-											echo show_select(array('data' => $obj_form->get_email_fields_for_select(), 'name' => 'intFormEmailConfirmID', 'value' => $obj_form->email_confirm_id, 'text' => __("Field", 'lang_form')));
-										}
-
-										echo show_select(array('data' => $arr_data_pages, 'name' => 'intFormEmailConfirmPage', 'value' => $obj_form->email_confirm_page, 'text' => __("Template", 'lang_form')." <a href='".admin_url("post-new.php?post_type=page".$form_email_page_shortcodes)."'><i class='fa fa-plus-circle fa-lg'></i></a>"));
-									}
-
-									echo show_textarea(array('name' => 'strFormEmailConditions', 'text' => __("Conditions", 'lang_form'), 'value' => $obj_form->email_conditions, 'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email')))
-								."</div>
-							</div>";*/
-
 							$arr_data_providers = $obj_form->get_payment_providers_for_select();
 
 							if(count($arr_data_providers) > 1)
