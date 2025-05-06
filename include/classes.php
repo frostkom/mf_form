@@ -411,18 +411,21 @@ class mf_form
 
 			// Convert answerIP to MD5
 			#################################
-			$result = $wpdb->get_results("SELECT answerID, answerIP FROM ".$wpdb->prefix."form2answer WHERE answerIP != '' AND CHAR_LENGTH(answerIP) < 32");
-
-			foreach($result as $r)
+			if(does_table_exist($wpdb->prefix."form2answer"))
 			{
-				$wpdb->get_results($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerIP = %s WHERE answerID = '%d'", md5((defined('NONCE_SALT') ? NONCE_SALT : '').$r->answerIP), $r->answerID));
+				$result = $wpdb->get_results("SELECT answerID, answerIP FROM ".$wpdb->prefix."form2answer WHERE answerIP != '' AND CHAR_LENGTH(answerIP) < 32");
+
+				foreach($result as $r)
+				{
+					$wpdb->get_results($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerIP = %s WHERE answerID = '%d'", md5((defined('NONCE_SALT') ? NONCE_SALT : '').$r->answerIP), $r->answerID));
+				}
 			}
 			#################################
 
 			mf_uninstall_plugin(array(
 				'options' => array('setting_form_permission', 'setting_form_reload'),
 				'meta' => array('meta_answer_viewed'),
-				'tables' => array('form_check', 'form_nonce', 'form_spam', 'form_zipcode', 'form_answer_meta'), //, 'form_type'
+				'tables' => array('form_check', 'form_nonce', 'form_spam', 'form_zipcode', 'form_answer_meta'),
 			));
 
 			// Delete orphan forms
@@ -439,7 +442,7 @@ class mf_form
 				}
 			}
 
-			else
+			else if(does_table_exist($wpdb->prefix."form"))
 			{
 				$query = $wpdb->prepare("SELECT formID FROM ".$wpdb->prefix."form LEFT JOIN ".$wpdb->posts." ON ".$wpdb->prefix."form.postID = ".$wpdb->posts.".ID AND post_type = %s WHERE ID IS null", $this->post_type);
 				$result = $wpdb->get_results($query);
@@ -455,39 +458,42 @@ class mf_form
 
 			// Delete orphan data
 			#######################
-			$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2type.formID FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null");
-
-			foreach($result as $r)
+			if(does_table_exist($wpdb->prefix."form"))
 			{
-				$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form2type WHERE formID = '%d'", $r->formID));
-			}
+				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2type.formID FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null");
 
-			$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form_option.form2TypeID FROM ".$wpdb->prefix."form_option LEFT JOIN ".$wpdb->prefix."form2type USING (form2TypeID) WHERE ".$wpdb->prefix."form2type.form2TypeID IS null");
+				foreach($result as $r)
+				{
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form2type WHERE formID = '%d'", $r->formID));
+				}
 
-			if($wpdb->num_rows > 0)
-			{
-				do_log(__FUNCTION__." - Dead form_option: ".$wpdb->last_query);
-			}
+				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form_option.form2TypeID FROM ".$wpdb->prefix."form_option LEFT JOIN ".$wpdb->prefix."form2type USING (form2TypeID) WHERE ".$wpdb->prefix."form2type.form2TypeID IS null");
 
-			$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form_answer.answerID FROM ".$wpdb->prefix."form_answer LEFT JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2answer.answerID IS null");
+				if($wpdb->num_rows > 0)
+				{
+					do_log(__FUNCTION__." - Dead form_option: ".$wpdb->last_query);
+				}
 
-			foreach($result as $r)
-			{
-				$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer WHERE answerID = '%d'", $r->answerID));
-			}
+				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form_answer.answerID FROM ".$wpdb->prefix."form_answer LEFT JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2answer.answerID IS null");
 
-			$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form_answer_email.answerID FROM ".$wpdb->prefix."form_answer_email LEFT JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2answer.answerID IS null");
+				foreach($result as $r)
+				{
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer WHERE answerID = '%d'", $r->answerID));
+				}
 
-			foreach($result as $r)
-			{
-				$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
-			}
+				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form_answer_email.answerID FROM ".$wpdb->prefix."form_answer_email LEFT JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2answer.answerID IS null");
 
-			$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2answer.formID FROM ".$wpdb->prefix."form2answer LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null");
+				foreach($result as $r)
+				{
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
+				}
 
-			if($wpdb->num_rows > 0)
-			{
-				do_log(__FUNCTION__." - Dead form2answer: ".$wpdb->last_query);
+				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2answer.formID FROM ".$wpdb->prefix."form2answer LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null");
+
+				if($wpdb->num_rows > 0)
+				{
+					do_log(__FUNCTION__." - Dead form2answer: ".$wpdb->last_query);
+				}
 			}
 			#######################
 
@@ -850,11 +856,14 @@ class mf_form
 			'setting_form_spam' => __("Spam Filter", 'lang_form'),
 		);
 
-		$wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."form2answer WHERE answerSpam = '1' LIMIT 0, 1");
-
-		if($wpdb->num_rows > 0)
+		if(does_table_exist($wpdb->prefix."form2answer"))
 		{
-			$arr_settings['setting_form_clear_spam'] = __("Clear Spam", 'lang_form');
+			$wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."form2answer WHERE answerSpam = '1' LIMIT 0, 1");
+
+			if($wpdb->num_rows > 0)
+			{
+				$arr_settings['setting_form_clear_spam'] = __("Clear Spam", 'lang_form');
+			}
 		}
 
 		$arr_settings['setting_form_replacement'] = __("Form to replace all e-mail links", 'lang_form');
@@ -1483,6 +1492,30 @@ class mf_form
 		return $actions;
 	}
 
+	function get_email_fields_for_select()
+	{
+		global $wpdb;
+
+		$arr_data = array(
+			'' => "-- ".__("Choose Here", 'lang_form')." --",
+		);
+
+		if(does_table_exist($wpdb->prefix."form2type"))
+		{
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, checkID FROM ".$wpdb->prefix."form2type WHERE formID = '%d' AND formTypeID = '%d'", $this->id, 3));
+
+			foreach($result as $r)
+			{
+				if(isset($this->arr_form_check[$r->checkID]) && $this->arr_form_check[$r->checkID]['code'] == 'email')
+				{
+					$arr_data[$r->form2TypeID] = $r->formTypeText;
+				}
+			}
+		}
+
+		return $arr_data;
+	}
+
 	function rwmb_meta_boxes($meta_boxes)
 	{
 		global $obj_base;
@@ -2060,7 +2093,12 @@ class mf_form
 	{
 		global $wpdb;
 
-		$form_id = $wpdb->get_var("SELECT formID FROM ".$wpdb->prefix."form2type WHERE formTypeRemember = '1'");
+		$form_id = 0;
+
+		if(does_table_exist($wpdb->prefix."form2type"))
+		{
+			$form_id = $wpdb->get_var("SELECT formID FROM ".$wpdb->prefix."form2type WHERE formTypeRemember = '1'");
+		}
 
 		return ($form_id > 0);
 	}
@@ -4248,27 +4286,6 @@ class mf_form
 		}
 
 		return $out;
-	}
-
-	function get_email_fields_for_select()
-	{
-		global $wpdb;
-
-		$arr_data = array(
-			'' => "-- ".__("Choose Here", 'lang_form')." --",
-		);
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, checkID FROM ".$wpdb->prefix."form2type WHERE formID = '%d' AND formTypeID = '%d'", $this->id, 3));
-
-		foreach($result as $r)
-		{
-			if(isset($this->arr_form_check[$r->checkID]) && $this->arr_form_check[$r->checkID]['code'] == 'email')
-			{
-				$arr_data[$r->form2TypeID] = $r->formTypeText;
-			}
-		}
-
-		return $arr_data;
 	}
 
 	function get_form_type_for_select($data)

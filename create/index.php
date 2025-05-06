@@ -420,7 +420,7 @@ if($obj_form->check_allow_edit())
 								</div>";
 							}
 
-							else if($obj_form->payment_provider > 0)
+							else if($obj_form->payment_provider > 0 && $obj_form->payment_provider != 'no')
 							{
 								do_log(sprintf("There are no installed provider extension even though it seams like a provider has been set (%s)", $obj_form->payment_provider));
 							}
