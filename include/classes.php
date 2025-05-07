@@ -499,13 +499,9 @@ class mf_form
 
 			// Look for empty answers
 			#######################
-			$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."form2answer LEFT JOIN ".$wpdb->prefix."form_answer USING (answerID) WHERE ".$wpdb->prefix."form_answer.answerID IS null");
-			$last_query = $wpdb->last_query;
-			$num_rows = $wpdb->num_rows;
-
-			if($num_rows > 0)
+			if(does_table_exist($wpdb->prefix."form2answer"))
 			{
-				$i = 0;
+				$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."form2answer LEFT JOIN ".$wpdb->prefix."form_answer USING (answerID) WHERE ".$wpdb->prefix."form_answer.answerID IS null");
 
 				foreach($result as $r)
 				{
@@ -528,12 +524,8 @@ class mf_form
 					if($has_data == false)
 					{
 						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form2answer WHERE answerID = '%d'", $r->answerID));
-
-						//$i++;
 					}
 				}
-
-				//do_log("There are ".$num_rows." (".$i.") empty answers (".$last_query.")");
 			}
 			#######################
 
