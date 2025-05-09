@@ -28,7 +28,7 @@ class mf_form
 	var $arr_answer_queries = array();
 	var $arr_email_content = array();
 	var $form_name = "";
-	var $name = "";
+	//var $name = "";
 	var $import = "";
 	var $url = "";
 	var $deadline = "";
@@ -176,7 +176,7 @@ class mf_form
 				}
 			}
 
-			$data['actions']['create_page'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/create/index.php&btnPageCreate&intFormID=".$this->id."&strFormName=".$this->name), 'page_create_'.$this->id, '_wpnonce_page_create')."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("Add New Page", 'lang_form')."</a>";
+			$data['actions']['create_page'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/create/index.php&btnPageCreate&intFormID=".$this->id."&strFormName=".$this->form_name), 'page_create_'.$this->id, '_wpnonce_page_create')."'".($data['class'] != '' ? " class='".$data['class']."'" : "").">".__("Add New Page", 'lang_form')."</a>";
 		}
 
 		return $data['actions'];
@@ -2650,7 +2650,7 @@ class mf_form
 			case 'create':
 				if(!($this->id > 0))
 				{
-					$this->name = check_var('strFormName');
+					$this->form_name = check_var('strFormName');
 					$this->import = check_var('strFormImport');
 				}
 
@@ -2756,12 +2756,10 @@ class mf_form
 
 		if($data['create_new_page'] == true)
 		{
-			$strFormName = $this->get_form_name($intFormID);
-
 			$post_data = array(
 				'post_type' => $this->post_type,
 				'post_status' => 'publish',
-				'post_title' => $strFormName." (".__("copy", 'lang_form').")",
+				'post_title' => $this->get_form_name($intFormID)." (".__("copy", 'lang_form').")",
 			);
 
 			$intPostID = wp_insert_post($post_data);
@@ -2936,7 +2934,7 @@ class mf_form
 
 					else
 					{
-						$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = '%d' LIMIT 0, 1", $this->post_type, $this->name));
+						$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = '%d' LIMIT 0, 1", $this->post_type, $this->form_name));
 
 						if($wpdb->num_rows > 0)
 						{
@@ -2948,7 +2946,7 @@ class mf_form
 							$post_data = array(
 								'post_type' => $this->post_type,
 								'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
-								'post_title' => $this->name,
+								'post_title' => $this->form_name,
 							);
 
 							$this->post_id = wp_insert_post($post_data);
@@ -3183,7 +3181,7 @@ class mf_form
 					$post_id = wp_insert_post(array(
 						'post_type' => 'page',
 						'post_status' => 'draft',
-						'post_title' => $this->name,
+						'post_title' => $this->form_name,
 						'post_content' => '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->',
 					));
 
@@ -3192,7 +3190,7 @@ class mf_form
 
 				if(!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && $this->id > 0)
 				{
-					$this->name = $this->get_post_info(array('select' => 'post_title'));
+					$this->form_name = $this->get_form_name();
 					$this->url = $this->get_post_info(array('select' => 'post_name'));
 					$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
 					$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
@@ -3487,7 +3485,7 @@ class mf_form
 
 					if($wpdb->num_rows > 0)
 					{
-						$this->form_name = $this->get_post_info(array('select' => 'post_title'));
+						$this->form_name = $this->get_form_name();
 						$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 
 						$this->answer_data = array();
@@ -3782,7 +3780,7 @@ class mf_form
 
 		$form_name = $this->get_post_info(array('select' => 'post_title'));
 
-		return ($form_name != '' ? $form_name: __("Unknown", 'lang_form')." (#".$id.")");
+		return ($form_name != '' ? $form_name : __("Unknown", 'lang_form')." (#".$id.")");
 	}
 
 	function get_form_id($post_id)
@@ -4939,7 +4937,7 @@ class mf_form
 
 		$setting_form_spam = get_option_or_default('setting_form_spam', array('email', 'filter', 'honeypot'));
 
-		$this->form_name = $this->get_post_info(array('select' => 'post_title'));
+		$this->form_name = $this->get_form_name();
 		//$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 
 		$dblQueryPaymentAmount_value = 0;
@@ -5849,7 +5847,7 @@ if(class_exists('mf_export'))
 			}
 
 			$obj_form->id = $this->type;
-			$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
+			$this->name = $obj_form->get_form_name();
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
 
@@ -5921,7 +5919,7 @@ if(class_exists('mf_export'))
 			}
 
 			$obj_form->id = $this->type;
-			$this->name = $obj_form->get_post_info(array('select' => 'post_title'));
+			$this->name = $obj_form->get_form_name();
 
 			$search = check_var('s');
 
@@ -6411,8 +6409,6 @@ if(class_exists('mf_list_table'))
 
 					else
 					{
-						$strFormName = $obj_form->get_post_info(array('select' => 'post_title'));
-
 						$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, formTypeID, checkID FROM ".$wpdb->prefix."form2type WHERE formID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
 
 						foreach($resultText as $r)
@@ -6472,7 +6468,7 @@ if(class_exists('mf_list_table'))
 													break;
 
 													case 'email':
-														$strAnswerText = "<a href='mailto:".$strAnswerText."?subject=".__("Re", 'lang_form').": ".$strFormName."'>".$strAnswerText."</a>";
+														$strAnswerText = "<a href='mailto:".$strAnswerText."?subject=".__("Re", 'lang_form').": ".$obj_form->get_form_name()."'>".$strAnswerText."</a>";
 
 														if($item['answerSpam'] == false)
 														{

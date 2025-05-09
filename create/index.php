@@ -19,7 +19,7 @@ if($obj_form->check_allow_edit())
 	$obj_form->post_status = get_post_status($obj_form->post_id);
 
 	echo "<div class='wrap'>
-		<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." <span>".$obj_form->name."</span>" : __("Add New", 'lang_form'))."</h2>"
+		<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." <span>".$obj_form->form_name."</span>" : __("Add New", 'lang_form'))."</h2>"
 		.get_notification()
 		."<div id='poststuff'>";
 
@@ -435,7 +435,7 @@ if($obj_form->check_allow_edit())
 				echo "<form method='post' action='' class='mf_form mf_settings'>
 					<div class='postbox'>
 						<div class='inside'>"
-							.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->name, 'maxlength' => 100, 'required' => true, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
+							.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->form_name, 'maxlength' => 100, 'required' => true, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
 							.show_textarea(array('name' => 'strFormImport', 'text' => __("Import Form Fields", 'lang_form'), 'value' => $obj_form->import, 'placeholder' => "3,".__("Name", 'lang_form').","))
 							.show_button(array('name' => 'btnFormPublish', 'text' => __("Add", 'lang_form')))
 							.input_hidden(array('name' => 'intFormID', 'value' => $obj_form->id))

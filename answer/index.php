@@ -6,13 +6,11 @@ echo $obj_form->save_data();
 
 if($obj_form->id > 0)
 {
-	$strFormName = $obj_form->get_post_info(array('select' => 'post_title'));
-
 	echo "<div class='wrap'>
 		<h2>"
-			.__("Answers", 'lang_form')." <span>".$strFormName."</span>";
+			.__("Answers", 'lang_form')." <span>".$obj_form->get_form_name()."</span>";
 
-			$export_url = "admin.php?page=mf_form/answer/index.php&btnFormAnswerExport&btnExportRun&intExportType=".$obj_form->id; //&intFormID=".$obj_form->id."
+			$export_url = "admin.php?page=mf_form/answer/index.php&btnFormAnswerExport&btnExportRun&intExportType=".$obj_form->id;
 
 			$search = check_var('s');
 
