@@ -2022,55 +2022,6 @@ class mf_form
 		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
 	}
 
-	function do_clone_site($data)
-	{
-		global $wpdb;
-
-		//do_log("Cloned Forms: ".var_export($data, true));
-
-		/*$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."form WHERE blogID = '%d'", $data['from']));
-
-		foreach($result as $r)
-		{
-			$intFormID = $r->formID;
-
-			if($this->clone_form(array('id' => $intFormID, 'blog_id_to' => $data['to'], 'create_new_page' => false, 'include_answers' => true)))
-			{
-				$done_text = __("The form was successfully copied", 'lang_form');
-			}
-
-			else
-			{
-				$error_text = __("Something went wrong. Contact your admin and add this URL as reference", 'lang_form');
-			}
-		}*/
-	}
-
-	function do_switch_sites($data)
-	{
-		global $wpdb;
-
-		do_log("Switched Forms: ".var_export($data, true));
-
-		/*$result = $wpdb->get_results($wpdb->prepare("SELECT formID, blogID FROM ".$wpdb->prefix."form WHERE (blogID = '%d' OR blogID = '%d')", $data['from'], $data['to']));
-
-		foreach($result as $r)
-		{
-			$intFormID = $r->formID;
-			$intBlogID = $r->blogID;
-
-			if($intBlogID == $data['from'])
-			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form SET blogID = '%d' WHERE formID = '%d'", $data['to'], $intFormID));
-			}
-
-			else
-			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form SET blogID = '%d' WHERE formID = '%d'", $data['from'], $intFormID));
-			}
-		}*/
-	}
-
 	function filter_last_updated_post_types($array, $type)
 	{
 		if($type == 'auto')
@@ -2745,14 +2696,13 @@ class mf_form
 
 		if(!isset($data['create_new_page'])){	$data['create_new_page'] = false;}
 		if(!isset($data['include_answers'])){	$data['include_answers'] = false;}
-		if(!isset($data['blog_id_to'])){		$data['blog_id_to'] = 0;}
 
 		$success = true;
 		$arr_form_id = $arr_form2type_id = $arr_answer_id = array();
 
 		$intFormID = $data['id'];
 
-		$copy_fields_to = $copy_fields_from = "blogID";
+		$copy_fields_to = $copy_fields_from = "";
 
 		if($data['create_new_page'] == true)
 		{
@@ -2764,14 +2714,14 @@ class mf_form
 
 			$intPostID = wp_insert_post($post_data);
 
-			$copy_fields_to .= ", postID";
-			$copy_fields_from .= ", '".$intPostID."'";
+			$copy_fields_to .= ($copy_fields_to != '' ? ", " : "")."postID";
+			$copy_fields_from .= ($copy_fields_from != '' ? ", " : "")."'".$intPostID."'";
 		}
 
 		else
 		{
-			$copy_fields_to .= ", postID";
-			$copy_fields_from .= ", postID";
+			$copy_fields_to .= ($copy_fields_to != '' ? ", " : "")."postID";
+			$copy_fields_from .= ($copy_fields_from != '' ? ", " : "")."postID";
 		}
 
 		$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form (".$copy_fields_to.") (SELECT ".$copy_fields_from." FROM ".$wpdb->prefix."form WHERE formID = '%d')", $intFormID));
@@ -2780,11 +2730,6 @@ class mf_form
 		if($intFormID_new > 0)
 		{
 			$arr_form_id[$intFormID] = $intFormID_new;
-
-			if($data['blog_id_to'] > 0)
-			{
-				//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form SET blogID = '%d' WHERE formID = '%d'", $data['blog_id_to'], $intFormID_new));
-			}
 
 			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->prefix."form2type WHERE formID = '%d' ORDER BY form2TypeID DESC", $intFormID));
 
