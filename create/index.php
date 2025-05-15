@@ -55,9 +55,11 @@ if($obj_form->check_allow_edit())
 					}
 				//}
 
-				echo "<div id='post-body' class='columns-2'>
-					<div id='post-body-content'>
-						<div class='postbox".($obj_form->form2type_id > 0 ? " active" : "")."'>
+				echo "<div id='post-body'>"; // class='columns-2'
+
+					//echo "<div id='post-body-content'>"
+
+						echo "<div class='postbox".($obj_form->form2type_id > 0 ? " active" : "")."'>
 							<h3 class='hndle'><span>".__("Content", 'lang_form')."</span></h3>
 							<form method='post' action='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."' class='mf_form mf_settings inside'>
 								<div".($has_single_action == false || $has_multiple_action == true ? "" : " class='flex_flow'").">"
@@ -311,7 +313,7 @@ if($obj_form->check_allow_edit())
 							echo "</div>
 						</div>";
 
-					echo "</div>
+					/*echo "</div>
 					<div id='postbox-container-1'>
 						<form method='post' action='' class='mf_form mf_settings'>
 							<div class='postbox display_parent'>
@@ -426,13 +428,16 @@ if($obj_form->check_allow_edit())
 							}
 
 						echo "</form>
-					</div>
-				</div>";
+					</div>";*/
+
+				echo "</div>";
 			}
 
 			else
 			{
-				echo "<form method='post' action='' class='mf_form mf_settings'>
+				do_log("There was no formID");
+
+				/*echo "<form method='post' action='' class='mf_form mf_settings'>
 					<div class='postbox'>
 						<div class='inside'>"
 							.show_textfield(array('name' => 'strFormName', 'text' => __("Name", 'lang_form'), 'value' => $obj_form->form_name, 'maxlength' => 100, 'required' => true, 'xtra' => ($obj_form->form2type_id > 0 ? "" : "autofocus")))
@@ -442,7 +447,7 @@ if($obj_form->check_allow_edit())
 							.wp_nonce_field('form_update_'.$obj_form->id, '_wpnonce_form_update', true, false)
 						."</div>
 					</div>
-				</form>";
+				</form>";*/
 			}
 
 		echo "</div>

@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.8.8
+Version: 1.1.8.9
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -63,8 +63,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		add_filter('the_content', array($obj_form, 'the_content'));
 	}
-
-	add_shortcode($obj_form->post_type, array($obj_form, 'shortcode_form'));
 
 	add_action('widgets_init', array($obj_form, 'widgets_init'));
 
@@ -290,19 +288,22 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		############################
 		if($wpdb->base_prefix == $wpdb->prefix)
 		{
-			if(is_multisite())
+			// This will remove newly created forms because they are saved without blogID
+			/*if(is_multisite())
 			{
-				$result = $wpdb->get_results("SELECT formID FROM ".$wpdb->base_prefix."form LEFT JOIN ".$wpdb->blogs." ON ".$wpdb->base_prefix."form.blogID = ".$wpdb->blogs.".blog_id WHERE blog_id IS null");
+				$result = $wpdb->get_results("SELECT formID FROM ".$wpdb->prefix."form LEFT JOIN ".$wpdb->blogs." ON ".$wpdb->prefix."form.blogID = ".$wpdb->blogs.".blog_id WHERE blog_id IS null");
 
 				foreach($result as $r)
 				{
-					$obj_form->delete_form($r->formID);
+					do_log(__FUNCTION__.": Delete form ".$r->formID."???");
+
+					//$obj_form->delete_form($r->formID);
 				}
-			}
+			}*/
 
 			if(does_column_exist($wpdb->prefix."form2type", "postID"))
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d' OR blogID IS null", $wpdb->blogid));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->prefix."form WHERE blogID = '%d' OR blogID IS null", $wpdb->blogid));
 
 				foreach($result as $r)
 				{
@@ -311,151 +312,157 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET postID = '%d' WHERE formID = '%d' AND (postID IS null OR postID = '0')", $intPostID, $intFormID));
 					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET postID = '%d' WHERE formID = '%d' AND (postID IS null OR postID = '0')", $intPostID, $intFormID));
+
+					//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form SET blogID = null WHERE formID = '%d'", $intFormID));
+					//do_log(__FUNCTION__.": ".$wpdb->prepare("UPDATE ".$wpdb->prefix."form SET blogID = null WHERE formID = '%d'", $intFormID));
 				}
 			}
 		}
 
 		else
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d'", $wpdb->blogid));
-
-			foreach($result as $r)
+			if(does_column_exist($wpdb->base_prefix."form", "blogID"))
 			{
-				$intFormID = $r->formID;
-				$intPostID = $r->postID;
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->base_prefix."form WHERE blogID = '%d'", $wpdb->blogid));
 
-				// form
-				#############
-				$wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->prefix."form WHERE formID = '%d' AND postID = '%d'", $intFormID, $intPostID));
-
-				if($wpdb->num_rows > 0)
+				foreach($result as $r)
 				{
-					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND postID = '%d'", $intFormID, $intPostID));
-				}
+					$intFormID = $r->formID;
+					$intPostID = $r->postID;
 
-				else
-				{
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form SET formID = '%d', postID = '%d'", $intFormID, $intPostID));
-				}
-				#############
-
-				// form2type
-				#############
-				$result_form2type = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $intFormID));
-
-				foreach($result_form2type as $r)
-				{
-					$intForm2TypeID = $r->form2TypeID;
-
-					$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->prefix."form2type WHERE form2TypeID = '%d'", $intForm2TypeID));
+					// form
+					#############
+					$wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->prefix."form WHERE formID = '%d' AND postID = '%d'", $intFormID, $intPostID));
 
 					if($wpdb->num_rows > 0)
 					{
-						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $intForm2TypeID));
+						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form WHERE formID = '%d' AND postID = '%d'", $intFormID, $intPostID));
 					}
 
 					else
 					{
-						$copy_fields = "form2TypeID, form2TypeID2, formID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
-
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form2type (postID, ".$copy_fields.") (SELECT '%d', ".$copy_fields." FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intPostID, $intForm2TypeID));
-					}
-
-					// form_option
-					#############
-					$result_form_option = $wpdb->get_results($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d'", $intForm2TypeID));
-
-					foreach($result_form_option as $r)
-					{
-						$intFormOptionID = $r->formOptionID;
-
-						$wpdb->get_results($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->prefix."form_option WHERE formOptionID = '%d'", $intFormOptionID));
-
-						if($wpdb->num_rows > 0)
-						{
-							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_option WHERE formOptionID = '%d'", $intFormOptionID));
-						}
-
-						else
-						{
-							$copy_fields = "formOptionID, form2TypeID, formOptionKey, formOptionValue, formOptionLimit, formOptionAction, formOptionOrder";
-
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_option (".$copy_fields.") (SELECT ".$copy_fields." FROM ".$wpdb->base_prefix."form_option WHERE formOptionID = '%d')", $intFormOptionID));
-						}
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form SET formID = '%d', postID = '%d'", $intFormID, $intPostID));
 					}
 					#############
-				}
-				#############
 
-				// form2answer
-				#############
-				$result_form2answer = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d'", $intFormID));
-
-				foreach($result_form2answer as $r)
-				{
-					$intAnswerID = $r->answerID;
-
-					$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form2answer WHERE answerID = '%d'", $intAnswerID));
-
-					if($wpdb->num_rows > 0)
-					{
-						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $intAnswerID));
-					}
-
-					else
-					{
-						$copy_fields = "answerID, formID, answerIP, answerSpam, spamID, answerCreated";
-
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form2answer (postID, ".$copy_fields.") (SELECT '%d', ".$copy_fields." FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d')", $intPostID, $intAnswerID));
-					}
-
-					// form_answer
+					// form2type
 					#############
-					$result_form_answer = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $intAnswerID));
+					$result_form2type = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form2type WHERE formID = '%d'", $intFormID));
 
-					foreach($result_form_answer as $r)
+					foreach($result_form2type as $r)
 					{
 						$intForm2TypeID = $r->form2TypeID;
 
-						$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $intAnswerID, $intForm2TypeID));
+						$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->prefix."form2type WHERE form2TypeID = '%d'", $intForm2TypeID));
 
 						if($wpdb->num_rows > 0)
 						{
-							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $intAnswerID, $intForm2TypeID));
+							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d'", $intForm2TypeID));
 						}
 
 						else
 						{
-							$copy_fields = "answerID, form2TypeID, answerText";
+							$copy_fields = "form2TypeID, form2TypeID2, formID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
 
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer (".$copy_fields.") (SELECT ".$copy_fields." FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d')", $intAnswerID, $intForm2TypeID));
+							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form2type (postID, ".$copy_fields.") (SELECT '%d', ".$copy_fields." FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intPostID, $intForm2TypeID));
 						}
+
+						// form_option
+						#############
+						$result_form_option = $wpdb->get_results($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d'", $intForm2TypeID));
+
+						foreach($result_form_option as $r)
+						{
+							$intFormOptionID = $r->formOptionID;
+
+							$wpdb->get_results($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->prefix."form_option WHERE formOptionID = '%d'", $intFormOptionID));
+
+							if($wpdb->num_rows > 0)
+							{
+								$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_option WHERE formOptionID = '%d'", $intFormOptionID));
+							}
+
+							else
+							{
+								$copy_fields = "formOptionID, form2TypeID, formOptionKey, formOptionValue, formOptionLimit, formOptionAction, formOptionOrder";
+
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_option (".$copy_fields.") (SELECT ".$copy_fields." FROM ".$wpdb->base_prefix."form_option WHERE formOptionID = '%d')", $intFormOptionID));
+							}
+						}
+						#############
 					}
 					#############
 
-					// form_answer_email
+					// form2answer
 					#############
-					$result_form_answer_email = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $intAnswerID));
+					$result_form2answer = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form2answer WHERE formID = '%d'", $intFormID));
 
-					foreach($result_form_answer_email as $r)
+					foreach($result_form2answer as $r)
 					{
-						$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d'", $intAnswerID));
+						$intAnswerID = $r->answerID;
+
+						$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form2answer WHERE answerID = '%d'", $intAnswerID));
 
 						if($wpdb->num_rows > 0)
 						{
-							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $intAnswerID));
+							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d'", $intAnswerID));
 						}
 
 						else
 						{
-							$copy_fields = "answerID, answerEmailFrom, answerEmail, answerType, answerSent";
+							$copy_fields = "answerID, formID, answerIP, answerSpam, spamID, answerCreated";
 
-							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer_email (".$copy_fields.") (SELECT ".$copy_fields." FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d')", $intAnswerID));
+							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form2answer (postID, ".$copy_fields.") (SELECT '%d', ".$copy_fields." FROM ".$wpdb->base_prefix."form2answer WHERE answerID = '%d')", $intPostID, $intAnswerID));
 						}
+
+						// form_answer
+						#############
+						$result_form_answer = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d'", $intAnswerID));
+
+						foreach($result_form_answer as $r)
+						{
+							$intForm2TypeID = $r->form2TypeID;
+
+							$wpdb->get_results($wpdb->prepare("SELECT form2TypeID FROM ".$wpdb->prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $intAnswerID, $intForm2TypeID));
+
+							if($wpdb->num_rows > 0)
+							{
+								$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $intAnswerID, $intForm2TypeID));
+							}
+
+							else
+							{
+								$copy_fields = "answerID, form2TypeID, answerText";
+
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer (".$copy_fields.") (SELECT ".$copy_fields." FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d')", $intAnswerID, $intForm2TypeID));
+							}
+						}
+						#############
+
+						// form_answer_email
+						#############
+						$result_form_answer_email = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $intAnswerID));
+
+						foreach($result_form_answer_email as $r)
+						{
+							$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d'", $intAnswerID));
+
+							if($wpdb->num_rows > 0)
+							{
+								$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d'", $intAnswerID));
+							}
+
+							else
+							{
+								$copy_fields = "answerID, answerEmailFrom, answerEmail, answerType, answerSent";
+
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer_email (".$copy_fields.") (SELECT ".$copy_fields." FROM ".$wpdb->base_prefix."form_answer_email WHERE answerID = '%d')", $intAnswerID));
+							}
+						}
+						#############
 					}
 					#############
 				}
-				#############
 			}
 		}
 		############################

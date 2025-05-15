@@ -149,11 +149,6 @@ switch($type_action)
 			{
 				$json_output['success'] = true;
 			}
-
-			else
-			{
-				$json_output['error'] = mysql_error();
-			}
 		}
 	break;
 
