@@ -12,7 +12,6 @@ class mf_form
 	var $is_spam = false;
 	var $is_spam_id = false;
 	var $is_sent = false;
-	//var $form_option_exists = false;
 	var $type = '';
 	var $send_to = '';
 	var $answer_id = '';
@@ -28,24 +27,12 @@ class mf_form
 	var $arr_answer_queries = array();
 	var $arr_email_content = array();
 	var $form_name = "";
-	//var $name = "";
 	var $import = "";
 	var $url = "";
 	var $deadline = "";
 	var $form2type_order = "";
-	var $email_confirm = "";
-	var $email_confirm_from_email = "";
-	var $email_confirm_from_email_name = "";
-	var $email_confirm_id;
-	var $email_confirm_page = "";
 	var $answer_url = "";
 	var $email_admin = "";
-	var $email_conditions = "";
-	var $email_notify = "";
-	var $email_notify_from_email = "";
-	var $email_notify_from_email_name = "";
-	var $email_notify_from = "";
-	var $email_notify_page = "";
 	var $email_name = "";
 	var $mandatory_text = "";
 	var $button_display;
@@ -96,8 +83,6 @@ class mf_form
 		{
 			$this->get_post_id();
 		}
-
-		//$this->form_option_exists = does_table_exist($wpdb->prefix."form_option");
 
 		$this->type = (isset($data['type']) ? $data['type'] : '');
 
@@ -257,7 +242,7 @@ class mf_form
 
 			// Convert wp_form to wp_posts
 			#################################
-			if(does_table_exist($wpdb->base_prefix."form"))
+			if(does_table_exist($wpdb->base_prefix."form") && does_column_exist($wpdb->base_prefix."form", "blogID"))
 			{
 				$arr_fields_db = $arr_fields_meta = array();
 
@@ -343,72 +328,6 @@ class mf_form
 			}
 			#################################
 
-			// Start using form_option
-			#################################
-			/*if($this->form_option_exists)
-			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formID, form2TypeID, formTypeText FROM ".$wpdb->base_prefix."form2type WHERE formTypeID IN ('10', '11', '16', '17') AND formTypeText LIKE %s", "%|%"));
-
-				if($wpdb->num_rows > 0)
-				{
-					foreach($result as $r)
-					{
-						$intFormID = $r->formID;
-						$intForm2TypeID = $r->form2TypeID;
-						$strFormTypeText = $r->formTypeText;
-
-						list($strFormLabel, $strFormOptions) = explode(":", $strFormTypeText, 2);
-
-						$arr_options = explode(",", $strFormOptions);
-
-						$success = true;
-						$i = 0;
-
-						foreach($arr_options as $str_option)
-						{
-							@list($option_key, $option_value, $option_limit) = explode("|", $str_option, 3);
-
-							if($option_value != '')
-							{
-								$intFormOptionID = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->base_prefix."form_option WHERE form2TypeID = '%d' AND (formOptionKey = %s OR formOptionValue = %s)", $intForm2TypeID, $option_key, $option_value));
-
-								if($intFormOptionID > 0)
-								{
-									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d' WHERE formOptionID = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i, $intFormOptionID));
-								}
-
-								else
-								{
-									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionOrder = '%d'", $intForm2TypeID, $option_key, $option_value, $option_limit, $i));
-
-									$intFormOptionID = $wpdb->insert_id;
-								}
-
-								if($option_key != '')
-								{
-									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form_answer SET answerText = '%d' WHERE form2TypeID = '%d' AND answerText = %s", $intFormOptionID, $intForm2TypeID, $option_key));
-								}
-
-								$i++;
-							}
-
-							else
-							{
-								$success = false;
-
-								do_log("There was no value for the option (1) (".$intFormID.", ".$intForm2TypeID.", ".$strFormTypeText." -> ".$str_option.")");
-							}
-						}
-
-						if($success == true)
-						{
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."form2type SET formTypeText = %s WHERE form2TypeID = '%d'", $strFormLabel, $intForm2TypeID));
-						}
-					}
-				}
-			}*/
-			#################################
-
 			// Convert answerIP to MD5
 			#################################
 			if(does_table_exist($wpdb->prefix."form2answer"))
@@ -430,7 +349,7 @@ class mf_form
 
 			// Delete orphan forms
 			#######################
-			if($wpdb->base_prefix == $wpdb->prefix)
+			if($wpdb->base_prefix == $wpdb->prefix && does_column_exist($wpdb->base_prefix."form", "blogID"))
 			{
 				$result = $wpdb->get_results($wpdb->prepare("SELECT formID FROM ".$wpdb->base_prefix."form LEFT JOIN ".$wpdb->posts." ON ".$wpdb->base_prefix."form.postID = ".$wpdb->posts.".ID AND post_type = %s WHERE blogID = '%d' AND ID IS null", $this->post_type, $wpdb->blogid));
 
@@ -717,7 +636,7 @@ class mf_form
 						if($this->answer_id > 0)
 						{
 							$out .= "<div".get_form_button_classes().">"
-								.show_button(array('name' => 'btnFormUpdate', 'text' => __("Update", 'lang_form')))
+								.show_button(array('name' => 'btnAnswerUpdate', 'text' => __("Update", 'lang_form')))
 								.input_hidden(array('name' => 'intFormID', 'value' => $this->id))
 								.input_hidden(array('name' => 'intAnswerID', 'value' => $this->answer_id))
 							."</div>";
@@ -1327,7 +1246,7 @@ class mf_form
 				$intFormEmailNotifyPage = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
 				$strFormEmailConfirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
 				$intFormEmailConfirmPage = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
-				$strFormEmailConditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
+				$email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
 				$intFormPaymentProvider = get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
 
 				if($strFormEmail == '')
@@ -1345,7 +1264,7 @@ class mf_form
 					echo "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
 				}
 
-				if($strFormEmailConditions != '')
+				if($email_conditions != '')
 				{
 					echo "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
 				}
@@ -1566,6 +1485,31 @@ class mf_form
 		return $arr_data;
 	}*/
 
+	function get_email_confirm_for_select()
+	{
+		return array(
+			'yes' => __("Yes", 'lang_form')." (".__("If there is an e-mail field", 'lang_form').")",
+			'no' => __("No", 'lang_form'),
+		);
+	}
+
+	function get_email_notify_for_select()
+	{
+		return array(
+			'yes' => __("Yes", 'lang_form')." (".get_bloginfo('admin_email').")",
+			'no' => __("No", 'lang_form'),
+		);
+	}
+
+	function get_email_notify_from_for_select()
+	{
+		return array(
+			'admin' => __("Admin", 'lang_form')." (".get_bloginfo('admin_email').")",
+			'visitor' => __("Visitor", 'lang_form'),
+			'other' => __("Other", 'lang_form'),
+		);
+	}
+
 	function rwmb_meta_boxes($meta_boxes)
 	{
 		global $obj_base;
@@ -1677,7 +1621,7 @@ class mf_form
 				'name' => __("Send to Admin", 'lang_form'),
 				'id' => $this->meta_prefix.'email_notify',
 				'type' => 'select',
-				'options' => get_yes_no_for_select(),
+				'options' => $this->get_email_notify_for_select(),
 				'std' => 'no',
 			),
 			array(
@@ -1750,7 +1694,7 @@ class mf_form
 				'name' => __("Send to Visitor", 'lang_form'),
 				'id' => $this->meta_prefix.'email_confirm',
 				'type' => 'select',
-				'options' => get_yes_no_for_select(),
+				'options' => $this->get_email_confirm_for_select(),
 				'std' => 'no',
 			),
 			array(
@@ -2404,30 +2348,10 @@ class mf_form
 	{
 		global $wpdb;
 
-		/*if($this->form_option_exists)
-		{*/
-			if($strAnswerText != '')
-			{
-				$strAnswerText = $wpdb->get_var($wpdb->prepare("SELECT formOptionValue FROM ".$wpdb->prefix."form_option WHERE formOptionID = '%d'", $strAnswerText));
-			}
-		/*}
-
-		else
+		if($strAnswerText != '')
 		{
-			list($this->label, $str_select) = explode(":", $this->label);
-
-			$arr_options = explode(",", $str_select);
-
-			foreach($arr_options as $str_option)
-			{
-				$arr_option = explode("|", $str_option);
-
-				if($strAnswerText == $arr_option[0])
-				{
-					$strAnswerText = $arr_option[1];
-				}
-			}
-		}*/
+			$strAnswerText = $wpdb->get_var($wpdb->prepare("SELECT formOptionValue FROM ".$wpdb->prefix."form_option WHERE formOptionID = '%d'", $strAnswerText));
+		}
 
 		return $strAnswerText;
 	}
@@ -2443,30 +2367,12 @@ class mf_form
 
 		if($return_value && count($arr_answer_text) > 0)
 		{
-			/*if($this->form_option_exists)
-			{*/
-				$result = $wpdb->get_results("SELECT formOptionValue FROM ".$wpdb->prefix."form_option WHERE formOptionID IN ('".implode("','", $arr_answer_text)."') AND formOptionKey != '0'");
+			$result = $wpdb->get_results("SELECT formOptionValue FROM ".$wpdb->prefix."form_option WHERE formOptionID IN ('".implode("','", $arr_answer_text)."') AND formOptionKey != '0'");
 
-				foreach($result as $r)
-				{
-					$strAnswerText .= ($strAnswerText != '' ? ", " : "").$r->formOptionValue;
-				}
-			/*}
-
-			else
+			foreach($result as $r)
 			{
-				$arr_options = explode(",", $str_select);
-
-				foreach($arr_options as $str_option)
-				{
-					$arr_option = explode("|", $str_option);
-
-					if(in_array($arr_option[0], $arr_answer_text))
-					{
-						$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_option[1];
-					}
-				}
-			}*/
+				$strAnswerText .= ($strAnswerText != '' ? ", " : "").$r->formOptionValue;
+			}
 		}
 
 		if($strAnswerText == '')
@@ -2646,12 +2552,6 @@ class mf_form
 		switch($this->type)
 		{
 			case 'create':
-				/*if(!($this->id > 0))
-				{
-					$this->form_name = check_var('strFormName');
-					$this->import = check_var('strFormImport');
-				}*/
-
 				$this->form2type_id = check_var('intForm2TypeID');
 				$this->form2type_order = check_var('intForm2TypeOrder');
 
@@ -2856,80 +2756,7 @@ class mf_form
 		switch($this->type)
 		{
 			case 'create':
-				/*if((isset($_POST['btnFormPublish']) || isset($_POST['btnFormDraft'])) && wp_verify_nonce($_POST['_wpnonce_form_update'], 'form_update_'.$this->id))
-				{
-					if($this->id > 0)
-					{
-						$post_data = array(
-							'ID' => $this->post_id,
-							'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
-							'post_author' => get_current_user_id(),
-							'meta_input' => apply_filters('filter_meta_input', array(
-								//$this->meta_prefix.'email_admin_name' => $this->email_admin_name,
-								//$this->meta_prefix.'email_name' => $this->email_name,
-								$this->meta_prefix.'email_admin_name' => '',
-								$this->meta_prefix.'email_name' => '',
-								$this->meta_prefix.'email_notify' => $this->email_notify,
-								$this->meta_prefix.'email_admin' => $this->email_admin,
-								$this->meta_prefix.'email_notify_from' => $this->email_notify_from,
-								$this->meta_prefix.'email_notify_from_email' => $this->email_notify_from_email,
-								$this->meta_prefix.'email_notify_from_email_name' => $this->email_notify_from_email_name,
-								$this->meta_prefix.'email_notify_page' => $this->email_notify_page,
-								$this->meta_prefix.'email_confirm' => $this->email_confirm,
-								$this->meta_prefix.'email_confirm_from_email' => $this->email_confirm_from_email,
-								$this->meta_prefix.'email_confirm_from_email_name' => $this->email_confirm_from_email_name,
-								$this->meta_prefix.'email_confirm_id' => $this->email_confirm_id,
-								$this->meta_prefix.'email_confirm_page' => $this->email_confirm_page,
-								$this->meta_prefix.'email_conditions' => $this->email_conditions,
-								$this->meta_prefix.'payment_provider' => $this->payment_provider,
-								$this->meta_prefix.'payment_merchant' => $this->payment_merchant,
-								$this->meta_prefix.'payment_password' => $this->payment_password,
-								$this->meta_prefix.'payment_hmac' => $this->payment_hmac,
-								$this->meta_prefix.'terms_page' => $this->terms_page,
-								$this->meta_prefix.'payment_currency' => $this->payment_currency,
-								$this->meta_prefix.'payment_cost' => $this->payment_cost,
-								$this->meta_prefix.'payment_amount' => $this->payment_amount,
-								$this->meta_prefix.'payment_tax' => $this->payment_tax,
-								$this->meta_prefix.'payment_callback' => $this->payment_callback,
-							)),
-						);
-
-						wp_update_post($post_data);
-
-						do_action('update_form_fields', $this);
-
-						$done_text = __("I have updated the form for you", 'lang_form');
-					}
-
-					else
-					{
-						$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_title = '%d' LIMIT 0, 1", $this->post_type, $this->form_name));
-
-						if($wpdb->num_rows > 0)
-						{
-							$error_text = __("There is already a form with that name. Try with another one.", 'lang_form');
-						}
-
-						else
-						{
-							$post_data = array(
-								'post_type' => $this->post_type,
-								'post_status' => (isset($_POST['btnFormPublish']) ? 'publish' : 'draft'),
-								'post_title' => $this->form_name,
-							);
-
-							$this->post_id = wp_insert_post($post_data);
-
-							do_log(__FUNCTION__.": Just created a new form...");
-
-							$this->create_form();
-
-							$done_text = __("I have created the form for you", 'lang_form');
-						}
-					}
-				}
-
-				else */if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce_form_add'], 'form_add_'.$this->id))
+				if(isset($_POST['btnFormAdd']) && wp_verify_nonce($_POST['_wpnonce_form_add'], 'form_add_'.$this->id))
 				{
 					switch($this->type_id)
 					{
@@ -2953,32 +2780,10 @@ class mf_form
 
 							else
 							{
-								/*if($this->form_option_exists)
-								{*/
-									if($this->form2type_id > 0)
-									{
-										$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit, $this->arr_type_select_action);
-									}
-								/*}
-
-								else
+								if($this->form2type_id > 0)
 								{
-									$count_temp = count($this->arr_type_select_value);
-
-									$this->formTypeSelect = "";
-
-									for($i = 0; $i < $count_temp; $i++)
-									{
-										if($this->arr_type_select_value[$i] != '')
-										{
-											$this->formTypeSelect .= ($i > 0 ? "," : "").$this->arr_type_select_id[$i]."|".$this->arr_type_select_value[$i]."|".$this->arr_type_select_limit[$i];
-										}
-									}
-
-									$this->validate_select_array();
-
-									$this->type_text = str_replace(":", "", $this->type_text).":".str_replace(":", "", $this->formTypeSelect);
-								}*/
+									$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit, $this->arr_type_select_action);
+								}
 							}
 						break;
 
@@ -3043,21 +2848,13 @@ class mf_form
 									//case 'checkbox_multiple':
 									case 17:
 									//case 'radio_multiple':
-										/*if($this->form_option_exists)
-										{*/
-											$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit, $this->arr_type_select_action);
-										//}
+										$this->save_options($this->form2type_id, $this->arr_type_select_id, $this->arr_type_select_key, $this->arr_type_select_value, $this->arr_type_select_limit, $this->arr_type_select_action);
 									break;
 								}
 
 								if($wpdb->rows_affected > 0)
 								{
 									$this->form2type_id = $this->type_id = $this->type_text = $this->type_placeholder = $this->check_id = $this->type_tag = $this->type_class = $this->type_length = $this->type_fetch_from = $this->type_action_equals = $this->type_action_show = "";
-
-									/*if($this->form_option_exists == false)
-									{
-										@list($this->type_text, $strFormTypeSelect) = explode(":", $this->type_text);
-									}*/
 								}
 							}
 
@@ -3085,45 +2882,6 @@ class mf_form
 
 					mf_redirect(admin_url("post.php?post=".$post_id."&action=edit"));
 				}
-
-				/*if($this->id > 0) //!isset($_POST['btnFormPublish']) && !isset($_POST['btnFormDraft']) && 
-				{
-					$this->form_name = $this->get_form_name();
-					$this->url = $this->get_post_info(array('select' => 'post_name'));
-					$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
-					$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
-					$this->mandatory_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true);
-					$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
-					$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
-					$this->button_symbol = get_post_meta($this->post_id, $this->meta_prefix.'button_symbol', true);
-					//$this->email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_name', true);
-					$this->email_admin = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
-					//$this->email_admin_name = get_post_meta($this->post_id, $this->meta_prefix.'email_admin_name', true);
-
-					$this->email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
-					$this->email_notify_from = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from', true);
-					$this->email_notify_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email', true);
-					$this->email_notify_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email_name', true);
-					$this->email_notify_page = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
-
-					$this->email_confirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
-					$this->email_confirm_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email', true);
-					$this->email_confirm_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email_name', true);
-					$this->email_confirm_id = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_id', true);
-					$this->email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
-					$this->email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
-
-					$this->payment_provider = get_post_meta($this->post_id, $this->meta_prefix.'payment_provider', true);
-					$this->payment_hmac = get_post_meta($this->post_id, $this->meta_prefix.'payment_hmac', true);
-					$this->payment_merchant = get_post_meta($this->post_id, $this->meta_prefix.'payment_merchant', true);
-					$this->payment_password = get_post_meta($this->post_id, $this->meta_prefix.'payment_password', true);
-					$this->terms_page = get_post_meta($this->post_id, $this->meta_prefix.'terms_page', true);
-					$this->payment_currency = get_post_meta($this->post_id, $this->meta_prefix.'payment_currency', true);
-					$this->payment_cost = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_cost', true);
-					$this->payment_amount = (int)get_post_meta($this->post_id, $this->meta_prefix.'payment_amount', true);
-					$this->payment_tax = get_post_meta($this->post_id, $this->meta_prefix.'payment_tax', true);
-					$this->payment_callback = get_post_meta($this->post_id, $this->meta_prefix.'payment_callback', true);
-				}*/
 
 				if(!isset($_POST['btnFormAdd']) && $this->form2type_id > 0)
 				{
@@ -3161,39 +2919,20 @@ class mf_form
 								//case 'checkbox_multiple':
 								case 17:
 								//case 'radio_multiple':
-									/*if($this->form_option_exists)
-									{*/
-										$form2type_id_temp = $this->get_type_connect_to_root(array('connect_to' => $this->type_connect_to, 'field_id' => $this->form2type_id));
+									$form2type_id_temp = $this->get_type_connect_to_root(array('connect_to' => $this->type_connect_to, 'field_id' => $this->form2type_id));
 
-										$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit, formOptionAction FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $form2type_id_temp));
+									$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit, formOptionAction FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $form2type_id_temp));
 
-										$this->arr_type_select_id = $this->arr_type_select_key = $this->arr_type_select_value = $this->arr_type_select_limit = $this->arr_type_select_action = array();
+									$this->arr_type_select_id = $this->arr_type_select_key = $this->arr_type_select_value = $this->arr_type_select_limit = $this->arr_type_select_action = array();
 
-										foreach($result as $r)
-										{
-											$this->arr_type_select_id[] = $r->formOptionID;
-											$this->arr_type_select_key[] = $r->formOptionKey;
-											$this->arr_type_select_value[] = $r->formOptionValue;
-											$this->arr_type_select_limit[] = $r->formOptionLimit;
-											$this->arr_type_select_action[] = $r->formOptionAction;
-										}
-									/*}
-
-									else
+									foreach($result as $r)
 									{
-										list($this->type_text, $strFormTypeSelect) = explode(":", $this->type_text);
-
-										$this->arr_type_select_id = $this->arr_type_select_value = $this->arr_type_select_limit = array();
-
-										foreach(explode(",", $strFormTypeSelect) as $option_temp)
-										{
-											list($option_id, $option_value, $option_limit) = explode("|", $option_temp);
-
-											$this->arr_type_select_id[] = $option_id;
-											$this->arr_type_select_value[] = $option_value;
-											$this->arr_type_select_limit[] = $option_limit;
-										}
-									}*/
+										$this->arr_type_select_id[] = $r->formOptionID;
+										$this->arr_type_select_key[] = $r->formOptionKey;
+										$this->arr_type_select_value[] = $r->formOptionValue;
+										$this->arr_type_select_limit[] = $r->formOptionLimit;
+										$this->arr_type_select_action[] = $r->formOptionAction;
+									}
 								break;
 							}
 
@@ -3210,16 +2949,11 @@ class mf_form
 							}
 						}
 					}
-
-					else
-					{
-						//do_log("No results from btnFormAdd (".$this->id.", ".$wpdb->last_query.")");
-					}
 				}
 			break;
 
 			default:
-				if(isset($_POST['btnFormUpdate']))
+				if(isset($_POST['btnAnswerUpdate']))
 				{
 					$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 
@@ -3647,15 +3381,6 @@ class mf_form
 		return $arr_data;
 	}
 
-	function get_email_notify_from_for_select()
-	{
-		return array(
-			'admin' => __("Admin", 'lang_form')." (".get_bloginfo('admin_email').")",
-			'visitor' => __("Visitor", 'lang_form'),
-			'other' => __("Other", 'lang_form'),
-		);
-	}
-
 	function get_form_name($id = 0)
 	{
 		if($id > 0)
@@ -3676,7 +3401,7 @@ class mf_form
 
 		if(!($this->id > 0))
 		{
-			do_log(__FUNCTION__.": There was no formID for ".$post_id."...");
+			//do_log(__FUNCTION__.": There was no formID for ".$post_id."...");
 
 			$this->id = $this->create_form($post_id);
 		}
@@ -4476,28 +4201,14 @@ class mf_form
 	{
 		global $wpdb;
 
-		$key = false;
-
-		/*if($this->form_option_exists)
-		{*/
-			$key = $wpdb->get_var($wpdb->prepare("SELECT formOptionKey FROM ".$wpdb->prefix."form_option WHERE formOptionID = '%d'", $id));
-		//}
-
-		return $key;
+		return $wpdb->get_var($wpdb->prepare("SELECT formOptionKey FROM ".$wpdb->prefix."form_option WHERE formOptionID = '%d'", $id));
 	}
 
 	function get_option_id_from_key($key)
 	{
 		global $wpdb;
 
-		$id = false;
-
-		/*if($this->form_option_exists)
-		{*/
-			$id = $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->prefix."form_option WHERE formOptionKey = '%d'", $key));
-		//}
-
-		return $id;
+		return $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->prefix."form_option WHERE formOptionKey = '%d'", $key));
 	}
 
 	function process_transactional_emails()
@@ -4506,36 +4217,30 @@ class mf_form
 
 		$this->get_post_id();
 
-		//$this->email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_name', true);
 		$this->email_admin = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
-		//$this->email_admin_name = get_post_meta($this->post_id, $this->meta_prefix.'email_admin_name', true);
 
-		$this->email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
-		$this->email_notify_from = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from', true);
-		$this->email_notify_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email', true);
-		$this->email_notify_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email_name', true);
-		$this->email_notify_page = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
-		$this->email_confirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
-		$this->email_confirm_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email', true);
-		$this->email_confirm_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email_name', true);
-		$this->email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
-		$this->email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
+		$email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
+		$email_notify_from = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from', true);
+		$email_notify_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email', true);
+		$email_notify_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_from_email_name', true);
+		$email_notify_page = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
+		$email_confirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
+		$email_confirm_from_email = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email', true);
+		$email_confirm_from_email_name = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_from_email_name', true);
+		$email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
+		$email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
 
-		//$this->email_confirm_id = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_id', true);
 		$arr_email_fields = $this->get_email_fields();
-		$this->email_confirm_id = (isset($arr_email_fields[0]) ? $arr_email_fields[0] : 0);
-
-		//$email_subject = ($this->email_name != '' ? $this->email_name : $this->form_name);
-		$email_subject = $this->form_name;
+		$email_confirm_id = (isset($arr_email_fields[0]) ? $arr_email_fields[0] : 0);
 
 		$this->page_content_data = array(
-			'subject' => $email_subject,
+			'subject' => $this->form_name,
 			'content' => $this->arr_email_content,
 		);
 
-		if($this->email_conditions != '')
+		if($email_conditions != '')
 		{
-			foreach(explode("\n", $this->email_conditions) as $str_condition)
+			foreach(explode("\n", $email_conditions) as $str_condition)
 			{
 				@list($field_id, $option_id, $email) = explode("|", $str_condition, 3);
 
@@ -4590,10 +4295,10 @@ class mf_form
 
 		// From other
 		###################
-		if($this->email_notify_from_email != '')
+		if($email_notify_from_email != '')
 		{
-			$email_from_other_address = $this->email_notify_from_email;
-			$email_from_other = "From: ".($this->email_notify_from_email_name != '' ? $this->email_notify_from_email_name : $this->email_notify_from_email)." <".$this->email_notify_from_email.">\r\n";
+			$email_from_other_address = $email_notify_from_email;
+			$email_from_other = "From: ".($email_notify_from_email_name != '' ? $email_notify_from_email_name : $email_notify_from_email)." <".$email_notify_from_email.">\r\n";
 		}
 		###################
 
@@ -4617,7 +4322,7 @@ class mf_form
 			$this->send_transactional_email();
 		}
 
-		if($this->email_notify == 'yes')
+		if($email_notify == 'yes')
 		{
 			$this->mail_data = array(
 				'type' => 'notify',
@@ -4645,7 +4350,7 @@ class mf_form
 
 			if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
 			{
-				switch($this->email_notify_from)
+				switch($email_notify_from)
 				{
 					default:
 					case 'visitor':
@@ -4666,14 +4371,14 @@ class mf_form
 			}
 
 			$this->page_content_data['mail_to'] = $this->mail_data['to'];
-			$this->page_content_data['page_id'] = $this->email_notify_page;
+			$this->page_content_data['page_id'] = $email_notify_page;
 
 			$this->mail_data['content'] = $this->get_page_content_for_email();
 
 			$this->send_transactional_email();
 		}
 
-		if($this->email_confirm == 1 && isset($this->answer_data['email']) && $this->answer_data['email'] != '')
+		if($email_confirm == 'yes' && isset($this->answer_data['email']) && $this->answer_data['email'] != '')
 		{
 			$this->mail_data = array(
 				'type' => 'confirm',
@@ -4682,10 +4387,10 @@ class mf_form
 				'content' => '',
 			);
 
-			if($this->email_confirm_from_email != '')
+			if($email_confirm_from_email != '')
 			{
-				$this->mail_data['from'] = $this->email_confirm_from_email;
-				$this->mail_data['headers'] = "From: ".($this->email_confirm_from_email_name != '' ? $this->email_confirm_from_email_name : $this->email_confirm_from_email)." <".$this->email_confirm_from_email.">\r\n";
+				$this->mail_data['from'] = $email_confirm_from_email;
+				$this->mail_data['headers'] = "From: ".($email_confirm_from_email_name != '' ? $email_confirm_from_email_name : $email_confirm_from_email)." <".$email_confirm_from_email.">\r\n";
 			}
 
 			else if($email_from_admin != '')
@@ -4695,7 +4400,7 @@ class mf_form
 			}
 
 			$this->page_content_data['mail_to'] = $this->mail_data['to'];
-			$this->page_content_data['page_id'] = $this->email_confirm_page;
+			$this->page_content_data['page_id'] = $email_confirm_page;
 
 			$this->mail_data['content'] = $this->get_page_content_for_email();
 
@@ -4813,9 +4518,8 @@ class mf_form
 
 		$dblQueryPaymentAmount_value = 0;
 
-		//$this->email_confirm_id = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_id', true);
 		$arr_email_fields = $this->get_email_fields();
-		$this->email_confirm_id = (isset($arr_email_fields[0]) ? $arr_email_fields[0] : 0);
+		$email_confirm_id = (isset($arr_email_fields[0]) ? $arr_email_fields[0] : 0);
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, formTypeID, checkID, formTypeRequired FROM ".$wpdb->prefix."form2type WHERE formID = '%d' AND formTypeDisplay = '1' ORDER BY form2TypeOrder ASC", $this->id));
 
@@ -4884,7 +4588,7 @@ class mf_form
 								$this->check_spam_email(array('text' => $strAnswerText));
 							}
 
-							if($strFormTypeCode == 'input_field' && (!($this->email_confirm_id > 0) || $this->email_confirm_id == $intForm2TypeID2))
+							if($strFormTypeCode == 'input_field' && (!($email_confirm_id > 0) || $email_confirm_id == $intForm2TypeID2))
 							{
 								$this->answer_data['email'] = $strAnswerText;
 							}
@@ -5183,60 +4887,27 @@ class mf_form
 
 					$out .= "<h4>".$strFormTypeText."</h4>";
 
-					/*if($this->form_option_exists)
-					{*/
-						$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
 
-						foreach($result as $r)
-						{
-							$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->prefix."form2type INNER JOIN ".$wpdb->prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $r->formOptionID));
-
-							$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
-
-							$out .= "<div class='form_radio'>";
-
-								if($intAnswerPercent > 0)
-								{
-									$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
-								}
-
-								$out .= "<p>"
-									.$r->formOptionValue
-									."<span>".$intAnswerPercent."%</span>
-								</p>
-							</div>";
-						}
-					/*}
-
-					else
+					foreach($result as $r)
 					{
-						$arr_options = explode(",", $strFormTypeSelect);
+						$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->prefix."form2type INNER JOIN ".$wpdb->prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $r->formOptionID));
 
-						foreach($arr_options as $str_option)
-						{
-							$arr_option = explode("|", $str_option);
+						$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
 
-							if($arr_option[0] > 0 && $arr_option[1] != '')
+						$out .= "<div class='form_radio'>";
+
+							if($intAnswerPercent > 0)
 							{
-								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->prefix."form2type INNER JOIN ".$wpdb->prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $arr_option[0]));
-
-								$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
-
-								$out .= "<div class='form_radio'>";
-
-									if($intAnswerPercent > 0)
-									{
-										$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
-									}
-
-									$out .= "<p>"
-										.$arr_option[1]
-										."<span>".$intAnswerPercent."%</span>
-									</p>
-								</div>";
+								$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
 							}
-						}
-					}*/
+
+							$out .= "<p>"
+								.$r->formOptionValue
+								."<span>".$intAnswerPercent."%</span>
+							</p>
+						</div>";
+					}
 				break;
 
 				default:
@@ -5303,41 +4974,17 @@ class mf_form
 
 						case 'select':
 						case 'radio_multiple':
-							/*if($this->form_option_exists)
-							{*/
-								$result_options = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
+							$result_options = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionValue FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $intForm2TypeID));
 
-								foreach($result_options as $r)
-								{
-									$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->prefix."form2type INNER JOIN ".$wpdb->prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $r->formOptionID));
-
-									if($intAnswerCount > 0)
-									{
-										$arr_data_pie[$intForm2TypeID]['data'] .= ($arr_data_pie[$intForm2TypeID]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $r->formOptionValue, 'limit' => 20))."', data: ".$intAnswerCount."}";
-									}
-								}
-							/*}
-
-							else
+							foreach($result_options as $r)
 							{
-								list($strFormTypeText, $strFormTypeSelect) = explode(":", $strFormTypeText);
-								$arr_options = explode(",", $strFormTypeSelect);
+								$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->prefix."form2type INNER JOIN ".$wpdb->prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $r->formOptionID));
 
-								foreach($arr_options as $str_option)
+								if($intAnswerCount > 0)
 								{
-									$arr_option = explode("|", $str_option);
-
-									if($arr_option[0] > 0 && $arr_option[1] != '')
-									{
-										$intAnswerCount = $wpdb->get_var($wpdb->prepare("SELECT COUNT(answerID) FROM ".$wpdb->prefix."form2type INNER JOIN ".$wpdb->prefix."form_answer USING (form2TypeID) INNER JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2type.formID = '%d 'AND formTypeID = '%d' AND form2TypeID = '%d' AND answerText = %s", $this->id, $intFormTypeID, $intForm2TypeID, $arr_option[0]));
-
-										if($intAnswerCount > 0)
-										{
-											$arr_data_pie[$intForm2TypeID]['data'] .= ($arr_data_pie[$intForm2TypeID]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $arr_option[1], 'limit' => 20))."', data: ".$intAnswerCount."}";
-										}
-									}
+									$arr_data_pie[$intForm2TypeID]['data'] .= ($arr_data_pie[$intForm2TypeID]['data'] != '' ? "," : "")."{label: '".shorten_text(array('string' => $r->formOptionValue, 'limit' => 20))."', data: ".$intAnswerCount."}";
 								}
-							}*/
+							}
 						break;
 					}
 
@@ -6219,8 +5866,8 @@ if(class_exists('mf_list_table'))
 
 					if($count_temp > 0)
 					{
-						$li_out = $strAnswerEmail_temp = "";
-						$sent_successfully = $sent_failed = $sent_failed_w_type = 0;
+						$row_actions = $strAnswerEmail_temp = "";
+						$sent_successfully = $sent_failed = 0;
 
 						foreach($result_emails as $r)
 						{
@@ -6241,18 +5888,11 @@ if(class_exists('mf_list_table'))
 								$fa_class = "fa fa-times red";
 
 								$sent_failed++;
-
-								if($strAnswerType != '')
-								{
-									$sent_failed_w_type++;
-								}
 							}
 
 							if($strAnswerEmail != $strAnswerEmail_temp)
 							{
-								$li_out .= "<li>
-									<i class='".$fa_class."' title='".($strAnswerEmailFrom != '' ? $strAnswerEmailFrom." -> " : "").$strAnswerEmail."'></i>"
-								."</li>";
+								$row_actions .= "<i class='".$fa_class."' title='".($strAnswerEmailFrom != '' ? $strAnswerEmailFrom." -> " : "").$strAnswerEmail."'></i> ";
 
 								$strAnswerEmail_temp = $strAnswerEmail;
 							}
@@ -6262,15 +5902,9 @@ if(class_exists('mf_list_table'))
 
 						$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
 
-						$out .= "<div class='row-actions'>
-							<ul>".$li_out."</ul>";
-
-							/*if($sent_failed_w_type > 0)
-							{
-								$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'>".__("Resend", 'lang_form')."</a>";
-							}*/
-
-						$out .= "</div>";
+						$out .= "<div class='row-actions'>"
+							.$row_actions
+						."</div>";
 					}
 				break;
 
@@ -6570,51 +6204,32 @@ class mf_form_output
 			$obj_form = new mf_form();
 		}
 
-		/*if($obj_form->form_option_exists)
-		{*/
-			@list($this->label, $str_select) = explode(":", $string);
+		@list($this->label, $str_select) = explode(":", $string);
 
-			$form2type_id_temp = $obj_form->get_type_connect_to_root(array('connect_to' => $this->row->formTypeConnectTo, 'field_id' => $this->row->form2TypeID));
+		$form2type_id_temp = $obj_form->get_type_connect_to_root(array('connect_to' => $this->row->formTypeConnectTo, 'field_id' => $this->row->form2TypeID));
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit, formOptionAction FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $form2type_id_temp));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT formOptionID, formOptionKey, formOptionValue, formOptionLimit, formOptionAction FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder ASC", $form2type_id_temp));
 
-			$arr_data = array();
+		$arr_data = array();
 
-			foreach($result as $r)
-			{
-				$arr_option = $this->check_limit(array('array' => array($r->formOptionID, $r->formOptionValue, $r->formOptionLimit), 'form2TypeID' => $form2type_id_temp));
-
-				if($r->formOptionAction > 0)
-				{
-					$arr_option[1] = array(
-						'name' => $arr_option[1],
-						'attributes' => array(
-							'data-action' => $this->query_prefix.$r->formOptionAction,
-						),
-					);
-
-					$this->row->has_action = true;
-				}
-
-				$arr_data[$arr_option[0]] = $arr_option[1];
-			}
-		/*}
-
-		else
+		foreach($result as $r)
 		{
-			list($this->label, $str_select) = explode(":", $string);
-			$arr_options = explode(",", $str_select);
+			$arr_option = $this->check_limit(array('array' => array($r->formOptionID, $r->formOptionValue, $r->formOptionLimit), 'form2TypeID' => $form2type_id_temp));
 
-			$arr_data = array();
-
-			foreach($arr_options as $str_option)
+			if($r->formOptionAction > 0)
 			{
-				$arr_option = explode("|", $str_option);
-				$arr_option = $this->check_limit(array('array' => $arr_option, 'form2TypeID' => $this->row->form2TypeID));
+				$arr_option[1] = array(
+					'name' => $arr_option[1],
+					'attributes' => array(
+						'data-action' => $this->query_prefix.$r->formOptionAction,
+					),
+				);
 
-				$arr_data[$arr_option[0]] = $arr_option[1];
+				$this->row->has_action = true;
 			}
-		}*/
+
+			$arr_data[$arr_option[0]] = $arr_option[1];
+		}
 
 		return $arr_data;
 	}
