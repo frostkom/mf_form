@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.8.9
+Version: 1.1.8.10
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -228,7 +228,15 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 			if(does_column_exist($wpdb->prefix."form2type", "postID"))
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->prefix."form WHERE blogID = '%d' OR blogID IS null", $wpdb->blogid));
+				if(does_column_exist($wpdb->prefix."form", "blogID"))
+				{
+					$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID FROM ".$wpdb->prefix."form WHERE blogID = '%d' OR blogID IS null", $wpdb->blogid));
+				}
+
+				else
+				{
+					$result = $wpdb->get_results("SELECT formID, postID FROM ".$wpdb->prefix."form");
+				}
 
 				foreach($result as $r)
 				{
