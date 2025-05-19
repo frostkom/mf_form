@@ -1496,7 +1496,7 @@ class mf_form
 	function get_email_notify_for_select()
 	{
 		return array(
-			'yes' => __("Yes", 'lang_form')." (".get_bloginfo('admin_email').")",
+			'yes' => __("Yes", 'lang_form'), //." (".get_bloginfo('admin_email').")"
 			'no' => __("No", 'lang_form'),
 		);
 	}
