@@ -1,0 +1,39 @@
+@media all
+{
+	.form_inline
+	{
+		background: #fff;
+		border: 1px solid #e1e1e1;
+		display: none;
+		padding: .8em .8em 0;
+		position: absolute;
+		min-width: 400px;
+		max-width: 100%;
+		z-index: 1;
+	}
+
+		.aside.left .form_inline
+		{
+			left: 0;
+		}
+
+		.aside.right .form_inline
+		{
+			right: 0;
+		}
+
+		.form_inline h2
+		{
+			margin-bottom: .4em;
+		}
+
+	#overlay_form
+	{
+		display: none;
+	}
+
+		#overlay_form > div
+		{
+			width: 400px;
+		}
+}

@@ -582,9 +582,9 @@ class mf_form
 			{
 				$done_text = __("Thank You!", 'lang_form');
 
-				$out .= "<div class='mf_form mf_form_results'>"
-					.get_notification(array('add_container' => true))
-				."</div>";
+				//$out .= "<div class='mf_form mf_form_results'>"
+					$out .= get_notification(array('add_container' => true));
+				//$out .= "</div>";
 			}
 
 			if($this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
@@ -706,6 +706,8 @@ class mf_form
 
 		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)
 		{
+			$this->combined_head();
+
 			$this->id = $attributes['form_id'];
 
 			$out = "<div".parse_block_attributes(array('class' => "widget form", 'attributes' => $attributes)).">"
@@ -966,6 +968,11 @@ class mf_form
 
 	function preg_email_concat($matches)
 	{
+		$plugin_include_url = plugin_dir_url(__FILE__);
+
+		mf_enqueue_style('style_form_inline', $plugin_include_url."style_inline.css");
+		mf_enqueue_script('script_form_inline', $plugin_include_url."script_inline.js");
+
 		$email = $matches[1];
 		$attributes = $matches[2];
 		$title = $matches[3];
@@ -1091,7 +1098,7 @@ class mf_form
 	{
 		global $pagenow, $done_text, $error_text;
 
-		$this->combined_head();
+		//$this->combined_head();
 
 		switch($pagenow)
 		{
@@ -2160,7 +2167,7 @@ class mf_form
 		return $post_types;
 	}
 
-	function wp_head()
+	/*function wp_head()
 	{
 		$this->combined_head();
 	}
@@ -2168,7 +2175,7 @@ class mf_form
 	function login_init()
 	{
 		$this->combined_head();
-	}
+	}*/
 
 	function widgets_init()
 	{
@@ -6703,7 +6710,7 @@ class widget_form extends WP_Widget
 	{
 		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
 
-		global $obj_form;
+		/*global $obj_form;
 
 		if(!isset($obj_form))
 		{
@@ -6730,7 +6737,7 @@ class widget_form extends WP_Widget
 
 				echo $obj_form->process_form()
 			.$after_widget;
-		}
+		}*/
 	}
 
 	function update($new_instance, $old_instance)

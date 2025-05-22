@@ -1,6 +1,6 @@
 @media all
 {
-	.mf_form .left_col
+	/*.mf_form .left_col
 	{
 		clear: left;
 		float: left;
@@ -34,9 +34,9 @@
 		{
 			float: left;
 			width: 18%;
-		}
+		}*/
 
-	.form_textfield.form_check
+	.mf_form .form_textfield.form_check
 	{
         height: 0;
         left: 0;
@@ -57,35 +57,7 @@
 			opacity: 1;
 		}
 
-	/* Inline forms */
-	.form_inline
-	{
-		background: #fff;
-		border: 1px solid #e1e1e1;
-		display: none;
-		padding: .8em .8em 0;
-		position: absolute;
-		min-width: 400px;
-		max-width: 100%;
-		z-index: 1;
-	}
-
-		.aside.left .form_inline
-		{
-			left: 0;
-		}
-
-		.aside.right .form_inline
-		{
-			right: 0;
-		}
-
-		.form_inline h2
-		{
-			margin-bottom: .4em;
-		}
-
-	.mf_form_results .form_radio
+	/*.mf_form_results .form_radio
 	{
 		margin-bottom: .1em;
 		padding: .3em 0;
@@ -115,15 +87,5 @@
 		{
 			position: absolute;
 			right: .3em;
-		}
-
-	#overlay_form
-	{
-		display: none;
-	}
-
-		#overlay_form > div
-		{
-			width: 400px;
-		}
+		}*/
 }
