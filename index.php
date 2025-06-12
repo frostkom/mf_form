@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.8.12
+Version: 1.1.8.14
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -57,9 +57,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	else
 	{
 		add_filter('wp_sitemaps_post_types', array($obj_form, 'wp_sitemaps_post_types'));
-
-		/*add_action('wp_head', array($obj_form, 'wp_head'), 0);
-		add_action('login_init', array($obj_form, 'login_init'), 0);*/
 
 		add_filter('the_content', array($obj_form, 'the_content'));
 	}
@@ -410,7 +407,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		mf_uninstall_plugin(array(
 			'uploads' => $obj_form->post_type,
-			'options' => array('setting_form_redirect_emails', 'setting_form_test_emails', 'setting_form_permission_see_all', 'setting_form_permission_edit_all', 'setting_form_replacement', 'setting_form_replacement_text', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text', 'option_form_list_viewed'),
+			'options' => array('setting_form_redirect_emails', 'setting_form_test_emails', 'option_form_list_viewed'),
 			'meta' => array('meta_forms_viewed'),
 			'post_types' => array($obj_form->post_type),
 			'tables' => array('form', 'form_check', 'form_type', 'form_option', 'form2answer', 'form2type', 'form_answer', 'form_answer_email', 'form_nonce'),

@@ -173,7 +173,7 @@ class mf_form
 
 		$out = false;
 
-		$setting_form_permission_edit_all = get_option('setting_form_permission_edit_all');
+		$setting_form_permission_edit_all = get_option('setting_form_permission_edit_all', 'edit_pages');
 
 		if($setting_form_permission_edit_all != '')
 		{
@@ -237,8 +237,8 @@ class mf_form
 		if($obj_cron->is_running == false)
 		{
 			replace_option(array('old' => 'setting_redirect_emails', 'new' => 'setting_form_redirect_emails'));
-			replace_option(array('old' => 'setting_replacement_form_text', 'new' => 'setting_form_replacement_text'));
-			replace_option(array('old' => 'setting_replacement_form', 'new' => 'setting_form_replacement'));
+			//replace_option(array('old' => 'setting_replacement_form_text', 'new' => 'setting_form_replacement_text'));
+			//replace_option(array('old' => 'setting_replacement_form', 'new' => 'setting_form_replacement'));
 
 			// Convert wp_form to wp_posts
 			#################################
@@ -342,7 +342,7 @@ class mf_form
 			#################################
 
 			mf_uninstall_plugin(array(
-				'options' => array('setting_form_permission', 'setting_form_reload'),
+				'options' => array('setting_form_permission', 'setting_form_reload', 'setting_form_replacement', 'setting_form_replacement_text', 'setting_form_clear_spam', 'setting_form_permission_edit_all', 'setting_form_permission_see_all', 'setting_link_yes_text', 'setting_link_no_text', 'setting_link_thanks_text'),
 				'meta' => array('meta_answer_viewed'),
 				'tables' => array('form_check', 'form_nonce', 'form_spam', 'form_zipcode', 'form_answer_meta'),
 			));
@@ -789,12 +789,12 @@ class mf_form
 		$arr_settings = array(
 			'setting_form_redirect_emails' => __("Redirect all e-mails", 'lang_form'),
 			'setting_form_test_emails' => __("Redirect test e-mails", 'lang_form'),
-			'setting_form_permission_see_all' => __("View All", 'lang_form'),
-			'setting_form_permission_edit_all' => __("Edit All", 'lang_form'),
+			//'setting_form_permission_see_all' => __("View All", 'lang_form'),
+			//'setting_form_permission_edit_all' => __("Edit All", 'lang_form'),
 			'setting_form_spam' => __("Spam Filter", 'lang_form'),
 		);
 
-		if(does_table_exist($wpdb->prefix."form2answer"))
+		/*if(does_table_exist($wpdb->prefix."form2answer"))
 		{
 			$wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."form2answer WHERE answerSpam = '1' LIMIT 0, 1");
 
@@ -802,14 +802,14 @@ class mf_form
 			{
 				$arr_settings['setting_form_clear_spam'] = __("Clear Spam", 'lang_form');
 			}
-		}
+		}*/
 
-		$arr_settings['setting_form_replacement'] = __("Form to replace all e-mail links", 'lang_form');
+		/*$arr_settings['setting_form_replacement'] = __("Form to replace all e-mail links", 'lang_form');
 
 		if(get_option('setting_form_replacement') > 0)
 		{
 			$arr_settings['setting_form_replacement_text'] = __("Text to replace all e-mail links", 'lang_form');
-		}
+		}*/
 
 		/*if($this->has_confirm_template() && is_plugin_active("mf_webshop/index.php"))
 		{
@@ -852,7 +852,7 @@ class mf_form
 		echo show_select(array('data' => get_yes_no_for_select(), 'name' => $setting_key, 'value' => $option, 'suffix' => __("When an admin is logged in and testing to send e-mails all outgoing e-mails are redirected to the admins address", 'lang_form'), 'description' => $description));
 	}
 
-	function setting_form_permission_see_all_callback()
+	/*function setting_form_permission_see_all_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
@@ -866,7 +866,7 @@ class mf_form
 		$option = get_option($setting_key);
 
 		echo show_select(array('data' => get_roles_for_select(array('add_choose_here' => true)), 'name' => $setting_key, 'value' => $option));
-	}
+	}*/
 
 	function get_spam_types_for_select()
 	{
@@ -906,7 +906,7 @@ class mf_form
 		return $out;
 	}
 
-	function setting_form_replacement_callback()
+	/*function setting_form_replacement_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
@@ -920,15 +920,15 @@ class mf_form
 		$option = get_option($setting_key);
 
 		echo show_textfield(array('name' => $setting_key, 'value' => $option, 'placeholder' => __("Click here to send e-mail", 'lang_form')));
-	}
+	}*/
 
-	function setting_form_clear_spam_callback()
+	/*function setting_form_clear_spam_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option_or_default($setting_key, 6);
 
 		echo show_textfield(array('type' => 'number', 'name' => $setting_key, 'value' => $option, 'suffix' => __("months", 'lang_form')));
-	}
+	}*/
 
 	/*function setting_link_yes_text_callback()
 	{
@@ -966,7 +966,7 @@ class mf_form
 		));
 	}*/
 
-	function preg_email_concat($matches)
+	/*function preg_email_concat($matches)
 	{
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
@@ -1002,13 +1002,13 @@ class mf_form
 		."</div>";
 
 		return $out;
-	}
+	}*/
 
 	function the_content($html)
 	{
 		global $wpdb, $post;
 
-		if(get_option('setting_form_replacement') > 0)
+		/*if(get_option('setting_form_replacement') > 0)
 		{
 			$char_before = "?<=^|\s|\(|\[";
 			$chars = "[-A-Za-z\d_.]+[@][A-Za-z\d_-]+([.][A-Za-z\d_-]+)*[.][A-Za-z]{2,8}";
@@ -1016,7 +1016,7 @@ class mf_form
 
 			$html = preg_replace("/(".$char_before.")(".$chars.")(".$char_after.")/", "<a href='mailto:$1'>$1</a>", $html);
 			$html = preg_replace_callback("/<a.*?href=['\"]mailto:(.*?)['\"](.*?)>(.*?)<\/a>/si", array($this, 'preg_email_concat'), $html);
-		}
+		}*/
 
 		$intAnswerID = check_var('answer_id', 'int');
 
@@ -1170,12 +1170,12 @@ class mf_form
 				'icon' => "fas fa-share",
 				'name' => __("Redirect test e-mails", 'lang_form'),
 			),
-			'setting_form_replacement' => array(
+			/*'setting_form_replacement' => array(
 				'type' => 'string',
 				'global' => false,
 				'icon' => "fas fa-at",
 				'name' => __("Form to replace all e-mail links", 'lang_form'),
-			),
+			),*/
 		);
 
 		return $arr_settings;
@@ -1214,19 +1214,19 @@ class mf_form
 		return $out;
 	}
 
-	function column_header($cols)
+	function column_header($columns)
 	{
-		unset($cols['date']);
+		unset($columns['date']);
 
-		$cols['content'] = __("Content", 'lang_form');
-		$cols['answers'] = __("Answers", 'lang_form');
-		$cols['spam'] = __("Spam", 'lang_form');
-		$cols['post_modified'] = __("Modified", 'lang_form');
+		$columns['content'] = __("Content", 'lang_form');
+		$columns['answers'] = __("Answers", 'lang_form');
+		$columns['spam'] = __("Spam", 'lang_form');
+		$columns['post_modified'] = __("Modified", 'lang_form');
 
-		return $cols;
+		return $columns;
 	}
 
-	function column_cell($col, $post_id)
+	function column_cell($column, $post_id)
 	{
 		global $wpdb;
 
@@ -1241,7 +1241,7 @@ class mf_form
 			$post_modified = $r->post_modified;
 		}
 
-		switch($col)
+		switch($column)
 		{
 			case 'content':
 				if($post_status == 'publish')
@@ -1847,7 +1847,7 @@ class mf_form
 
 		$query_where = "";
 
-		$setting_form_permission_see_all = get_option('setting_form_permission_see_all');
+		$setting_form_permission_see_all = get_option('setting_form_permission_see_all', 'edit_pages');
 		$is_allowed_to_see_all_forms = ($setting_form_permission_see_all != '' ? current_user_can($setting_form_permission_see_all) : true);
 
 		if(!$is_allowed_to_see_all_forms)
@@ -2166,16 +2166,6 @@ class mf_form
 
 		return $post_types;
 	}
-
-	/*function wp_head()
-	{
-		$this->combined_head();
-	}
-
-	function login_init()
-	{
-		$this->combined_head();
-	}*/
 
 	function widgets_init()
 	{
