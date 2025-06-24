@@ -109,22 +109,22 @@ class mf_form
 		);
 
 		$this->arr_form_check = array(
-			1 => array('name' => __("Number", 'lang_form'),				'code' => 'int',		'pattern' => '[0-9]*'),
-			2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip',		'pattern' => '[0-9]{5}'),
-			5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email',		'pattern' => ''),
-			6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno',		'pattern' => '\d*'),
-			7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float',		'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'),
-			8 => array('name' => __("URL", 'lang_form'),				'code' => 'url',		'pattern' => ''),
-			9 => array('name' => __("Name", 'lang_form'),				'code' => 'name',		'pattern' => ''),
-			10 => array('name' => __("Street Address", 'lang_form'),	'code' => 'address',	'pattern' => ''),
-			11 => array('name' => __("City", 'lang_form'),				'code' => 'city',		'pattern' => ''),
-			11 => array('name' => __("Country", 'lang_form'),			'code' => 'country',	'pattern' => ''),
+			1 => array('name' => __("Number", 'lang_form'),				'code' => 'int'), // 'pattern' => '[0-9]*'
+			2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip'), // 'pattern' => '[0-9]{5}'
+			5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email'),
+			6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno'), // 'pattern' => '\d*'
+			7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float'), // 'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'
+			8 => array('name' => __("URL", 'lang_form'),				'code' => 'url'),
+			9 => array('name' => __("Name", 'lang_form'),				'code' => 'name'),
+			10 => array('name' => __("Street Address", 'lang_form'),	'code' => 'address'),
+			11 => array('name' => __("City", 'lang_form'),				'code' => 'city'),
+			11 => array('name' => __("Country", 'lang_form'),			'code' => 'country'),
 		);
 
 		if(get_bloginfo('language') == "sv-SE")
 		{
-			$this->arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc',	'pattern' => '[0-9]{10}');
-			$this->arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",		'code' => 'soc2',	'pattern' => '(?:18|19|20)[0-9]{10}');
+			$this->arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc'); // 'pattern' => '[0-9]{10}'
+			$this->arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",		'code' => 'soc2'); // 'pattern' => '(?:18|19|20)[0-9]{10}'
 		}
 	}
 
@@ -419,11 +419,11 @@ class mf_form
 
 				if($wpdb->num_rows > 0)
 				{
-					do_log(__FUNCTION__." - Dead form_answer_email: ".$wpdb->last_query);
+					//do_log(__FUNCTION__." - Dead form_answer_email: ".$wpdb->last_query);
 
 					foreach($result as $r)
 					{
-						//$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
+						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
 					}
 				}
 
@@ -6448,7 +6448,7 @@ class mf_form_output
 				$field_data['xtra_class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
 				$field_data['type'] = ($this->row->checkID > 0 ? $obj_form->arr_form_check[$this->row->checkID]['code'] : 'char');
 				$field_data['placeholder'] = $this->row->formTypePlaceholder;
-				$field_data['pattern'] = ($this->row->checkID > 0 ? $obj_form->arr_form_check[$this->row->checkID]['pattern'] : '');
+				//$field_data['pattern'] = ($this->row->checkID > 0 ? $obj_form->arr_form_check[$this->row->checkID]['pattern'] : '');
 
 				if($this->row->formTypeLength > 0)
 				{
