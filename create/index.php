@@ -37,7 +37,7 @@ if($obj_form->check_allow_edit())
 
 				$form_answer_page_shortcodes = "&content=".sprintf(__("%sDisplay this...%s%s...or this%s", 'lang_form'), "[if id > 1]", "[end_if]", "[else]", "[end_else]");
 
-				$arr_data_pages = array();
+				$arr_data_pages = [];
 				get_post_children(array('add_choose_here' => true), $arr_data_pages);
 
 				$has_single_action = ($obj_form->type_action_equals != '' && $obj_form->type_action_show > 0);
@@ -108,7 +108,7 @@ if($obj_form->check_allow_edit())
 											."Limit: ".var_export($obj_form->arr_type_select_limit, true)."<br>"
 											."Action: ".var_export($obj_form->arr_type_select_action, true)."<br>";*/
 
-											$arr_data_show = array();
+											$arr_data_show = [];
 
 											if($has_single_action == false || $has_multiple_action == true)
 											{
@@ -187,7 +187,7 @@ if($obj_form->check_allow_edit())
 											##############################
 											if($has_single_action == true || $has_multiple_action == false)
 											{
-												$arr_data_equals = array();
+												$arr_data_equals = [];
 
 												switch($obj_form->type_id)
 												{

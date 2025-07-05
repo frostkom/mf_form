@@ -16,7 +16,7 @@ if(!isset($obj_form))
 	$obj_form = new mf_form();
 }
 
-$json_output = array();
+$json_output = [];
 
 $type = check_var('type', 'char');
 
