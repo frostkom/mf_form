@@ -5235,7 +5235,7 @@ class mf_form_payment
 
 				if(isset($wp_query->post->ID) && $intFormAnswerURL != $wp_query->post->ID || !isset($wp_query->post->ID))
 				{
-					echo "<i class='fa fa-spinner fa-spin fa-3x'></i>";
+					echo apply_filters('get_loading_animation', '', ['class' => "fa-3x"]);
 
 					$strFormAnswerURL = get_permalink($intFormAnswerURL);
 
