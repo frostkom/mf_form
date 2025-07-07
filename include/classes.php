@@ -2298,7 +2298,7 @@ class mf_form
 		}
 	}
 
-	function validate_select_[]
+	function validate_select_array()
 	{
 		$i = 0;
 		$is_updated = false;
