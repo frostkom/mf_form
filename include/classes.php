@@ -2071,6 +2071,8 @@ class mf_form
 			'select' => "answerID, answerCreated",
 			'limit' => (($page - 1) * $number),
 			'amount' => $number,
+			'debug' => true,
+			'debug_type' => 'log',
 		));
 
 		foreach($tbl_group->data as $r)
@@ -2121,6 +2123,8 @@ class mf_form
 			'select' => "answerID, answerCreated",
 			//'limit' => (($page - 1) * $number),
 			//'amount' => $number,
+			'debug' => true,
+			'debug_type' => 'log',
 		));
 
 		foreach($tbl_group->data as $r)

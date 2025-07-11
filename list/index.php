@@ -11,6 +11,8 @@ echo "<div class='wrap'>
 	."</h2>"
 	.get_notification();
 
+	do_log("Is this still in use???");
+
 	/*$tbl_group = new mf_form_table(array(
 		'remember_search' => true,
 	));
