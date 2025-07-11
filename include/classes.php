@@ -718,12 +718,29 @@ class mf_form
 		return $out;
 	}
 
+	function enqueue_block_editor_assets()
+	{
+		$plugin_include_url = plugin_dir_url(__FILE__);
+		$plugin_version = get_plugin_version(__FILE__);
+
+		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-element', 'wp-components', 'wp-editor', 'wp-block-editor'), $plugin_version, true);
+
+		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array(
+			'block_title' => __("Form", 'lang_form'),
+			'block_description' => __("Display a Form", 'lang_form'),
+			'form_id_label' => __("Select", 'lang_form'),
+			'form_id' => $this->get_for_select(array('force_has_page' => false)),
+			//'form_edit_link_label' => __("Edit Content", 'lang_form'),
+			//'form_edit_link' => admin_url("admin.php?page=mf_form/create/index.php&intFormID="),
+			//'form_list_link_label' => __("List", 'lang_form'),
+			//'form_list_link' => admin_url("edit.php?post_type=".$wpdb->post_type), //<i class='fas fa-external-link-alt'></i>
+		));
+	}
+
 	function init()
 	{
 		load_plugin_textdomain('lang_form', false, str_replace("/include", "", dirname(plugin_basename(__FILE__)))."/lang/");
 
-		// Post types
-		#######################
 		register_post_type($this->post_type, array(
 			'labels' => array(
 				'name' => __("Forms", 'lang_form'),
@@ -749,25 +766,6 @@ class mf_form
 
 		remove_post_type_support($this->post_type, 'comments');
 	    remove_post_type_support($this->post_type, 'trackbacks');
-		#######################
-
-		// Blocks
-		#######################
-		$plugin_include_url = plugin_dir_url(__FILE__);
-		$plugin_version = get_plugin_version(__FILE__);
-
-		wp_register_script('script_form_block_wp', $plugin_include_url."block/script_wp.js", array('wp-blocks', 'wp-element', 'wp-components', 'wp-editor', 'wp-block-editor'), $plugin_version, true);
-
-		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array(
-			'block_title' => __("Form", 'lang_form'),
-			'block_description' => __("Display a Form", 'lang_form'),
-			'form_id_label' => __("Select", 'lang_form'),
-			'form_id' => $this->get_for_select(array('force_has_page' => false)),
-			//'form_edit_link_label' => __("Edit Content", 'lang_form'),
-			//'form_edit_link' => admin_url("admin.php?page=mf_form/create/index.php&intFormID="),
-			//'form_list_link_label' => __("List", 'lang_form'),
-			//'form_list_link' => admin_url("edit.php?post_type=".$wpdb->post_type), //<i class='fas fa-external-link-alt'></i>
-		));
 
 		register_block_type('mf/form', array(
 			'editor_script' => 'script_form_block_wp',
@@ -775,7 +773,6 @@ class mf_form
 			'render_callback' => array($this, 'block_render_callback'),
 			//'style' => 'style_base_block_wp',
 		));
-		#######################
 	}
 
 	function settings_form()
