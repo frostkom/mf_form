@@ -6420,6 +6420,8 @@ class mf_form_output
 				$field_data['class'] = $this->row->formTypeClass;
 				$field_data['xtra'] = "class='multiselect'";
 
+				do_action('init_multiselect');
+
 				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
 
