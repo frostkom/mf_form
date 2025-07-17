@@ -4037,26 +4037,12 @@ class mf_form
 
 	function contains_page_title($string)
 	{
-		/*if(class_exists('mf_theme_core'))
+		if(apply_filters('is_theme_active', false))
 		{
-			global $obj_theme_core;
-
-			if(!isset($obj_theme_core))
-			{
-				$obj_theme_core = new mf_theme_core();
-			}*/
-
-			if(apply_filters('is_theme_active', false)) //$obj_theme_core->is_theme_active()
-			{
-				return preg_match("/(".$obj_theme_core->get_wp_title().")/", $string);
-			}
-		//}
+			return preg_match("/(".$obj_theme_core->get_wp_title().")/", $string);
+		}
 
 		return false;
-
-		/*$string = str_replace(array(" ", "(", ")", "-", ".", ","), "", $string);
-
-		return preg_match('/\d{8,}/', $string); // (^(([\+]\d{1,3})?[ \.-]?[\(]?\d{3}[\)]?)?[ \.-]?\d{3}[ \.-]?\d{4}$) or ([0-9]{3}\s*\([0-9]{3}\)\s*[0-9]{4}) or (\[[0-9]{2}\.[0-9]{1},[0-9]{2}-[0-9]{1}-[0-9]{2}\.[0-9]{2}\])*/
 	}
 
 	function contains_phone_numbers($string)
