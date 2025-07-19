@@ -3,15 +3,12 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.1.9.3
+Version: 1.1.9.4
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
 Text Domain: lang_form
 Domain Path: /lang
-
-Depends: MF Base
-GitHub Plugin URI: frostkom/mf_form
 */
 
 if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') && is_plugin_active("mf_base/index.php"))
