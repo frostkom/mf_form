@@ -771,7 +771,6 @@ class mf_form
 			'editor_script' => 'script_form_block_wp',
 			'editor_style' => 'style_base_block_wp',
 			'render_callback' => array($this, 'block_render_callback'),
-			//'style' => 'style_base_block_wp',
 		));
 	}
 
