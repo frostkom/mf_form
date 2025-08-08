@@ -284,32 +284,4 @@
 						{
 							max-width: 10em;
 						}
-
-	.flot_wrapper
-	{
-		overflow: hidden;
-	}
-
-		.flot_wrapper > div
-		{
-			float: left;
-			width: 500px;
-		}
-
-			.flot_pie
-			{
-				float: left;
-				height: 350px;
-				margin-bottom: 20px;
-				width: 100%;
-			}
-
-				.pieLabel
-				{
-					background: #333;
-					background: rgba(0, 0, 0, .5);
-					border-radius: .3em;
-					color: #fff;
-					padding: .5em;
-				}
 }

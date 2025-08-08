@@ -7,7 +7,7 @@ if($obj_form->check_allow_edit())
 {
 	$obj_form->fetch_request();
 
-	do_action('fetch_form_request');
+	//do_action('fetch_form_request');
 
 	echo $obj_form->save_data();
 
