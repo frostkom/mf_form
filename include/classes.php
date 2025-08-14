@@ -2789,10 +2789,10 @@ class mf_form
 
 				else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
 				{
-					$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $this->answer_id));
+					/*$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $this->answer_id));
 
 					if($wpdb->num_rows > 0)
-					{
+					{*/
 						$this->form_name = $this->get_form_name();
 						$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 
@@ -2802,14 +2802,14 @@ class mf_form
 							'fields' => [],
 						);
 
-						$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->prefix."form2type.form2TypeID, formTypeID, formTypeText, answerText FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form_answer ON ".$wpdb->prefix."form2type.form2TypeID = ".$wpdb->prefix."form_answer.form2TypeID WHERE formID = '%d' AND (answerID = '%d' OR answerID IS null) ORDER BY form2TypeOrder ASC", $this->id, $this->answer_id));
+						$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->prefix."form2type.form2TypeID, formTypeID, formTypeText, checkID, answerText FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form_answer ON ".$wpdb->prefix."form2type.form2TypeID = ".$wpdb->prefix."form_answer.form2TypeID WHERE formID = '%d' AND (answerID = '%d' OR answerID IS null) ORDER BY form2TypeOrder ASC", $this->id, $this->answer_id));
 
 						foreach($result as $r)
 						{
 							$intForm2TypeID2 = $r->form2TypeID;
 							$strFormTypeCode = $this->arr_form_types[$r->formTypeID]['code'];
 							$this->label = $r->formTypeText;
-							$strCheckCode = $this->arr_form_check[$r->checkID]['code'];
+							$strCheckCode = ($r->checkID > 0 && isset($this->arr_form_check[$r->checkID]) ? $this->arr_form_check[$r->checkID]['code'] : 'char');
 							$strAnswerText = $r->answerText;
 
 							switch($strFormTypeCode)
@@ -2900,12 +2900,12 @@ class mf_form
 						$this->process_transactional_emails();
 
 						$done_text = __("I have resent the messages for you", 'lang_form');
-					}
+					/*}
 
 					else
 					{
 						$error_text = __("I could not resend the messages for you", 'lang_form');
-					}
+					}*/
 				}
 
 				/*else if(isset($_GET['btnFormAnswerExport']))
@@ -3309,6 +3309,8 @@ class mf_form
 					{
 						switch($arr_value['type'])
 						{
+							case 'custom_tag':
+							case 'custom_tag_end':
 							case 'hidden_field':
 								// Do not display in e-mail
 							break;
@@ -3860,12 +3862,12 @@ class mf_form
 			{
 				switch($email_notify_from)
 				{
-					default:
 					case 'visitor':
 						$this->mail_data['from'] = $email_from_visitor_address;
 						$this->mail_data['headers'] = $email_from_visitor;
 					break;
 
+					default:
 					case 'admin':
 						$this->mail_data['from'] = $email_from_admin_address;
 						$this->mail_data['headers'] = $email_from_admin;
@@ -3932,7 +3934,7 @@ class mf_form
 
 		if($this->answer_id > 0)
 		{
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s LIMIT 0, 1", $this->answer_id, $this->mail_data['to'], $this->mail_data['type']));
+			/*$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerEmail = %s AND answerType = %s LIMIT 0, 1", $this->answer_id, $this->mail_data['to'], $this->mail_data['type']));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -3940,14 +3942,14 @@ class mf_form
 			}
 
 			else
-			{
+			{*/
 				if(!isset($this->mail_data['from']) || $this->mail_data['from'] == '')
 				{
 					$this->mail_data['from'] = get_bloginfo('admin_email');
 				}
 
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer_email SET answerID = '%d', answerEmailFrom = %s, answerEmail = %s, answerType = %s, answerSent = '%d'", $this->answer_id, $this->mail_data['from'], $this->mail_data['to'], $this->mail_data['type'], $sent));
-			}
+			//}
 		}
 
 		return $sent;
@@ -5170,51 +5172,93 @@ if(class_exists('mf_list_table'))
 				break;
 
 				case 'sent':
-					$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmailFrom, answerEmail, answerSent, answerType FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
+					$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmailFrom, answerEmail, answerSent FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID)); //, answerType
 					$count_temp = $wpdb->num_rows;
 
-					if($count_temp > 0)
-					{
-						$row_actions = $strAnswerEmail_temp = "";
+					/*if($count_temp > 0)
+					{*/
+						$row_actions = ""; //$strAnswerEmailFrom_temp = $strAnswerEmail_temp = 
 						$sent_successfully = $sent_failed = 0;
+						$arr_sent = [];
 
 						foreach($result_emails as $r)
 						{
 							$strAnswerEmailFrom = $r->answerEmailFrom;
 							$strAnswerEmail = $r->answerEmail;
 							$intAnswerSent = $r->answerSent;
-							$strAnswerType = $r->answerType;
+							//$strAnswerType = $r->answerType;
+
+							$answer_md5 = md5($strAnswerEmailFrom.'-'.$strAnswerEmail);
 
 							if($intAnswerSent == 1)
 							{
-								$fa_class = "fa fa-check green";
+								//$fa_class = "fa fa-check green";
 
 								$sent_successfully++;
+
+								if(isset($arr_sent[$answer_md5.'success']))
+								{
+									$arr_sent[$answer_md5.'success']['amount']++;
+								}
+
+								else
+								{
+									$arr_sent[$answer_md5.'success'] = array(
+										'from' => $strAnswerEmailFrom,
+										'to' => $strAnswerEmail,
+										'type' => 'success',
+										'amount' => 1,
+									);
+								}
 							}
 
 							else
 							{
-								$fa_class = "fa fa-times red";
+								//$fa_class = "fa fa-times red";
 
 								$sent_failed++;
+
+								if(isset($arr_sent[$answer_md5.'fail']))
+								{
+									$arr_sent[$answer_md5.'fail']['amount']++;
+								}
+
+								else
+								{
+									$arr_sent[$answer_md5.'fail'] = array(
+										'from' => $strAnswerEmailFrom,
+										'to' => $strAnswerEmail,
+										'type' => 'fail',
+										'amount' => 1,
+									);
+								}
 							}
 
-							if($strAnswerEmail != $strAnswerEmail_temp)
+							/*if($strAnswerEmailFrom != $strAnswerEmailFrom_temp || $strAnswerEmail != $strAnswerEmail_temp)
 							{
 								$row_actions .= "<i class='".$fa_class."' title='".($strAnswerEmailFrom != '' ? $strAnswerEmailFrom." -> " : "").$strAnswerEmail."'></i> ";
 
+								$strAnswerEmailFrom_temp = $strAnswerEmailFrom;
 								$strAnswerEmail_temp = $strAnswerEmail;
-							}
+							}*/
 						}
 
 						$out .= ($sent_failed > 0 ? $sent_successfully."/" : "").$count_temp;
 
+						foreach($arr_sent as $arr_value)
+						{
+							$row_actions .= "<i class='".($arr_value['type'] == 'success' ? "fa fa-check green" : "fa fa-times red")."' title='".($arr_value['from'] != '' ? $arr_value['from']." -> " : "").$arr_value['to'].($arr_value['amount'] > 1 ? " (".$arr_value['amount'].")" : "")."'></i> ";
+						}
+
 						$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
 
-						$out .= "<div class='row-actions'>"
-							.$row_actions
-						."</div>";
-					}
+						if($row_actions != '')
+						{
+							$out .= "<div class='row-actions'>"
+								.$row_actions
+							."</div>";
+						}
+					//}
 				break;
 
 				default:
