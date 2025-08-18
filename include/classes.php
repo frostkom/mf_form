@@ -2789,123 +2789,115 @@ class mf_form
 
 				else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
 				{
-					/*$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $this->answer_id));
+					$this->form_name = $this->get_form_name();
+					$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 
-					if($wpdb->num_rows > 0)
-					{*/
-						$this->form_name = $this->get_form_name();
-						$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
+					$this->answer_data = [];
 
-						$this->answer_data = [];
+					$this->arr_email_content = array(
+						'fields' => [],
+					);
 
-						$this->arr_email_content = array(
-							'fields' => [],
+					$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->prefix."form2type.form2TypeID, formTypeID, formTypeText, checkID, answerText FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form_answer ON ".$wpdb->prefix."form2type.form2TypeID = ".$wpdb->prefix."form_answer.form2TypeID WHERE formID = '%d' AND (answerID = '%d' OR answerID IS null) ORDER BY form2TypeOrder ASC", $this->id, $this->answer_id));
+
+					foreach($result as $r)
+					{
+						$intForm2TypeID2 = $r->form2TypeID;
+						$strFormTypeCode = $this->arr_form_types[$r->formTypeID]['code'];
+						$this->label = $r->formTypeText;
+						$strCheckCode = ($r->checkID > 0 && isset($this->arr_form_check[$r->checkID]) ? $this->arr_form_check[$r->checkID]['code'] : 'char');
+						$strAnswerText = $r->answerText;
+
+						switch($strFormTypeCode)
+						{
+							case 'checkbox':
+								$strAnswerText = "x";
+							break;
+
+							case 'range':
+								$this->parse_range_label();
+							break;
+
+							case 'datepicker':
+								$strAnswerText = format_date($strAnswerText);
+							break;
+
+							case 'radio_button':
+								$strAnswerText = "x";
+							break;
+
+							case 'select':
+							case 'radio_multiple':
+								$strAnswerText = $this->parse_select_info($strAnswerText);
+							break;
+
+							case 'select_multiple':
+							case 'checkbox_multiple':
+								$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
+							break;
+
+							case 'file':
+								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+								foreach($result as $r)
+								{
+									$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
+								}
+							break;
+						}
+
+						$this->arr_email_content['fields'][$intForm2TypeID2] = array(
+							'type' => $strFormTypeCode,
+							'label' => $this->label,
+							'value' => $strAnswerText,
 						);
 
-						$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->prefix."form2type.form2TypeID, formTypeID, formTypeText, checkID, answerText FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form_answer ON ".$wpdb->prefix."form2type.form2TypeID = ".$wpdb->prefix."form_answer.form2TypeID WHERE formID = '%d' AND (answerID = '%d' OR answerID IS null) ORDER BY form2TypeOrder ASC", $this->id, $this->answer_id));
-
-						foreach($result as $r)
+						switch($strFormTypeCode)
 						{
-							$intForm2TypeID2 = $r->form2TypeID;
-							$strFormTypeCode = $this->arr_form_types[$r->formTypeID]['code'];
-							$this->label = $r->formTypeText;
-							$strCheckCode = ($r->checkID > 0 && isset($this->arr_form_check[$r->checkID]) ? $this->arr_form_check[$r->checkID]['code'] : 'char');
-							$strAnswerText = $r->answerText;
-
-							switch($strFormTypeCode)
-							{
-								case 'checkbox':
-									$strAnswerText = "x";
-								break;
-
-								case 'range':
-									$this->parse_range_label();
-								break;
-
-								case 'datepicker':
-									$strAnswerText = format_date($strAnswerText);
-								break;
-
-								case 'radio_button':
-									$strAnswerText = "x";
-								break;
-
-								case 'select':
-								case 'radio_multiple':
-									$strAnswerText = $this->parse_select_info($strAnswerText);
-								break;
-
-								case 'select_multiple':
-								case 'checkbox_multiple':
-									$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
-								break;
-
-								case 'file':
-									$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
-
-									foreach($result as $r)
-									{
-										$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
-									}
-								break;
-							}
-
-							$this->arr_email_content['fields'][$intForm2TypeID2] = array(
-								'type' => $strFormTypeCode,
-								'label' => $this->label,
-								'value' => $strAnswerText,
-							);
-
-							switch($strFormTypeCode)
-							{
-								case 'input_field':
-									switch($strCheckCode)
-									{
-										case 'address':
-										case 'city':
-										case 'country':
-										case 'email':
-										case 'name':
-										case 'telno':
-										case 'zip':
-											$this->answer_data[$strCheckCode] = $strAnswerText;
-										break;
-									}
-								break;
-							}
+							case 'input_field':
+								switch($strCheckCode)
+								{
+									case 'address':
+									case 'city':
+									case 'country':
+									case 'email':
+									case 'name':
+									case 'telno':
+									case 'zip':
+										$this->answer_data[$strCheckCode] = $strAnswerText;
+									break;
+								}
+							break;
 						}
+					}
 
-						foreach($resultAnswerEmail as $r)
-						{
-							$strAnswerEmail = $r->answerEmail;
-							$strAnswerType = $r->answerType;
+					$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $this->answer_id));
 
-							switch($strAnswerType)
-							{
-								case 'replace_link':
-									$this->send_to = $strAnswerEmail;
-								break;
-
-								case 'product':
-									$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
-
-									if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
-									{
-										$this->arr_email_content = $email_content_temp['arr_mail_content'];
-									}
-								break;
-							}
-						}
-
-						$this->process_transactional_emails();
-
-						$done_text = __("I have resent the messages for you", 'lang_form');
-					/*}
-
-					else
+					foreach($resultAnswerEmail as $r)
 					{
-						$error_text = __("I could not resend the messages for you", 'lang_form');
-					}*/
+						$strAnswerEmail = $r->answerEmail;
+						$strAnswerType = $r->answerType;
+
+						switch($strAnswerType)
+						{
+							case 'replace_link':
+								$this->send_to = $strAnswerEmail;
+							break;
+
+							case 'product':
+								$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
+
+								if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
+								{
+									$this->arr_email_content = $email_content_temp['arr_mail_content'];
+								}
+							break;
+						}
+					}
+
+					$this->process_transactional_emails();
+
+					$done_text = __("I have resent the messages for you", 'lang_form');
 				}
 
 				/*else if(isset($_GET['btnFormAnswerExport']))
