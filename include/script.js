@@ -407,9 +407,7 @@ jQuery(function($)
 				return !this.value;
 			});
 
-			if(dom_empty_required.length > 0){}
-
-			else
+			if(!(dom_empty_required.length > 0))
 			{
 				dom_obj.addClass('loading');
 
