@@ -1975,11 +1975,18 @@ class mf_form
 
 			else
 			{
-				if($arrFormTypeSelect_value[$i] != '')
+				if(isset($arrFormTypeSelect_value[$i]) && $arrFormTypeSelect_value[$i] != '')
 				{
 					$intFormOptionOrder_temp = $wpdb->get_var($wpdb->prepare("SELECT formOptionOrder FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder DESC LIMIT 0, 1", $intForm2TypeID));
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d'", $intForm2TypeID, $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], $arrFormTypeSelect_action[$i], ($intFormOptionOrder_temp + 1)));
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d'", 
+						$intForm2TypeID, 
+						$arrFormTypeSelect_key[$i], 
+						$arrFormTypeSelect_value[$i], 
+						$arrFormTypeSelect_limit[$i], 
+						$arrFormTypeSelect_action[$i], 
+						($intFormOptionOrder_temp + 1)
+					));
 
 					if($wpdb->rows_affected == 1)
 					{
