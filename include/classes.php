@@ -1659,9 +1659,7 @@ class mf_form
 			{
 				default:
 				case 'html':
-					$out .= "&nbsp;<span class='update-plugins' title='".$title."'>
-						<span>".$rows."</span>
-					</span>";
+					$out .= "&nbsp;<span class='update-plugins' title='".$title."'><span>".$rows."</span></span>";
 				break;
 
 				case 'array':
@@ -5604,8 +5602,6 @@ class mf_form_output
 
 		if(!($this->row->formTypeID > 0))
 		{
-			do_log(__FUNCTION__." - No formTypeID - Backtrace: ".var_export(debug_backtrace(), true));
-
 			$this->row->formTypeID = 3;
 		}
 
