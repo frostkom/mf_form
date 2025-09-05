@@ -1400,7 +1400,7 @@ class mf_form
 				'std' => 'no',
 			),
 			array(
-				'name' => " - ".__("From", 'lang_form'),
+				'name' => __("Reply To", 'lang_form'),
 				'id' => $this->meta_prefix.'email_notify_from',
 				'type' => 'select',
 				'options' => $this->get_email_notify_from_for_select(),
@@ -1411,7 +1411,7 @@ class mf_form
 				),
 			),
 			array(
-				'name' => __("Send From", 'lang_form'),
+				'name' => " - ".__("E-mail", 'lang_form'),
 				'id' => $this->meta_prefix.'email_notify_from_email',
 				'type' => 'text',
 				'attributes' => array(
@@ -1431,7 +1431,7 @@ class mf_form
 				),
 			),
 			array(
-				'name' => " - ".__("To", 'lang_form'),
+				'name' => __("To", 'lang_form'),
 				'id' => $this->meta_prefix.'email_admin',
 				'type' => 'text',
 				'attributes' => array(
@@ -1473,7 +1473,7 @@ class mf_form
 				'std' => 'no',
 			),
 			array(
-				'name' => __("Send From", 'lang_form'),
+				'name' => __("Reply To E-mail", 'lang_form'),
 				'id' => $this->meta_prefix.'email_confirm_from_email',
 				'type' => 'text',
 				'attributes' => array(
@@ -3789,23 +3789,23 @@ class mf_form
 				$name_temp = $this->answer_data['email'];
 			}
 
-			$email_from_visitor_address = $this->answer_data['email'];
-			$email_from_visitor = "From: ".$name_temp." <".$this->answer_data['email'].">\r\n";
+			//$email_from_visitor_address = $this->answer_data['email'];
+			$email_from_visitor = "Reply-To: ".$name_temp." <".$this->answer_data['email'].">\r\n";
 		}
 		###################
 
 		// From admin
 		###################
-		$email_from_admin_address = get_bloginfo('admin_email');
-		$email_from_admin = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
+		//$email_from_admin_address = get_bloginfo('admin_email');
+		$email_from_admin = "Reply-To: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
 		###################
 
 		// From other
 		###################
 		if($email_notify_from_email != '')
 		{
-			$email_from_other_address = $email_notify_from_email;
-			$email_from_other = "From: ".($email_notify_from_email_name != '' ? $email_notify_from_email_name : $email_notify_from_email)." <".$email_notify_from_email.">\r\n";
+			//$email_from_other_address = $email_notify_from_email;
+			$email_from_other = "Reply-To: ".($email_notify_from_email_name != '' ? $email_notify_from_email_name : $email_notify_from_email)." <".$email_notify_from_email.">\r\n";
 		}
 		###################
 
@@ -3896,8 +3896,8 @@ class mf_form
 
 			if($email_confirm_from_email != '')
 			{
-				$this->mail_data['from'] = $email_confirm_from_email;
-				$this->mail_data['headers'] = "From: ".($email_confirm_from_email_name != '' ? $email_confirm_from_email_name : $email_confirm_from_email)." <".$email_confirm_from_email.">\r\n";
+				//$this->mail_data['from'] = $email_confirm_from_email;
+				$this->mail_data['headers'] = "Reply-To: ".($email_confirm_from_email_name != '' ? $email_confirm_from_email_name : $email_confirm_from_email)." <".$email_confirm_from_email.">\r\n";
 			}
 
 			else if($email_from_admin != '')
