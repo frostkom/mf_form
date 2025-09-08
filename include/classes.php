@@ -1280,7 +1280,7 @@ class mf_form
 	{
 		return array(
 			'admin' => __("Admin", 'lang_form')." (".get_bloginfo('admin_email').")",
-			'visitor' => __("Visitor", 'lang_form'),
+			'visitor' => __("Visitor", 'lang_form')." (".__("If there is an e-mail field", 'lang_form').")",
 			'other' => __("Other", 'lang_form'),
 		);
 	}
@@ -3045,7 +3045,7 @@ class mf_form
 
 		if(!($this->post_id > 0))
 		{
-			$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value = '%d'", $this->post_type, $this->meta_prefix.'form_id', $this->id));
+			$this->post_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id WHERE post_type = %s AND meta_key = %s AND meta_value = '%d' GROUP BY ID LIMIT 0, 1", $this->post_type, $this->meta_prefix.'form_id', $this->id));
 		}
 
 		return $this->post_id;
