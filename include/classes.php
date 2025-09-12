@@ -709,12 +709,13 @@ class mf_form
 			'labels' => array(
 				'name' => __("Forms", 'lang_form'),
 				'singular_name' => __("Form", 'lang_form'),
-				//'add_new' => __("Add New Form", 'lang_form'),
-				//'edit_item' => __("Edit Form", 'lang_form'),
-				//'view_item' => __("View Form", 'lang_form'),
+				'menu_name' => __("Forms", 'lang_form'),
+				'all_items' => __('List', 'lang_form'),
+				'edit_item' => __('Edit', 'lang_form'),
+				'view_item' => __('View', 'lang_form'),
+				'add_new_item' => __('Add New', 'lang_form'),
 				//'search_items' => __("Search Forms", 'lang_form'),
 				//'not_found' => __("No Forms Found", 'lang_form'),
-				'menu_name' => __("Forms", 'lang_form'),
 			),
 			'public' => (wp_is_block_theme() == false), // Previously true but we want them to go through a page when the theme is a block theme
 			'show_ui' => true,
