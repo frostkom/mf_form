@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.2.0.10
+Version: 1.2.0.11
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -95,27 +95,22 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		);
 
 		$arr_add_column[$wpdb->base_prefix."form2type"] = array(
-			'formTypeConnectTo' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL DEFAULT '0' AFTER formTypeFetchFrom",
-			'formTypeLength' => "ALTER TABLE [table] ADD [column] SMALLINT DEFAULT NULL AFTER formTypeClass",
-			'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT '0' AFTER formID",
+			'formTypeLength' => "ALTER TABLE [table] ADD [column] SMALLINT DEFAULT NULL AFTER formTypeClass", //240813
+			'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT '0' AFTER formID", //250501
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form2type"] = array(
-			'formTypeFetchFrom' => "ALTER TABLE [table] CHANGE [column] formTypeFetchFrom TEXT DEFAULT NULL",
+			'formTypeFetchFrom' => "ALTER TABLE [table] CHANGE [column] formTypeFetchFrom TEXT DEFAULT NULL", //231213
 			'form2TypeCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
 			'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
 		);
 
 		$arr_add_column[$wpdb->base_prefix."form2answer"] = array(
-			'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL AFTER formID",
+			'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL AFTER formID", //250501
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form2answer"] = array(
 			'answerToken' => "ALTER TABLE [table] DROP COLUMN [column]", //250429
-		);
-
-		$arr_add_column[$wpdb->base_prefix."form_answer_email"] = array(
-			'answerEmailFrom' => "ALTER TABLE [table] ADD [column] VARCHAR(100) AFTER answerID",
 		);
 		############################
 
@@ -147,6 +142,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			formTypeDisplay ENUM('0', '1') NOT NULL DEFAULT '1',
 			formTypeRequired ENUM('0', '1') NOT NULL DEFAULT '0',
 			formTypeAutofocus ENUM('0', '1') NOT NULL DEFAULT '0',
+			formTypeEncrypt ENUM('no', 'yes') NOT NULL DEFAULT 'no',
 			formTypeRemember ENUM('0', '1') NOT NULL DEFAULT '0',
 			form2TypeOrder INT UNSIGNED NOT NULL DEFAULT '0',
 			PRIMARY KEY (form2TypeID),
@@ -154,6 +150,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			KEY postID (postID),
 			KEY formTypeID (formTypeID)
 		) DEFAULT CHARSET=".$default_charset);
+
+		$arr_add_column[$wpdb->prefix."form2type"] = array(
+			'formTypeEncrypt' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'no' AFTER formTypeAutofocus",
+		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."form_option (
 			formOptionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -288,7 +288,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 						else
 						{
-							$copy_fields = "form2TypeID, form2TypeID2, formID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
+							$copy_fields = "form2TypeID, form2TypeID2, formID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeEncrypt, formTypeRemember, form2TypeOrder";
 
 							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form2type (postID, ".$copy_fields.") (SELECT '%d', ".$copy_fields." FROM ".$wpdb->base_prefix."form2type WHERE form2TypeID = '%d')", $intPostID, $intForm2TypeID));
 						}

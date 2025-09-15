@@ -297,7 +297,7 @@ jQuery(function($)
 					show_or_hide_clear_button();
 				});
 
-				$(".form_button button[name=btnFormClear], .wp-block-button button[name=btnFormClear]").on('click', function()
+				/*$(".form_button button[name=btnFormClear], .wp-block-button button[name=btnFormClear]").on('click', function()
 				{
 					remember_fields.each(function()
 					{
@@ -316,7 +316,7 @@ jQuery(function($)
 					remember_count = 0;
 
 					show_or_hide_clear_button();
-				});
+				});*/
 			}
 		});
 	}

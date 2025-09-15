@@ -16,7 +16,7 @@ if(!isset($obj_form))
 	$obj_form = new mf_form();
 }
 
-$json_output = [];
+$json_output = ['success' => false];
 
 $type = check_var('type', 'char');
 
@@ -119,31 +119,64 @@ switch($type_action)
 	break;
 
 	case 'display':
+	case 'encrypt':
 	case 'remember':
 	case 'require':
 		if(is_user_logged_in() && $type_table == 'type')
 		{
+			$type_field = "";
+
 			switch($type_action)
 			{
 				case 'display':
-					$type_field = "formTypeDisplay";
+				case 'remember':
+					$type_field = "formType".ucfirst($type_action);
+					$type_value = ($state_id == "true" ? 1 : 0);
+				break;
+
+				case 'encrypt':
+					$type_field = "formType".ucfirst($type_action);
+					$type_value = ($state_id == "true" ? 'yes' : 'no');
 				break;
 
 				case 'require':
 					$type_field = "formTypeRequired";
+					$type_value = ($state_id == "true" ? 1 : 0);
 				break;
 
-				case 'remember':
-					$type_field = "formTypeRemember";
+				default:
+					do_log("Unknown type_action (".$type_table."->".$type_action.")");
 				break;
 			}
 
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET ".$type_field." = '%d' WHERE form2TypeID = '%d'", ($state_id == "true" ? 1 : 0), $type_id));
-
-			if($wpdb->rows_affected > 0)
+			if($type_field != '')
 			{
-				$json_output['success'] = true;
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET ".$type_field." = %s WHERE form2TypeID = '%d'", $type_value, $type_id));
+
+				$json_output['debug'] = " (".$wpdb->last_query.")";
+
+				if($wpdb->rows_affected > 0)
+				{
+					$json_output['success'] = true;
+				}
+
+				else
+				{
+					$json_output['error'] = __("No affected rows", 'lang_form');
+
+					$json_output['error'] .= " (".$wpdb->last_query.")";
+				}
 			}
+
+			else
+			{
+				$json_output['error'] = __("No type field", 'lang_form');
+			}
+		}
+
+		else
+		{
+			$json_output['error'] = __("Not logged in or wrong type", 'lang_form');
 		}
 	break;
 

@@ -54,8 +54,23 @@ if($obj_form->check_allow_edit())
 
 				echo "<div id='post-body'>
 					<div class='postbox".($obj_form->form2type_id > 0 ? " active" : "")."'>
-						<h3 class='hndle'><span>".__("Content", 'lang_form')."</span></h3>
-						<form method='post' action='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."' class='mf_form mf_settings inside'>
+						<h3 class='hndle'>"
+							."<span>".__("Content", 'lang_form')."</span> "
+							."<a href='".admin_url("post.php?post=".$obj_form->post_id."&action=edit")."'>".__("Edit settings", 'lang_form')."</a> ";
+
+							$block_code = '<!-- wp:mf/form {"form_id":"'.$obj_form->id.'"} /-->';
+							$arr_ids = apply_filters('get_page_from_block_code', [], $block_code);
+
+							if(count($arr_ids) > 0)
+							{
+								foreach($arr_ids as $post_id)
+								{
+									echo "<a href='".get_permalink($post_id)."'>".__("View", 'lang_form')."</a> ";
+								}
+							}
+
+						echo "</h3>
+						<form method='post' action='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."' class='mf_form inside'>
 							<div".($has_single_action == false || $has_multiple_action == true ? "" : " class='flex_flow'").">"
 								."<div>"
 									.show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(array('form_type_id' => $obj_form->type_id)), 'name' => 'intFormTypeID', 'value' => $obj_form->type_id, 'class' => "fontawesome"))

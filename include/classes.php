@@ -506,7 +506,7 @@ class mf_form
 				$query_where_id = $this->id;
 			}
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, checkID, formTypeText, formTypePlaceholder, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->prefix."form2type WHERE ".$query_where." GROUP BY ".$wpdb->prefix."form2type.form2TypeID ORDER BY form2TypeOrder ASC", $query_where_id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, checkID, formTypeText, formTypePlaceholder, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeEncrypt, formTypeRemember, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow FROM ".$wpdb->prefix."form2type WHERE ".$query_where." GROUP BY ".$wpdb->prefix."form2type.form2TypeID ORDER BY form2TypeOrder ASC", $query_where_id));
 
 			if($wpdb->num_rows > 0)
 			{
@@ -555,7 +555,7 @@ class mf_form
 						{
 							$out .= "<div".get_form_button_classes().">"
 								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText))
-								.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"))
+								//.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"))
 								."<div class='api_form_nonce'></div>";
 
 								if(isset($this->send_to) && $this->send_to != '')
@@ -1192,6 +1192,35 @@ class mf_form
 		);
 	}
 
+	function meta_page_information()
+	{
+		global $post;
+
+		$out = "";
+
+		$post_id = $post->ID;
+
+		if($post_id > 0)
+		{
+			$this->get_form_id($post_id);
+
+			$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'>".__("Edit Content", 'lang_form')."</a> ";
+
+			$block_code = '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->';
+			$arr_ids = apply_filters('get_page_from_block_code', [], $block_code);
+
+			if(count($arr_ids) > 0)
+			{
+				foreach($arr_ids as $post_id)
+				{
+					$out .= "<a href='".get_permalink($post_id)."'>".__("View", 'lang_form')."</a> ";
+				}
+			}
+		}
+
+		return $out;
+	}
+
 	function rwmb_meta_boxes($meta_boxes)
 	{
 		global $obj_base;
@@ -1211,35 +1240,17 @@ class mf_form
 			$this->get_form_id($post_id);
 		}
 
-		$arr_fields = array(
-			array(
-				'name' => __("Display", 'lang_form'),
-				'id' => $this->meta_prefix.'button_display',
-				'type' => 'select',
-				'options' => get_yes_no_for_select(),
-				'std' => 'yes',
-			),
-			array(
-				'name' => __("Symbol", 'lang_form'),
-				'id' => $this->meta_prefix.'button_symbol',
-				'type' => 'select',
-				'options' => $obj_base->get_icons_for_select(),
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'button_display',
-					'condition_value' => 'yes',
-				),
-			),
-			array(
-				'name' => __("Text", 'lang_form'),
-				'id' => $this->meta_prefix.'button_text',
-				'type' => 'text',
-				'placeholder' => __("Submit", 'lang_form')."...",
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'button_display',
-					'condition_value' => 'yes',
-					'maxlength' => 100,
+		$meta_boxes[] = array(
+			'id' => $this->meta_prefix.'information',
+			'title' => __("Information", 'lang_form'),
+			'post_types' => array($this->post_type),
+			'context' => 'side',
+			'priority' => 'default',
+			'fields' => array(
+				array(
+					'id' => $this->meta_prefix.'information',
+					'type' => 'custom_html',
+					'callback' => array($this, 'meta_page_information'),
 				),
 			),
 		);
@@ -1250,41 +1261,36 @@ class mf_form
 			'post_types' => array($this->post_type),
 			'context' => 'side',
 			'priority' => 'default',
-			'fields' => $arr_fields,
-		);
-
-		$arr_fields = array(
-			array(
-				'name' => __("Confirmation Page", 'lang_form'),
-				'id' => $this->meta_prefix.'answer_url',
-				'type' => 'select',
-				'options' => $arr_data_pages,
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'button_display',
-					'condition_value' => 'yes',
+			'fields' => array(
+				array(
+					'name' => __("Display", 'lang_form'),
+					'id' => $this->meta_prefix.'button_display',
+					'type' => 'select',
+					'options' => get_yes_no_for_select(),
+					'std' => 'yes',
 				),
-			),
-			array(
-				'name' => __("Text regarding mandatory fields", 'lang_form'),
-				'id' => $this->meta_prefix.'mandatory_text',
-				'type' => 'text',
-				'placeholder' => __("Please enter all required fields", 'lang_form')."...",
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'button_display',
-					'condition_value' => 'yes',
-					'maxlength' => 100,
+				array(
+					'name' => __("Symbol", 'lang_form'),
+					'id' => $this->meta_prefix.'button_symbol',
+					'type' => 'select',
+					'options' => $obj_base->get_icons_for_select(),
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'button_display',
+						'condition_value' => 'yes',
+					),
 				),
-			),
-			array(
-				'name' => __("Deadline", 'lang_form'),
-				'id' => $this->meta_prefix.'deadline',
-				'type' => 'date',
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'button_display',
-					'condition_value' => 'yes',
+				array(
+					'name' => __("Text", 'lang_form'),
+					'id' => $this->meta_prefix.'button_text',
+					'type' => 'text',
+					'placeholder' => __("Submit", 'lang_form')."...",
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'button_display',
+						'condition_value' => 'yes',
+						'maxlength' => 100,
+					),
 				),
 			),
 		);
@@ -1295,68 +1301,39 @@ class mf_form
 			'post_types' => array($this->post_type),
 			'context' => 'normal',
 			'priority' => 'low',
-			'fields' => $arr_fields,
-		);
-
-		$arr_fields = array(
-			array(
-				'name' => __("Send to Admin", 'lang_form'),
-				'id' => $this->meta_prefix.'email_notify',
-				'type' => 'select',
-				'options' => get_yes_no_for_select(),
-				'std' => 'no',
-			),
-			array(
-				'name' => __("Reply To", 'lang_form'),
-				'id' => $this->meta_prefix.'email_notify_from',
-				'type' => 'select',
-				'options' => $this->get_email_notify_from_for_select(),
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'email_notify',
-					'condition_value' => 'yes',
+			'fields' => array(
+				array(
+					'name' => __("Confirmation Page", 'lang_form'),
+					'id' => $this->meta_prefix.'answer_url',
+					'type' => 'select',
+					'options' => $arr_data_pages,
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'button_display',
+						'condition_value' => 'yes',
+					),
 				),
-			),
-			array(
-				'name' => " - ".__("E-mail", 'lang_form'),
-				'id' => $this->meta_prefix.'email_notify_from_email',
-				'type' => 'text',
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'email_notify_from',
-					'condition_value' => 'other',
+				array(
+					'name' => __("Text regarding mandatory fields", 'lang_form'),
+					'id' => $this->meta_prefix.'mandatory_text',
+					'type' => 'text',
+					'placeholder' => __("Please enter all required fields", 'lang_form')."...",
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'button_display',
+						'condition_value' => 'yes',
+						'maxlength' => 100,
+					),
 				),
-			),
-			array(
-				'name' => " - ".__("Name", 'lang_form'),
-				'id' => $this->meta_prefix.'email_notify_from_email_name',
-				'type' => 'text',
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'email_notify_from',
-					'condition_value' => 'other',
-				),
-			),
-			array(
-				'name' => __("To", 'lang_form'),
-				'id' => $this->meta_prefix.'email_admin',
-				'type' => 'text',
-				'attributes' => array(
-					'placeholder' => get_bloginfo('admin_email'),
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'email_notify',
-					'condition_value' => 'yes',
-				),
-			),
-			array(
-				'name' => " - ".__("Template", 'lang_form'),
-				'id' => $this->meta_prefix.'email_notify_page',
-				'type' => 'select',
-				'options' => $arr_data_pages,
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'email_notify',
-					'condition_value' => 'yes',
+				array(
+					'name' => __("Deadline", 'lang_form'),
+					'id' => $this->meta_prefix.'deadline',
+					'type' => 'date',
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'button_display',
+						'condition_value' => 'yes',
+					),
 				),
 			),
 		);
@@ -1367,58 +1344,66 @@ class mf_form
 			'post_types' => array($this->post_type),
 			'context' => 'normal',
 			'priority' => 'low',
-			'fields' => $arr_fields,
-		);
-
-		//$this->has_email_field() > 0
-		$arr_fields = array(
-			array(
-				'name' => __("Send to Visitor", 'lang_form'),
-				'id' => $this->meta_prefix.'email_confirm',
-				'type' => 'select',
-				'options' => $this->get_email_confirm_for_select(),
-				'std' => 'no',
-			),
-			array(
-				'name' => __("Reply To E-mail", 'lang_form'),
-				'id' => $this->meta_prefix.'email_confirm_from_email',
-				'type' => 'text',
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'email_confirm',
-					'condition_value' => 'yes',
+			'fields' => array(
+				array(
+					'name' => __("Send to Admin", 'lang_form'),
+					'id' => $this->meta_prefix.'email_notify',
+					'type' => 'select',
+					'options' => get_yes_no_for_select(),
+					'std' => 'no',
 				),
-			),
-			array(
-				'name' => " - ".__("Name", 'lang_form'),
-				'id' => $this->meta_prefix.'email_confirm_from_email_name',
-				'type' => 'text',
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'email_confirm',
-					'condition_value' => 'yes',
+				array(
+					'name' => __("From E-mail", 'lang_form'),
+					'id' => $this->meta_prefix.'email_notify_from',
+					'type' => 'select',
+					'options' => $this->get_email_notify_from_for_select(),
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'email_notify',
+						'condition_value' => 'yes',
+					),
 				),
-			),
-			array(
-				'name' => __("Template", 'lang_form'),
-				'id' => $this->meta_prefix.'email_confirm_page',
-				'type' => 'select',
-				'options' => $arr_data_pages,
-				'attributes' => array(
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'email_confirm',
-					'condition_value' => 'yes',
+				array(
+					'name' => " - ".__("E-mail", 'lang_form'),
+					'id' => $this->meta_prefix.'email_notify_from_email',
+					'type' => 'text',
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'email_notify_from',
+						'condition_value' => 'other',
+					),
 				),
-			),
-			array(
-				'name' => __("Conditions", 'lang_form'),
-				'id' => $this->meta_prefix.'email_conditions',
-				'type' => 'text',
-				'attributes' => array(
-					'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email'),
-					'condition_type' => 'show_this_if',
-					'condition_selector' => $this->meta_prefix.'email_confirm',
-					'condition_value' => 'yes',
+				array(
+					'name' => " - ".__("Name", 'lang_form'),
+					'id' => $this->meta_prefix.'email_notify_from_email_name',
+					'type' => 'text',
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'email_notify_from',
+						'condition_value' => 'other',
+					),
+				),
+				array(
+					'name' => __("To", 'lang_form'),
+					'id' => $this->meta_prefix.'email_admin',
+					'type' => 'text',
+					'attributes' => array(
+						'placeholder' => get_bloginfo('admin_email'),
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'email_notify',
+						'condition_value' => 'yes',
+					),
+				),
+				array(
+					'name' => " - ".__("Template", 'lang_form'),
+					'id' => $this->meta_prefix.'email_notify_page',
+					'type' => 'select',
+					'options' => $arr_data_pages,
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'email_notify',
+						'condition_value' => 'yes',
+					),
 				),
 			),
 		);
@@ -1429,7 +1414,57 @@ class mf_form
 			'post_types' => array($this->post_type),
 			'context' => 'normal',
 			'priority' => 'low',
-			'fields' => $arr_fields,
+			'fields' => array(
+				array(
+					'name' => __("Send to Visitor", 'lang_form'),
+					'id' => $this->meta_prefix.'email_confirm',
+					'type' => 'select',
+					'options' => $this->get_email_confirm_for_select(),
+					'std' => 'no',
+				),
+				array(
+					'name' => __("From E-mail", 'lang_form'),
+					'id' => $this->meta_prefix.'email_confirm_from_email',
+					'type' => 'text',
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'email_confirm',
+						'condition_value' => 'yes',
+					),
+				),
+				array(
+					'name' => " - ".__("Name", 'lang_form'),
+					'id' => $this->meta_prefix.'email_confirm_from_email_name',
+					'type' => 'text',
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'email_confirm',
+						'condition_value' => 'yes',
+					),
+				),
+				array(
+					'name' => __("Template", 'lang_form'),
+					'id' => $this->meta_prefix.'email_confirm_page',
+					'type' => 'select',
+					'options' => $arr_data_pages,
+					'attributes' => array(
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'email_confirm',
+						'condition_value' => 'yes',
+					),
+				),
+				array(
+					'name' => __("Conditions", 'lang_form'),
+					'id' => $this->meta_prefix.'email_conditions',
+					'type' => 'text',
+					'attributes' => array(
+						'placeholder' => "[field_id]|[field_value]|".get_bloginfo('admin_email'),
+						'condition_type' => 'show_this_if',
+						'condition_selector' => $this->meta_prefix.'email_confirm',
+						'condition_value' => 'yes',
+					),
+				),
+			),
 		);
 
 		return $meta_boxes;
@@ -2123,7 +2158,7 @@ class mf_form
 			{
 				$intForm2TypeID = $r->form2TypeID;
 
-				$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder";
+				$copy_fields = "formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeActionEquals, formTypeActionShow, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeEncrypt, formTypeRemember, form2TypeOrder";
 
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form2type (formID, ".$copy_fields.") (SELECT %d, ".$copy_fields." FROM ".$wpdb->prefix."form2type WHERE form2TypeID = '%d')", $form_id_new, $intForm2TypeID));
 				$intForm2TypeID_new = $wpdb->insert_id;
@@ -2859,6 +2894,11 @@ class mf_form
 		if(isset($data['autofocus']))
 		{
 			$query_where .= " AND formTypeAutofocus = '".$data['autofocus']."'";
+		}
+
+		if(isset($data['encrypt']))
+		{
+			$query_where .= " AND formTypeEncrypt = '".$data['encrypt']."'";
 		}
 
 		if(isset($data['remember']))
@@ -3745,7 +3785,7 @@ class mf_form
 		$arr_email_fields = $this->get_email_fields();
 		$email_confirm_id = (isset($arr_email_fields[0]) ? $arr_email_fields[0] : 0);
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, formTypeID, checkID, formTypeRequired FROM ".$wpdb->prefix."form2type WHERE formID = '%d' AND formTypeDisplay = '1' ORDER BY form2TypeOrder ASC", $this->id));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, formTypeID, checkID, formTypeRequired, formTypeEncrypt FROM ".$wpdb->prefix."form2type WHERE formID = '%d' AND formTypeDisplay = '1' ORDER BY form2TypeOrder ASC", $this->id));
 
 		foreach($result as $r)
 		{
@@ -3754,6 +3794,7 @@ class mf_form
 			$this->label = $r->formTypeText;
 			$strCheckCode = ($r->checkID > 0 && isset($this->arr_form_check[$r->checkID]) ? $this->arr_form_check[$r->checkID]['code'] : 'char');
 			$intFormTypeRequired = $r->formTypeRequired;
+			$strFormTypeEncrypt = $r->formTypeEncrypt;
 
 			if(!in_array($strFormTypeCode, array('custom_tag', 'custom_tag_end')))
 			{
@@ -3931,6 +3972,12 @@ class mf_form
 
 				if($strAnswerText != '')
 				{
+					if($strFormTypeEncrypt == 'yes')
+					{
+						$obj_encryption = new mf_encryption(__CLASS__);
+						$strAnswerText = $obj_encryption->encrypt($strAnswerText, md5(AUTH_KEY));
+					}
+
 					$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '[answer_id]', form2TypeID = '%d', answerText = %s", $intForm2TypeID2, $strAnswerText);
 
 					if($strAnswerText_send != '')
@@ -4115,7 +4162,7 @@ if(class_exists('mf_export'))
 			$obj_form->id = $this->type;
 			$this->name = $obj_form->get_form_name();
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeRemember, form2TypeOrder FROM ".$wpdb->prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeID, formTypeText, formTypePlaceholder, checkID, formTypeTag, formTypeClass, formTypeLength, formTypeFetchFrom, formTypeConnectTo, formTypeDisplay, formTypeRequired, formTypeAutofocus, formTypeEncrypt, formTypeRemember, form2TypeOrder FROM ".$wpdb->prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $this->type));
 
 			foreach($result as $r)
 			{
@@ -4160,6 +4207,7 @@ if(class_exists('mf_export'))
 					$r->formTypeDisplay,
 					$r->formTypeRequired,
 					$r->formTypeAutofocus,
+					$r->formTypeEncrypt,
 					$r->formTypeRemember,
 					$r->form2TypeOrder,
 					$r->formTypeLength,
@@ -4429,11 +4477,6 @@ if(class_exists('mf_list_table'))
 				}
 			}
 
-			/*if($obj_form->check_if_has_payment())
-			{
-				$arr_columns['payment'] = __("Payment", 'lang_form');
-			}*/
-
 			$arr_columns['answerCreated'] = __("Created", 'lang_form');
 			$arr_columns['sent'] = __("Sent", 'lang_form');
 
@@ -4563,7 +4606,13 @@ if(class_exists('mf_list_table'))
 						$row_actions .= "<i class='".($arr_value['type'] == 'success' ? "fa fa-check green" : "fa fa-times red")."' title='".($arr_value['from'] != '' ? $arr_value['from']." -> " : "").$arr_value['to'].($arr_value['amount'] > 1 ? " (".$arr_value['amount'].")" : "")."'></i> ";
 					}
 
-					$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
+					$email_notify = get_post_meta($obj_form->id, $this->meta_prefix.'email_notify', true);
+					$email_confirm = get_post_meta($obj_form->id, $this->meta_prefix.'email_confirm', true);
+
+					if($email_notify == 'yes' || $email_confirm == 'yes')
+					{
+						$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
+					}
 
 					if($row_actions != '')
 					{
@@ -4581,7 +4630,7 @@ if(class_exists('mf_list_table'))
 
 					else
 					{
-						$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, formTypeID, checkID FROM ".$wpdb->prefix."form2type WHERE formID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
+						$resultText = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, formTypeID, checkID, formTypeEncrypt FROM ".$wpdb->prefix."form2type WHERE formID = '%d' AND form2TypeID = '%d' LIMIT 0, 1", $obj_form->id, $column_name));
 
 						foreach($resultText as $r)
 						{
@@ -4589,6 +4638,7 @@ if(class_exists('mf_list_table'))
 							$strFormTypeCode = $obj_form->arr_form_types[$r->formTypeID]['code'];
 							$obj_form->label = $r->formTypeText;
 							$strCheckCode = ($r->checkID > 0 ? $obj_form->arr_form_check[$r->checkID]['code'] : '');
+							$strFormTypeEncrypt = $r->formTypeEncrypt;
 
 							if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
 							{
@@ -4602,6 +4652,12 @@ if(class_exists('mf_list_table'))
 								{
 									$r = $resultAnswer[0];
 									$strAnswerText = $r->answerText;
+
+									if($strFormTypeEncrypt == 'yes')
+									{
+										$obj_encryption = new mf_encryption("mf_form"); //__CLASS__
+										$strAnswerText = $obj_encryption->decrypt($strAnswerText, md5(AUTH_KEY));
+									}
 
 									switch($strFormTypeCode)
 									{
@@ -4730,6 +4786,7 @@ class mf_form_output
 	var $answer_text = "";
 	var $show_required = false;
 	var $show_autofocus = false;
+	var $show_encrypt = false;
 	var $show_remember = false;
 	var $show_copy = false;
 	var $show_template_info = false;
@@ -4972,7 +5029,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
-				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = true;
+				$this->show_required = $this->show_autofocus = $this->show_encrypt = $this->show_remember = $this->show_copy = true;
 			break;
 
 			case 'datepicker':
@@ -4987,7 +5044,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
-				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = true;
+				$this->show_required = $this->show_autofocus = $this->show_encrypt = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
 			case 'radio_button':
@@ -5073,7 +5130,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_select($field_data);
 
-				$this->show_required = $this->show_remember = $this->show_copy = $this->show_template_info = true;
+				$this->show_required = $this->show_encrypt = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
 			case 'select_multiple':
@@ -5126,7 +5183,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
 
-				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = true;
+				$this->show_required = $this->show_autofocus = $this->show_encrypt = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
 			case 'textarea':
@@ -5145,7 +5202,7 @@ class mf_form_output
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textarea($field_data);
 
-				$this->show_required = $this->show_autofocus = $this->show_remember = $this->show_copy = $this->show_template_info = true;
+				$this->show_required = $this->show_autofocus = $this->show_encrypt = $this->show_remember = $this->show_copy = $this->show_template_info = true;
 			break;
 
 			case 'text':
@@ -5262,6 +5319,9 @@ class mf_form_output
 
 		if($this->in_edit_mode == true)
 		{
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d' LIMIT 0, 1", $this->row->form2TypeID));
+			$row_answers = $wpdb->num_rows;
+
 			$row_settings = show_checkbox(array('name' => 'display_'.$this->row->form2TypeID, 'text' => __("Display", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeDisplay, 'xtra' => "class='ajax_checkbox' rel='display/type/".$this->row->form2TypeID."'"));
 
 			if($this->show_required == true)
@@ -5274,6 +5334,11 @@ class mf_form_output
 				$row_settings .= show_checkbox(array('name' => 'autofocus_'.$this->row->form2TypeID, 'text' => __("Autofocus", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeAutofocus, 'xtra' => "class='ajax_checkbox autofocus' rel='autofocus/type/".$this->row->form2TypeID."'"));
 			}
 
+			if($this->show_encrypt == true && $row_answers == 0)
+			{
+				$row_settings .= show_checkbox(array('name' => 'encrypt_'.$this->row->form2TypeID, 'text' => __("Encrypt Answer", 'lang_form'), 'value' => 'yes', 'compare' => $this->row->formTypeEncrypt, 'xtra' => "class='ajax_checkbox encrypt' rel='encrypt/type/".$this->row->form2TypeID."'"));
+			}
+
 			if($this->show_remember == true)
 			{
 				$row_settings .= show_checkbox(array('name' => 'remember_'.$this->row->form2TypeID, 'text' => __("Remember Answer", 'lang_form'), 'value' => 1, 'compare' => $this->row->formTypeRemember, 'xtra' => "class='ajax_checkbox remember' rel='remember/type/".$this->row->form2TypeID."'"));
@@ -5284,9 +5349,7 @@ class mf_form_output
 				$row_settings .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&btnFieldCopy&intFormID=".$this->id."&intForm2TypeID=".$this->row->form2TypeID)."'>".__("Copy", 'lang_form')."</a>";
 			}
 
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d' LIMIT 0, 1", $this->row->form2TypeID));
-
-			if($wpdb->num_rows == 0)
+			if($row_answers == 0)
 			{
 				$row_settings .= ($this->show_copy == true ? " | " : "")."<a href='#delete/type/".$this->row->form2TypeID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
 			}
@@ -5296,14 +5359,14 @@ class mf_form_output
 				$row_settings .= "<p class='add2condition' rel='".$this->row->form2TypeID."'>".sprintf(__("For use in templates this field has got %s and %s", 'lang_form'), "<a href='#'>[label_".$this->row->form2TypeID."]</a>", "<a href='#'>[answer_".$this->row->form2TypeID."]</a>")."</p>";
 			}
 
-			$row_class = "flex_flow";
+			$row_class = "form_row"; //flex_flow
 
 			if($data['form2type_id'] == $this->row->form2TypeID)
 			{
-				$row_class .= " active";
+				$row_class .= ($row_class != '' ? " " : "")."active";
 			}
 
-			$out .= "<mf-form-row id='type_".$this->row->form2TypeID."' class='".$row_class."'>"
+			$out .= "<div id='type_".$this->row->form2TypeID."' class='".$row_class."'>"
 				.$this->output
 				."<i class='fa fa-eye-slash field_hidden_by_rule' title='".__("The field is hidden by a rule in the form", 'lang_form')."'></i>"
 				."<div class='row_icons'>";
@@ -5331,7 +5394,7 @@ class mf_form_output
 					$out .= "<i class='fas fa-link field_connected_to'></i>";
 				}
 
-			$out .= "</mf-form-row>";
+			$out .= "</div>";
 		}
 
 		else if($this->row->formTypeDisplay == 1)

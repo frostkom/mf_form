@@ -20,7 +20,7 @@
 		overflow: initial;
 	}
 
-		.mf_settings .alignleft
+		/*.mf_settings .alignleft
 		{
 			margin-right: 3%;
 			width: 47%;
@@ -29,7 +29,7 @@
 			.mf_settings .mf_form_field
 			{
 				width: 100%;
-			}
+			}*/
 
 			.mf_form .alignleft, .mf_form .alignright
 			{
@@ -100,7 +100,7 @@
 							display: block;
 						}
 
-	mf-form-row
+	.form_row
 	{
 		border: .1em solid transparent;
 		border-radius: .5em;
@@ -108,24 +108,24 @@
 		cursor: move;
 		display: block;
 		min-height: 6em;
-		margin: .5em 1.5em .5em .5em;
+		margin: .5em 2.5em .5em .5em;
 		position: relative;
-		padding: .5em 0 .5em .5em;
+		padding: .5em 1em .5em .5em;
 	}
 
-		mf-form-row:hover
+		.form_row:hover
 		{
 			background: #eee;
 			border-color: #ccc;
 		}
 
-		mf-form-row.active
+		.form_row.active
 		{
 			background: #fff8df;
 			border-color: #ffdf7f;
 		}
 
-		mf-form-row > .row_icons
+		.form_row > .row_icons
 		{
 			border: .1em solid transparent;
 			border-left: 0;
@@ -135,44 +135,44 @@
 			opacity: .2;
 			padding: .3em;
 			position: absolute;
-			right: -2.4em;
+			right: -2.8em;
 			top: .4em;
 		}
 
-			mf-form-row:hover .row_icons, mf-form-row.active .row_icons
+			.form_row:hover .row_icons, .form_row.active .row_icons
 			{
 				opacity: 1;
 			}
 
-				mf-form-row:hover .row_icons
+				.form_row:hover .row_icons
 				{
 					background: #eee;
 					border-color: #ccc;
 				}
 
-				mf-form-row.active .row_icons
+				.form_row.active .row_icons
 				{
 					background: #fff8df;
 					border-color: #ffdf7f;
 				}
 
-			mf-form-row > .row_icons > a
+			.form_row > .row_icons > a
 			{
 				text-decoration: none;
 			}
 
-			mf-form-row .row_icons .fa:not(.fa-info-circle), mf-form-row .row_icons .far:not(.fa-info-circle)
+			.form_row .row_icons .fa:not(.fa-info-circle), .form_row .row_icons .far:not(.fa-info-circle)
 			{
 				display: none;
 			}
 
-				mf-form-row:hover .row_icons .fa, mf-form-row.active .row_icons .fa, mf-form-row:hover .row_icons .far, mf-form-row.active .row_icons .far
+				.form_row:hover .row_icons .fa, .form_row.active .row_icons .fa, .form_row:hover .row_icons .far, .form_row.active .row_icons .far
 				{
 					display: block;
 					margin-bottom: .2em;
 				}
 
-		mf-form-row .row_settings
+		.form_row .row_settings
 		{
 			background: rgba(255, 255, 255, .8);
 			border: .1em solid #ccc;
@@ -185,17 +185,17 @@
 			z-index: 1;
 		}
 
-			mf-form-row.active .row_settings
+			.form_row.active .row_settings
 			{
 				display: block;
 			}
 
-			mf-form-row .row_settings a
+			.form_row .row_settings a
 			{
 				text-decoration: none;
 			}
 
-		mf-form-row > .field_hidden_by_rule, mf-form-row > .field_hidden_by_creator, mf-form-row > .field_connected_to
+		.form_row > .field_hidden_by_rule, .form_row > .field_hidden_by_creator, .form_row > .field_connected_to
 		{
 			font-size: 5em;
 			left: 50%;
@@ -206,12 +206,12 @@
 			transform: translate(-50%, -50%);
 		}
 
-			mf-form-row > .field_hidden_by_rule
+			.form_row > .field_hidden_by_rule
 			{
 				display: none;
 			}
 
-				mf-form-row > .hide + .field_hidden_by_rule
+				.form_row > .hide + .field_hidden_by_rule
 				{
 					display: block;
 				}

@@ -1,5 +1,3 @@
-document.createElement("mf-form-row");
-
 jQuery(function($)
 {
 	$(document).on('click', ".ajax_link", function()
@@ -244,9 +242,9 @@ jQuery(function($)
 		return false;
 	});
 
-	$(document).on('click', "mf-form-row .row_icons", function(e)
+	$(document).on('click', ".form_row .row_icons", function(e)
 	{
-		$(e.currentTarget).parents("mf-form-row").toggleClass('active').siblings("mf-form-row").removeClass('active');
+		$(e.currentTarget).parents(".form_row").toggleClass('active').siblings(".form_row").removeClass('active');
 	});
 
 	var dom_sortable = $(".mf_form.mf_sortable");
