@@ -16,7 +16,6 @@ class mf_form
 	var $send_to = '';
 	var $answer_id = '';
 	var $prefix = '';
-	//var $provider = '';
 	var $form_atts = [];
 	var $answer_column = 0;
 	var $label = "";
@@ -99,11 +98,11 @@ class mf_form
 		);
 
 		$this->arr_form_check = array(
-			1 => array('name' => __("Number", 'lang_form'),				'code' => 'int'), // 'pattern' => '[0-9]*'
-			2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip'), // 'pattern' => '[0-9]{5}'
+			1 => array('name' => __("Number", 'lang_form'),				'code' => 'int'),
+			2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip'),
 			5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email'),
-			6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno'), // 'pattern' => '\d*'
-			7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float'), // 'pattern' => '[-+]?[0-9]*[.,]?[0-9]+'
+			6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno'),
+			7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float'),
 			8 => array('name' => __("URL", 'lang_form'),				'code' => 'url'),
 			9 => array('name' => __("Name", 'lang_form'),				'code' => 'name'),
 			10 => array('name' => __("Street Address", 'lang_form'),	'code' => 'address'),
@@ -113,8 +112,8 @@ class mf_form
 
 		if(get_bloginfo('language') == "sv-SE")
 		{
-			$this->arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc'); // 'pattern' => '[0-9]{10}'
-			$this->arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",		'code' => 'soc2'); // 'pattern' => '(?:18|19|20)[0-9]{10}'
+			$this->arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc');
+			$this->arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",		'code' => 'soc2');
 		}
 	}
 
@@ -423,6 +422,8 @@ class mf_form
 	{
 		global $wpdb, $wp_query, $done_text, $error_text, $obj_font_icons;
 
+		$plugin_include_url = plugin_dir_url(__FILE__);
+
 		$out = "";
 
 		if(!isset($data['form2type_id'])){	$data['form2type_id'] = 0;}
@@ -482,14 +483,14 @@ class mf_form
 		{
 			$done_text = __("Thank You!", 'lang_form');
 
-			$out .= get_notification(array('add_container' => true));
+			//$out .= get_notification(array('add_container' => true));
 		}
 
 		if($this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
 		{
 			$error_text = __("This form is not open for submissions anymore", 'lang_form');
 
-			$out .= get_notification();
+			//$out .= get_notification(array('add_container' => true));
 		}
 
 		else if($out == '')
@@ -510,11 +511,11 @@ class mf_form
 
 			if($wpdb->num_rows > 0)
 			{
-				$out .= "<form method='post' action='' id='form_".$this->id."' class='mf_form mf_form_submit".($this->edit_mode == true ? " mf_sortable" : "").apply_filters('filter_form_class', '', $this)."' enctype='multipart/form-data'>";
+				$out .= "<form method='post' action='' id='form_".$this->id."' class='mf_form".($this->edit_mode == true ? " mf_sortable" : "").apply_filters('filter_form_class', '', $this)."' enctype='multipart/form-data'>";
 
 					if($this->edit_mode == false)
 					{
-						$out .= get_notification();
+						$out .= get_notification(array('add_container' => true));
 					}
 
 					$intFormTypeID2_temp = $intForm2TypeID2_temp = "";
@@ -546,6 +547,8 @@ class mf_form
 
 						if(in_array('honeypot', $setting_form_spam))
 						{
+							mf_enqueue_style('style_form', $plugin_include_url."style_check.css");
+
 							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
 						}
 
@@ -553,6 +556,10 @@ class mf_form
 
 						if($this->button_display != 'no')
 						{
+							mf_enqueue_script('script_form_submit', $plugin_include_url."script_submit.js", array(
+								'ajax_url' => admin_url('admin-ajax.php'),
+							));
+
 							$out .= "<div".get_form_button_classes().">"
 								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText))
 								//.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"))
@@ -586,7 +593,7 @@ class mf_form
 			}
 		}
 
-		$out .= get_notification();
+		$out .= get_notification(array('add_container' => true));
 
 		return $out;
 	}
@@ -597,7 +604,7 @@ class mf_form
 
 		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)
 		{
-			$this->combined_head();
+			//$this->combined_head();
 
 			$this->id = $attributes['form_id'];
 
@@ -807,7 +814,7 @@ class mf_form
 		return $html;
 	}
 
-	function combined_head()
+	/*function combined_head()
 	{
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
@@ -816,7 +823,7 @@ class mf_form
 			'plugins_url' => plugins_url(),
 			'ajax_url' => admin_url('admin-ajax.php'),
 		));
-	}
+	}*/
 
 	function admin_init()
 	{
@@ -1775,6 +1782,101 @@ class mf_form
 				$phpmailer->addAddress($mail_to_new);
 			}
 		}
+	}
+
+	function api_form_fetch_info()
+	{
+		$arr_fields = check_var('arr_fields');
+
+		$out = [];
+
+		foreach($arr_fields as $key => $arr_value)
+		{
+			$value_temp = "";
+
+			switch($arr_value[1])
+			{
+				case 'address':
+					if(is_user_logged_in())
+					{
+						$value_temp = get_the_author_meta('profile_address_street', get_current_user_id());
+					}
+				break;
+				
+				case 'city':
+					if(is_user_logged_in())
+					{
+						$value_temp = get_the_author_meta('profile_address_city', get_current_user_id());
+					}
+				break;
+				
+				case 'country':
+					if(is_user_logged_in())
+					{
+						$value_temp = get_the_author_meta('profile_country', get_current_user_id());
+
+						if($value_temp > 0 && is_plugin_active("mf_address/index.php"))
+						{
+							global $obj_address;
+
+							$value_temp = $obj_address->get_countries_for_select()[$value_temp];
+						}
+					}
+				break;
+
+				case 'email':
+					if(is_user_logged_in())
+					{
+						$user_data = get_userdata(get_current_user_id());
+
+						$value_temp = $user_data->user_email;
+					}
+				break;
+
+				case 'name':
+					if(is_user_logged_in())
+					{
+						$user_data = get_userdata(get_current_user_id());
+
+						$value_temp = $user_data->display_name;
+					}
+				break;
+
+				//case 'tel':
+				case 'telno':
+					if(is_user_logged_in())
+					{
+						$value_temp = get_the_author_meta('profile_phone', get_current_user_id());
+					}
+				break;
+
+				case 'zip':
+					if(is_user_logged_in())
+					{
+						$value_temp = get_the_author_meta('profile_address_zipcode', get_current_user_id());
+					}
+				break;
+			}
+
+			if($value_temp == '')
+			{
+				$value_temp = apply_filters('filter_visitor_'.$arr_value[1], '');
+			}
+
+			if($value_temp != '')
+			{
+				$out[] = array('id' => $arr_value[0], 'value' => $value_temp);
+			}
+		}
+
+		$json_output = array(
+			'success' => true,
+			'response_fields' => $out,
+		);
+
+		header("Content-Type: application/json");
+		echo json_encode($json_output);
+		die();
 	}
 
 	function api_form_nonce()
@@ -4965,6 +5067,8 @@ class mf_form_output
 			$obj_form = new mf_form();
 		}
 
+		$plugin_include_url = plugin_dir_url(__FILE__);
+
 		$field_data = array(
 			'name' => $this->query_prefix.$this->row->form2TypeID,
 		);
@@ -4991,12 +5095,16 @@ class mf_form_output
 
 				if($this->row->formTypeActionShow > 0)
 				{
+					mf_enqueue_script('script_form_display', $plugin_include_url."script_display.js");
+
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_display";
 					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-display='".$this->query_prefix.$this->row->formTypeActionShow."'";
 				}
 
 				else if(isset($this->row->has_action) && $this->row->has_action)
 				{
+					mf_enqueue_script('script_form_connect_to', $plugin_include_url."script_action.js");
+
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
 				}
 
@@ -5012,6 +5120,8 @@ class mf_form_output
 			break;
 
 			case 'range':
+				mf_enqueue_script('script_form_range', $plugin_include_url."script_range.js");
+
 				$arr_content = explode("|", $this->row->formTypeText);
 
 				if($this->answer_text == '' && isset($arr_content[3]))
@@ -5023,8 +5133,17 @@ class mf_form_output
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['xtra'] = "min='".$arr_content[1]."' max='".$arr_content[2]."'".($this->row->formTypeAutofocus ? " autofocus" : "");
-				$field_data['xtra_class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass;
 				$field_data['type'] = "range";
+
+				if($this->row->formTypeRemember)
+				{
+					mf_enqueue_script('script_form_remember', $plugin_include_url."script_remember.js", array(
+						'plugins_url' => plugins_url(),
+					));
+
+					$field_data['xtra_class'] .= " remember";
+				}
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
@@ -5037,9 +5156,18 @@ class mf_form_output
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
-				$field_data['xtra_class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass;
 				$field_data['type'] = "date";
 				$field_data['placeholder'] = $this->row->formTypePlaceholder;
+
+				if($this->row->formTypeRemember)
+				{
+					mf_enqueue_script('script_form_remember', $plugin_include_url."script_remember.js", array(
+						'plugins_url' => plugins_url(),
+					));
+
+					$field_data['xtra_class'] .= " remember";
+				}
 
 				$this->filter_form_fields($field_data);
 				$this->output .= show_textfield($field_data);
@@ -5081,12 +5209,16 @@ class mf_form_output
 			case 'radio_multiple':
 				if($this->row->formTypeActionShow > 0)
 				{
+					mf_enqueue_script('script_form_display', $plugin_include_url."script_display.js");
+
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_display";
 					$field_data['xtra'] = "data-equals='".$this->row->formTypeActionEquals."' data-display='".$this->query_prefix.$this->row->formTypeActionShow."'";
 				}
 
 				else if(isset($this->row->has_action) && $this->row->has_action)
 				{
+					mf_enqueue_script('script_form_action', $plugin_include_url."script_action.js");
+
 					$this->row->formTypeClass .= ($this->row->formTypeClass != '' ? " " : "")."form_action";
 				}
 
@@ -5107,23 +5239,38 @@ class mf_form_output
 				$field_data['text'] = $this->label;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
-				$field_data['class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
+				$field_data['class'] = $this->row->formTypeClass;
 				$field_data['xtra'] = "";
+
+				if($this->row->formTypeRemember)
+				{
+					mf_enqueue_script('script_form_remember', $plugin_include_url."script_remember.js", array(
+						'plugins_url' => plugins_url(),
+					));
+
+					$field_data['class'] .= " remember";
+				}
 
 				if($this->row->formTypeConnectTo > 0)
 				{
+					mf_enqueue_script('script_form_connect_to', $plugin_include_url."script_connect_to.js");
+
 					$field_data['class'] .= " form_connect_to";
 					$field_data['xtra'] .= ($field_data['xtra'] != '' ? " " : "")."data-connect_to='".$this->query_prefix.$this->row->formTypeConnectTo."'";
 				}
 
 				if($this->row->formTypeActionShow > 0)
 				{
+					mf_enqueue_script('script_form_display', $plugin_include_url."script_display.js");
+
 					$field_data['class'] .= ($field_data['class'] != '' ? " " : "")."form_display";
 					$field_data['xtra'] = ($field_data['xtra'] != '' ? " " : "")."data-equals='".$this->row->formTypeActionEquals."' data-display='".$this->query_prefix.$this->row->formTypeActionShow."'";
 				}
 
 				else if(isset($this->row->has_action) && $this->row->has_action)
 				{
+					mf_enqueue_script('script_form_action', $plugin_include_url."script_action.js");
+
 					$field_data['class'] .= ($field_data['class'] != '' ? " " : "")."form_action";
 				}
 
@@ -5170,10 +5317,30 @@ class mf_form_output
 				$field_data['maxlength'] = 200;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
-				$field_data['xtra_class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
+				$field_data['xtra_class'] = $this->row->formTypeClass;
 				$field_data['type'] = ($this->row->checkID > 0 ? $obj_form->arr_form_check[$this->row->checkID]['code'] : 'char');
 				$field_data['placeholder'] = $this->row->formTypePlaceholder;
-				//$field_data['pattern'] = ($this->row->checkID > 0 ? $obj_form->arr_form_check[$this->row->checkID]['pattern'] : '');
+
+				$arr_input_type = array('address', 'city', 'country', 'email', 'name', 'telno', 'zip');
+
+				if(in_array($field_data['type'], $arr_input_type))
+				{
+					$field_data['xtra'] .= " data-fetch_info='".$field_data['type']."'";
+
+					mf_enqueue_script('script_form_fetch_info', $plugin_include_url."script_fetch_info.js", array(
+						'ajax_url' => admin_url('admin-ajax.php'),
+						'arr_input_type' => $arr_input_type,
+					));
+				}
+
+				if($this->row->formTypeRemember)
+				{
+					mf_enqueue_script('script_form_remember', $plugin_include_url."script_remember.js", array(
+						'plugins_url' => plugins_url(),
+					));
+
+					$field_data['xtra_class'] .= " remember";
+				}
 
 				if($this->row->formTypeLength > 0)
 				{
@@ -5191,8 +5358,17 @@ class mf_form_output
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['xtra'] = ($this->row->formTypeAutofocus ? "autofocus" : "");
-				$field_data['class'] = $this->row->formTypeClass.($this->row->formTypeRemember ? " remember" : "");
+				$field_data['class'] = $this->row->formTypeClass;
 				$field_data['placeholder'] = $this->row->formTypePlaceholder;
+
+				if($this->row->formTypeRemember)
+				{
+					mf_enqueue_script('script_form_remember', $plugin_include_url."script_remember.js", array(
+						'plugins_url' => plugins_url(),
+					));
+
+					$field_data['class'] .= " remember";
+				}
 
 				if($this->row->formTypeLength > 0)
 				{
@@ -5359,7 +5535,7 @@ class mf_form_output
 				$row_settings .= "<p class='add2condition' rel='".$this->row->form2TypeID."'>".sprintf(__("For use in templates this field has got %s and %s", 'lang_form'), "<a href='#'>[label_".$this->row->form2TypeID."]</a>", "<a href='#'>[answer_".$this->row->form2TypeID."]</a>")."</p>";
 			}
 
-			$row_class = "form_row"; //flex_flow
+			$row_class = "form_row";
 
 			if($data['form2type_id'] == $this->row->form2TypeID)
 			{

@@ -29,6 +29,8 @@ get_header();
 					<section>"
 						.$obj_form->process_form()
 					."</section>";
+
+					do_log("single-mf_form.php: Add a block instead (#".$post_id.")", 'publish', false);
 				}
 
 				else
