@@ -2,11 +2,11 @@ jQuery(function($)
 {
 	var dom_obj_widget = $(".widget.form .mf_form");
 
-	if($.isArray(script_form_fetch_info.arr_input_type))
+	if($.isArray(script_form_fetch_info.arr_form_input_type))
 	{
 		var arr_fields = [];
 
-		$.each(script_form_fetch_info.arr_input_type, function(key, value)
+		$.each(script_form_fetch_info.arr_form_input_type, function(key, value)
 		{
 			var dom_obj_type = dom_obj_widget.find(".mf_form_field[data-fetch_info='" + value + "']");
 
@@ -54,6 +54,6 @@ jQuery(function($)
 
 	/*else
 	{
-		console.log("Not an array " , script_form_fetch_info.arr_input_type);
+		console.log("Not an array " , script_form_fetch_info.arr_form_input_type);
 	}*/
 });

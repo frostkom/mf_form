@@ -5321,15 +5321,15 @@ class mf_form_output
 				$field_data['type'] = ($this->row->checkID > 0 ? $obj_form->arr_form_check[$this->row->checkID]['code'] : 'char');
 				$field_data['placeholder'] = $this->row->formTypePlaceholder;
 
-				$arr_input_type = array('address', 'city', 'country', 'email', 'name', 'telno', 'zip');
+				$arr_form_input_type = array('address', 'city', 'country', 'email', 'name', 'telno', 'zip');
 
-				if(in_array($field_data['type'], $arr_input_type))
+				if(in_array($field_data['type'], $arr_form_input_type))
 				{
 					$field_data['xtra'] .= " data-fetch_info='".$field_data['type']."'";
 
 					mf_enqueue_script('script_form_fetch_info', $plugin_include_url."script_fetch_info.js", array(
 						'ajax_url' => admin_url('admin-ajax.php'),
-						'arr_input_type' => $arr_input_type,
+						'arr_form_input_type' => $arr_form_input_type,
 					));
 				}
 
