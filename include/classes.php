@@ -486,7 +486,7 @@ class mf_form
 			//$out .= get_notification(array('add_container' => true));
 		}
 
-		if($this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
+		else if($this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
 		{
 			$error_text = __("This form is not open for submissions anymore", 'lang_form');
 
@@ -1739,14 +1739,6 @@ class mf_form
 		unset($post_types[$this->post_type]);
 
 		return $post_types;
-	}
-
-	function widgets_init()
-	{
-		if(wp_is_block_theme() == false)
-		{
-			register_widget('widget_form');
-		}
 	}
 
 	function phpmailer_init($phpmailer)
@@ -5579,60 +5571,5 @@ class mf_form_output
 		}
 
 		return $out;
-	}
-}
-
-class widget_form extends WP_Widget
-{
-	var $obj_form;
-	var $widget_ops;
-	var $arr_default = array(
-		'form_heading' => "",
-		'form_id' => "",
-	);
-
-	function __construct()
-	{
-		$this->obj_form = new mf_form();
-
-		$this->widget_ops = array(
-			'classname' => 'form',
-			'description' => __("Display a form that you have previously created", 'lang_form'),
-		);
-
-		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Form", 'lang_form'), $this->widget_ops);
-	}
-
-	function widget($args, $instance)
-	{
-		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
-	}
-
-	function update($new_instance, $old_instance)
-	{
-		$instance = $old_instance;
-		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
-
-		$instance['form_heading'] = sanitize_text_field($new_instance['form_heading']);
-		$instance['form_id'] = sanitize_text_field($new_instance['form_id']);
-
-		return $instance;
-	}
-
-	function form($instance)
-	{
-		global $obj_form;
-
-		if(!isset($obj_form))
-		{
-			$obj_form = new mf_form();
-		}
-
-		$instance = wp_parse_args((array)$instance, $this->arr_default);
-
-		echo "<div class='mf_form'>"
-			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
-			.show_select(array('data' => $this->obj_form->get_for_select(array('force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'text' => __("Form", 'lang_form'), 'value' => $instance['form_id'], 'suffix' => $obj_form->get_option_form_suffix(array('value' => $instance['form_id']))))
-		."</div>";
 	}
 }
