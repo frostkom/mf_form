@@ -137,12 +137,13 @@ if($obj_form->check_allow_edit())
 
 											for($i = 0; $i < $count_temp; $i++)
 											{
-												if(isset($obj_form->arr_type_select_id[$i]))
+												if(isset($obj_form->arr_type_select_id[$i]) && isset($obj_form->arr_type_select_key[$i]))
 												{
 													$is_select_value_used = $obj_form->is_select_value_used(array('form2type_id' => $obj_form->form2type_id, 'option_id' => $obj_form->arr_type_select_id[$i]));
 
 													echo "<div class='option'>"
-														.input_hidden(array('name' => 'arrFormTypeSelect_key[]', 'value' => $obj_form->arr_type_select_key[$i]))
+														//.input_hidden(array('name' => 'arrFormTypeSelect_key[]', 'value' => $obj_form->arr_type_select_key[$i]))
+														.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_key[]', 'value' => $obj_form->arr_type_select_key[$i]))
 														.show_textfield(array('name' => 'arrFormTypeSelect_value[]', 'value' => $obj_form->arr_type_select_value[$i], 'placeholder' => __("Enter Option Here", 'lang_form'), 'xtra_class' => "option_value", 'readonly' => $is_select_value_used, 'xtra' => ($is_select_value_used ? " title='".__("This option has been chosen in a previous answer, so be careful with what you change it to. If you still want to edit this option, just double click on the field.", 'lang_form')."'" : "")))
 														.show_textfield(array('type' => 'number', 'name' => 'arrFormTypeSelect_limit[]', 'value' => $obj_form->arr_type_select_limit[$i], 'xtra' => " min='0'", 'xtra_class' => "option_limit"));
 
@@ -217,7 +218,10 @@ if($obj_form->check_allow_edit())
 
 														for($i = 0; $i < $count_temp; $i++)
 														{
-															$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
+															if(isset($obj_form->arr_type_select_id[$i]) && isset($obj_form->arr_type_select_value[$i]))
+															{
+																$arr_data_equals[$obj_form->arr_type_select_id[$i]] = $obj_form->arr_type_select_value[$i];
+															}
 														}
 													break;
 												}

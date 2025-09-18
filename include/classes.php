@@ -482,15 +482,11 @@ class mf_form
 		if($this->edit_mode == false && $this->is_sent == true)
 		{
 			$done_text = __("Thank You!", 'lang_form');
-
-			//$out .= get_notification(array('add_container' => true));
 		}
 
 		else if($this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
 		{
 			$error_text = __("This form is not open for submissions anymore", 'lang_form');
-
-			//$out .= get_notification(array('add_container' => true));
 		}
 
 		else if($out == '')
@@ -547,7 +543,7 @@ class mf_form
 
 						if(in_array('honeypot', $setting_form_spam))
 						{
-							mf_enqueue_style('style_form', $plugin_include_url."style_check.css");
+							mf_enqueue_style('style_form_check', $plugin_include_url."style_check.css");
 
 							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
 						}
@@ -562,7 +558,6 @@ class mf_form
 
 							$out .= "<div".get_form_button_classes().">"
 								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText))
-								//.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"))
 								."<div class='api_form_nonce'></div>";
 
 								if(isset($this->send_to) && $this->send_to != '')
@@ -604,8 +599,6 @@ class mf_form
 
 		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)
 		{
-			//$this->combined_head();
-
 			$this->id = $attributes['form_id'];
 
 			$out = "<div".parse_block_attributes(array('class' => "widget form", 'attributes' => $attributes)).">"
@@ -1902,16 +1895,19 @@ class mf_form
 				{
 					if($arrFormTypeSelect_value[$i] != '')
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], $arrFormTypeSelect_action[$i], $i, $intForm2TypeID, $arrFormTypeSelect_id[$i]));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", 
+							(isset($arrFormTypeSelect_key[$i]) ? $arrFormTypeSelect_key[$i] : ""), 
+							$arrFormTypeSelect_value[$i], 
+							$arrFormTypeSelect_limit[$i], 
+							$arrFormTypeSelect_action[$i], 
+							$i, 
+							$intForm2TypeID, 
+							$arrFormTypeSelect_id[$i]
+						));
 
-						if($wpdb->rows_affected == 1)
+						/*if($wpdb->rows_affected == 1)
 						{
-							//$updated = true;
-						}
-
-						/*else // If nothing has changed, don't log it
-						{
-							do_log("I could not update the option (".var_export($wpdb->last_query, true).")");
+							$updated = true;
 						}*/
 					}
 
@@ -2361,7 +2357,7 @@ class mf_form
 						//case 'radio_multiple':
 							if(count($this->arr_type_select_value) == 0 || $this->arr_type_select_value[0] == '')
 							{
-								$error_text = __("Please, enter all required fields", 'lang_form');
+								$error_text = __("Please enter all required fields", 'lang_form');
 							}
 
 							else
@@ -3849,7 +3845,7 @@ class mf_form
 
 		if($out == '')
 		{
-			$out = __("Please, enter all required fields", 'lang_form');
+			$out = __("Please enter all required fields", 'lang_form');
 		}
 
 		return $out;
@@ -5279,7 +5275,7 @@ class mf_form_output
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
-				$field_data['xtra'] = "class='multiselect'";
+				$field_data['xtra'] = "class='mf_form_field multiselect'";
 
 				do_action('init_multiselect');
 

@@ -253,6 +253,7 @@
 				{
 					display: block;
 					flex: 0 1 0;
+					min-width: 3.5em;
 				}
 
 					.select_rows .option > div + div
