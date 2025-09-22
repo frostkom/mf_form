@@ -547,7 +547,7 @@ class mf_form
 
 						if(in_array('honeypot', $setting_form_spam))
 						{
-							mf_enqueue_style('style_form', $plugin_include_url."style_check.css");
+							mf_enqueue_style('style_form_check', $plugin_include_url."style_check.css");
 
 							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
 						}
@@ -5286,7 +5286,7 @@ class mf_form_output
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
-				$field_data['xtra'] = "class='multiselect'";
+				$field_data['xtra'] = "class='mf_form_field multiselect'";
 
 				do_action('init_multiselect');
 
