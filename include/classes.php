@@ -445,7 +445,7 @@ class mf_form
 
 			else if(!isset($_POST['form_submit_'.$this->id]) || $_POST['form_submit_'.$this->id] != $this->form_nonce_hash)
 			{
-				$error_text = __("The form was not processed properly. Try again but if the problem persists, contact an admin to report this.", 'lang_form');
+				$error_text = __("The form was not processed properly. Try again. If the problem persists, contact an admin to report this.", 'lang_form');
 			}
 
 			else
@@ -561,8 +561,7 @@ class mf_form
 							));
 
 							$out .= "<div".get_form_button_classes().">"
-								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText))
-								//.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"))
+								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText, 'xtra' => "disabled"))
 								."<div class='api_form_nonce'></div>";
 
 								if(isset($this->send_to) && $this->send_to != '')

@@ -17,36 +17,11 @@ jQuery(function($)
 			},
 			success: function(data)
 			{
-				dom_obj.html(data.html);
+				if(data.success)
+				{
+					dom_obj.html(data.html).siblings("button").removeAttr('disabled');
+				}
 			}
 		});
 	});
-
-	/*$(document).on('click', ".mf_form .button-primary", function()
-	{
-		var dom_obj = $(this);
-
-		if(dom_obj.hasClass('loading'))
-		{
-			return false;
-		}
-
-		else
-		{
-			var dom_empty_required = dom_obj.parents("form").find("[required]:visible").filter(function()
-			{
-				return !this.value;
-			});
-
-			if(!(dom_empty_required.length > 0))
-			{
-				dom_obj.addClass('loading');
-
-				setTimeout(function()
-				{
-					dom_obj.removeClass('loading');
-				}, 5000);
-			}
-		}
-	});*/
 });
