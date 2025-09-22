@@ -1801,14 +1801,14 @@ class mf_form
 						$value_temp = get_the_author_meta('profile_address_street', get_current_user_id());
 					}
 				break;
-				
+
 				case 'city':
 					if(is_user_logged_in())
 					{
 						$value_temp = get_the_author_meta('profile_address_city', get_current_user_id());
 					}
 				break;
-				
+
 				case 'country':
 					if(is_user_logged_in())
 					{
@@ -4645,81 +4645,84 @@ if(class_exists('mf_list_table'))
 
 				case 'sent':
 					$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmailFrom, answerEmail, answerSent FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
-					$count_temp = $wpdb->num_rows;
+					$sent_total = $wpdb->num_rows;
 
-					$row_actions = "";
-					$sent_successfully = $sent_failed = 0;
-					$arr_sent = [];
-
-					foreach($result_emails as $r)
+					if($sent_total > 0)
 					{
-						$strAnswerEmailFrom = $r->answerEmailFrom;
-						$strAnswerEmail = $r->answerEmail;
-						$intAnswerSent = $r->answerSent;
+						$row_actions = "";
+						$sent_successfully = $sent_failed = 0;
+						$arr_sent = [];
 
-						$answer_md5 = md5($strAnswerEmailFrom.'-'.$strAnswerEmail);
-
-						if($intAnswerSent == 1)
+						foreach($result_emails as $r)
 						{
-							$sent_successfully++;
+							$strAnswerEmailFrom = $r->answerEmailFrom;
+							$strAnswerEmail = $r->answerEmail;
+							$intAnswerSent = $r->answerSent;
 
-							if(isset($arr_sent[$answer_md5.'success']))
+							$answer_md5 = md5($strAnswerEmailFrom.'-'.$strAnswerEmail);
+
+							if($intAnswerSent == 1)
 							{
-								$arr_sent[$answer_md5.'success']['amount']++;
+								$sent_successfully++;
+
+								if(isset($arr_sent[$answer_md5.'success']))
+								{
+									$arr_sent[$answer_md5.'success']['amount']++;
+								}
+
+								else
+								{
+									$arr_sent[$answer_md5.'success'] = array(
+										'from' => $strAnswerEmailFrom,
+										'to' => $strAnswerEmail,
+										'type' => 'success',
+										'amount' => 1,
+									);
+								}
 							}
 
 							else
 							{
-								$arr_sent[$answer_md5.'success'] = array(
-									'from' => $strAnswerEmailFrom,
-									'to' => $strAnswerEmail,
-									'type' => 'success',
-									'amount' => 1,
-								);
+								$sent_failed++;
+
+								if(isset($arr_sent[$answer_md5.'fail']))
+								{
+									$arr_sent[$answer_md5.'fail']['amount']++;
+								}
+
+								else
+								{
+									$arr_sent[$answer_md5.'fail'] = array(
+										'from' => $strAnswerEmailFrom,
+										'to' => $strAnswerEmail,
+										'type' => 'fail',
+										'amount' => 1,
+									);
+								}
 							}
 						}
 
-						else
+						$out .= ($sent_failed > 0 ? $sent_successfully."/" : "").$sent_total;
+
+						foreach($arr_sent as $arr_value)
 						{
-							$sent_failed++;
-
-							if(isset($arr_sent[$answer_md5.'fail']))
-							{
-								$arr_sent[$answer_md5.'fail']['amount']++;
-							}
-
-							else
-							{
-								$arr_sent[$answer_md5.'fail'] = array(
-									'from' => $strAnswerEmailFrom,
-									'to' => $strAnswerEmail,
-									'type' => 'fail',
-									'amount' => 1,
-								);
-							}
+							$row_actions .= "<i class='".($arr_value['type'] == 'success' ? "fa fa-check green" : "fa fa-times red")."' title='".($arr_value['from'] != '' ? $arr_value['from']." -> " : "").$arr_value['to'].($arr_value['amount'] > 1 ? " (".$arr_value['amount'].")" : "")."'></i> ";
 						}
-					}
 
-					$out .= ($sent_failed > 0 ? $sent_successfully."/" : "").$count_temp;
+						$email_notify = get_post_meta($obj_form->id, $this->meta_prefix.'email_notify', true);
+						$email_confirm = get_post_meta($obj_form->id, $this->meta_prefix.'email_confirm', true);
 
-					foreach($arr_sent as $arr_value)
-					{
-						$row_actions .= "<i class='".($arr_value['type'] == 'success' ? "fa fa-check green" : "fa fa-times red")."' title='".($arr_value['from'] != '' ? $arr_value['from']." -> " : "").$arr_value['to'].($arr_value['amount'] > 1 ? " (".$arr_value['amount'].")" : "")."'></i> ";
-					}
+						if($email_notify == 'yes' || $email_confirm == 'yes')
+						{
+							$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
+						}
 
-					$email_notify = get_post_meta($obj_form->id, $this->meta_prefix.'email_notify', true);
-					$email_confirm = get_post_meta($obj_form->id, $this->meta_prefix.'email_confirm', true);
-
-					if($email_notify == 'yes' || $email_confirm == 'yes')
-					{
-						$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
-					}
-
-					if($row_actions != '')
-					{
-						$out .= "<div class='row-actions'>"
-							.$row_actions
-						."</div>";
+						if($row_actions != '')
+						{
+							$out .= "<div class='row-actions'>"
+								.$row_actions
+							."</div>";
+						}
 					}
 				break;
 
