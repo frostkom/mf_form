@@ -549,7 +549,7 @@ class mf_form
 						{
 							mf_enqueue_style('style_form_check', $plugin_include_url."style_check.css");
 
-							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
+							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check hide", 'xtra' => " autocomplete='off'"));
 						}
 
 						$out .= apply_filters('filter_form_after_fields', '');
