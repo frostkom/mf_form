@@ -482,11 +482,15 @@ class mf_form
 		if($this->edit_mode == false && $this->is_sent == true)
 		{
 			$done_text = __("Thank You!", 'lang_form');
+
+			//$out .= get_notification(array('add_container' => true));
 		}
 
-		else if($this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
+		if($this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
 		{
 			$error_text = __("This form is not open for submissions anymore", 'lang_form');
+
+			//$out .= get_notification(array('add_container' => true));
 		}
 
 		else if($out == '')
@@ -543,7 +547,7 @@ class mf_form
 
 						if(in_array('honeypot', $setting_form_spam))
 						{
-							mf_enqueue_style('style_form_check', $plugin_include_url."style_check.css");
+							mf_enqueue_style('style_form', $plugin_include_url."style_check.css");
 
 							$out .= show_textfield(array('name' => $this->prefix.'check', 'text' => __("This field should not be visible", 'lang_form'), 'xtra_class' => "form_check", 'xtra' => " autocomplete='off'"));
 						}
@@ -558,6 +562,7 @@ class mf_form
 
 							$out .= "<div".get_form_button_classes().">"
 								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText))
+								//.show_button(array('type' => 'button', 'name' => 'btnFormClear', 'text' => __("Clear", 'lang_form'), 'class' => "button-secondary hide"))
 								."<div class='api_form_nonce'></div>";
 
 								if(isset($this->send_to) && $this->send_to != '')
@@ -599,6 +604,8 @@ class mf_form
 
 		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)
 		{
+			//$this->combined_head();
+
 			$this->id = $attributes['form_id'];
 
 			$out = "<div".parse_block_attributes(array('class' => "widget form", 'attributes' => $attributes)).">"
@@ -1734,6 +1741,14 @@ class mf_form
 		return $post_types;
 	}
 
+	function widgets_init()
+	{
+		if(wp_is_block_theme() == false)
+		{
+			register_widget('widget_form');
+		}
+	}
+
 	function phpmailer_init($phpmailer)
 	{
 		if(is_user_logged_in() && defined('IS_ADMINISTRATOR') && IS_ADMINISTRATOR && get_option('setting_form_test_emails') == 'yes')
@@ -1895,19 +1910,16 @@ class mf_form
 				{
 					if($arrFormTypeSelect_value[$i] != '')
 					{
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", 
-							(isset($arrFormTypeSelect_key[$i]) ? $arrFormTypeSelect_key[$i] : ""), 
-							$arrFormTypeSelect_value[$i], 
-							$arrFormTypeSelect_limit[$i], 
-							$arrFormTypeSelect_action[$i], 
-							$i, 
-							$intForm2TypeID, 
-							$arrFormTypeSelect_id[$i]
-						));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form_option SET formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d' WHERE form2TypeID = '%d' AND formOptionID = '%d'", $arrFormTypeSelect_key[$i], $arrFormTypeSelect_value[$i], $arrFormTypeSelect_limit[$i], $arrFormTypeSelect_action[$i], $i, $intForm2TypeID, $arrFormTypeSelect_id[$i]));
 
-						/*if($wpdb->rows_affected == 1)
+						if($wpdb->rows_affected == 1)
 						{
-							$updated = true;
+							//$updated = true;
+						}
+
+						/*else // If nothing has changed, don't log it
+						{
+							do_log("I could not update the option (".var_export($wpdb->last_query, true).")");
 						}*/
 					}
 
@@ -2357,7 +2369,7 @@ class mf_form
 						//case 'radio_multiple':
 							if(count($this->arr_type_select_value) == 0 || $this->arr_type_select_value[0] == '')
 							{
-								$error_text = __("Please enter all required fields", 'lang_form');
+								$error_text = __("Please, enter all required fields", 'lang_form');
 							}
 
 							else
@@ -3845,7 +3857,7 @@ class mf_form
 
 		if($out == '')
 		{
-			$out = __("Please enter all required fields", 'lang_form');
+			$out = __("Please, enter all required fields", 'lang_form');
 		}
 
 		return $out;
@@ -5275,7 +5287,7 @@ class mf_form_output
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
-				$field_data['xtra'] = "class='mf_form_field multiselect'";
+				$field_data['xtra'] = "class='multiselect'";
 
 				do_action('init_multiselect');
 
@@ -5567,5 +5579,60 @@ class mf_form_output
 		}
 
 		return $out;
+	}
+}
+
+class widget_form extends WP_Widget
+{
+	var $obj_form;
+	var $widget_ops;
+	var $arr_default = array(
+		'form_heading' => "",
+		'form_id' => "",
+	);
+
+	function __construct()
+	{
+		$this->obj_form = new mf_form();
+
+		$this->widget_ops = array(
+			'classname' => 'form',
+			'description' => __("Display a form that you have previously created", 'lang_form'),
+		);
+
+		parent::__construct(str_replace("_", "-", $this->widget_ops['classname']).'-widget', __("Form", 'lang_form'), $this->widget_ops);
+	}
+
+	function widget($args, $instance)
+	{
+		do_log(__CLASS__."->".__FUNCTION__."(): Add a block instead", 'publish', false);
+	}
+
+	function update($new_instance, $old_instance)
+	{
+		$instance = $old_instance;
+		$new_instance = wp_parse_args((array)$new_instance, $this->arr_default);
+
+		$instance['form_heading'] = sanitize_text_field($new_instance['form_heading']);
+		$instance['form_id'] = sanitize_text_field($new_instance['form_id']);
+
+		return $instance;
+	}
+
+	function form($instance)
+	{
+		global $obj_form;
+
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
+		$instance = wp_parse_args((array)$instance, $this->arr_default);
+
+		echo "<div class='mf_form'>"
+			.show_textfield(array('name' => $this->get_field_name('form_heading'), 'text' => __("Heading", 'lang_form'), 'value' => $instance['form_heading'], 'xtra' => " id='".$this->widget_ops['classname']."-title'"))
+			.show_select(array('data' => $this->obj_form->get_for_select(array('force_has_page' => false)), 'name' => $this->get_field_name('form_id'), 'text' => __("Form", 'lang_form'), 'value' => $instance['form_id'], 'suffix' => $obj_form->get_option_form_suffix(array('value' => $instance['form_id']))))
+		."</div>";
 	}
 }
