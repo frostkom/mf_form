@@ -13,7 +13,7 @@ class mf_form
 	var $is_spam_id = false;
 	var $is_sent = false;
 	var $type = '';
-	var $send_to = '';
+	//var $send_to = '';
 	var $answer_id = '';
 	var $prefix = '';
 	var $form_atts = [];
@@ -427,10 +427,10 @@ class mf_form
 		$out = "";
 
 		if(!isset($data['form2type_id'])){	$data['form2type_id'] = 0;}
-		if(!isset($data['do_redirect'])){	$data['do_redirect'] = true;}
+		//if(!isset($data['do_redirect'])){	$data['do_redirect'] = true;}
 
 		$this->edit_mode = (isset($data['edit']) ? $data['edit'] : false);
-		$this->send_to = (isset($data['send_to']) ? $data['send_to'] : "");
+		//$this->send_to = (isset($data['send_to']) ? $data['send_to'] : "");
 		$this->answer_id = (isset($data['answer_id']) ? $data['answer_id'] : "");
 
 		$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
@@ -438,12 +438,12 @@ class mf_form
 
 		if(isset($_POST[$this->prefix.'btnFormSubmit']))
 		{
-			if($this->is_correct_form($data) == false)
+			/*if($this->is_correct_form($data) == false)
 			{
 				$error_text = __("It is not the correct form. Please try again or contact an admin.", 'lang_form');
 			}
 
-			else if(!isset($_POST['form_submit_'.$this->id]) || $_POST['form_submit_'.$this->id] != $this->form_nonce_hash)
+			else */if(!isset($_POST['form_submit_'.$this->id]) || $_POST['form_submit_'.$this->id] != $this->form_nonce_hash)
 			{
 				$error_text = __("The form was not processed properly. Try again. If the problem persists, contact an admin to report this.", 'lang_form');
 			}
@@ -454,19 +454,8 @@ class mf_form
 			}
 		}
 
-		if(!isset($obj_font_icons))
-		{
-			$obj_font_icons = new mf_font_icons();
-		}
-
 		$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
-		$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
-		$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
-		$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
-		$this->button_symbol = get_post_meta($this->post_id, $this->meta_prefix.'button_symbol', true);
-
-		$strFormButtonSymbol = $obj_font_icons->get_symbol_tag(array('symbol' => $this->button_symbol));
-		$strFormButtonText = ($this->button_text != '' ? $this->button_text : __("Submit", 'lang_form'));
+		/*$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
 
 		if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
 		{
@@ -477,24 +466,24 @@ class mf_form
 		{
 			$blog_id = 0;
 			$intFormAnswerURL = $this->answer_url;
-		}
+		}*/
 
 		if($this->edit_mode == false && $this->is_sent == true)
 		{
 			$done_text = __("Thank You!", 'lang_form');
-
-			//$out .= get_notification(array('add_container' => true));
 		}
 
-		if($this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
+		if($out == '' && $this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
 		{
 			$error_text = __("This form is not open for submissions anymore", 'lang_form');
-
-			//$out .= get_notification(array('add_container' => true));
 		}
 
 		else if($out == '')
 		{
+			$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
+			$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
+			$this->button_symbol = get_post_meta($this->post_id, $this->meta_prefix.'button_symbol', true);
+
 			if($this->form2type_id > 0)
 			{
 				$query_where = "form2typeID = '%d'";
@@ -560,14 +549,22 @@ class mf_form
 								'ajax_url' => admin_url('admin-ajax.php'),
 							));
 
+							if(!isset($obj_font_icons))
+							{
+								$obj_font_icons = new mf_font_icons();
+							}
+
+							$strFormButtonSymbol = $obj_font_icons->get_symbol_tag(array('symbol' => $this->button_symbol));
+							$strFormButtonText = ($this->button_text != '' ? $this->button_text : __("Submit", 'lang_form'));
+
 							$out .= "<div".get_form_button_classes().">"
 								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText, 'xtra' => "disabled"))
 								."<div class='api_form_nonce'></div>";
 
-								if(isset($this->send_to) && $this->send_to != '')
+								/*if(isset($this->send_to) && $this->send_to != '')
 								{
 									$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $this->send_to)));
-								}
+								}*/
 
 								$out .= input_hidden(array('name' => 'intFormID', 'value' => $this->id));
 
@@ -603,8 +600,6 @@ class mf_form
 
 		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)
 		{
-			//$this->combined_head();
-
 			$this->id = $attributes['form_id'];
 
 			$out = "<div".parse_block_attributes(array('class' => "widget form", 'attributes' => $attributes)).">"
@@ -813,17 +808,6 @@ class mf_form
 		return $html;
 	}
 
-	/*function combined_head()
-	{
-		$plugin_include_url = plugin_dir_url(__FILE__);
-
-		mf_enqueue_style('style_form', $plugin_include_url."style.css");
-		mf_enqueue_script('script_form', $plugin_include_url."script.js", array(
-			'plugins_url' => plugins_url(),
-			'ajax_url' => admin_url('admin-ajax.php'),
-		));
-	}*/
-
 	function admin_init()
 	{
 		global $pagenow, $done_text, $error_text;
@@ -845,8 +829,8 @@ class mf_form
 
 				if($page == 'mf_form/create/index.php' || $page == 'mf_form/answer/index.php')
 				{
-					mf_enqueue_style('style_forms_wp', $plugin_include_url."style_wp.css");
-					mf_enqueue_script('script_forms_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')));
+					mf_enqueue_style('style_form_wp', $plugin_include_url."style_wp.css");
+					mf_enqueue_script('script_form_wp', $plugin_include_url."script_wp.js", array('plugins_url' => plugins_url(), 'confirm_question' => __("Are you sure?", 'lang_form')));
 				}
 			break;
 
@@ -2753,9 +2737,9 @@ class mf_form
 
 						switch($strAnswerType)
 						{
-							case 'replace_link':
+							/*case 'replace_link':
 								$this->send_to = $strAnswerEmail;
-							break;
+							break;*/
 
 							case 'product':
 								$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
@@ -2805,7 +2789,7 @@ class mf_form
 		return ($rows_poll_fields > 0 && $rows_input_fields == 0);
 	}
 
-	function is_correct_form($data)
+	/*function is_correct_form($data)
 	{
 		if(isset($data['send_to']) && $data['send_to'] != '')
 		{
@@ -2820,7 +2804,7 @@ class mf_form
 		}
 
 		return true;
-	}
+	}*/
 
 	function get_for_select($data = [])
 	{
@@ -3669,7 +3653,7 @@ class mf_form
 		}
 		###################
 
-		if(isset($this->send_to) && $this->send_to != '')
+		/*if(isset($this->send_to) && $this->send_to != '')
 		{
 			$this->mail_data = array(
 				'type' => 'replace_link',
@@ -3687,7 +3671,7 @@ class mf_form
 			$this->mail_data['content'] = $this->get_page_content_for_email();
 
 			$this->send_transactional_email();
-		}
+		}*/
 
 		if($email_notify == 'yes')
 		{

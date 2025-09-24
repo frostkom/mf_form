@@ -5,14 +5,14 @@ jQuery(function($)
 		var self = $(this),
 			type = self.attr('href').substring(1);
 
-		if($(this).hasClass("confirm_link") && !confirm(script_forms_wp.confirm_question))
+		if($(this).hasClass("confirm_link") && !confirm(script_form_wp.confirm_question))
 		{
 			return false;
 		}
 
 		$.ajax(
 		{
-			url: script_forms_wp.plugins_url + '/mf_form/include/api/?type=' + type,
+			url: script_form_wp.plugins_url + '/mf_form/include/api/?type=' + type,
 			type: 'get',
 			dataType: 'json',
 			success: function(data)
@@ -53,7 +53,7 @@ jQuery(function($)
 
 		$.ajax(
 		{
-			url: script_forms_wp.plugins_url + '/mf_form/include/api/?type=' + type + '/' + is_checked,
+			url: script_form_wp.plugins_url + '/mf_form/include/api/?type=' + type + '/' + is_checked,
 			type: 'get',
 			dataType: 'json',
 			success: function(data)
@@ -260,7 +260,7 @@ jQuery(function($)
 
 				$.ajax(
 				{
-					url: script_forms_wp.plugins_url + '/mf_form/include/api/?type=sortOrder',
+					url: script_form_wp.plugins_url + '/mf_form/include/api/?type=sortOrder',
 					type: 'post',
 					dataType: 'json',
 					data: 'strOrder=' + post_data,
