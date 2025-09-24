@@ -4447,6 +4447,9 @@ if(class_exists('mf_list_table'))
 {
 	class mf_answer_table extends mf_list_table
 	{
+		var $current_row = [];
+		var $previous_row = [];
+
 		function set_default()
 		{
 			global $wpdb, $obj_form;
@@ -4472,7 +4475,6 @@ if(class_exists('mf_list_table'))
 			// Same as in mf_form_answer_export()
 			if($this->search != '')
 			{
-				//$this->query_join .= " LEFT JOIN ".$wpdb->prefix."form_answer USING (answerID)";
 				$this->query_join .= " LEFT JOIN ".$wpdb->prefix."form_answer_email USING (answerID)";
 				$this->query_join .= " LEFT JOIN ".$wpdb->prefix."form_option ON ".$wpdb->prefix."form_answer.answerText = ".$wpdb->prefix."form_option.formOptionID";
 
@@ -4696,6 +4698,19 @@ if(class_exists('mf_list_table'))
 							."</div>";
 						}
 					}
+
+					// This will remove all answers that have the same field inputs, so it needs to be smarter before use in prod
+					if(count($this->current_row) > 0 && $this->current_row == $this->previous_row)
+					{
+						$out .= "DUPLICATE";
+
+						if(IS_SUPER_ADMIN)
+						{
+							$obj_form->delete_answer($intAnswerID);
+						}
+					}
+
+					$this->previous_row = $this->current_row;
 				break;
 
 				default:
@@ -4716,9 +4731,10 @@ if(class_exists('mf_list_table'))
 							$strCheckCode = ($r->checkID > 0 ? $obj_form->arr_form_check[$r->checkID]['code'] : '');
 							$strFormTypeEncrypt = $r->formTypeEncrypt;
 
+							$strAnswerText = "";
+
 							if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
 							{
-								$strAnswerText = "";
 								$arr_actions = [];
 
 								$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
@@ -4841,6 +4857,11 @@ if(class_exists('mf_list_table'))
 								}
 
 								$out .= $this->row_actions($arr_actions);
+							}
+
+							if(in_array($strFormTypeCode, array('input_field', 'textarea')))
+							{
+								$this->current_row[$intForm2TypeID] = $strAnswerText;
 							}
 						}
 					}
