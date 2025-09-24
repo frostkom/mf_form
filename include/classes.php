@@ -11,7 +11,6 @@ class mf_form
 	var $edit_mode = false;
 	var $is_spam = false;
 	var $is_spam_id = false;
-	var $is_sent = false;
 	var $type = '';
 	//var $send_to = '';
 	var $answer_id = '';
@@ -23,11 +22,7 @@ class mf_form
 	var $arr_answer_queries = [];
 	var $arr_email_content = [];
 	var $form_name = "";
-	var $import = "";
-	var $url = "";
-	var $deadline = "";
 	var $form2type_order = "";
-	var $answer_url = "";
 	var $email_admin = "";
 	var $email_name = "";
 	var $mandatory_text = "";
@@ -454,31 +449,21 @@ class mf_form
 			}
 		}
 
-		$this->deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
-		/*$this->answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true);
+		$out .= get_notification(array('add_container' => true));
 
-		if($this->answer_url != '' && preg_match("/_/", $this->answer_url))
-		{
-			list($blog_id, $intFormAnswerURL) = explode("_", $this->answer_url);
-		}
+		$post_meta_deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
 
-		else
-		{
-			$blog_id = 0;
-			$intFormAnswerURL = $this->answer_url;
-		}*/
-
-		if($this->edit_mode == false && $this->is_sent == true)
+		if(isset($_GET['success']))
 		{
 			$done_text = __("Thank You!", 'lang_form');
 		}
 
-		if($out == '' && $this->edit_mode == false && $this->deadline > DEFAULT_DATE && $this->deadline < date("Y-m-d"))
+		else if($this->edit_mode == false && $post_meta_deadline > DEFAULT_DATE && $post_meta_deadline < date("Y-m-d"))
 		{
 			$error_text = __("This form is not open for submissions anymore", 'lang_form');
 		}
 
-		else if($out == '')
+		else 
 		{
 			$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
 			$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
@@ -4097,7 +4082,7 @@ class mf_form
 			}
 		}
 
-		if($error_text == '' && $this->is_sent == false && count($this->arr_answer_queries) > 0)
+		if($error_text == '' && count($this->arr_answer_queries) > 0)
 		{
 			$honeypot_check = check_var($this->prefix.'check');
 
@@ -4134,7 +4119,10 @@ class mf_form
 
 					$this->process_transactional_emails();
 
-					$this->is_sent = true;
+					$post_meta_answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true, $this->post_id);
+					$post_url = get_the_permalink($post_meta_answer_url);
+
+					mf_redirect($post_url.(strpos($post_url, "?") ? "&" : "?")."success");
 				}
 			}
 		}
