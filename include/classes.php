@@ -4115,7 +4115,7 @@ class mf_form
 					$this->process_transactional_emails();
 
 					$post_meta_answer_url = get_post_meta($this->post_id, $this->meta_prefix.'answer_url', true, $this->post_id);
-					$post_url = get_the_permalink($post_meta_answer_url);
+					$post_url = get_permalink($post_meta_answer_url);
 
 					mf_redirect($post_url.(strpos($post_url, "?") ? "&" : "?")."success");
 				}
