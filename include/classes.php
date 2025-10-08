@@ -4584,7 +4584,7 @@ if(class_exists('mf_list_table'))
 							}
 						}
 
-						$arr_actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."' rel='confirm'>".__("Approve", 'lang_form')."</a>";
+						$arr_actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."'".make_link_confirm().">".__("Approve", 'lang_form')."</a>";
 					}
 
 					$out .= $this->row_actions($arr_actions);
@@ -4683,7 +4683,7 @@ if(class_exists('mf_list_table'))
 
 						if($email_notify == 'yes' || $email_confirm == 'yes')
 						{
-							$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."' rel='confirm'><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
+							$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."'".make_link_confirm()."><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
 						}
 
 						if($row_actions != '')
@@ -4787,7 +4787,7 @@ if(class_exists('mf_list_table'))
 
 														if($item['answerSpam'] == false)
 														{
-															$arr_actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID, '_wpnonce_answer_spam')."' rel='confirm'>".__("Mark as Spam", 'lang_form')."</a>";
+															$arr_actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID, '_wpnonce_answer_spam')."'".make_link_confirm().">".__("Mark as Spam", 'lang_form')."</a>";
 														}
 													break;
 
