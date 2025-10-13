@@ -71,45 +71,6 @@ class mf_form
 		$this->type = (isset($data['type']) ? $data['type'] : '');
 
 		$this->form_nonce_hash = md5((defined('NONCE_SALT') ? NONCE_SALT : '').'form_nonce_hash_'.apply_filters('get_current_visitor_ip', "").'_'.date("Ymd"));
-
-		$this->arr_form_types = array(
-			1 => array('code' => 'checkbox',			'name' => "&#xf14a; ".__("Checkbox", 'lang_form'),					'desc' => __("To choose one or many alternatives", 'lang_form')),
-			2 => array('code' => 'range',				'name' => "&#xf258; ".__("Range", 'lang_form'),						'desc' => __("To choose a min and max value and create a slider for that", 'lang_form')),
-			3 => array('code' => 'input_field',			'name' => "&#xf044; ".__("Input Field", 'lang_form'),				'desc' => __("To enter a short text", 'lang_form')),
-			4 => array('code' => 'textarea',			'name' => "&#xf044; ".__("Textarea", 'lang_form'),					'desc' => __("To enter a longer text on multiple rows", 'lang_form')),
-			5 => array('code' => 'text',				'name' => "&#xf27a; ".__("Text", 'lang_form'),						'desc' => __("To present information to the visitor", 'lang_form')),
-			6 => array('code' => 'space',				'name' => "&#xf2d1; ".__("Space", 'lang_form'),						'desc' => __("To separate fields in the form with empty space", 'lang_form')),
-			7 => array('code' => 'datepicker',			'name' => "&#xf073; ".__("Datepicker", 'lang_form'),				'desc' => __("To choose a date", 'lang_form')),
-			8 => array('code' => 'radio_button',		'name' => "&#xf192; ".__("Radio Button", 'lang_form'),				'desc' => __("To choose one alternative", 'lang_form')),
-			9 => array('code' => 'referer_url',			'name' => "&#xf164; ".__("Referer URL", 'lang_form'),				'desc' => __("To get which URL the visitor came from", 'lang_form')),
-			10 => array('code' => 'select',				'name' => "&#xf022; ".__("Dropdown", 'lang_form'),					'desc' => __("To choose one alternative", 'lang_form')),
-			11 => array('code' => 'select_multiple',	'name' => "&#xf022; ".__("Multiple Selection", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form')),
-			12 => array('code' => 'hidden_field',		'name' => "&#xf070; ".__("Hidden Field", 'lang_form'),				'desc' => __("To add hidden data to the form", 'lang_form')),
-			13 => array('code' => 'custom_tag',			'name' => "&#xf070; ".__("Custom Tag", 'lang_form'),				'desc' => __("To add a custom tag", 'lang_form')),
-			14 => array('code' => 'custom_tag_end',		'name' => "&#xf070; ".__("Custom Tag (end)", 'lang_form'),			'desc' => __("To add a custom end tag", 'lang_form')),
-			15 => array('code' => 'file',				'name' => "&#xf07c; ".__("File", 'lang_form'),						'desc' => __("To add a file upload to the form", 'lang_form')),
-			16 => array('code' => 'checkbox_multiple',	'name' => "&#xf14a; ".__("Multiple Checkboxes", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form')),
-			17 => array('code' => 'radio_multiple',		'name' => "&#xf192; ".__("Multiple Radio Buttons", 'lang_form'),	'desc' => __("To choose one alternative", 'lang_form')),
-		);
-
-		$this->arr_form_check = array(
-			1 => array('name' => __("Number", 'lang_form'),				'code' => 'int'),
-			2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip'),
-			5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email'),
-			6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno'),
-			7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float'),
-			8 => array('name' => __("URL", 'lang_form'),				'code' => 'url'),
-			9 => array('name' => __("Name", 'lang_form'),				'code' => 'name'),
-			10 => array('name' => __("Street Address", 'lang_form'),	'code' => 'address'),
-			11 => array('name' => __("City", 'lang_form'),				'code' => 'city'),
-			11 => array('name' => __("Country", 'lang_form'),			'code' => 'country'),
-		);
-
-		if(get_bloginfo('language') == "sv-SE")
-		{
-			$this->arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc');
-			$this->arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",		'code' => 'soc2');
-		}
 	}
 
 	function check_allow_edit()
@@ -613,6 +574,45 @@ class mf_form
 	function init()
 	{
 		load_plugin_textdomain('lang_form', false, str_replace("/include", "", dirname(plugin_basename(__FILE__)))."/lang/");
+
+		$this->arr_form_types = array(
+			1 => array('code' => 'checkbox',			'name' => "&#xf14a; ".__("Checkbox", 'lang_form'),					'desc' => __("To choose one or many alternatives", 'lang_form')),
+			2 => array('code' => 'range',				'name' => "&#xf258; ".__("Range", 'lang_form'),						'desc' => __("To choose a min and max value and create a slider for that", 'lang_form')),
+			3 => array('code' => 'input_field',			'name' => "&#xf044; ".__("Input Field", 'lang_form'),				'desc' => __("To enter a short text", 'lang_form')),
+			4 => array('code' => 'textarea',			'name' => "&#xf044; ".__("Textarea", 'lang_form'),					'desc' => __("To enter a longer text on multiple rows", 'lang_form')),
+			5 => array('code' => 'text',				'name' => "&#xf27a; ".__("Text", 'lang_form'),						'desc' => __("To present information to the visitor", 'lang_form')),
+			6 => array('code' => 'space',				'name' => "&#xf2d1; ".__("Space", 'lang_form'),						'desc' => __("To separate fields in the form with empty space", 'lang_form')),
+			7 => array('code' => 'datepicker',			'name' => "&#xf073; ".__("Datepicker", 'lang_form'),				'desc' => __("To choose a date", 'lang_form')),
+			8 => array('code' => 'radio_button',		'name' => "&#xf192; ".__("Radio Button", 'lang_form'),				'desc' => __("To choose one alternative", 'lang_form')),
+			9 => array('code' => 'referer_url',			'name' => "&#xf164; ".__("Referer URL", 'lang_form'),				'desc' => __("To get which URL the visitor came from", 'lang_form')),
+			10 => array('code' => 'select',				'name' => "&#xf022; ".__("Dropdown", 'lang_form'),					'desc' => __("To choose one alternative", 'lang_form')),
+			11 => array('code' => 'select_multiple',	'name' => "&#xf022; ".__("Multiple Selection", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form')),
+			12 => array('code' => 'hidden_field',		'name' => "&#xf070; ".__("Hidden Field", 'lang_form'),				'desc' => __("To add hidden data to the form", 'lang_form')),
+			13 => array('code' => 'custom_tag',			'name' => "&#xf070; ".__("Custom Tag", 'lang_form'),				'desc' => __("To add a custom tag", 'lang_form')),
+			14 => array('code' => 'custom_tag_end',		'name' => "&#xf070; ".__("Custom Tag (end)", 'lang_form'),			'desc' => __("To add a custom end tag", 'lang_form')),
+			15 => array('code' => 'file',				'name' => "&#xf07c; ".__("File", 'lang_form'),						'desc' => __("To add a file upload to the form", 'lang_form')),
+			16 => array('code' => 'checkbox_multiple',	'name' => "&#xf14a; ".__("Multiple Checkboxes", 'lang_form'),		'desc' => __("To choose one or many alternatives", 'lang_form')),
+			17 => array('code' => 'radio_multiple',		'name' => "&#xf192; ".__("Multiple Radio Buttons", 'lang_form'),	'desc' => __("To choose one alternative", 'lang_form')),
+		);
+
+		$this->arr_form_check = array(
+			1 => array('name' => __("Number", 'lang_form'),				'code' => 'int'),
+			2 => array('name' => __("Zip Code", 'lang_form'),			'code' => 'zip'),
+			5 => array('name' => __("E-mail", 'lang_form'),				'code' => 'email'),
+			6 => array('name' => __("Phone no", 'lang_form'),			'code' => 'telno'),
+			7 => array('name' => __("Decimal number", 'lang_form'),		'code' => 'float'),
+			8 => array('name' => __("URL", 'lang_form'),				'code' => 'url'),
+			9 => array('name' => __("Name", 'lang_form'),				'code' => 'name'),
+			10 => array('name' => __("Street Address", 'lang_form'),	'code' => 'address'),
+			11 => array('name' => __("City", 'lang_form'),				'code' => 'city'),
+			11 => array('name' => __("Country", 'lang_form'),			'code' => 'country'),
+		);
+
+		if(get_bloginfo('language') == "sv-SE")
+		{
+			$this->arr_form_check[3] = array('name' => __("Social security no", 'lang_form')." (8208041234)",		'code' => 'soc');
+			$this->arr_form_check[4] = array('name' => __("Social security no", 'lang_form')." (198208041234)",		'code' => 'soc2');
+		}
 
 		register_post_type($this->post_type, array(
 			'labels' => array(

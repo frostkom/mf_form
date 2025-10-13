@@ -3,6 +3,8 @@
 $obj_base = new mf_base();
 $obj_form = new mf_form(array('type' => 'create'));
 
+$obj_form->init();
+
 if($obj_form->check_allow_edit())
 {
 	$obj_form->fetch_request();
