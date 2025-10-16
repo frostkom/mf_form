@@ -12,7 +12,6 @@ class mf_form
 	var $is_spam = false;
 	var $is_spam_id = false;
 	var $type = '';
-	//var $send_to = '';
 	var $answer_id = '';
 	var $prefix = '';
 	var $form_atts = [];
@@ -4561,6 +4560,8 @@ if(class_exists('mf_list_table'))
 		{
 			global $wpdb, $obj_form;
 
+			$obj_form->init();
+
 			$out = "";
 
 			$intAnswerID = $item['answerID'];
@@ -4790,16 +4791,6 @@ if(class_exists('mf_list_table'))
 															$arr_actions['spam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerSpam&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_spam_'.$intAnswerID, '_wpnonce_answer_spam')."'".make_link_confirm().">".__("Mark as Spam", 'lang_form')."</a>";
 														}
 													break;
-
-													/*case 'zip':
-														if(get_bloginfo('language') == "sv-SE")
-														{
-															include_once("class_zipcode.php");
-															$obj_zipcode = new mf_zipcode();
-
-															$arr_actions['zip'] = $obj_zipcode->get_city($strAnswerText);
-														}
-													break;*/
 												}
 											}
 										break;
