@@ -445,6 +445,10 @@ class mf_form
 
 			if($wpdb->num_rows > 0)
 			{
+				$plugin_base_include_url = plugins_url()."/mf_base/include/";
+
+				mf_enqueue_script('script_base_previous_field', $plugin_base_include_url."script_previous_field.js");
+
 				$out .= "<form method='post' action='' id='form_".$this->id."' class='mf_form".($this->edit_mode == true ? " mf_sortable" : "").apply_filters('filter_form_class', '', $this)."' enctype='multipart/form-data'>";
 
 					if($this->edit_mode == false)
