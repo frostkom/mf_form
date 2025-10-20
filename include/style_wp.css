@@ -1,288 +1,274 @@
-@media all
+.row-actions > ul
 {
-	.row-actions > ul
+	margin: 0;
+}
+
+.widefat thead th, .row-actions li
+{
+	white-space: nowrap;
+}
+
+.alignleft, .alignright
+{
+	width: 50%;
+}
+
+.mf_form
+{
+	overflow: initial;
+}
+
+	.mf_form .alignleft, .mf_form .alignright
 	{
-		margin: 0;
+		clear: none;
 	}
 
-	.widefat thead th, .row-actions li
+	.mf_form .form_select.fontawesome select, .mf_form .fontawesome label
 	{
-		white-space: nowrap;
+		font-family: 'Font Awesome 5 Free', 'Helvetica';
 	}
 
-	.alignleft, .alignright
-	{
-		width: 50%;
-	}
-
-	.mf_form
-	{
-		overflow: initial;
-	}
-
-		/*.mf_settings .alignleft
+		.mf_form .fontawesome ul
 		{
-			margin-right: 3%;
-			width: 47%;
+			display: flex;
+			flex-wrap: wrap;
+			list-style: none;
+			padding: .5em .6em 0 .2em;
 		}
 
-			.mf_settings .mf_form_field
+			.mf_form .fontawesome li
 			{
-				width: 100%;
-			}*/
-
-			.mf_form .alignleft, .mf_form .alignright
-			{
-				clear: none;
+				flex: 1 1 50%;
+				overflow: initial;
+				position: relative;
+				max-width: 50%;
 			}
 
-		.mf_form .form_select.fontawesome select, .mf_form .fontawesome label
-		{
-			font-family: 'Font Awesome 5 Free', 'Helvetica';
-		}
-
-			.mf_form .fontawesome ul
-			{
-				display: flex;
-				flex-wrap: wrap;
-				list-style: none;
-				padding: .5em .6em 0 .2em;
-			}
-
-				.mf_form .fontawesome li
+				.mf_form .fontawesome input
 				{
-					flex: 1 1 50%;
-					overflow: initial;
-					position: relative;
-					max-width: 50%;
+					display: none;
 				}
 
-					.mf_form .fontawesome input
+				.mf_form .fontawesome label
+				{
+					border: .1em solid transparent;
+					box-sizing: border-box;
+					display: block;
+					font-size: 1.2em;
+					margin: 0 .2em;
+					overflow: hidden;
+					padding: 0 .3em;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					width: 100%;
+				}
+
+					.mf_form .fontawesome input[type='radio']:checked + label
 					{
-						display: none;
+						background: #fff7cf;
+						border-color: #ffdf7f;
 					}
 
-					.mf_form .fontawesome label
+				.mf_form .fontawesome li .description
+				{
+					background: #fff;
+					border: .1em solid #ccc;
+					border-radius: .3em;
+					display: none;
+					left: 3em;
+					position: absolute;
+					top: 3em;
+					padding: .5em;
+					z-index: 1;
+				}
+
+					.mf_form .fontawesome li:hover .description
 					{
-						border: .1em solid transparent;
-						box-sizing: border-box;
 						display: block;
-						font-size: 1.2em;
-						margin: 0 .2em;
-						overflow: hidden;
-						padding: 0 .3em;
-						text-overflow: ellipsis;
-						white-space: nowrap;
-						width: 100%;
 					}
 
-						.mf_form .fontawesome input[type='radio']:checked + label
-						{
-							background: #fff7cf;
-							border-color: #ffdf7f;
-						}
+.form_row
+{
+	border: .1em solid transparent;
+	border-radius: .5em;
+	box-sizing: border-box;
+	cursor: move;
+	display: block;
+	min-height: 6em;
+	margin: .5em 2.5em .5em .5em;
+	position: relative;
+	padding: .5em 1em .5em .5em;
+}
 
-					.mf_form .fontawesome li .description
-					{
-						background: #fff;
-						border: .1em solid #ccc;
-						border-radius: .3em;
-						display: none;
-						left: 3em;
-						position: absolute;
-						top: 3em;
-						padding: .5em;
-						z-index: 1;
-					}
+	.form_row:hover
+	{
+		background: #eee;
+		border-color: #ccc;
+	}
 
-						.mf_form .fontawesome li:hover .description
-						{
-							display: block;
-						}
+	.form_row.active
+	{
+		background: #fff8df;
+		border-color: #ffdf7f;
+	}
 
-	.form_row
+	.form_row > .row_icons
 	{
 		border: .1em solid transparent;
-		border-radius: .5em;
-		box-sizing: border-box;
-		cursor: move;
-		display: block;
-		min-height: 6em;
-		margin: .5em 2.5em .5em .5em;
-		position: relative;
-		padding: .5em 1em .5em .5em;
+		border-left: 0;
+		border-radius: 0 .5em .5em 0;
+		font-size: 1.5em;
+		margin-right: 1em !important;
+		opacity: .2;
+		padding: .3em;
+		position: absolute;
+		right: -2.8em;
+		top: .4em;
 	}
 
-		.form_row:hover
+		.form_row:hover .row_icons, .form_row.active .row_icons
 		{
-			background: #eee;
-			border-color: #ccc;
+			opacity: 1;
 		}
 
-		.form_row.active
+			.form_row:hover .row_icons
+			{
+				background: #eee;
+				border-color: #ccc;
+			}
+
+			.form_row.active .row_icons
+			{
+				background: #fff8df;
+				border-color: #ffdf7f;
+			}
+
+		.form_row > .row_icons > a
 		{
-			background: #fff8df;
-			border-color: #ffdf7f;
+			text-decoration: none;
 		}
 
-		.form_row > .row_icons
+		.form_row .row_icons .fa:not(.fa-info-circle), .form_row .row_icons .far:not(.fa-info-circle)
 		{
-			border: .1em solid transparent;
-			border-left: 0;
-			border-radius: 0 .5em .5em 0;
-			font-size: 1.5em;
-			margin-right: 1em !important;
-			opacity: .2;
-			padding: .3em;
-			position: absolute;
-			right: -2.8em;
-			top: .4em;
-		}
-
-			.form_row:hover .row_icons, .form_row.active .row_icons
-			{
-				opacity: 1;
-			}
-
-				.form_row:hover .row_icons
-				{
-					background: #eee;
-					border-color: #ccc;
-				}
-
-				.form_row.active .row_icons
-				{
-					background: #fff8df;
-					border-color: #ffdf7f;
-				}
-
-			.form_row > .row_icons > a
-			{
-				text-decoration: none;
-			}
-
-			.form_row .row_icons .fa:not(.fa-info-circle), .form_row .row_icons .far:not(.fa-info-circle)
-			{
-				display: none;
-			}
-
-				.form_row:hover .row_icons .fa, .form_row.active .row_icons .fa, .form_row:hover .row_icons .far, .form_row.active .row_icons .far
-				{
-					display: block;
-					margin-bottom: .2em;
-				}
-
-		.form_row .row_settings
-		{
-			background: rgba(255, 255, 255, .8);
-			border: .1em solid #ccc;
-			border-radius: .4em;
 			display: none;
-			padding: 1em;
-			position: absolute;
-			right: .5em;
-			width: 50%;
-			z-index: 1;
 		}
 
-			.form_row.active .row_settings
+			.form_row:hover .row_icons .fa, .form_row.active .row_icons .fa, .form_row:hover .row_icons .far, .form_row.active .row_icons .far
+			{
+				display: block;
+				margin-bottom: .2em;
+			}
+
+	.form_row .row_settings
+	{
+		background: rgba(255, 255, 255, .8);
+		border: .1em solid #ccc;
+		border-radius: .4em;
+		display: none;
+		padding: 1em;
+		position: absolute;
+		right: .5em;
+		width: 50%;
+		z-index: 1;
+	}
+
+		.form_row.active .row_settings
+		{
+			display: block;
+		}
+
+		.form_row .row_settings a
+		{
+			text-decoration: none;
+		}
+
+	.form_row > .field_hidden_by_rule, .form_row > .field_hidden_by_creator, .form_row > .field_connected_to
+	{
+		font-size: 5em;
+		left: 50%;
+		opacity: .1;
+		/*pointer-events: none;*/
+		position: absolute;
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+		.form_row > .field_hidden_by_rule
+		{
+			display: none;
+		}
+
+			.form_row > .hide + .field_hidden_by_rule
 			{
 				display: block;
 			}
 
-			.form_row .row_settings a
-			{
-				text-decoration: none;
-			}
+	.show_range input
+	{
+		margin-right: 1%;
+		width: 24%;
+	}
 
-		.form_row > .field_hidden_by_rule, .form_row > .field_hidden_by_creator, .form_row > .field_connected_to
+	.tr_select
+	{
+		margin-bottom: 10px;
+	}
+
+		.show_select .update-nag
 		{
-			font-size: 5em;
-			left: 50%;
-			opacity: .1;
-			/*pointer-events: none;*/
-			position: absolute;
-			top: 50%;
-			transform: translate(-50%, -50%);
+			margin: 0 0 .5em;
 		}
 
-			.form_row > .field_hidden_by_rule
+			.show_select .update-nag p
 			{
-				display: none;
+				margin: 0;
 			}
 
-				.form_row > .hide + .field_hidden_by_rule
-				{
-					display: block;
-				}
-
-		.show_range input
+		.select_rows.is_disabled
 		{
-			margin-right: 1%;
-			width: 24%;
+			opacity: .5;
+			pointer-events: none;
 		}
 
-		.tr_select
+		.select_rows .option
 		{
-			margin-bottom: 10px;
+			display: flex;
+			overflow: hidden;
 		}
 
-			.show_select .update-nag
+			.select_rows .option .form_textfield
 			{
-				margin: 0 0 .5em;
+				display: block;
+				flex: 0 1 0;
+				min-width: 3.5em;
 			}
 
-				.show_select .update-nag p
+				.select_rows .option > div + div
 				{
-					margin: 0;
+					margin-left: .3em;
 				}
 
-			.select_rows.is_disabled
-			{
-				opacity: .5;
-				pointer-events: none;
-			}
-
-			.select_rows .option
-			{
-				display: flex;
-				overflow: hidden;
-			}
-
-				.select_rows .option .form_textfield
-				{
-					display: block;
-					flex: 0 1 0;
-					min-width: 3.5em;
-				}
-
-					.select_rows .option > div + div
+					.select_rows .option .option_value
 					{
-						margin-left: .3em;
+						flex: 2 1 0;
 					}
 
-						.select_rows .option .option_value
+					.select_rows .option .option_key
+					{
+						min-width: 2.7em;
+					}
+
+						.select_rows .option .option_key input
 						{
-							flex: 2 1 0;
+							text-align: center;
 						}
 
-						.select_rows .option .option_key
-						{
-							min-width: 2.7em;
-						}
+					.select_rows .option .option_limit
+					{
+						min-width: 3.5em;
+					}
 
-							.select_rows .option .option_key input
-							{
-								text-align: center;
-							}
-
-						.select_rows .option .option_limit
-						{
-							min-width: 3.5em;
-						}
-
-						.select_rows .option .option_action
-						{
-							max-width: 10em;
-						}
-}
+					.select_rows .option .option_action
+					{
+						max-width: 10em;
+					}
