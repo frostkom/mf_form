@@ -52,6 +52,7 @@ class mf_form
 	var $mail_data = [];
 	var $form_nonce_hash;
 	var $arr_form_types;
+	var $ignore_tags_on_output = array('text', 'space', 'custom_tag', 'custom_tag_end');
 	var $arr_form_check;
 
 	function __construct($data = [])
@@ -4318,7 +4319,7 @@ if(class_exists('mf_export'))
 				$obj_form->label = $r->formTypeText;
 				$strFormTypeCode = $obj_form->arr_form_types[$r->formTypeID]['code'];
 
-				if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
+				if(!in_array($strFormTypeCode, $obj_form->ignore_tags_on_output))
 				{
 					switch($strFormTypeCode)
 					{
@@ -4381,7 +4382,7 @@ if(class_exists('mf_export'))
 					$obj_form->label = $r->formTypeText;
 					$strFormTypeCode = $obj_form->arr_form_types[$r->formTypeID]['code'];
 
-					if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
+					if(!in_array($strFormTypeCode, $obj_form->ignore_tags_on_output))
 					{
 						$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
 						$rowsAnswer = $wpdb->num_rows;
@@ -4513,7 +4514,7 @@ if(class_exists('mf_list_table'))
 				$obj_form->label = $r->formTypeText;
 				$intForm2TypeID2 = $r->form2TypeID;
 
-				if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
+				if(!in_array($strFormTypeCode, $obj_form->ignore_tags_on_output))
 				{
 					switch($strFormTypeCode)
 					{
@@ -4733,7 +4734,7 @@ if(class_exists('mf_list_table'))
 
 							$strAnswerText = "";
 
-							if(!in_array($strFormTypeCode, array('text', 'space', 'custom_tag', 'custom_tag_end')))
+							if(!in_array($strFormTypeCode, $obj_form->ignore_tags_on_output))
 							{
 								$arr_actions = [];
 
@@ -4836,17 +4837,17 @@ if(class_exists('mf_list_table'))
 											$out .= $strAnswerText;
 										break;
 									}
+
+									if($obj_form->answer_column == 0)
+									{
+										$arr_actions['edit'] = "<a href='".admin_url("admin.php?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID)."'>".__("Edit", 'lang_form')."</a>";
+										$arr_actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+
+										$obj_form->answer_column++;
+									}
+
+									$out .= $this->row_actions($arr_actions);
 								}
-
-								if($obj_form->answer_column == 0)
-								{
-									$arr_actions['edit'] = "<a href='".admin_url("admin.php?page=mf_form/view/index.php&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID)."'>".__("Edit", 'lang_form')."</a>";
-									$arr_actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
-
-									$obj_form->answer_column++;
-								}
-
-								$out .= $this->row_actions($arr_actions);
 							}
 
 							if(in_array($strFormTypeCode, array('input_field', 'textarea')))
