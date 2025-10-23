@@ -2762,11 +2762,6 @@ class mf_form
 
 					$done_text = __("I have resent the messages for you", 'lang_form');
 				}
-
-				/*else if(isset($_GET['btnFormAnswerExport']))
-				{
-					new mf_form_answer_export();
-				}*/
 			break;
 		}
 
