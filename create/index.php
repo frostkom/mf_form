@@ -72,7 +72,7 @@ if($obj_form->check_allow_edit())
 							}
 
 						echo "</h3>
-						<form method='post' action='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."' class='mf_form inside'>
+						<form".apply_filters('get_form_attr', " action='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$obj_form->id)."'", ['class' => ["inside"]]).">
 							<div".($has_single_action == false || $has_multiple_action == true ? "" : " class='flex_flow'").">"
 								."<div>"
 									.show_form_alternatives(array('data' => $obj_form->get_form_types_for_select(array('form_type_id' => $obj_form->type_id)), 'name' => 'intFormTypeID', 'value' => $obj_form->type_id, 'class' => "fontawesome"))

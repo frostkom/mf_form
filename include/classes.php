@@ -446,11 +446,14 @@ class mf_form
 
 			if($wpdb->num_rows > 0)
 			{
-				$plugin_base_include_url = plugins_url()."/mf_base/include/";
+				$data_temp = [];
 
-				mf_enqueue_script('script_base_previous_field', $plugin_base_include_url."script_previous_field.js");
+				if($this->edit_mode == true)
+				{
+					$data_temp['class'][] = "mf_sortable";
+				}
 
-				$out .= "<form method='post' action='' id='form_".$this->id."' class='mf_form".($this->edit_mode == true ? " mf_sortable" : "").apply_filters('filter_form_class', '', $this)."' enctype='multipart/form-data'>";
+				$out .= "<form".apply_filters('get_form_attr', " id='form_".$this->id."' enctype='multipart/form-data'", $data_temp).">"; //.apply_filters('filter_form_class', '', $this)
 
 					if($this->edit_mode == false)
 					{
