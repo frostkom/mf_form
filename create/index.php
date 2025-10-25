@@ -166,7 +166,7 @@ if($obj_form->check_allow_edit())
 									#################
 									echo get_toggler_container(array('type' => 'start', 'text' => __("Advanced", 'lang_form')))
 										.show_select(array('data' => $obj_form->get_tags_for_select(), 'name' => 'strFormTypeTag', 'value' => $obj_form->type_tag, 'text' => __("Custom HTML Tag", 'lang_form'), 'class' => "show_custom_text_tag hide"))
-										.show_textfield(array('name' => 'strFormTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $obj_form->type_class, 'placeholder' => "bold italic aligncenter alignleft alignright flex_flow", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"))
+										.show_textfield(array('name' => 'strFormTypeClass', 'text' => __("Custom CSS class", 'lang_form'), 'value' => $obj_form->type_class, 'placeholder' => "strong italic aligncenter alignleft alignright flex_flow", 'maxlength' => 50, 'xtra_class' => "show_custom_class hide"))
 										.show_textfield(array('type' => 'number', 'name' => 'intFormTypeLength', 'text' => __("Max Length", 'lang_form'), 'value' => $obj_form->type_length, 'xtra_class' => "show_custom_length hide", 'xtra' => " min='0'"));
 
 										if($obj_form->form2type_id > 0)
