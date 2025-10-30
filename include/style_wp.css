@@ -1,4 +1,4 @@
-.row-actions > ul
+/*.row-actions > ul
 {
 	margin: 0;
 }
@@ -13,43 +13,36 @@
 	width: 50%;
 }
 
-.mf_form
-{
-	overflow: initial;
-}
-
 	.mf_form .alignleft, .mf_form .alignright
 	{
 		clear: none;
-	}
+	}*/
 
 	.mf_form .form_select.fontawesome select, .mf_form .fontawesome label
 	{
 		font-family: 'Font Awesome 5 Free', 'Helvetica';
 	}
 
-		.mf_form .fontawesome ul
+		.mf_form .form_radio_multiple.fontawesome ul
 		{
 			display: flex;
 			flex-wrap: wrap;
-			list-style: none;
-			padding: .5em .6em 0 .2em;
+			overflow: initial;
 		}
 
-			.mf_form .fontawesome li
+			.mf_form .fontawesome li.form_radio
 			{
 				flex: 1 1 50%;
 				overflow: initial;
 				position: relative;
-				max-width: 50%;
 			}
 
-				.mf_form .fontawesome input
+				.mf_form .fontawesome .form_radio input
 				{
 					display: none;
 				}
 
-				.mf_form .fontawesome label
+				.mf_form .fontawesome .form_radio label
 				{
 					border: .1em solid transparent;
 					box-sizing: border-box;
@@ -63,7 +56,7 @@
 					width: 100%;
 				}
 
-					.mf_form .fontawesome input[type='radio']:checked + label
+					.mf_form .fontawesome .form_radio input[type='radio']:checked + label
 					{
 						background: #fff7cf;
 						border-color: #ffdf7f;
@@ -75,9 +68,9 @@
 					border: .1em solid #ccc;
 					border-radius: .3em;
 					display: none;
-					left: 3em;
+					left: 1em;
 					position: absolute;
-					top: 3em;
+					top: 2em;
 					padding: .5em;
 					z-index: 1;
 				}
@@ -187,7 +180,6 @@
 		font-size: 5em;
 		left: 50%;
 		opacity: .1;
-		/*pointer-events: none;*/
 		position: absolute;
 		top: 50%;
 		transform: translate(-50%, -50%);
