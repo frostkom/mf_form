@@ -648,11 +648,14 @@ class mf_form
 		remove_post_type_support($this->post_type, 'comments');
 	    remove_post_type_support($this->post_type, 'trackbacks');
 
-		register_block_type('mf/form', array(
-			'editor_script' => 'script_form_block_wp',
-			'editor_style' => 'style_base_block_wp',
-			'render_callback' => array($this, 'block_render_callback'),
-		));
+		if(!WP_Block_Type_Registry::get_instance()->is_registered('mf/form'))
+		{
+			register_block_type('mf/form', array(
+				'editor_script' => 'script_form_block_wp',
+				'editor_style' => 'style_base_block_wp',
+				'render_callback' => array($this, 'block_render_callback'),
+			));
+		}
 	}
 
 	function settings_form()
