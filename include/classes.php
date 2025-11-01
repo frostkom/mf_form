@@ -6,7 +6,7 @@ class mf_form
 	var $post_status = "";
 	var $form2type_id = 0;
 	var $post_id = 0;
-	var $post_type = 'mf_form';
+	var $post_type = __CLASS__;
 	var $meta_prefix = '';
 	var $edit_mode = false;
 	var $is_spam = false;
@@ -5051,6 +5051,11 @@ class mf_form_output
 		$field_data = array(
 			'name' => $this->query_prefix.$this->row->form2TypeID,
 		);
+
+		if(strpos($this->row->formTypeClass, "flex_flow") !== false)
+		{
+			apply_filters('get_flex_flow', "");
+		}
 
 		$class_output = ($this->row->formTypeClass != '' ? " class='".$this->row->formTypeClass."'" : "");
 		$class_output_small = ($this->row->formTypeClass != '' ? " ".$this->row->formTypeClass : "");
