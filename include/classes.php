@@ -727,6 +727,8 @@ class mf_form
 
 	function get_option_form_suffix($data)
 	{
+		do_action('load_font_awesome');
+
 		if($data['value'] > 0)
 		{
 			$out = "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$data['value'])."'><i class='fa fa-wrench fa-lg'></i></a>";
@@ -838,6 +840,8 @@ class mf_form
 			{
 				default:
 				case 'html':
+					do_action('load_font_awesome');
+
 					$out .= "&nbsp;<i class='fa fa-exclamation-triangle yellow' title='".($rows > 1 ? sprintf(__("There are %d unsent messages", 'lang_form'), $rows) : __("There is one unset message", 'lang_form'))."'></i>";
 				break;
 
@@ -1023,6 +1027,8 @@ class mf_form
 	function column_header($columns)
 	{
 		unset($columns['date']);
+
+		do_action('load_font_awesome');
 
 		$columns['content'] = __("Content", 'lang_form');
 		$columns['answers'] = __("Answers", 'lang_form');
@@ -4461,6 +4467,8 @@ if(class_exists('mf_list_table'))
 		{
 			global $wpdb, $obj_form;
 
+			do_action('load_font_awesome');
+
 			$this->query_join .= " INNER JOIN ".$wpdb->prefix."form_answer USING (answerID)";
 			$this->query_where .= ($this->query_where != '' ? " AND " : "")."formID = '".$obj_form->id."'";
 
@@ -5479,6 +5487,8 @@ class mf_form_output
 
 		if($this->in_edit_mode == true)
 		{
+			do_action('load_font_awesome');
+
 			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d' LIMIT 0, 1", $this->row->form2TypeID));
 			$row_answers = $wpdb->num_rows;
 
