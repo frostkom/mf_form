@@ -30,7 +30,7 @@ get_header();
 						.$obj_form->process_form()
 					."</section>";
 
-					do_log("single-mf_form.php: Add a block instead (<a href='".admin_url("post.php?post=".$post_id."&action=edit")."'>#".$post_id."</a>)", 'publish', false);
+					do_log("single-mf_form.php: Add a block instead (".(isset($_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_REFERER'] != '' ? $_SERVER['HTTP_REFERER']." -> " : "")."<a href='".admin_url("post.php?post=".$post_id."&action=edit")."'>#".$post_id."</a>)", 'publish', false);
 				}
 
 				else
