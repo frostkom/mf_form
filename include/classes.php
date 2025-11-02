@@ -5060,7 +5060,7 @@ class mf_form_output
 			'name' => $this->query_prefix.$this->row->form2TypeID,
 		);
 
-		if(strpos($this->row->formTypeClass, "flex_flow") !== false)
+		if($this->row->formTypeClass != '' && strpos($this->row->formTypeClass, "flex_flow") !== false)
 		{
 			apply_filters('get_flex_flow', "");
 		}
