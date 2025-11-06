@@ -424,7 +424,7 @@ class mf_form
 			$error_text = __("This form is not open for submissions anymore", 'lang_form');
 		}
 
-		else 
+		else
 		{
 			$this->button_display = get_post_meta($this->post_id, $this->meta_prefix.'button_display', true);
 			$this->button_text = get_post_meta($this->post_id, $this->meta_prefix.'button_text', true);
@@ -646,7 +646,7 @@ class mf_form
 		));
 
 		remove_post_type_support($this->post_type, 'comments');
-	    remove_post_type_support($this->post_type, 'trackbacks');
+		remove_post_type_support($this->post_type, 'trackbacks');
 
 		if(!WP_Block_Type_Registry::get_instance()->is_registered('mf/form'))
 		{
@@ -1580,7 +1580,7 @@ class mf_form
 		}
 
 		remove_meta_box('commentsdiv', $this->post_type, 'normal');
-	    remove_meta_box('commentstatusdiv', $this->post_type, 'normal');
+		remove_meta_box('commentstatusdiv', $this->post_type, 'normal');
 	}
 
 	function wp_delete_post($post_id)
@@ -1944,12 +1944,12 @@ class mf_form
 				{
 					$intFormOptionOrder_temp = $wpdb->get_var($wpdb->prepare("SELECT formOptionOrder FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d' ORDER BY formOptionOrder DESC LIMIT 0, 1", $intForm2TypeID));
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d'", 
-						$intForm2TypeID, 
-						$arrFormTypeSelect_key[$i], 
-						$arrFormTypeSelect_value[$i], 
-						$arrFormTypeSelect_limit[$i], 
-						$arrFormTypeSelect_action[$i], 
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_option SET form2TypeID = '%d', formOptionKey = %s, formOptionValue = %s, formOptionLimit = '%d', formOptionAction = '%d', formOptionOrder = '%d'",
+						$intForm2TypeID,
+						$arrFormTypeSelect_key[$i],
+						$arrFormTypeSelect_value[$i],
+						$arrFormTypeSelect_limit[$i],
+						$arrFormTypeSelect_action[$i],
 						($intFormOptionOrder_temp + 1)
 					));
 
@@ -3284,7 +3284,7 @@ class mf_form
 
 		if($this->page_content_data['page_id'] > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $this->page_content_data['page_id'])); //post_title, 
+			$result = $wpdb->get_results($wpdb->prepare("SELECT post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $this->page_content_data['page_id'])); //post_title,
 
 			foreach($result as $r)
 			{
@@ -3620,7 +3620,7 @@ class mf_form
 			}
 		}
 
-		$email_from_visitor = $email_from_admin_address = $email_from_admin = ""; //$email_from_visitor_address = $email_from_other_address = $email_from_other = 
+		$email_from_visitor = $email_from_admin_address = $email_from_admin = ""; //$email_from_visitor_address = $email_from_other_address = $email_from_other =
 
 		// From Visitor
 		###################

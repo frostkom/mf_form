@@ -21,9 +21,9 @@
 			},
 			'form_id':
 			{
-                'type': 'string',
-                'default': ''
-            }
+				'type': 'string',
+				'default': ''
+			}
 		},
 		'supports':
 		{
