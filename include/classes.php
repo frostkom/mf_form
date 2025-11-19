@@ -282,22 +282,16 @@ class mf_form
 
 				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form_answer.answerID FROM ".$wpdb->prefix."form_answer LEFT JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2answer.answerID IS null");
 
-				if($wpdb->num_rows > 0)
+				foreach($result as $r)
 				{
-					foreach($result as $r)
-					{
-						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer WHERE answerID = '%d'", $r->answerID));
-					}
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer WHERE answerID = '%d'", $r->answerID));
 				}
 
 				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form_answer_email.answerID FROM ".$wpdb->prefix."form_answer_email LEFT JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE ".$wpdb->prefix."form2answer.answerID IS null");
 
-				if($wpdb->num_rows > 0)
+				foreach($result as $r)
 				{
-					foreach($result as $r)
-					{
-						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
-					}
+					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
 				}
 
 				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2answer.formID FROM ".$wpdb->prefix."form2answer LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null");
@@ -376,17 +370,22 @@ class mf_form
 
 	function process_form($data = [])
 	{
-		global $wpdb, $wp_query, $done_text, $error_text, $obj_font_icons;
+		global $wpdb, $wp_query, $done_text, $error_text, $obj_form, $obj_font_icons;
+
+		if(!isset($obj_form))
+		{
+			$obj_form = new mf_form();
+		}
+
+		$obj_form->init();
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
 
 		$out = "";
 
 		if(!isset($data['form2type_id'])){	$data['form2type_id'] = 0;}
-		//if(!isset($data['do_redirect'])){	$data['do_redirect'] = true;}
 
 		$this->edit_mode = (isset($data['edit']) ? $data['edit'] : false);
-		//$this->send_to = (isset($data['send_to']) ? $data['send_to'] : "");
 		$this->answer_id = (isset($data['answer_id']) ? $data['answer_id'] : "");
 
 		$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
@@ -394,12 +393,7 @@ class mf_form
 
 		if(isset($_POST[$this->prefix.'btnFormSubmit']))
 		{
-			/*if($this->is_correct_form($data) == false)
-			{
-				$error_text = __("It is not the correct form. Please try again or contact an admin.", 'lang_form');
-			}
-
-			else */if(!isset($_POST['form_submit_'.$this->id]) || $_POST['form_submit_'.$this->id] != $this->form_nonce_hash)
+			if(!isset($_POST['form_submit_'.$this->id]) || $_POST['form_submit_'.$this->id] != $this->form_nonce_hash)
 			{
 				$error_text = __("The form was not processed properly. Try again. If the problem persists, contact an admin to report this.", 'lang_form');
 			}
@@ -453,7 +447,7 @@ class mf_form
 					$data_temp['class'][] = "mf_sortable";
 				}
 
-				$out .= "<form".apply_filters('get_form_attr', " id='form_".$this->id."' enctype='multipart/form-data'", $data_temp).">"; //.apply_filters('filter_form_class', '', $this)
+				$out .= "<form".apply_filters('get_form_attr', " id='form_".$this->id."' enctype='multipart/form-data'", $data_temp).">";
 
 					if($this->edit_mode == false)
 					{
@@ -512,14 +506,8 @@ class mf_form
 
 							$out .= "<div".get_form_button_classes().">"
 								.show_button(array('name' => $this->prefix.'btnFormSubmit', 'text' => ($strFormButtonSymbol != '' ? $strFormButtonSymbol."&nbsp;" : "").$strFormButtonText, 'xtra' => "disabled"))
-								."<div class='api_form_nonce'></div>";
-
-								/*if(isset($this->send_to) && $this->send_to != '')
-								{
-									$out .= input_hidden(array('name' => 'email_encrypted', 'value' => hash('sha512', $this->send_to)));
-								}*/
-
-								$out .= input_hidden(array('name' => 'intFormID', 'value' => $this->id));
+								."<div class='api_form_nonce'></div>"
+								.input_hidden(array('name' => 'intFormID', 'value' => $this->id));
 
 								if(isset($this->form_atts) && is_array($this->form_atts))
 								{
@@ -2295,7 +2283,7 @@ class mf_form
 								$intForm2TypeID = $r->form2TypeID;
 								$strAnswerText = $r->answerText;
 
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s", $intAnswerID_new, $arr_form2type_id[$intForm2TypeID], $strAnswerText));
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s, answerUpdated = NOW()", $intAnswerID_new, $arr_form2type_id[$intForm2TypeID], $strAnswerText));
 							}
 
 							$copy_fields = "answerEmailFrom, answerEmail, answerType, answerSent";
@@ -2565,13 +2553,14 @@ class mf_form
 
 								if($wpdb->num_rows == 0)
 								{
-									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '%d'", $strAnswerText, $this->answer_id, $intForm2TypeID2));
+									//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form_answer SET answerText = %s WHERE answerID = '%d' AND form2TypeID = '%d'", $strAnswerText, $this->answer_id, $intForm2TypeID2));
+									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s, answerUpdated = NOW()", $this->answer_id, $intForm2TypeID2, $strAnswerText));
 								}
 							}
 
 							else
 							{
-								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s", $this->answer_id, $intForm2TypeID2, $strAnswerText));
+								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s, answerUpdated = NOW()", $this->answer_id, $intForm2TypeID2, $strAnswerText));
 							}
 						}
 
@@ -2585,14 +2574,15 @@ class mf_form
 
 								if($wpdb->num_rows == 0)
 								{
-									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = ''", $this->answer_id, $strAnswerText_radio));
+									$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = '', answerUpdated = NOW()", $this->answer_id, $strAnswerText_radio));
 								}
 							}
 						}
 
 						else if($intFormTypeRequired == 0 && in_array($strFormTypeCode, array('range', 'input_field', 'textarea', 'text', 'datepicker')))
 						{
-							$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intForm2TypeID2));
+							//$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d'", $this->answer_id, $intForm2TypeID2));
+							$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '%d', form2TypeID = '%d', answerText = %s, answerUpdated = NOW()", $this->answer_id, $intForm2TypeID2, $strAnswerText));
 						}
 					}
 
@@ -4046,7 +4036,7 @@ class mf_form
 						$strAnswerText = $obj_encryption->encrypt($strAnswerText, md5(AUTH_KEY));
 					}
 
-					$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '[answer_id]', form2TypeID = '%d', answerText = %s", $intForm2TypeID2, $strAnswerText);
+					$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '[answer_id]', form2TypeID = '%d', answerText = %s, answerUpdated = NOW()", $intForm2TypeID2, $strAnswerText);
 
 					if($strAnswerText_send != '')
 					{
@@ -4060,7 +4050,7 @@ class mf_form
 
 					if($strAnswerText_radio != '')
 					{
-						$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '[answer_id]', form2TypeID = '%d', answerText = ''", $strAnswerText_radio);
+						$this->arr_answer_queries[] = $wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer SET answerID = '[answer_id]', form2TypeID = '%d', answerText = '', answerUpdated = NOW()", $strAnswerText_radio);
 
 						if(!isset($this->arr_email_content['fields'][$strAnswerText_radio]))
 						{
@@ -4225,10 +4215,7 @@ if(class_exists('mf_export'))
 		{
 			global $wpdb, $obj_form;
 
-			if(!isset($obj_form))
-			{
-				$obj_form = new mf_form();
-			}
+			$obj_form->init();
 
 			$obj_form->id = $this->type;
 			$this->name = $obj_form->get_form_name();
@@ -4298,10 +4285,7 @@ if(class_exists('mf_export'))
 		{
 			global $wpdb, $obj_form;
 
-			if(!isset($obj_form))
-			{
-				$obj_form = new mf_form();
-			}
+			$obj_form->init();
 
 			$obj_form->id = $this->type;
 			$this->name = $obj_form->get_form_name();
@@ -4466,6 +4450,8 @@ if(class_exists('mf_list_table'))
 		function init_fetch()
 		{
 			global $wpdb, $obj_form;
+
+			$obj_form->init();
 
 			do_action('load_font_awesome');
 
@@ -4739,18 +4725,29 @@ if(class_exists('mf_list_table'))
 							{
 								$arr_actions = [];
 
-								$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d'", $intForm2TypeID, $intAnswerID));
+								$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText, answerUpdated FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d' ORDER BY answerUpdated DESC", $intForm2TypeID, $intAnswerID));
 								$rowsAnswer = $wpdb->num_rows;
 
 								if($rowsAnswer > 0)
 								{
-									$r = $resultAnswer[0];
-									$strAnswerText = $r->answerText;
+									$strAnswerText = "";
 
-									if($strFormTypeEncrypt == 'yes')
+									foreach($resultAnswer as $r2)
 									{
-										$obj_encryption = new mf_encryption("mf_form"); //__CLASS__
-										$strAnswerText = $obj_encryption->decrypt($strAnswerText, md5(AUTH_KEY));
+										$strAnswerText_temp = $r2->answerText;
+
+										if($strFormTypeEncrypt == 'yes')
+										{
+											$obj_encryption = new mf_encryption("mf_form"); //__CLASS__
+											$strAnswerText_temp = $obj_encryption->decrypt($strAnswerText_temp, md5(AUTH_KEY));
+										}
+
+										$strAnswerText .= ($strAnswerText != '' ? ", " : "").$strAnswerText_temp;
+
+										if($rowsAnswer > 1 && $r2->answerUpdated > DEFAULT_DATE)
+										{
+											$strAnswerText .= " (".$r2->answerUpdated.")";
+										}
 									}
 
 									switch($strFormTypeCode)
@@ -5048,11 +5045,6 @@ class mf_form_output
 	function get_form_fields()
 	{
 		global $intFormTypeID2_temp, $intForm2TypeID2_temp, $obj_form;
-
-		if(!isset($obj_form))
-		{
-			$obj_form = new mf_form();
-		}
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
 

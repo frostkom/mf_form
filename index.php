@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.2.1.21
+Version: 1.2.2.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -101,7 +101,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		);
 
 		$arr_update_column[$wpdb->base_prefix."form2type"] = array(
-			'formTypeFetchFrom' => "ALTER TABLE [table] CHANGE [column] formTypeFetchFrom TEXT DEFAULT NULL", //231213
 			'form2TypeCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
 			'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
 		);
@@ -187,9 +186,14 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			answerID INT UNSIGNED DEFAULT NULL,
 			form2TypeID INT UNSIGNED DEFAULT '0',
 			answerText TEXT,
+			answerUpdated DATETIME DEFAULT NULL,
 			KEY form2TypeID (form2TypeID),
 			KEY answerID (answerID)
 		) DEFAULT CHARSET=".$default_charset);
+
+		$arr_add_column[$wpdb->prefix."form_answer"] = array(
+			'answerUpdated' => "ALTER TABLE [table] ADD [column] DATETIME DEFAULT NULL AFTER answerText",
+		);
 
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."form_answer_email (
 			answerID INT UNSIGNED DEFAULT NULL,
@@ -359,7 +363,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 							else
 							{
-								$copy_fields = "answerID, form2TypeID, answerText";
+								$copy_fields = "answerID, form2TypeID, answerText, answerUpdated";
 
 								$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer (".$copy_fields.") (SELECT ".$copy_fields." FROM ".$wpdb->base_prefix."form_answer WHERE answerID = '%d' AND form2TypeID = '%d')", $intAnswerID, $intForm2TypeID));
 							}
