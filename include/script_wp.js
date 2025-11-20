@@ -81,7 +81,8 @@ jQuery(function($)
 
 	function show_query_settings(this_val)
 	{
-		$(".toggler, .show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_actions, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_custom_length").addClass('hide');
+		$(".show_range, .show_checkbox, .show_validate_as, .show_placeholder, .show_textarea, .show_fetch_from, .show_select, .show_actions, .show_custom_text_tag, .show_custom_tag, .show_custom_class, .show_custom_length").addClass('hide');
+		/*$(".toggler, .toggle_container").addClass('hide');*/
 
 		if(this_val > 0)
 		{
@@ -148,15 +149,15 @@ jQuery(function($)
 
 			if(this_val != 6 && this_val != 9) /* space, referer_url */
 			{
-				if($(".toggle_container").children("div:not(.hide)").length == 0)
+				/*if($(".toggle_container").children("div:not(.hide)").length == 0)
 				{
-					$(".toggler").addClass('hide');
+					$(".toggler, .toggle_container").addClass('hide');
 				}
 
 				else
 				{
-					$(".toggler").removeClass('hide');
-				}
+					$(".toggler, .toggle_container").removeClass('hide');
+				}*/
 			}
 
 			if(this_val != 6 && this_val != 13 && this_val != 14) /* space, custom_tag, custom_tag_end */

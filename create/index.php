@@ -269,7 +269,7 @@ if($obj_form->check_allow_edit())
 						</div>
 					</div>";
 
-					$form_output = $obj_form->process_form(array('edit' => true, 'form2type_id' => $obj_form->form2type_id));
+					$form_output = $obj_form->process_form(array('edit_mode' => true, 'form2type_id' => $obj_form->form2type_id));
 
 					echo "<div class='postbox'>
 						<h3 class='hndle'><span>".__("Overview", 'lang_form')."</span></h3>
