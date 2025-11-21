@@ -366,7 +366,7 @@ class mf_form
 
 	function process_submit()
 	{
-		global $wpdb, $error_text, $done_text;
+		global $wpdb, $error_text, $notice_text, $done_text;
 
 		$out = $error_text = "";
 
@@ -658,6 +658,44 @@ class mf_form
 
 		return $out;
 	}
+	
+	function check_if_already_answered($data)
+	{
+		global $wpdb, $obj_encryption, $notice_text;
+
+		$post_multiple_answers = get_post_meta($this->post_id, $this->meta_prefix.'multiple_answers', true);
+
+		if($data['edit_mode'] == false && !($this->answer_id > 0) && $post_multiple_answers == 'no')
+		{
+			$answer_fingerprint = $this->get_fingerprint();
+
+			$answer_id = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form2answer WHERE formID = '%d' AND answerFingerprint = %s ORDER BY answerCreated ASC LIMIT 0, 1", $this->id, $answer_fingerprint));
+
+			if($answer_id > 0)
+			{
+				$data['display_form'] = false;
+
+				$post_editable_answers = get_post_meta($this->post_id, $this->meta_prefix.'editable_answers', true);
+
+				if($post_editable_answers == 'yes')
+				{
+					$answer_id_encrypted = $obj_encryption->encrypt($answer_id, md5(AUTH_KEY));
+
+					$post_url = get_permalink($this->post_id);
+					$post_url .= (strpos($post_url, "?") ? "&" : "?")."answer_id_encrypted=".$answer_id_encrypted;
+
+					$notice_text = sprintf(__("You have already answered this form and you can %sedit your answer%s", 'lang_form'), "<a href='".$post_url."'>", "</a>");
+				}
+
+				else
+				{
+					$notice_text = __("You have already answered this form", 'lang_form');
+				}
+			}
+		}
+
+		return $data;
+	}
 
 	function process_form($data = [])
 	{
@@ -679,12 +717,42 @@ class mf_form
 		if(!isset($data['edit_mode'])){		$data['edit_mode'] = false;}
 		if(!isset($data['form2type_id'])){	$data['form2type_id'] = 0;}
 
-		//$this->answer_id = (isset($data['answer_id']) ? $data['answer_id'] : 0);
-
 		$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 		$this->get_post_id();
 
-		if(isset($_POST[$this->prefix.'btnFormSubmit']))
+		$this->fetch_request();
+		$out .= $this->save_data();
+
+		$data['display_form'] = true;
+
+		if(isset($_GET['success']))
+		{
+			$data['display_form'] = false;
+			$done_text = __("Thank You!", 'lang_form');
+		}
+
+		else
+		{
+			$post_meta_deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
+
+			if($data['edit_mode'] == false && $post_meta_deadline > DEFAULT_DATE && $post_meta_deadline < date("Y-m-d"))
+			{
+				$data['display_form'] = false;
+				$error_text = __("This form is not open for submissions anymore", 'lang_form');
+			}
+
+			else
+			{
+				$data = $this->check_if_already_answered($data);
+			}
+		}
+
+		if($data['display_form'] == false)
+		{
+			$out .= get_notification(array('add_container' => true));
+		}
+
+		else if(isset($_POST[$this->prefix.'btnFormSubmit']))
 		{
 			if(!isset($_POST['form_submit_'.$this->id]) || $_POST['form_submit_'.$this->id] != $this->form_nonce_hash)
 			{
@@ -695,69 +763,7 @@ class mf_form
 			{
 				$out .= $this->process_submit();
 			}
-		}
 
-		else
-		{
-			$this->fetch_request();
-			$out .= $this->save_data();
-		}
-
-		$display_form = true;
-
-		if(isset($_GET['success']))
-		{
-			$display_form = false;
-			$done_text = __("Thank You!", 'lang_form');
-		}
-
-		else
-		{
-			$post_meta_deadline = get_post_meta($this->post_id, $this->meta_prefix.'deadline', true);
-
-			if($data['edit_mode'] == false && $post_meta_deadline > DEFAULT_DATE && $post_meta_deadline < date("Y-m-d"))
-			{
-				$display_form = false;
-				$error_text = __("This form is not open for submissions anymore", 'lang_form');
-			}
-
-			else
-			{
-				$post_multiple_answers = get_post_meta($this->post_id, $this->meta_prefix.'multiple_answers', true);
-
-				if($data['edit_mode'] == false && !($this->answer_id > 0) && $post_multiple_answers == 'no')
-				{
-					$answer_fingerprint = $this->get_fingerprint();
-
-					$answer_id = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form2answer WHERE formID = '%d' AND answerFingerprint = %s ORDER BY answerCreated ASC LIMIT 0, 1", $this->id, $answer_fingerprint));
-
-					if($answer_id > 0)
-					{
-						$display_form = false;
-
-						$post_editable_answers = get_post_meta($this->post_id, $this->meta_prefix.'editable_answers', true);
-
-						if($post_editable_answers == 'yes')
-						{
-							$answer_id_encrypted = $obj_encryption->encrypt($answer_id, md5(AUTH_KEY));
-
-							$post_url = get_permalink($this->post_id);
-							$post_url .= (strpos($post_url, "?") ? "&" : "?")."answer_id_encrypted=".$answer_id_encrypted;
-
-							$notice_text = sprintf(__("You have already answered this form and you can %sedit your answer%s", 'lang_form'), "<a href='".$post_url."'>", "</a>");
-						}
-
-						else
-						{
-							$notice_text = __("You have already answered this form", 'lang_form');
-						}
-					}
-				}
-			}
-		}
-
-		if($display_form == false)
-		{
 			$out .= get_notification(array('add_container' => true));
 		}
 
