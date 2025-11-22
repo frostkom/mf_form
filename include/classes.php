@@ -359,11 +359,6 @@ class mf_form
 		$obj_cron->end();
 	}
 
-	function get_fingerprint()
-	{
-		return hash('sha256', $_SERVER['HTTP_USER_AGENT'].$_SERVER['HTTP_ACCEPT'].$_SERVER['HTTP_ACCEPT_LANGUAGE'].($_SERVER['HTTP_ACCEPT_CHARSET'] ?? '').apply_filters('get_current_visitor_ip', ""));
-	}
-
 	function process_submit()
 	{
 		global $wpdb, $error_text, $notice_text, $done_text;
@@ -621,7 +616,7 @@ class mf_form
 			}
 
 			$current_visitor_ip = md5((defined('NONCE_SALT') ? NONCE_SALT : '').apply_filters('get_current_visitor_ip', ""));
-			$answer_fingerprint = $this->get_fingerprint();
+			$answer_fingerprint = apply_filters('get_visitor_fingerprint', "");
 
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form2answer SET formID = '%d', answerIP = %s, answerFingerprint = %s, answerSpam = '%d', spamID = '%d', answerCreated = NOW()", $this->id, $current_visitor_ip, $answer_fingerprint, $this->is_spam, $this->is_spam_id));
 			$this->answer_id = $wpdb->insert_id;
@@ -667,7 +662,7 @@ class mf_form
 
 		if($data['edit_mode'] == false && !($this->answer_id > 0) && $post_multiple_answers == 'no')
 		{
-			$answer_fingerprint = $this->get_fingerprint();
+			$answer_fingerprint = apply_filters('get_visitor_fingerprint', "");
 
 			$answer_id = $wpdb->get_var($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form2answer WHERE formID = '%d' AND answerFingerprint = %s ORDER BY answerCreated ASC LIMIT 0, 1", $this->id, $answer_fingerprint));
 
