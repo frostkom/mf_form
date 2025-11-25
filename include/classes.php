@@ -1549,7 +1549,7 @@ class mf_form
 
 	function post_row_actions($arr_actions, $post)
 	{
-		if($post->post_type == $this->post_type)
+		if($post->post_type == $this->post_type && get_post_status($post->ID) != 'trash')
 		{
 			$this->get_form_id($post->ID);
 
@@ -1564,7 +1564,17 @@ class mf_form
 
 				foreach($arr_ids as $post_id)
 				{
-					$arr_actions['view_'.$post_id] = "<a href='".get_permalink($post_id)."'>".__("View", 'lang_form')."</a>";
+					if(count($arr_ids) > 1)
+					{
+						$post_title = sprintf(__("View %s", 'lang_form'), "'".get_the_title($post_id)."'");
+					}
+
+					else
+					{
+						$post_title = __("View", 'lang_form');
+					}
+
+					$arr_actions['view_'.$post_id] = "<a href='".get_permalink($post_id)."'>".$post_title."</a>";
 				}
 			}
 
