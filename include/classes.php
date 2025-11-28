@@ -1555,8 +1555,7 @@ class mf_form
 
 			$arr_actions['edit_content'] = "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'>".__("Edit Content", 'lang_form')."</a>";
 
-			$block_code = '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->';
-			$arr_ids = apply_filters('get_page_from_block_code', [], $block_code);
+			$arr_ids = apply_filters('get_page_from_block_code', [], '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->');
 
 			if(count($arr_ids) > 0)
 			{
@@ -1630,8 +1629,7 @@ class mf_form
 
 			$out .= "<a href='".admin_url("admin.php?page=mf_form/create/index.php&intFormID=".$this->id)."'>".__("Edit Content", 'lang_form')."</a> ";
 
-			$block_code = '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->';
-			$arr_ids = apply_filters('get_page_from_block_code', [], $block_code);
+			$arr_ids = apply_filters('get_page_from_block_code', [], '<!-- wp:mf/form {"form_id":"'.$this->id.'"} /-->');
 
 			if(count($arr_ids) > 0)
 			{
@@ -3106,14 +3104,13 @@ class mf_form
 
 		foreach($arr_data_posts as $post_id => $post_title)
 		{
-			$intFormID = get_post_meta($post_id, $this->meta_prefix.'form_id', true);
+			$form_id = get_post_meta($post_id, $this->meta_prefix.'form_id', true);
 
 			$allow_form = false;
 
 			if($data['force_has_page'] == true)
 			{
-				$block_code = '<!-- wp:mf/form {"form_id":"'.$intFormID.'"} /-->';
-				$arr_ids = apply_filters('get_page_from_block_code', [], $block_code);
+				$arr_ids = apply_filters('get_page_from_block_code', [], '<!-- wp:mf/form {"form_id":"'.$form_id.'"} /-->');
 
 				if(count($arr_ids) > 0)
 				{
@@ -3126,9 +3123,9 @@ class mf_form
 				$allow_form = true;
 			}
 
-			if($intFormID > 0 && $allow_form == true)
+			if($form_id > 0 && $allow_form == true)
 			{
-				$arr_data[$intFormID] = $post_title;
+				$arr_data[$form_id] = $post_title;
 			}
 		}
 
@@ -3398,8 +3395,7 @@ class mf_form
 
 		if($form_id > 0)
 		{
-			$block_code = '<!-- wp:mf/form {"form_id":"'.$form_id.'"} /-->';
-			$arr_ids = apply_filters('get_page_from_block_code', [], $block_code);
+			$arr_ids = apply_filters('get_page_from_block_code', [], '<!-- wp:mf/form {"form_id":"'.$form_id.'"} /-->');
 
 			if(count($arr_ids) > 0)
 			{

@@ -56,8 +56,7 @@ if($obj_form->check_allow_edit())
 							."<span>".__("Content", 'lang_form')."</span> "
 							."<a href='".admin_url("post.php?post=".$obj_form->post_id."&action=edit")."'>".__("Edit settings", 'lang_form')."</a> ";
 
-							$block_code = '<!-- wp:mf/form {"form_id":"'.$obj_form->id.'"} /-->';
-							$arr_ids = apply_filters('get_page_from_block_code', [], $block_code);
+							$arr_ids = apply_filters('get_page_from_block_code', [], '<!-- wp:mf/form {"form_id":"'.$obj_form->id.'"} /-->');
 
 							if(count($arr_ids) > 0)
 							{
