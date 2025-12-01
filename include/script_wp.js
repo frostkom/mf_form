@@ -147,9 +147,10 @@ jQuery(function($)
 				break;
 			}
 
-			if(this_val != 6 && this_val != 9) /* space, referer_url */
+			/* space, referer_url */
+			/*if(this_val != 6 && this_val != 9)
 			{
-				/*if($(".toggle_container").children("div:not(.hide)").length == 0)
+				if($(".toggle_container").children("div:not(.hide)").length == 0)
 				{
 					$(".toggler, .toggle_container").addClass('hide');
 				}
@@ -157,8 +158,8 @@ jQuery(function($)
 				else
 				{
 					$(".toggler, .toggle_container").removeClass('hide');
-				}*/
-			}
+				}
+			}*/
 
 			if(this_val != 6 && this_val != 13 && this_val != 14) /* space, custom_tag, custom_tag_end */
 			{

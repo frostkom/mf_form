@@ -600,7 +600,7 @@ class mf_form
 				{
 					$this->get_post_id();
 
-					$error_text = get_post_meta($this->post_id, $this->meta_prefix.'mandatory_text', true, __("Please, enter all required fields", 'lang_form'))." (".$this->label.")";
+					$error_text = get_post_meta_or_default($this->post_id, $this->meta_prefix.'mandatory_text', true, __("Please, enter all required fields", 'lang_form'))." (".$this->label.")";
 				}
 			}
 		}
@@ -715,8 +715,11 @@ class mf_form
 		$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
 		$this->get_post_id();
 
-		$this->fetch_request();
-		$out .= $this->save_data();
+		if($data['edit_mode'] == false)
+		{
+			$this->fetch_request();
+			$out .= $this->save_data();
+		}
 
 		$data['display_form'] = true;
 

@@ -9,6 +9,9 @@ if($obj_form->check_allow_edit())
 
 	$obj_form->init();
 
+	$obj_form->fetch_request();
+	echo $obj_form->save_data();
+
 	if(!($obj_form->post_id > 0))
 	{
 		$obj_form->post_id = $obj_form->get_post_id($obj_form->id);

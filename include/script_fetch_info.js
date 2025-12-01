@@ -18,11 +18,6 @@ jQuery(function($)
 				{
 					arr_fields.push([dom_obj.attr('id'), value]);
 				}
-
-				/*else
-				{
-					console.log("Val already set (" , dom_obj.val() , ")");
-				}*/
 			});
 		});
 
@@ -51,9 +46,4 @@ jQuery(function($)
 			});
 		}
 	}
-
-	/*else
-	{
-		console.log("Not an array " , script_form_fetch_info.arr_form_input_type);
-	}*/
 });
