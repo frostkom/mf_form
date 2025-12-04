@@ -130,7 +130,7 @@ class mf_form
 
 			// Convert wp_form to wp_posts
 			#################################
-			if(does_table_exist($wpdb->base_prefix."form") && does_column_exist($wpdb->base_prefix."form", "blogID"))
+			if(apply_filters('does_table_exist', false, $wpdb->base_prefix."form") && does_column_exist($wpdb->base_prefix."form", "blogID"))
 			{
 				$arr_fields_db = $arr_fields_meta = [];
 
@@ -202,7 +202,7 @@ class mf_form
 
 			// Convert answerIP to MD5
 			#################################
-			if(does_table_exist($wpdb->prefix."form2answer"))
+			if(apply_filters('does_table_exist', false, $wpdb->prefix."form2answer"))
 			{
 				$result = $wpdb->get_results("SELECT answerID, answerIP FROM ".$wpdb->prefix."form2answer WHERE answerIP != '' AND CHAR_LENGTH(answerIP) < 32");
 
@@ -231,7 +231,7 @@ class mf_form
 				}
 			}
 
-			else if(does_table_exist($wpdb->prefix."form"))
+			else if(apply_filters('does_table_exist', false, $wpdb->prefix."form"))
 			{
 				$query = $wpdb->prepare("SELECT formID FROM ".$wpdb->prefix."form LEFT JOIN ".$wpdb->posts." ON ".$wpdb->prefix."form.postID = ".$wpdb->posts.".ID AND post_type = %s WHERE ID IS null", $this->post_type);
 				$result = $wpdb->get_results($query);
@@ -245,7 +245,7 @@ class mf_form
 
 			// Delete orphan data
 			#######################
-			if(does_table_exist($wpdb->prefix."form"))
+			if(apply_filters('does_table_exist', false, $wpdb->prefix."form"))
 			{
 				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2type.formID FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null");
 
@@ -301,7 +301,7 @@ class mf_form
 
 			// Look for empty answers
 			#######################
-			if(does_table_exist($wpdb->prefix."form2answer"))
+			if(apply_filters('does_table_exist', false, $wpdb->prefix."form2answer"))
 			{
 				$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."form2answer LEFT JOIN ".$wpdb->prefix."form_answer USING (answerID) WHERE ".$wpdb->prefix."form_answer.answerID IS null");
 
@@ -1594,7 +1594,7 @@ class mf_form
 
 		$arr_out = [];
 
-		if(does_table_exist($wpdb->prefix."form2type"))
+		if(apply_filters('does_table_exist', false, $wpdb->prefix."form2type"))
 		{
 			$result = $wpdb->get_results($wpdb->prepare("SELECT form2TypeID, formTypeText, checkID FROM ".$wpdb->prefix."form2type WHERE formID = '%d' AND formTypeID = '%d'", $this->id, 3));
 
@@ -1891,7 +1891,7 @@ class mf_form
 
 		$form_id = 0;
 
-		if(does_table_exist($wpdb->prefix."form2type"))
+		if(apply_filters('does_table_exist', false, $wpdb->prefix."form2type"))
 		{
 			$form_id = $wpdb->get_var("SELECT formID FROM ".$wpdb->prefix."form2type WHERE formTypeRemember = '1'");
 		}
