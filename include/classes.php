@@ -902,6 +902,49 @@ class mf_form
 		return $out;
 	}
 
+	function get_for_select($data = [])
+	{
+		global $wpdb;
+
+		if(!isset($data['force_has_page'])){	$data['force_has_page'] = true;}
+
+		$arr_data = array(
+			'' => "-- ".__("Choose Here", 'lang_form')." --"
+		);
+
+		$arr_data_posts = [];
+		get_post_children(array('add_choose_here' => false, 'post_type' => $this->post_type), $arr_data_posts);
+
+		foreach($arr_data_posts as $post_id => $post_title)
+		{
+			$form_id = get_post_meta($post_id, $this->meta_prefix.'form_id', true);
+
+			$allow_form = false;
+
+			if($data['force_has_page'] == true)
+			{
+				$arr_ids = apply_filters('get_page_from_block_code', [], '<!-- wp:mf/form {"form_id":"'.$form_id.'"} /-->');
+
+				if(count($arr_ids) > 0)
+				{
+					$allow_form = true;
+				}
+			}
+
+			else
+			{
+				$allow_form = true;
+			}
+
+			if($form_id > 0 && $allow_form == true)
+			{
+				$arr_data[$form_id] = $post_title;
+			}
+		}
+
+		return $arr_data;
+	}
+
 	function enqueue_block_editor_assets()
 	{
 		$plugin_include_url = plugin_dir_url(__FILE__);
@@ -3091,49 +3134,6 @@ class mf_form
 
 		return true;
 	}*/
-
-	function get_for_select($data = [])
-	{
-		global $wpdb;
-
-		if(!isset($data['force_has_page'])){	$data['force_has_page'] = true;}
-
-		$arr_data = array(
-			'' => "-- ".__("Choose Here", 'lang_form')." --"
-		);
-
-		$arr_data_posts = [];
-		get_post_children(array('add_choose_here' => false, 'post_type' => $this->post_type), $arr_data_posts);
-
-		foreach($arr_data_posts as $post_id => $post_title)
-		{
-			$form_id = get_post_meta($post_id, $this->meta_prefix.'form_id', true);
-
-			$allow_form = false;
-
-			if($data['force_has_page'] == true)
-			{
-				$arr_ids = apply_filters('get_page_from_block_code', [], '<!-- wp:mf/form {"form_id":"'.$form_id.'"} /-->');
-
-				if(count($arr_ids) > 0)
-				{
-					$allow_form = true;
-				}
-			}
-
-			else
-			{
-				$allow_form = true;
-			}
-
-			if($form_id > 0 && $allow_form == true)
-			{
-				$arr_data[$form_id] = $post_title;
-			}
-		}
-
-		return $arr_data;
-	}
 
 	function get_form_name($id = 0)
 	{
