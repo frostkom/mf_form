@@ -2,16 +2,16 @@
 
 class mf_form
 {
-	var $id = 0;
+	var $id;
 	var $post_status = "";
 	var $form2type_id = 0;
 	var $post_id = 0;
 	var $post_type = __CLASS__;
-	var $meta_prefix = '';
+	var $meta_prefix;
 	var $edit_mode = false;
 	var $is_spam = false;
 	var $is_spam_id = false;
-	var $type = '';
+	var $type;
 	var $answer_id = '';
 	var $prefix = '';
 	var $form_atts = [];
@@ -2931,164 +2931,216 @@ class mf_form
 					}
 				}
 
-				else if(isset($_GET['btnAnswerSpam']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_spam'], 'answer_spam_'.$this->answer_id))
+				else if(isset($_GET['btnAnswerSpam']))
 				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d'", $this->answer_id));
+					$intAnswerID = check_var('intAnswerID');
 
-					$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, answerIP, answerFingerprint FROM ".$wpdb->prefix."form2answer WHERE answerID = '%d'", $this->answer_id));
-
-					foreach($result as $r)
+					if(wp_verify_nonce($_REQUEST['_wpnonce_answer_spam'], 'answer_spam_'.$intAnswerID))
 					{
-						$intAnswerID = $r->answerID;
-						$strAnswerIP = $r->answerIP;
-						$strAnswerFingerprint = $r->answerFingerprint;
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '%d' WHERE answerID = '%d'", 1, $intAnswerID));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerStatus = %s WHERE answerID = '%d'", 'spam', $intAnswerID));
 
-						$strAnswerEmail = $this->get_answer_email($intAnswerID);
+						$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, answerIP, answerFingerprint FROM ".$wpdb->prefix."form2answer WHERE answerID = '%d'", $intAnswerID));
 
-						if($strAnswerIP != '')
+						foreach($result as $r)
 						{
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '1' WHERE answerID != %d AND answerIP = %s AND answerSpam = '0'", $this->answer_id, $strAnswerIP));
-						}
+							$intAnswerID = $r->answerID;
+							$strAnswerIP = $r->answerIP;
+							$strAnswerFingerprint = $r->answerFingerprint;
 
-						if($strAnswerFingerprint != '')
-						{
-							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '1' WHERE answerID != %d AND answerFingerprint = %s AND answerSpam = '0'", $this->answer_id, $strAnswerFingerprint));
-						}
+							$strAnswerEmail = $this->get_answer_email($intAnswerID);
 
-						if($strAnswerEmail != '')
-						{
-							$intForm2TypeID = $this->get_form_email_field();
-
-							$resultEmail = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form_answer INNER JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE answerID != '%d' AND form2TypeID = '%d' AND answerText = %s", $this->answer_id, $intForm2TypeID, $strAnswerEmail));
-
-							foreach($resultEmail as $r)
+							if($strAnswerIP != '')
 							{
-								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '1' WHERE answerID = '%d' AND answerSpam = '0'", $r->answerID));
+								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '%d' WHERE answerID != %d AND answerIP = %s AND answerSpam = '%d'", 1, $intAnswerID, $strAnswerIP, 0));
+								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerStatus = %s WHERE answerID = '%d'", 'spam_ip', $intAnswerID));
+							}
+
+							if($strAnswerFingerprint != '')
+							{
+								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '%d' WHERE answerID != %d AND answerFingerprint = %s AND answerSpam = '%d'", 1, $intAnswerID, $strAnswerFingerprint, 0));
+								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerStatus = %s WHERE answerID = '%d'", 'spam_fingerprint', $intAnswerID));
+							}
+
+							if($strAnswerEmail != '')
+							{
+								$intForm2TypeID = $this->get_form_email_field();
+
+								$resultEmail = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form_answer INNER JOIN ".$wpdb->prefix."form2answer USING (answerID) WHERE answerID != '%d' AND form2TypeID = '%d' AND answerText = %s", $intAnswerID, $intForm2TypeID, $strAnswerEmail));
+
+								foreach($resultEmail as $r)
+								{
+									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '%d' WHERE answerID = '%d' AND answerSpam = '%d'", 1, $r->answerID, 0));
+									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerStatus = %s WHERE answerID = '%d'", 'spam_email', $r->answerID));
+								}
 							}
 						}
+
+						$done_text = __("I have marked the email as spam for you", 'lang_form');
 					}
-
-					$done_text = __("I have marked the email as spam for you", 'lang_form');
 				}
 
-				else if(isset($_GET['btnAnswerApprove']) && wp_verify_nonce($_REQUEST['_wpnonce_answer_approve'], 'answer_approve_'.$this->answer_id))
+				else if(isset($_GET['btnAnswerApprove']))
 				{
-					$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '0' WHERE answerID = '%d'", $this->answer_id));
+					$intAnswerID = check_var('intAnswerID');
 
-					$done_text = __("I have approved the answer for you", 'lang_form');
-				}
-
-				else if(isset($_GET['btnMessageResend']) && wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
-				{
-					$this->form_name = $this->get_form_name();
-					$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
-
-					$this->answer_data = [];
-
-					$this->arr_email_content = array(
-						'fields' => [],
-					);
-
-					$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->prefix."form2type.form2TypeID, formTypeID, formTypeText, checkID, answerText FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form_answer ON ".$wpdb->prefix."form2type.form2TypeID = ".$wpdb->prefix."form_answer.form2TypeID WHERE formID = '%d' AND (answerID = '%d' OR answerID IS null) ORDER BY form2TypeOrder ASC", $this->id, $this->answer_id));
-
-					foreach($result as $r)
+					if(wp_verify_nonce($_REQUEST['_wpnonce_answer_approve'], 'answer_approve_'.$intAnswerID))
 					{
-						$intForm2TypeID2 = $r->form2TypeID;
-						$strFormTypeCode = $this->arr_form_types[$r->formTypeID]['code'];
-						$this->label = $r->formTypeText;
-						$strCheckCode = ($r->checkID > 0 && isset($this->arr_form_check[$r->checkID]) ? $this->arr_form_check[$r->checkID]['code'] : 'char');
-						$strAnswerText = $r->answerText;
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '%d' WHERE answerID = '%d'", 0, $intAnswerID));
+						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerStatus = %s WHERE answerID = '%d'", 'not_spam', $intAnswerID));
 
-						switch($strFormTypeCode)
+						$done_text = __("I have approved the answer for you", 'lang_form');
+					}
+				}
+
+				else if(isset($_GET['btnAnswerStatus']))
+				{
+					$intAnswerID = check_var('intAnswerID');
+
+					if(wp_verify_nonce($_REQUEST['_wpnonce_answer_status'], 'answer_status_'.$intAnswerID))
+					{
+						$strAnswerStatus = check_var('strAnswerStatus');
+
+						if($strAnswerStatus != '')
 						{
-							case 'checkbox':
-								$strAnswerText = "x";
-							break;
+							$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerStatus = %s WHERE answerID = '%d'", $strAnswerStatus, $intAnswerID));
 
-							case 'range':
-								$this->parse_range_label();
-							break;
-
-							case 'datepicker':
-								$strAnswerText = format_date($strAnswerText);
-							break;
-
-							case 'radio_button':
-								$strAnswerText = "x";
-							break;
-
-							case 'select':
-							case 'radio_multiple':
-								$strAnswerText = $this->parse_select_info($strAnswerText);
-							break;
-
-							case 'select_multiple':
-							case 'checkbox_multiple':
-								$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
-							break;
-
-							case 'file':
-								$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
-
-								foreach($result as $r)
-								{
-									$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
-								}
-							break;
+							$done_text = __("I marked the answer as done for you", 'lang_form');
 						}
 
-						$this->arr_email_content['fields'][$intForm2TypeID2] = array(
-							'type' => $strFormTypeCode,
-							'label' => $this->label,
-							'value' => $strAnswerText,
+						else
+						{
+							$error_text = __("I could NOT change the status because what you sent was incorrect", 'lang_form');
+						}
+					}
+
+					else
+					{
+						$error_text = __("I could NOT change the status because the validation was wrong", 'lang_form');
+
+						if(IS_SUPER_ADMIN)
+						{
+							$error_text .= " (".$intAnswerID." -> ".$_REQUEST['_wpnonce_answer_status'].")";
+						}
+					}
+				}
+
+				else if(isset($_GET['btnMessageResend']))
+				{
+					$intAnswerID = check_var('intAnswerID');
+
+					if(wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$intAnswerID))
+					{
+						$this->form_name = $this->get_form_name();
+						$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
+
+						$this->answer_data = [];
+
+						$this->arr_email_content = array(
+							'fields' => [],
 						);
 
-						switch($strFormTypeCode)
+						$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->prefix."form2type.form2TypeID, formTypeID, formTypeText, checkID, answerText FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form_answer ON ".$wpdb->prefix."form2type.form2TypeID = ".$wpdb->prefix."form_answer.form2TypeID WHERE formID = '%d' AND (answerID = '%d' OR answerID IS null) ORDER BY form2TypeOrder ASC", $this->id, $intAnswerID));
+
+						foreach($result as $r)
 						{
-							case 'input_field':
-								switch($strCheckCode)
-								{
-									case 'address':
-									case 'city':
-									case 'country':
-									case 'email':
-									case 'name':
-									case 'telno':
-									case 'zip':
-										$this->answer_data[$strCheckCode] = $strAnswerText;
-									break;
-								}
-							break;
+							$intForm2TypeID2 = $r->form2TypeID;
+							$strFormTypeCode = $this->arr_form_types[$r->formTypeID]['code'];
+							$this->label = $r->formTypeText;
+							$strCheckCode = ($r->checkID > 0 && isset($this->arr_form_check[$r->checkID]) ? $this->arr_form_check[$r->checkID]['code'] : 'char');
+							$strAnswerText = $r->answerText;
+
+							switch($strFormTypeCode)
+							{
+								case 'checkbox':
+									$strAnswerText = "x";
+								break;
+
+								case 'range':
+									$this->parse_range_label();
+								break;
+
+								case 'datepicker':
+									$strAnswerText = format_date($strAnswerText);
+								break;
+
+								case 'radio_button':
+									$strAnswerText = "x";
+								break;
+
+								case 'select':
+								case 'radio_multiple':
+									$strAnswerText = $this->parse_select_info($strAnswerText);
+								break;
+
+								case 'select_multiple':
+								case 'checkbox_multiple':
+									$strAnswerText = $this->parse_multiple_info($strAnswerText, true);
+								break;
+
+								case 'file':
+									$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText));
+
+									foreach($result as $r)
+									{
+										$strAnswerText = "<a href='".$r->guid."'>".$r->post_title."</a>";
+									}
+								break;
+							}
+
+							$this->arr_email_content['fields'][$intForm2TypeID2] = array(
+								'type' => $strFormTypeCode,
+								'label' => $this->label,
+								'value' => $strAnswerText,
+							);
+
+							switch($strFormTypeCode)
+							{
+								case 'input_field':
+									switch($strCheckCode)
+									{
+										case 'address':
+										case 'city':
+										case 'country':
+										case 'email':
+										case 'name':
+										case 'telno':
+										case 'zip':
+											$this->answer_data[$strCheckCode] = $strAnswerText;
+										break;
+									}
+								break;
+							}
 						}
-					}
 
-					$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $this->answer_id));
+						$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $intAnswerID));
 
-					foreach($resultAnswerEmail as $r)
-					{
-						$strAnswerEmail = $r->answerEmail;
-						$strAnswerType = $r->answerType;
-
-						switch($strAnswerType)
+						foreach($resultAnswerEmail as $r)
 						{
-							/*case 'replace_link':
-								$this->send_to = $strAnswerEmail;
-							break;*/
+							$strAnswerEmail = $r->answerEmail;
+							$strAnswerType = $r->answerType;
 
-							case 'product':
-								$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
+							switch($strAnswerType)
+							{
+								/*case 'replace_link':
+									$this->send_to = $strAnswerEmail;
+								break;*/
 
-								if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
-								{
-									$this->arr_email_content = $email_content_temp['arr_mail_content'];
-								}
-							break;
+								case 'product':
+									$email_content_temp = apply_filters('filter_form_on_submit', array('obj_form' => $this));
+
+									if(isset($email_content_temp['arr_mail_content']) && count($email_content_temp['arr_mail_content']) > 0)
+									{
+										$this->arr_email_content = $email_content_temp['arr_mail_content'];
+									}
+								break;
+							}
 						}
+
+						$this->process_transactional_emails();
+
+						$done_text = __("I have resent the messages for you", 'lang_form');
 					}
-
-					$this->process_transactional_emails();
-
-					$done_text = __("I have resent the messages for you", 'lang_form');
 				}
 			break;
 		}
@@ -4336,11 +4388,7 @@ if(class_exists('mf_list_table'))
 			));
 
 			$arr_columns = [];
-
-			if(isset($_GET['answerSpam']) && $_GET['answerSpam'] == 1)
-			{
-				$arr_columns['answerSpam'] = __("Spam", 'lang_form');
-			}
+			$arr_columns['answerStatus'] = __("Status", 'lang_form');
 
 			$obj_form->answer_column = 0;
 
@@ -4390,7 +4438,6 @@ if(class_exists('mf_list_table'))
 			}
 
 			$arr_columns['answerCreated'] = __("Created", 'lang_form');
-			$arr_columns['sent'] = __("Sent", 'lang_form');
 
 			$this->set_columns($arr_columns);
 
@@ -4411,12 +4458,12 @@ if(class_exists('mf_list_table'))
 
 			switch($column_name)
 			{
-				case 'answerSpam':
+				case 'answerStatus':
 					$arr_actions = [];
 
 					if($item['answerSpam'] == true)
 					{
-						$out .= "<i class='fa fa-times fa-lg red'></i>";
+						$icon_title = "";
 
 						if($item['spamID'] > 0)
 						{
@@ -4424,11 +4471,141 @@ if(class_exists('mf_list_table'))
 
 							if($strSpamExplain != '')
 							{
-								$out .= "&nbsp;".$strSpamExplain;
+								$icon_title = $strSpamExplain;
 							}
 						}
 
+						$out .= "<i class='fa fa-ban fa-lg red'".($icon_title != '' ? " title='".$icon_title."'" : "")."></i>";
+
 						$arr_actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."'".make_link_confirm().">".__("Approve", 'lang_form')."</a>";
+					}
+
+					else
+					{
+						// Status
+						########################
+						switch($item[$column_name])
+						{
+							case '':
+							case 'draft':
+							case 'not_spam':
+								$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerStatus&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."&strAnswerStatus=done"), 'answer_status_'.$intAnswerID, '_wpnonce_answer_status')."'".make_link_confirm()."><i class='far fa-star' title='".__("No status so far. Click to mark as done.", 'lang_form')."'></i></a>";
+							break;
+
+							case 'spam':
+							case 'spam_ip':
+							case 'spam_fingerprint':
+							case 'spam_email':
+								$icon_title = "";
+
+								if(strpos($url, "_") !== false)
+								{
+									list($rest, $icon_title) = explode("_", $item[$column_name], 2);
+								}
+
+								$out .= "<i class='fa fa-ban fa-lg red'".($icon_title != '' ? " title='".$icon_title."'" : "")."></i>";
+
+								$arr_actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."'".make_link_confirm().">".__("Approve", 'lang_form')."</a>";
+							break;
+
+							case 'done':
+								$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerStatus&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."&strAnswerStatus=draft"), 'answer_status_'.$intAnswerID, '_wpnonce_answer_status')."'".make_link_confirm()."><i class='fas fa-star' title='".__("Done. Click to mark as NOT done.", 'lang_form')."'></i></a>";
+							break;
+
+							default:
+								$out .= "<i class='fa fa-question-circle' title='".__("Unknown Status", 'lang_form')." (".$item[$column_name].")'></i>";
+							break;
+						}
+						########################
+
+						// Sent
+						########################
+						$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmailFrom, answerEmail, answerSent FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
+						$sent_total = $wpdb->num_rows;
+
+						if($sent_total > 0)
+						{
+							$sent_successfully = $sent_failed = 0;
+							$arr_sent = [];
+
+							foreach($result_emails as $r)
+							{
+								$strAnswerEmailFrom = $r->answerEmailFrom;
+								$strAnswerEmail = $r->answerEmail;
+								$intAnswerSent = $r->answerSent;
+
+								$answer_md5 = md5($strAnswerEmailFrom.'-'.$strAnswerEmail);
+
+								if($intAnswerSent == 1)
+								{
+									$sent_successfully++;
+
+									if(isset($arr_sent[$answer_md5.'success']))
+									{
+										$arr_sent[$answer_md5.'success']['amount']++;
+									}
+
+									else
+									{
+										$arr_sent[$answer_md5.'success'] = array(
+											'from' => $strAnswerEmailFrom,
+											'to' => $strAnswerEmail,
+											'type' => 'success',
+											'amount' => 1,
+										);
+									}
+								}
+
+								else
+								{
+									$sent_failed++;
+
+									if(isset($arr_sent[$answer_md5.'fail']))
+									{
+										$arr_sent[$answer_md5.'fail']['amount']++;
+									}
+
+									else
+									{
+										$arr_sent[$answer_md5.'fail'] = array(
+											'from' => $strAnswerEmailFrom,
+											'to' => $strAnswerEmail,
+											'type' => 'fail',
+											'amount' => 1,
+										);
+									}
+								}
+							}
+
+							$out .= "<i class='fa fa-paper-plane ".($sent_failed > 0 ? "red" : "green")."' title='".($sent_failed > 0 ? $sent_successfully."/" : "").$sent_total."'></i>";
+
+							foreach($arr_sent as $key => $arr_value)
+							{
+								$arr_actions[$key] = "<i class='".($arr_value['type'] == 'success' ? "fa fa-check green" : "fa fa-times red")."' title='".($arr_value['from'] != '' ? $arr_value['from']." -> " : "").$arr_value['to'].($arr_value['amount'] > 1 ? " (".$arr_value['amount'].")" : "")."'></i>";
+							}
+
+							$email_notify = get_post_meta($obj_form->id, $obj_form->meta_prefix.'email_notify', true);
+							$email_confirm = get_post_meta($obj_form->id, $obj_form->meta_prefix.'email_confirm', true);
+
+							if($email_notify == 'yes' || $email_confirm == 'yes')
+							{
+								$arr_actions['resend'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."'".make_link_confirm()."><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
+							}
+						}
+
+						// This will remove all answers that have the same field inputs, so it needs to be smarter before use in prod
+						if(count($this->current_row) > 0 && $this->current_row == $this->previous_row)
+						{
+							$out .= "<i class='far fa-copy' title='".__("This is a duplicate", 'lang_form')."'></i>";
+
+							if(IS_SUPER_ADMIN)
+							{
+								//$obj_form->delete_answer($intAnswerID);
+							}
+						}
+
+						$this->previous_row = $this->current_row;
+						########################
 					}
 
 					$out .= $this->row_actions($arr_actions);
@@ -4454,102 +4631,6 @@ if(class_exists('mf_list_table'))
 
 					$out .= format_date($item['answerCreated'])
 					.$this->row_actions($arr_actions);
-				break;
-
-				case 'sent':
-					$result_emails = $wpdb->get_results($wpdb->prepare("SELECT answerEmailFrom, answerEmail, answerSent FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerEmail != ''", $intAnswerID));
-					$sent_total = $wpdb->num_rows;
-
-					if($sent_total > 0)
-					{
-						$row_actions = "";
-						$sent_successfully = $sent_failed = 0;
-						$arr_sent = [];
-
-						foreach($result_emails as $r)
-						{
-							$strAnswerEmailFrom = $r->answerEmailFrom;
-							$strAnswerEmail = $r->answerEmail;
-							$intAnswerSent = $r->answerSent;
-
-							$answer_md5 = md5($strAnswerEmailFrom.'-'.$strAnswerEmail);
-
-							if($intAnswerSent == 1)
-							{
-								$sent_successfully++;
-
-								if(isset($arr_sent[$answer_md5.'success']))
-								{
-									$arr_sent[$answer_md5.'success']['amount']++;
-								}
-
-								else
-								{
-									$arr_sent[$answer_md5.'success'] = array(
-										'from' => $strAnswerEmailFrom,
-										'to' => $strAnswerEmail,
-										'type' => 'success',
-										'amount' => 1,
-									);
-								}
-							}
-
-							else
-							{
-								$sent_failed++;
-
-								if(isset($arr_sent[$answer_md5.'fail']))
-								{
-									$arr_sent[$answer_md5.'fail']['amount']++;
-								}
-
-								else
-								{
-									$arr_sent[$answer_md5.'fail'] = array(
-										'from' => $strAnswerEmailFrom,
-										'to' => $strAnswerEmail,
-										'type' => 'fail',
-										'amount' => 1,
-									);
-								}
-							}
-						}
-
-						$out .= ($sent_failed > 0 ? $sent_successfully."/" : "").$sent_total;
-
-						foreach($arr_sent as $arr_value)
-						{
-							$row_actions .= "<i class='".($arr_value['type'] == 'success' ? "fa fa-check green" : "fa fa-times red")."' title='".($arr_value['from'] != '' ? $arr_value['from']." -> " : "").$arr_value['to'].($arr_value['amount'] > 1 ? " (".$arr_value['amount'].")" : "")."'></i> ";
-						}
-
-						$email_notify = get_post_meta($obj_form->id, $this->meta_prefix.'email_notify', true);
-						$email_confirm = get_post_meta($obj_form->id, $this->meta_prefix.'email_confirm', true);
-
-						if($email_notify == 'yes' || $email_confirm == 'yes')
-						{
-							$out .= "&nbsp;<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnMessageResend&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'message_resend_'.$intAnswerID, '_wpnonce_message_resend')."'".make_link_confirm()."><i class='fa fa-recycle' title='".__("Do you want to send the message again?", 'lang_form')."'></i></a>";
-						}
-
-						if($row_actions != '')
-						{
-							$out .= "<div class='row-actions'>"
-								.$row_actions
-							."</div>";
-						}
-					}
-
-					// This will remove all answers that have the same field inputs, so it needs to be smarter before use in prod
-					if(count($this->current_row) > 0 && $this->current_row == $this->previous_row)
-					{
-						$out .= "DUPLICATE";
-
-						if(IS_SUPER_ADMIN)
-						{
-							$obj_form->delete_answer($intAnswerID);
-						}
-					}
-
-					$this->previous_row = $this->current_row;
 				break;
 
 				default:
@@ -4645,7 +4726,7 @@ if(class_exists('mf_list_table'))
 											break;
 										}
 
-										//$strAnswerText_temp = stripslashes(stripslashes($strAnswerText_temp));
+										$strAnswerText_temp = stripslashes(stripslashes($strAnswerText_temp));
 
 										/*if(substr($strAnswerText, 0, 2) == "--")
 										{
@@ -4676,7 +4757,15 @@ if(class_exists('mf_list_table'))
 											<span class='grey'>";
 										}
 
-											$strAnswerText .= $strAnswerText_temp;
+											if(strpos($strAnswerText_temp, "<") !== false)
+											{
+												$strAnswerText .= $strAnswerText_temp;
+											}
+
+											else
+											{
+												$strAnswerText .= shorten_text(array('string' => $strAnswerText_temp, 'limit' => 20, 'add_title' => true));
+											}
 
 											if($rowsAnswer > 1)
 											{

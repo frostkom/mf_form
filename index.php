@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description:
-Version: 1.2.2.8
+Version: 1.2.2.9
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -174,6 +174,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			postID INT UNSIGNED NOT NULL,
 			answerIP VARCHAR(32) DEFAULT NULL,
 			answerFingerprint VARCHAR(129) DEFAULT NULL,
+			answerStatus VARCHAR(32) DEFAULT NULL,
 			answerSpam ENUM('0', '1') NOT NULL DEFAULT '0',
 			spamID SMALLINT NOT NULL DEFAULT '0',
 			answerCreated DATETIME DEFAULT NULL,
@@ -185,6 +186,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		$arr_add_column[$wpdb->prefix."form2answer"] = array(
 			'answerFingerprint' => "ALTER TABLE [table] ADD [column] VARCHAR(129) DEFAULT NULL AFTER answerIP", // 251121
+			'answerStatus' => "ALTER TABLE [table] ADD [column] VARCHAR(32) DEFAULT NULL AFTER answerFingerprint", // 251207
 		);
 
 		$arr_update_column[$wpdb->prefix."form2answer"] = array(
