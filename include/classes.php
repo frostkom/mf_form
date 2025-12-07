@@ -3,7 +3,7 @@
 class mf_form
 {
 	var $id;
-	var $post_status = "";
+	//var $post_status = "";
 	var $form2type_id = 0;
 	var $post_id = 0;
 	var $post_type = __CLASS__;
@@ -653,7 +653,7 @@ class mf_form
 
 		return $out;
 	}
-	
+
 	function check_if_already_answered($data)
 	{
 		global $wpdb, $obj_encryption, $notice_text;
@@ -1422,174 +1422,168 @@ class mf_form
 
 	function column_cell($column, $post_id)
 	{
-		global $wpdb;
+		global $wpdb, $post;
 
-		$this->post_id = $post_id;
-		$this->get_form_id($post_id);
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT post_status, post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND ID = '%d'", $this->post_type, $post_id));
-
-		foreach($result as $r)
+		switch($post->post_type)
 		{
-			$post_status = $r->post_status;
-			$post_modified = $r->post_modified;
-		}
+			case $this->post_type:
+				$this->post_id = $post_id;
+				$this->get_form_id($post_id);
 
-		switch($column)
-		{
-			case 'content':
-				/*if($post_status == 'publish')
+				switch($column)
 				{
-					echo "<i class='fa fa-link fa-lg grey' title='".__("Public", 'lang_form')."'></i> ";
-				}*/
+					case 'content':
+						$strFormEmail = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
+						$intFormEmailNotifyPage = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
+						$strFormEmailConfirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
+						$intFormEmailConfirmPage = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
+						$email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
 
-				$strFormEmail = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
-				$intFormEmailNotifyPage = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
-				$strFormEmailConfirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
-				$intFormEmailConfirmPage = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
-				$email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
-
-				if($strFormEmail == '')
-				{
-					$strFormEmail = get_bloginfo('admin_email');
-				}
-
-				if($intFormEmailNotifyPage > 0)
-				{
-					echo "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
-				}
-
-				else
-				{
-					echo "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
-				}
-
-				if($email_conditions != '')
-				{
-					echo "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
-				}
-
-				if($strFormEmailConfirm == 'yes')
-				{
-					if($intFormEmailConfirmPage > 0)
-					{
-						echo "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
-					}
-
-					else
-					{
-						echo "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
-					}
-				}
-
-				/*if($this->is_form_field_type_used(array('display' => '0')))
-				{
-					echo "<i class='fa fa-eye-slash fa-lg grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
-				}*/
-
-				if($this->is_form_field_type_used(array('required' => true)))
-				{
-					echo "<i class='fa fa-asterisk fa-lg grey' title='".__("There are required fields", 'lang_form')."'></i> ";
-				}
-
-				/*if($this->is_form_field_type_used(array('autofocus' => true)))
-				{
-					echo "<i class='fa fa-i-cursor fa-lg grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
-				}*/
-
-				if($this->is_form_field_type_used(array('remember' => true)))
-				{
-					echo "<i class='fa fa-sync fa-lg grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
-				}
-
-				//echo "<br>";
-
-				if($this->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
-				{
-					echo "<i class='fa fa-at fa-lg grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
-				}
-
-				/*if($this->is_form_field_type_used(array('query_type_id' => array(10, 11))))
-				{
-					echo "<i class='fa fa-list-alt fa-lg grey' title='".__("Dropdown", 'lang_form')."'></i> ";
-				}
-
-				if($this->is_form_field_type_used(array('query_type_id' => array(1, 16))))
-				{
-					echo "<i class='fa fa-check-square fa-lg grey' title='".__("Checkbox", 'lang_form')."'></i> ";
-				}
-
-				if($this->is_form_field_type_used(array('query_type_id' => 2)))
-				{
-					echo "<i class='fa fa-sliders-h fa-lg grey' title='".__("Range", 'lang_form')."'></i> ";
-				}
-
-				if($this->is_form_field_type_used(array('query_type_id' => 7)))
-				{
-					echo "<i class='fa fa-calendar-alt fa-lg grey' title='".__("Datepicker", 'lang_form')."'></i> ";
-				}
-
-				if($this->is_form_field_type_used(array('query_type_id' => array(8, 17))))
-				{
-					echo "<i class='far fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
-				}
-
-				if($this->is_form_field_type_used(array('query_type_id' => 15)))
-				{
-					echo "<i class='fa fa-file fa-lg grey' title='".__("File", 'lang_form')."'></i> ";
-				}*/
-			break;
-
-			case 'answers':
-				if($post_status != 'trash')
-				{
-					$query_answers = $this->get_answer_amount(array('form_id' => $this->id));
-
-					if($query_answers > 0)
-					{
-						$count_message = $this->get_count_answer_message(array('form_id' => $this->id));
-						$dteAnswerCreated = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->prefix."form2answer WHERE formID = '%d' AND answerSpam = '%d' ORDER BY answerCreated DESC", $this->id, '0'));
-
-						$export_url = "edit.php?post_type=".$this->post_type."&intFormID=".$this->id;
-
-						$arr_actions = array(
-							'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$this->id)."'>".__("View", 'lang_form')."</a>",
-							'export_csv' => "<a href='".wp_nonce_url(admin_url($export_url."&btnFormAnswerExport&btnExportRun&intExportType=".$this->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>CSV</a>",
-						);
-
-						if(is_plugin_active("mf_phpexcel/index.php"))
+						if($strFormEmail == '')
 						{
-							$arr_actions['export_xls'] = "<a href='".wp_nonce_url(admin_url($export_url."&btnFormAnswerExport&btnExportRun&intExportType=".$this->id."&strExportFormat=xls"), 'export_run', '_wpnonce_export_run')."'>XLS</a>";
+							$strFormEmail = get_bloginfo('admin_email');
 						}
 
-						echo $query_answers.$count_message." <span class='grey'>(".format_date($dteAnswerCreated).")</span>"
-						.$this->return_row_actions($arr_actions);
-					}
+						if($intFormEmailNotifyPage > 0)
+						{
+							echo "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("A notification email based on a template will be sent to %s", 'lang_form'), $strFormEmail)."'></i> ";
+						}
+
+						else
+						{
+							echo "<i class='fa fa-paper-plane fa-lg grey' title='".sprintf(__("E-mails will be sent to %s on every answer", 'lang_form'), $strFormEmail)."'></i> ";
+						}
+
+						if($email_conditions != '')
+						{
+							echo "<i class='fa fa-paper-plane fa-lg grey' title='".__("Message will be sent to different e-mails because there are conditions", 'lang_form')."'></i> ";
+						}
+
+						if($strFormEmailConfirm == 'yes')
+						{
+							if($intFormEmailConfirmPage > 0)
+							{
+								echo "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email based on a template will be sent to the visitor", 'lang_form')."'></i> ";
+							}
+
+							else
+							{
+								echo "<i class='fa fa-paper-plane fa-lg grey' title='".__("A confirmation email will be sent to the visitor", 'lang_form')."'></i> ";
+							}
+						}
+
+						/*if($this->is_form_field_type_used(array('display' => '0')))
+						{
+							echo "<i class='fa fa-eye-slash fa-lg grey' title='".__("There are hidden fields", 'lang_form')."'></i> ";
+						}*/
+
+						if($this->is_form_field_type_used(array('required' => true)))
+						{
+							echo "<i class='fa fa-asterisk fa-lg grey' title='".__("There are required fields", 'lang_form')."'></i> ";
+						}
+
+						/*if($this->is_form_field_type_used(array('autofocus' => true)))
+						{
+							echo "<i class='fa fa-i-cursor fa-lg grey' title='".__("There are autofocus fields", 'lang_form')."'></i> ";
+						}*/
+
+						if($this->is_form_field_type_used(array('remember' => true)))
+						{
+							echo "<i class='fa fa-sync fa-lg grey' title='".__("There are remembered fields", 'lang_form')."'></i> ";
+						}
+
+						//echo "<br>";
+
+						if($this->is_form_field_type_used(array('query_type_id' => 3, 'check_code' => 'email')))
+						{
+							echo "<i class='fa fa-at fa-lg grey' title='".__("There is a field for entering email adress", 'lang_form')."'></i> ";
+						}
+
+						/*if($this->is_form_field_type_used(array('query_type_id' => array(10, 11))))
+						{
+							echo "<i class='fa fa-list-alt fa-lg grey' title='".__("Dropdown", 'lang_form')."'></i> ";
+						}
+
+						if($this->is_form_field_type_used(array('query_type_id' => array(1, 16))))
+						{
+							echo "<i class='fa fa-check-square fa-lg grey' title='".__("Checkbox", 'lang_form')."'></i> ";
+						}
+
+						if($this->is_form_field_type_used(array('query_type_id' => 2)))
+						{
+							echo "<i class='fa fa-sliders-h fa-lg grey' title='".__("Range", 'lang_form')."'></i> ";
+						}
+
+						if($this->is_form_field_type_used(array('query_type_id' => 7)))
+						{
+							echo "<i class='fa fa-calendar-alt fa-lg grey' title='".__("Datepicker", 'lang_form')."'></i> ";
+						}
+
+						if($this->is_form_field_type_used(array('query_type_id' => array(8, 17))))
+						{
+							echo "<i class='far fa-circle fa-lg grey' title='".__("Radio button", 'lang_form')."'></i> ";
+						}
+
+						if($this->is_form_field_type_used(array('query_type_id' => 15)))
+						{
+							echo "<i class='fa fa-file fa-lg grey' title='".__("File", 'lang_form')."'></i> ";
+						}*/
+					break;
+
+					case 'answers':
+						if(get_post_status($post_id) != 'trash')
+						{
+							$query_answers = $this->get_answer_amount(array('form_id' => $this->id));
+
+							if($query_answers > 0)
+							{
+								$count_message = $this->get_count_answer_message(array('form_id' => $this->id));
+								$dteAnswerCreated = $wpdb->get_var($wpdb->prepare("SELECT answerCreated FROM ".$wpdb->prefix."form2answer WHERE formID = '%d' AND answerSpam = '%d' ORDER BY answerCreated DESC", $this->id, '0'));
+
+								$export_url = "edit.php?post_type=".$this->post_type."&intFormID=".$this->id;
+
+								$arr_actions = array(
+									'show_answers' => "<a href='".admin_url("admin.php?page=mf_form/answer/index.php&intFormID=".$this->id)."'>".__("View", 'lang_form')."</a>",
+									'export_csv' => "<a href='".wp_nonce_url(admin_url($export_url."&btnFormAnswerExport&btnExportRun&intExportType=".$this->id."&strExportFormat=csv"), 'export_run', '_wpnonce_export_run')."'>CSV</a>",
+								);
+
+								if(is_plugin_active("mf_phpexcel/index.php"))
+								{
+									$arr_actions['export_xls'] = "<a href='".wp_nonce_url(admin_url($export_url."&btnFormAnswerExport&btnExportRun&intExportType=".$this->id."&strExportFormat=xls"), 'export_run', '_wpnonce_export_run')."'>XLS</a>";
+								}
+
+								echo $query_answers.$count_message." <span class='grey'>(".format_date($dteAnswerCreated).")</span>"
+								.$this->return_row_actions($arr_actions);
+							}
+						}
+					break;
+
+					case 'spam':
+						if(get_post_status($post_id) != 'trash')
+						{
+							$query_spam = $this->get_answer_amount(array('form_id' => $this->id, 'is_spam' => 1));
+
+							if($query_spam > 0)
+							{
+								echo $query_spam;
+							}
+						}
+					break;
+
+					case 'post_modified':
+						$post_modified = $wpdb->get_var($wpdb->prepare("SELECT post_modified FROM ".$wpdb->posts." WHERE post_type = %s AND ID = '%d'", $this->post_type, $post_id));
+
+						echo format_date($post_modified);
+					break;
+
+					/*default:
+						if(isset($item[$column_name]))
+						{
+							echo $item[$column_name];
+						}
+					break;*/
 				}
 			break;
-
-			case 'spam':
-				if($post_status != 'trash')
-				{
-					$query_spam = $this->get_answer_amount(array('form_id' => $this->id, 'is_spam' => 1));
-
-					if($query_spam > 0)
-					{
-						echo $query_spam;
-					}
-				}
-			break;
-
-			case 'post_modified':
-				echo format_date($post_modified);
-			break;
-
-			/*default:
-				if(isset($item[$column_name]))
-				{
-					echo $item[$column_name];
-				}
-			break;*/
 		}
 	}
 

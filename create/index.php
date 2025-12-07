@@ -17,7 +17,7 @@ if($obj_form->check_allow_edit())
 		$obj_form->post_id = $obj_form->get_post_id($obj_form->id);
 	}
 
-	$obj_form->post_status = get_post_status($obj_form->post_id);
+	//$obj_form->post_status = get_post_status($obj_form->post_id);
 
 	echo "<div class='wrap'>
 		<h2>".($obj_form->id > 0 ? __("Update", 'lang_form')." <span>".$obj_form->form_name."</span>" : __("Add New", 'lang_form'))."</h2>"
