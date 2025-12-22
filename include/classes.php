@@ -888,9 +888,21 @@ class mf_form
 
 	function block_render_callback($attributes)
 	{
+		if(!isset($attributes['form_id'])){			$attributes['form_id'] = 0;}
+
+		if($attributes['form_id'] == 0)
+		{
+			global $post;
+
+			if(isset($post->ID) && $post->ID > 0)
+			{
+				$attributes['form_id'] = $post->ID;
+			}
+		}
+
 		$out = "";
 
-		if(isset($attributes['form_id']) && $attributes['form_id'] > 0)
+		if($attributes['form_id'] > 0)
 		{
 			$this->id = $attributes['form_id'];
 
@@ -1015,7 +1027,7 @@ class mf_form
 				//'search_items' => __("Search Forms", 'lang_form'),
 				//'not_found' => __("No Forms Found", 'lang_form'),
 			),
-			'public' => (wp_is_block_theme() == false), // Previously true but we want them to go through a page when the theme is a block theme
+			'public' => true,
 			'show_ui' => true,
 			'show_in_menu' => true,
 			'exclude_from_search' => true,
@@ -1037,6 +1049,34 @@ class mf_form
 				'editor_style' => 'style_base_block_wp',
 				'render_callback' => array($this, 'block_render_callback'),
 			));
+		}
+	}
+
+	function has_template()
+	{
+		global $wpdb;
+
+		$wpdb->get_results($wpdb->prepare("SELECT ID FROM ".$wpdb->posts." WHERE post_type = %s AND post_name = %s LIMIT 0, 1", 'wp_template', 'single-'.$this->post_type));
+
+		return ($wpdb->num_rows > 0);
+	}
+
+	function admin_notices()
+	{
+		global $wpdb, $done_text, $notice_text, $error_text;
+
+		if(IS_ADMINISTRATOR)
+		{
+			if($done_text == '' && $notice_text == '' && $error_text == '')
+			{
+				// I can't find one to create in /wp-admin/site-editor.php?p=/template
+				/*if($this->has_template() == false)
+				{
+					$notice_text = sprintf(__("You need to %screate a single template%s for Forms", 'lang_form'), "<a href='".admin_url("site-editor.php?p=/template")."'>", "</a>");
+
+					echo get_notification();
+				}*/
+			}
 		}
 	}
 

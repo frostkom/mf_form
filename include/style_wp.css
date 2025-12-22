@@ -206,12 +206,12 @@
 		margin-bottom: 10px;
 	}
 
-		.show_select .update-nag
+		.show_select .notice-warning
 		{
 			margin: 0 0 .5em;
 		}
 
-			.show_select .update-nag p
+			.show_select .notice-warning p
 			{
 				margin: 0;
 			}
