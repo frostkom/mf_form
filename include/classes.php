@@ -3,7 +3,6 @@
 class mf_form
 {
 	var $id;
-	//var $post_status = "";
 	var $form2type_id = 0;
 	var $post_id = 0;
 	var $post_type = __CLASS__;
@@ -813,12 +812,10 @@ class mf_form
 
 					if($this->answer_id > 0)
 					{
-						//$form_id_encrypted = $obj_encryption->encrypt($this->id, md5(AUTH_KEY));
 						$answer_id_encrypted = $obj_encryption->encrypt($this->answer_id, md5(AUTH_KEY));
 
 						$out .= "<div".get_form_button_classes().">"
 							.show_button(array('name' => 'btnAnswerUpdate', 'text' => __("Update", 'lang_form')))
-							//.input_hidden(array('name' => 'form_id_encrypted', 'value' => $form_id_encrypted))
 							.input_hidden(array('name' => 'answer_id_encrypted', 'value' => $answer_id_encrypted))
 						."</div>";
 					}
@@ -896,7 +893,7 @@ class mf_form
 
 			if(isset($post->ID) && $post->ID > 0)
 			{
-				$attributes['form_id'] = $post->ID;
+				$attributes['form_id'] = $this->get_form_id($post->ID);
 			}
 		}
 
@@ -1030,6 +1027,7 @@ class mf_form
 			'public' => true,
 			'show_ui' => true,
 			'show_in_menu' => true,
+			'show_in_rest' => true,
 			'exclude_from_search' => true,
 			'menu_position' => 21,
 			'menu_icon' => 'dashicons-forms',
@@ -1065,18 +1063,11 @@ class mf_form
 	{
 		global $wpdb, $done_text, $notice_text, $error_text;
 
-		if(IS_ADMINISTRATOR)
+		if(IS_ADMINISTRATOR && $done_text == '' && $notice_text == '' && $error_text == '' && wp_is_block_theme() == true && $this->has_template() == false)
 		{
-			if($done_text == '' && $notice_text == '' && $error_text == '')
-			{
-				// I can't find one to create in /wp-admin/site-editor.php?p=/template
-				/*if($this->has_template() == false)
-				{
-					$notice_text = sprintf(__("You need to %screate a single template%s for Forms", 'lang_form'), "<a href='".admin_url("site-editor.php?p=/template")."'>", "</a>");
+			$notice_text = sprintf(__("You need to %screate a single template%s for Forms", 'lang_form'), "<a href='".admin_url("site-editor.php?p=/template")."'>", "</a>");
 
-					echo get_notification();
-				}*/
-			}
+			echo get_notification();
 		}
 	}
 
