@@ -2977,13 +2977,13 @@ class mf_form
 
 							if($strAnswerIP != '')
 							{
-								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '%d' WHERE answerID != %d AND answerIP = %s AND answerSpam = '%d'", 1, $intAnswerID, $strAnswerIP, 0));
+								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '%d' WHERE answerID != '%d' AND answerIP = %s AND answerSpam = '0'", 1, $intAnswerID, $strAnswerIP));
 								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerStatus = %s WHERE answerID = '%d'", 'spam_ip', $intAnswerID));
 							}
 
 							if($strAnswerFingerprint != '')
 							{
-								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '%d' WHERE answerID != %d AND answerFingerprint = %s AND answerSpam = '%d'", 1, $intAnswerID, $strAnswerFingerprint, 0));
+								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerSpam = '%d' WHERE answerID != '%d' AND answerFingerprint = %s AND answerSpam = '0'", 1, $intAnswerID, $strAnswerFingerprint));
 								$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET answerStatus = %s WHERE answerID = '%d'", 'spam_fingerprint', $intAnswerID));
 							}
 
