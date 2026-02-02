@@ -655,7 +655,7 @@ class mf_form
 
 	function check_if_already_answered($data)
 	{
-		global $wpdb, $obj_encryption, $notice_text;
+		global $wpdb, $notice_text;
 
 		$post_multiple_answers = get_post_meta($this->post_id, $this->meta_prefix.'multiple_answers', true);
 
@@ -673,6 +673,7 @@ class mf_form
 
 				if($post_editable_answers == 'yes')
 				{
+					$obj_encryption = new mf_encryption(__CLASS__);
 					$answer_id_encrypted = $obj_encryption->encrypt($answer_id, md5(AUTH_KEY));
 
 					$post_url = get_permalink($this->post_id);
