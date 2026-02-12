@@ -172,7 +172,7 @@ if($obj_form->check_allow_edit())
 
 												$description_temp = '';
 
-												if(substr($obj_form->type_fetch_from, 0, 1) == "[")
+												if($obj_form->type_fetch_from != '' && substr($obj_form->type_fetch_from, 0, 1) == "[")
 												{
 													$description_temp .= sprintf(__("Try it out by %sgoing here%s", 'lang_form'), "<a href='".get_permalink($obj_form->post_id)."'>", "</a>");
 												}

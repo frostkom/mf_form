@@ -423,6 +423,172 @@ class mf_form
 		$obj_cron->end();
 	}
 
+	function send_transactional_email()
+	{
+		global $wpdb;
+
+		if($this->is_spam == false)
+		{
+			$sent = send_email($this->mail_data);
+		}
+
+		else
+		{
+			$sent = false;
+		}
+
+		if($this->answer_id > 0)
+		{
+			if(!isset($this->mail_data['from']) || $this->mail_data['from'] == '')
+			{
+				$this->mail_data['from'] = get_bloginfo('admin_email');
+			}
+
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer_email SET answerID = '%d', answerEmailFrom = %s, answerEmail = %s, answerType = %s, answerSent = '%d'", $this->answer_id, $this->mail_data['from'], $this->mail_data['to'], $this->mail_data['type'], $sent));
+		}
+
+		return $sent;
+	}
+
+	function process_transactional_emails()
+	{
+		global $wpdb;
+
+		$this->get_post_id();
+
+		$this->email_admin = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
+
+		$email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
+		$email_notify_page = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
+		$email_confirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
+		$email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
+		$email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
+
+		$arr_email_fields = $this->get_email_fields();
+		$email_confirm_id = (isset($arr_email_fields[0]) ? $arr_email_fields[0] : 0);
+
+		$this->page_content_data = array(
+			'subject' => $this->form_name,
+			'content' => $this->arr_email_content,
+		);
+
+		if($email_conditions != '')
+		{
+			foreach(explode("\n", $email_conditions) as $str_condition)
+			{
+				@list($field_id, $option_id, $email) = explode("|", $str_condition, 3);
+
+				if($field_id != '' && $option_id != '' && $email != '')
+				{
+					if(substr($field_id, 0, strlen($this->prefix)) == $this->prefix)
+					{
+						$field_id = str_replace($this->prefix, "", $field_id);
+					}
+
+					if(isset($_REQUEST[$this->prefix.$field_id]) && check_var($this->prefix.$field_id) == $option_id)
+					{
+						$this->email_admin = $email;
+
+						break;
+					}
+				}
+
+				else
+				{
+					do_log("Condition was not correctly formated (FormID: ".$this->id." -> ".$str_condition.")");
+				}
+			}
+		}
+
+		$email_from_visitor = $email_from_admin_address = $email_from_admin = ""; //$email_from_visitor_address = $email_from_other_address = $email_from_other =
+
+		// From Visitor
+		###################
+		if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
+		{
+			if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
+			{
+				$name_temp = $this->answer_data['name'];
+			}
+
+			else
+			{
+				$name_temp = $this->answer_data['email'];
+			}
+
+			$email_from_visitor = "Reply-To: ".$name_temp." <".$this->answer_data['email'].">\r\n";
+		}
+		###################
+
+		// From Admin
+		###################
+		$email_from_admin = "Reply-To: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
+		###################
+
+		if($email_notify == 'yes')
+		{
+			$this->mail_data = array(
+				'type' => 'notify',
+				'subject' => $this->page_content_data['subject'],
+				'content' => '',
+			);
+
+			if($this->email_admin != '')
+			{
+				if(strpos($this->email_admin, "<"))
+				{
+					$this->mail_data['to'] = get_match("/\<(.*)\>/", $this->email_admin);
+				}
+
+				else
+				{
+					$this->mail_data['to'] = $this->email_admin;
+				}
+			}
+
+			else
+			{
+				$this->mail_data['to'] = get_bloginfo('admin_email');
+			}
+
+			if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
+			{
+				$this->mail_data['from'] = $email_from_admin_address;
+				$this->mail_data['headers'] = $email_from_visitor;
+			}
+
+			$this->page_content_data['mail_to'] = $this->mail_data['to'];
+			$this->page_content_data['page_id'] = $email_notify_page;
+
+			$this->mail_data['content'] = $this->get_page_content_for_email();
+
+			$this->send_transactional_email();
+		}
+
+		if($email_confirm == 'yes' && isset($this->answer_data['email']) && $this->answer_data['email'] != '')
+		{
+			$this->mail_data = array(
+				'type' => 'confirm',
+				'to' => $this->answer_data['email'],
+				'subject' => $this->page_content_data['subject'],
+				'content' => '',
+			);
+
+			if($email_from_admin != '')
+			{
+				$this->mail_data['from'] = $email_from_admin_address;
+				$this->mail_data['headers'] = $email_from_admin;
+			}
+
+			$this->page_content_data['mail_to'] = $this->mail_data['to'];
+			$this->page_content_data['page_id'] = $email_confirm_page;
+
+			$this->mail_data['content'] = $this->get_page_content_for_email();
+
+			$this->send_transactional_email();
+		}
+	}
+
 	function process_submit()
 	{
 		global $wpdb, $error_text, $notice_text, $done_text;
@@ -1284,20 +1450,6 @@ class mf_form
 		return $html;
 	}
 
-	/*function get_query_permission()
-	{
-		global $wpdb;
-
-		$query_where = "";
-
-		if(!current_user_can('edit_pages'))
-		{
-			$query_where .= " AND ".$wpdb->prefix."form.userID = '".get_current_user_id()."'";
-		}
-
-		return $query_where;
-	}*/
-
 	function get_count_answer_message($data = [])
 	{
 		global $wpdb;
@@ -1310,7 +1462,8 @@ class mf_form
 
 		$last_viewed = get_user_meta($data['user_id'], 'meta_forms_viewed', true);
 
-		$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) INNER JOIN ".$wpdb->prefix."form_answer_email USING (answerID) WHERE (answerCreated > %s OR answerCreated > DATE_SUB(NOW(), INTERVAL 1 MONTH)) AND answerSpam = '0' AND answerSent = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s")))); //.$this->get_query_permission()
+		//$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) INNER JOIN ".$wpdb->prefix."form_answer_email USING (answerID) WHERE (answerCreated > %s OR answerCreated > DATE_SUB(NOW(), INTERVAL 1 MONTH)) AND answerSpam = '0' AND answerSent = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
+		$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) INNER JOIN ".$wpdb->prefix."form_answer_email USING (answerID) WHERE answerCreated > %s AND answerSpam = '0' AND answerSent = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
 		$rows = $wpdb->num_rows;
 
 		if($rows > 0)
@@ -1336,7 +1489,7 @@ class mf_form
 			return $out;
 		}
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) WHERE answerCreated > %s AND answerSpam = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s")))); //.$this->get_query_permission()
+		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) WHERE answerCreated > %s AND answerSpam = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
 		$rows = $wpdb->num_rows;
 
 		if($rows > 0)
@@ -3118,9 +3271,9 @@ class mf_form
 
 				else if(isset($_GET['btnMessageResend']))
 				{
-					$intAnswerID = check_var('intAnswerID');
+					$this->answer_id = check_var('intAnswerID');
 
-					if(wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$intAnswerID))
+					if(wp_verify_nonce($_REQUEST['_wpnonce_message_resend'], 'message_resend_'.$this->answer_id))
 					{
 						$this->form_name = $this->get_form_name();
 						$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
@@ -3131,7 +3284,7 @@ class mf_form
 							'fields' => [],
 						);
 
-						$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->prefix."form2type.form2TypeID, formTypeID, formTypeText, checkID, answerText FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form_answer ON ".$wpdb->prefix."form2type.form2TypeID = ".$wpdb->prefix."form_answer.form2TypeID WHERE formID = '%d' AND (answerID = '%d' OR answerID IS null) ORDER BY form2TypeOrder ASC", $this->id, $intAnswerID));
+						$result = $wpdb->get_results($wpdb->prepare("SELECT ".$wpdb->prefix."form2type.form2TypeID, formTypeID, formTypeText, checkID, answerText FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form_answer ON ".$wpdb->prefix."form2type.form2TypeID = ".$wpdb->prefix."form_answer.form2TypeID WHERE formID = '%d' AND (answerID = '%d' OR answerID IS null) ORDER BY form2TypeOrder ASC", $this->id, $this->answer_id));
 
 						foreach($result as $r)
 						{
@@ -3204,7 +3357,7 @@ class mf_form
 							}
 						}
 
-						$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $intAnswerID));
+						$resultAnswerEmail = $wpdb->get_results($wpdb->prepare("SELECT answerEmail, answerType FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d' AND answerType != ''", $this->answer_id));
 
 						foreach($resultAnswerEmail as $r)
 						{
@@ -3987,172 +4140,6 @@ class mf_form
 		return $wpdb->get_var($wpdb->prepare("SELECT formOptionID FROM ".$wpdb->prefix."form_option WHERE formOptionKey = '%d'", $key));
 	}
 
-	function process_transactional_emails()
-	{
-		global $wpdb;
-
-		$this->get_post_id();
-
-		$this->email_admin = get_post_meta($this->post_id, $this->meta_prefix.'email_admin', true);
-
-		$email_notify = get_post_meta($this->post_id, $this->meta_prefix.'email_notify', true);
-		$email_notify_page = get_post_meta($this->post_id, $this->meta_prefix.'email_notify_page', true);
-		$email_confirm = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm', true);
-		$email_confirm_page = get_post_meta($this->post_id, $this->meta_prefix.'email_confirm_page', true);
-		$email_conditions = get_post_meta($this->post_id, $this->meta_prefix.'email_conditions', true);
-
-		$arr_email_fields = $this->get_email_fields();
-		$email_confirm_id = (isset($arr_email_fields[0]) ? $arr_email_fields[0] : 0);
-
-		$this->page_content_data = array(
-			'subject' => $this->form_name,
-			'content' => $this->arr_email_content,
-		);
-
-		if($email_conditions != '')
-		{
-			foreach(explode("\n", $email_conditions) as $str_condition)
-			{
-				@list($field_id, $option_id, $email) = explode("|", $str_condition, 3);
-
-				if($field_id != '' && $option_id != '' && $email != '')
-				{
-					if(substr($field_id, 0, strlen($this->prefix)) == $this->prefix)
-					{
-						$field_id = str_replace($this->prefix, "", $field_id);
-					}
-
-					if(isset($_REQUEST[$this->prefix.$field_id]) && check_var($this->prefix.$field_id) == $option_id)
-					{
-						$this->email_admin = $email;
-
-						break;
-					}
-				}
-
-				else
-				{
-					do_log("Condition was not correctly formated (FormID: ".$this->id." -> ".$str_condition.")");
-				}
-			}
-		}
-
-		$email_from_visitor = $email_from_admin_address = $email_from_admin = ""; //$email_from_visitor_address = $email_from_other_address = $email_from_other =
-
-		// From Visitor
-		###################
-		if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
-		{
-			if(isset($this->answer_data['name']) && $this->answer_data['name'] != '')
-			{
-				$name_temp = $this->answer_data['name'];
-			}
-
-			else
-			{
-				$name_temp = $this->answer_data['email'];
-			}
-
-			$email_from_visitor = "Reply-To: ".$name_temp." <".$this->answer_data['email'].">\r\n";
-		}
-		###################
-
-		// From Admin
-		###################
-		$email_from_admin = "Reply-To: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
-		###################
-
-		if($email_notify == 'yes')
-		{
-			$this->mail_data = array(
-				'type' => 'notify',
-				'subject' => $this->page_content_data['subject'],
-				'content' => '',
-			);
-
-			if($this->email_admin != '')
-			{
-				if(strpos($this->email_admin, "<"))
-				{
-					$this->mail_data['to'] = get_match("/\<(.*)\>/", $this->email_admin);
-				}
-
-				else
-				{
-					$this->mail_data['to'] = $this->email_admin;
-				}
-			}
-
-			else
-			{
-				$this->mail_data['to'] = get_bloginfo('admin_email');
-			}
-
-			if(isset($this->answer_data['email']) && $this->answer_data['email'] != '')
-			{
-				$this->mail_data['from'] = $email_from_admin_address;
-				$this->mail_data['headers'] = $email_from_visitor;
-			}
-
-			$this->page_content_data['mail_to'] = $this->mail_data['to'];
-			$this->page_content_data['page_id'] = $email_notify_page;
-
-			$this->mail_data['content'] = $this->get_page_content_for_email();
-
-			$this->send_transactional_email();
-		}
-
-		if($email_confirm == 'yes' && isset($this->answer_data['email']) && $this->answer_data['email'] != '')
-		{
-			$this->mail_data = array(
-				'type' => 'confirm',
-				'to' => $this->answer_data['email'],
-				'subject' => $this->page_content_data['subject'],
-				'content' => '',
-			);
-
-			if($email_from_admin != '')
-			{
-				$this->mail_data['from'] = $email_from_admin_address;
-				$this->mail_data['headers'] = $email_from_admin;
-			}
-
-			$this->page_content_data['mail_to'] = $this->mail_data['to'];
-			$this->page_content_data['page_id'] = $email_confirm_page;
-
-			$this->mail_data['content'] = $this->get_page_content_for_email();
-
-			$this->send_transactional_email();
-		}
-	}
-
-	function send_transactional_email()
-	{
-		global $wpdb;
-
-		if($this->is_spam == false)
-		{
-			$sent = send_email($this->mail_data);
-		}
-
-		else
-		{
-			$sent = false;
-		}
-
-		if($this->answer_id > 0)
-		{
-			if(!isset($this->mail_data['from']) || $this->mail_data['from'] == '')
-			{
-				$this->mail_data['from'] = get_bloginfo('admin_email');
-			}
-
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."form_answer_email SET answerID = '%d', answerEmailFrom = %s, answerEmail = %s, answerType = %s, answerSent = '%d'", $this->answer_id, $this->mail_data['from'], $this->mail_data['to'], $this->mail_data['type'], $sent));
-		}
-
-		return $sent;
-	}
-
 	function check_limit($data)
 	{
 		global $wpdb, $error_text;
@@ -4633,12 +4620,12 @@ if(class_exists('mf_list_table'))
 
 									if(isset($arr_sent[$answer_md5.'success']))
 									{
-										$arr_sent[$answer_md5.'success']['amount']++;
+										$arr_sent[$answer_md5.'_success']['amount']++;
 									}
 
 									else
 									{
-										$arr_sent[$answer_md5.'success'] = array(
+										$arr_sent[$answer_md5.'_success'] = array(
 											'from' => $strAnswerEmailFrom,
 											'to' => $strAnswerEmail,
 											'type' => 'success',
@@ -4653,12 +4640,12 @@ if(class_exists('mf_list_table'))
 
 									if(isset($arr_sent[$answer_md5.'fail']))
 									{
-										$arr_sent[$answer_md5.'fail']['amount']++;
+										$arr_sent[$answer_md5.'_fail']['amount']++;
 									}
 
 									else
 									{
-										$arr_sent[$answer_md5.'fail'] = array(
+										$arr_sent[$answer_md5.'_fail'] = array(
 											'from' => $strAnswerEmailFrom,
 											'to' => $strAnswerEmail,
 											'type' => 'fail',
@@ -4675,8 +4662,8 @@ if(class_exists('mf_list_table'))
 								$arr_actions[$key] = "<i class='".($arr_value['type'] == 'success' ? "fa fa-check green" : "fa fa-times red")."' title='".($arr_value['from'] != '' ? $arr_value['from']." -> " : "").$arr_value['to'].($arr_value['amount'] > 1 ? " (".$arr_value['amount'].")" : "")."'></i>";
 							}
 
-							$email_notify = get_post_meta($obj_form->id, $obj_form->meta_prefix.'email_notify', true);
-							$email_confirm = get_post_meta($obj_form->id, $obj_form->meta_prefix.'email_confirm', true);
+							$email_notify = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'email_notify', true);
+							$email_confirm = get_post_meta($obj_form->post_id, $obj_form->meta_prefix.'email_confirm', true);
 
 							if($email_notify == 'yes' || $email_confirm == 'yes')
 							{

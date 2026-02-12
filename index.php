@@ -2,8 +2,8 @@
 /*
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
-Description:
-Version: 1.2.2.17
+Description: Add forms to any page
+Version: 1.2.3.0
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
