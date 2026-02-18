@@ -29,7 +29,7 @@ if($obj_form->check_allow_edit())
 				$form_email_page_shortcodes = "&post_title=".sprintf(__("Title Example | Ticket: %s | %s: %s", 'lang_form'), "[answer_id]", "[label_".($obj_form->form2type_id > 0 ? $obj_form->form2type_id : 123)."]", "[answer_".$form2type_id_example."]")
 					."&content=".sprintf(__("Ticket: %s, Answers: %s", 'lang_form'), "[answer_id]", "[form_fields]");
 
-				if(is_plugin_active("mf_webshop/index.php"))
+				if(is_plugin_active("mf_rentals/index.php"))
 				{
 					$form_email_page_shortcodes .= ($form_email_page_shortcodes != '' ? ", " : "").sprintf(__("Document Types: %s, Products: %s, Product Name: %s, Yes Link: %s, No Link: %s", 'lang_form'), "[doc_types]", "[products]", "[product]", "[link_yes]", "[link_no]");
 				}
