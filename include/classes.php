@@ -327,7 +327,7 @@ class mf_form
 
 				if($wpdb->num_rows > 0)
 				{
-					do_log(__FUNCTION__." - Dead form_option: ".$wpdb->last_query);
+					do_log(__FUNCTION__." - Dead form_option: ".$wpdb->last_query, 'publish', false);
 
 					foreach($result as $r)
 					{
@@ -1460,59 +1460,61 @@ class mf_form
 
 		$out = "";
 
-		$last_viewed = get_user_meta($data['user_id'], 'meta_forms_viewed', true);
-
-		//$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) INNER JOIN ".$wpdb->prefix."form_answer_email USING (answerID) WHERE (answerCreated > %s OR answerCreated > DATE_SUB(NOW(), INTERVAL 1 MONTH)) AND answerSpam = '0' AND answerSent = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
-		$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) INNER JOIN ".$wpdb->prefix."form_answer_email USING (answerID) WHERE answerCreated > %s AND answerSpam = '0' AND answerSent = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
-		$rows = $wpdb->num_rows;
-
-		if($rows > 0)
+		if(apply_filters('does_table_exist', false, $wpdb->prefix."form"))
 		{
-			switch($data['return_type'])
+			$last_viewed = get_user_meta($data['user_id'], 'meta_forms_viewed', true);
+
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) INNER JOIN ".$wpdb->prefix."form_answer_email USING (answerID) WHERE answerCreated > %s AND answerSpam = '0' AND answerSent = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
+			$rows = $wpdb->num_rows;
+
+			if($rows > 0)
 			{
-				default:
-				case 'html':
-					do_action('load_font_awesome');
+				switch($data['return_type'])
+				{
+					default:
+					case 'html':
+						do_action('load_font_awesome');
 
-					$out .= "&nbsp;<i class='fa fa-exclamation-triangle yellow' title='".($rows > 1 ? sprintf(__("There are %d unsent messages", 'lang_form'), $rows) : __("There is one unset message", 'lang_form'))."'></i>";
-				break;
+						$out .= "&nbsp;<i class='fa fa-exclamation-triangle yellow' title='".($rows > 1 ? sprintf(__("There are %d unsent messages", 'lang_form'), $rows) : __("There is one unset message", 'lang_form'))."'></i>";
+					break;
 
-				case 'array':
-					$out = array(
-						'title' => ($rows > 1 ? sprintf(__("There are %d unsent messages", 'lang_form'), $rows) : __("There is one unset message", 'lang_form')),
-						'tag' => 'form',
-						'link' => admin_url("edit.php?post_type=".$this->post_type),
-					);
-				break;
+					case 'array':
+						$out = array(
+							'title' => ($rows > 1 ? sprintf(__("There are %d unsent messages", 'lang_form'), $rows) : __("There is one unset message", 'lang_form')),
+							'tag' => 'form',
+							'link' => admin_url("edit.php?post_type=".$this->post_type),
+						);
+					break;
+				}
+
+				return $out;
 			}
 
-			return $out;
-		}
+			$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) WHERE answerCreated > %s AND answerSpam = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
+			$rows = $wpdb->num_rows;
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) WHERE answerCreated > %s AND answerSpam = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
-		$rows = $wpdb->num_rows;
-
-		if($rows > 0)
-		{
-			$title = ($rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form'));
-
-			switch($data['return_type'])
+			if($rows > 0)
 			{
-				default:
-				case 'html':
-					$out .= "&nbsp;<span class='update-plugins' title='".$title."'><span>".$rows."</span></span>";
-				break;
+				$title = ($rows > 1 ? sprintf(__("There are %d new answers", 'lang_form'), $rows) : __("There is one new answer", 'lang_form'));
 
-				case 'array':
-					$out = array(
-						'title' => $title,
-						'tag' => 'form',
-						'link' => admin_url("edit.php?post_type=".$this->post_type),
-					);
-				break;
+				switch($data['return_type'])
+				{
+					default:
+					case 'html':
+						$out .= "&nbsp;<span class='update-plugins' title='".$title."'><span>".$rows."</span></span>";
+					break;
+
+					case 'array':
+						$out = array(
+							'title' => $title,
+							'tag' => 'form',
+							'link' => admin_url("edit.php?post_type=".$this->post_type),
+						);
+					break;
+				}
+
+				return $out;
 			}
-
-			return $out;
 		}
 
 		return $out;
