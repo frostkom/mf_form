@@ -327,11 +327,11 @@ class mf_form
 
 				if($wpdb->num_rows > 0)
 				{
-					do_log(__FUNCTION__." - Dead form_option: ".$wpdb->last_query, 'publish', false);
+					//do_log(__FUNCTION__." - Dead form_option: ".$wpdb->last_query, 'publish', false);
 
 					foreach($result as $r)
 					{
-						//$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d'", $r->form2TypeID));
+						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_option WHERE form2TypeID = '%d'", $r->form2TypeID));
 					}
 				}
 
