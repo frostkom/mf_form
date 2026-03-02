@@ -209,58 +209,9 @@ class mf_form
 				{
 					if($r->formID != $r->meta_value)
 					{
-						do_log(__FUNCTION__." - Wrong param: #".$r->postID." (".$r->formID." != ".$r->meta_value.")");
+						do_log(__FUNCTION__." - Faulty Form Params: #".$r->postID." (".$r->formID." != ".$r->meta_value.", ".$wpdb->last_query.")", 'publish', false);
 					}
 				}
-
-				/*$result = $wpdb->get_results("SELECT postID, COUNT(*) AS count FROM ".$wpdb->prefix."form GROUP BY postID HAVING COUNT(*) > 1");
-
-				foreach($result as $r)
-				{
-					$post_id = $r->postID;
-
-					$form_id_correct = $form_id_false = 0;
-
-					$result_form = $wpdb->get_results($wpdb->prepare("SELECT formID, formName FROM ".$wpdb->prefix."form WHERE postID = '%d'", $post_id));
-
-					foreach($result_form as $r)
-					{
-						$form_id = $r->formID;
-						$form_name = $r->formName;
-
-						if($form_name != '' && $form_id_correct == 0)
-						{
-							$form_id_correct = $form_id;
-						}
-
-						else
-						{
-							$form_id_false = $form_id;
-						}
-					}
-
-					if($form_id_false > 0 && $form_id_correct > 0)
-					{
-						$form_id_changes = 0;
-
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2answer SET formID = '%d' WHERE postID = '%d' AND formID = '%d'", $form_id_correct, $post_id, $form_id_false));
-						$form_id_changes += $wpdb->rows_affected;
-
-						do_log("Change 1: ".$wpdb->last_query." (".$wpdb->rows_affected.")");
-
-						$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET formID = '%d' WHERE postID = '%d' AND formID = '%d'", $form_id_correct, $post_id, $form_id_false));
-						$form_id_changes += $wpdb->rows_affected;
-
-						do_log("Change 2: ".$wpdb->last_query." (".$wpdb->rows_affected.")");
-
-						do_log("Changes: ".$form_id_false." -> ".$form_id_correct." (".$form_id_changes.")");
-					}
-
-					else
-					{
-						do_log("Do NOT Merge: ".$form_id_false." -> ".$form_id_correct);
-					}
-				}*/
 			}
 			#################################
 
