@@ -1415,7 +1415,7 @@ class mf_form
 		{
 			$last_viewed = get_user_meta($data['user_id'], 'meta_forms_viewed', true);
 
-			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) INNER JOIN ".$wpdb->prefix."form_answer_email USING (answerID) WHERE answerCreated > %s AND answerSpam = '0' AND answerSent = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
+			$wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) INNER JOIN ".$wpdb->prefix."form_answer_email USING (answerID) WHERE answerCreated > %s AND answerSpam = '0' AND answerSent = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : current_time('mysql'))));
 			$rows = $wpdb->num_rows;
 
 			if($rows > 0)
@@ -1441,7 +1441,7 @@ class mf_form
 				return $out;
 			}
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) WHERE answerCreated > %s AND answerSpam = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : date("Y-m-d H:i:s"))));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT answerID FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->prefix."form2answer USING (formID) WHERE answerCreated > %s AND answerSpam = '0'".($data['form_id'] > 0 ? " AND formID = '".$data['form_id']."'" : ""), ($last_viewed > DEFAULT_DATE ? $last_viewed : current_time('mysql'))));
 			$rows = $wpdb->num_rows;
 
 			if($rows > 0)
