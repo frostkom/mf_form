@@ -2070,6 +2070,13 @@ class mf_form
 		return $meta_boxes;
 	}
 
+	function get_post_types_for_metabox($array)
+	{
+		$array[] = $this->post_type;
+
+		return $array;
+	}
+
 	function admin_menu()
 	{
 		$menu_root = 'mf_form/';
