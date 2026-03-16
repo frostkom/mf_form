@@ -1,6 +1,7 @@
 <?php
 
 $obj_form = new mf_form();
+$obj_form->init();
 $obj_form->fetch_request();
 echo $obj_form->save_data();
 

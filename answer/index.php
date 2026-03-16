@@ -1,13 +1,12 @@
 <?php
 
 $obj_form = new mf_form();
+$obj_form->init();
 $obj_form->fetch_request();
 echo $obj_form->save_data();
 
 if($obj_form->id > 0)
 {
-	$obj_form->init();
-
 	echo "<div class='wrap'>
 		<h2>".__("Answers", 'lang_form')." <span>".$obj_form->get_form_name()."</span></h2>"
 		.get_notification();
