@@ -1086,9 +1086,175 @@ class mf_form
 		{
 			$this->id = $attributes['form_id'];
 
-			$out = "<div".parse_block_attributes(array('class' => "widget form", 'attributes' => $attributes)).">"
+			$out .= "<div".parse_block_attributes(array('class' => "widget form", 'attributes' => $attributes)).">"
 				.$this->process_form()
 			."</div>";
+		}
+
+		return $out;
+	}
+
+	function block_render_view_callback($attributes)
+	{
+		global $wpdb;
+
+		if(!isset($attributes['form_id'])){			$attributes['form_id'] = 0;}
+
+		$out = "";
+
+		if($attributes['form_id'] > 0)
+		{
+			$out .= "<div".parse_block_attributes(array('class' => "widget form_view", 'attributes' => $attributes)).">";
+
+				$result_columns = $wpdb->get_results($wpdb->prepare("SELECT formTypeText, form2TypeID, formTypeID, checkID, formTypeEncrypt FROM ".$wpdb->prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $attributes['form_id']));
+
+				$result_answers = $wpdb->get_results($wpdb->prepare("SELECT answerID, answerCreated FROM ".$wpdb->prefix."form2answer INNER JOIN ".$wpdb->prefix."form_answer USING (answerID) WHERE formID = '%d' AND answerSpam != '1' GROUP BY answerID ORDER BY answerCreated DESC", $attributes['form_id']));
+
+				foreach($result_answers as $r)
+				{
+					$intAnswerID = $r->answerID;
+					$dteAnswerCreated = $r->answerCreated;
+
+					$out .= "<h2>".format_date($dteAnswerCreated)."</h2>
+					<ul>";
+
+						foreach($result_columns as $r)
+						{
+							$strFormTypeCode = $this->arr_form_types[$r->formTypeID]['code'];
+							$this->label = $r->formTypeText;
+							$intForm2TypeID = $r->form2TypeID;
+							$strCheckCode = ($r->checkID > 0 ? $this->arr_form_check[$r->checkID]['code'] : '');
+							$strFormTypeEncrypt = $r->formTypeEncrypt;
+
+							if(!in_array($strFormTypeCode, $this->ignore_tags_on_output))
+							{
+								if($strFormTypeEncrypt == 'yes' && !isset($obj_encryption))
+								{
+									$obj_encryption = new mf_encryption("mf_form");
+								}
+
+								switch($strFormTypeCode)
+								{
+									case 'range':
+										$this->parse_range_label();
+									break;
+
+									case 'select':
+									case 'select_multiple':
+									case 'checkbox_multiple':
+									case 'radio_multiple':
+										if(strpos($this->label, ":") !== false)
+										{
+											list($this->label, $str_select) = explode(":", $this->label);
+										}
+									break;
+								}
+
+								$strAnswerText = "";
+
+								$resultAnswer = $wpdb->get_results($wpdb->prepare("SELECT answerText, answerUpdated FROM ".$wpdb->prefix."form_answer WHERE form2TypeID = '%d' AND answerID = '%d' ORDER BY answerUpdated DESC", $intForm2TypeID, $intAnswerID));
+								$rowsAnswer = $wpdb->num_rows;
+
+								if($rowsAnswer > 0)
+								{
+									$i = 0;
+
+									foreach($resultAnswer as $r2)
+									{
+										$strAnswerText_temp = $r2->answerText;
+
+										if($strFormTypeEncrypt == 'yes')
+										{
+											$strAnswerText_temp = $obj_encryption->decrypt($strAnswerText_temp, md5(AUTH_KEY));
+										}
+
+										switch($strFormTypeCode)
+										{
+											case 'radio_button':
+												$strAnswerText_temp = "<i class='fa fa-check green'></i>";
+											break;
+
+											case 'select':
+											case 'radio_multiple':
+												$strAnswerText_temp = $this->parse_select_info($strAnswerText_temp);
+											break;
+
+											case 'select_multiple':
+											case 'checkbox_multiple':
+												//$this->prefix = $this->get_post_info(array('select' => 'post_name'))."_";
+
+												$strAnswerText_temp = $this->parse_multiple_info($strAnswerText_temp, true);
+											break;
+
+											case 'file':
+												$result = $wpdb->get_results($wpdb->prepare("SELECT post_title, guid FROM ".$wpdb->posts." WHERE post_type = 'attachment' AND ID = '%d'", $strAnswerText_temp));
+
+												foreach($result as $r)
+												{
+													$strAnswerText_temp = "<a href='".$r->guid."'>".$r->post_title."</a>";
+												}
+											break;
+
+											default:
+												switch($strCheckCode)
+												{
+													case 'url':
+														$strAnswerText_temp = "<a href='".$strAnswerText_temp."'>".$strAnswerText_temp."</a>";
+													break;
+
+													case 'email':
+														$strAnswerText_temp = "<a href='mailto:".$strAnswerText_temp."?subject=".__("Re", 'lang_form').": ".$this->get_form_name()."'>".$strAnswerText_temp."</a>";
+													break;
+												}
+											break;
+										}
+
+										$strAnswerText_temp = stripslashes(stripslashes($strAnswerText_temp));
+
+										if($i > 0)
+										{
+											$strAnswerText .= "<br>
+											<span class='grey'>";
+										}
+
+											$strAnswerText .= $strAnswerText_temp;
+
+											if($rowsAnswer > 1)
+											{
+												if($r2->answerUpdated > DEFAULT_DATE)
+												{
+													$strAnswerText .= " <span class='grey'>(".format_date($r2->answerUpdated).")</span>";
+												}
+
+												else
+												{
+													$strAnswerText .= " <span class='grey'>(".format_date($item['answerCreated']).")</span>";
+												}
+											}
+
+										if($i > 0)
+										{
+											$strAnswerText .= "</span>";
+										}
+
+										$i++;
+									}
+								}
+
+								if($strAnswerText != '')
+								{
+									$out .= "<li>
+										<strong>".$this->label.": </strong>
+										<span>".$strAnswerText."</span>
+									</li>";
+								}
+							}
+						}
+
+					$out .= "</ul>";
+				}
+
+			$out .= "</div>";
 		}
 
 		return $out;
@@ -1146,9 +1312,11 @@ class mf_form
 
 		wp_localize_script('script_form_block_wp', 'script_form_block_wp', array(
 			'block_title' => __("Form", 'lang_form'),
-			'block_description' => __("Display a Form", 'lang_form'),
+			'block_description' => __("Display a form", 'lang_form'),
 			'form_id_label' => __("Select", 'lang_form'),
 			'form_id' => $this->get_for_select(array('force_has_page' => false)),
+			'block_title_view' => __("Form", 'lang_form')." - ".__("View Answers", 'lang_form'),
+			'block_description_view' => __("View answers in a form", 'lang_form'),
 		));
 	}
 
@@ -1229,6 +1397,12 @@ class mf_form
 				'editor_script' => 'script_form_block_wp',
 				'editor_style' => 'style_base_block_wp',
 				'render_callback' => array($this, 'block_render_callback'),
+			));
+			
+			register_block_type('mf/formview', array(
+				'editor_script' => 'script_form_block_wp',
+				'editor_style' => 'style_base_block_wp',
+				'render_callback' => array($this, 'block_render_view_callback'),
 			));
 		}
 	}
@@ -2546,7 +2720,10 @@ class mf_form
 	{
 		global $wpdb;
 
-		@list($this->label, $str_select) = explode(":", $this->label);
+		if(strpos($this->label, ":") !== false)
+		{
+			list($this->label, $str_select) = explode(":", $this->label);
+		}
 
 		$arr_answer_text = explode(",", str_replace($this->prefix, "", $strAnswerText));
 		$strAnswerText = "";
@@ -3452,7 +3629,7 @@ class mf_form
 			$post_id = $this->get_post_id($this->id);
 		}
 
-		if($post_id > 0)
+		if(isset($post_id) && $post_id > 0)
 		{
 			$out = $wpdb->get_var($wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->posts." WHERE ID = '%d'", $post_id));
 		}
@@ -3819,11 +3996,10 @@ class mf_form
 
 		if($this->page_content_data['page_id'] > 0)
 		{
-			$result = $wpdb->get_results($wpdb->prepare("SELECT post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $this->page_content_data['page_id'])); //post_title,
+			$result = $wpdb->get_results($wpdb->prepare("SELECT post_content FROM ".$wpdb->posts." WHERE ID = '%d'", $this->page_content_data['page_id']));
 
 			foreach($result as $r)
 			{
-				//$this->mail_data['subject'] = $r->post_title; // Only if we want the form name to be replaced by the template name
 				$mail_template = apply_filters('the_content', $r->post_content);
 
 				$mail_content = $this->render_mail_content(array('mail_to' => $this->page_content_data['mail_to'], 'template' => $mail_template));
@@ -3877,7 +4053,12 @@ class mf_form
 		{
 			if(in_array($this->arr_form_types[$r->formTypeID]['code'], array('select', 'select_multiple', 'checkbox_multiple', 'radio_multiple')))
 			{
-				@list($strFormTypeText, $str_select) = explode(":", $r->formTypeText);
+				$strFormTypeText = $r->formTypeText;
+
+				if(strpos($strFormTypeText, ":") !== false)
+				{
+					list($strFormTypeText, $str_select) = explode(":", $strFormTypeText);
+				}
 			}
 
 			else if(in_array($this->arr_form_types[$r->formTypeID]['code'], array('custom_tag')))
@@ -4106,7 +4287,12 @@ class mf_form
 
 		$arr_data = [];
 
-		@list($str_label, $str_select) = explode(":", $data['string']);
+		$str_label = $data['string'];
+
+		if(strpos($str_label, ":") !== false)
+		{
+			list($str_label, $str_select) = explode(":", $str_label);
+		}
 
 		if($str_select != '')
 		{
@@ -4255,7 +4441,10 @@ if(class_exists('mf_export'))
 						case 'select_multiple':
 						case 'checkbox_multiple':
 						case 'radio_multiple':
-							@list($obj_form->label, $str_select) = explode(":", $obj_form->label);
+							if(strpos($obj_form->label, ":") !== false)
+							{
+								list($obj_form->label, $str_select) = explode(":", $obj_form->label);
+							}
 						break;
 					}
 
@@ -4461,7 +4650,10 @@ if(class_exists('mf_list_table'))
 						case 'select_multiple':
 						case 'checkbox_multiple':
 						case 'radio_multiple':
-							@list($obj_form->label, $str_select) = explode(":", $obj_form->label);
+							if(strpos($obj_form->label, ":") !== false)
+							{
+								list($obj_form->label, $str_select) = explode(":", $obj_form->label);
+							}
 
 							$label_limit = 10;
 						break;
@@ -5010,7 +5202,12 @@ class mf_form_output
 			$obj_form = new mf_form();
 		}
 
-		@list($this->label, $str_select) = explode(":", $string);
+		$this->label = $string;
+
+		if(strpos($this->label, ":") !== false)
+		{
+			list($this->label, $str_select) = explode(":", $this->label);
+		}
 
 		$form2type_id_temp = $obj_form->get_type_connect_to_root(array('connect_to' => $this->row->formTypeConnectTo, 'field_id' => $this->row->form2TypeID));
 
