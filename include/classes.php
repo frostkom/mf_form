@@ -1398,7 +1398,7 @@ class mf_form
 				'editor_style' => 'style_base_block_wp',
 				'render_callback' => array($this, 'block_render_callback'),
 			));
-			
+
 			register_block_type('mf/formview', array(
 				'editor_script' => 'script_form_block_wp',
 				'editor_style' => 'style_base_block_wp',
@@ -5202,11 +5202,11 @@ class mf_form_output
 			$obj_form = new mf_form();
 		}
 
-		$this->label = $string;
+		$obj_form->label = $string;
 
-		if(strpos($this->label, ":") !== false)
+		if(strpos($obj_form->label, ":") !== false)
 		{
-			list($this->label, $str_select) = explode(":", $this->label);
+			list($obj_form->label, $str_select) = explode(":", $obj_form->label);
 		}
 
 		$form2type_id_temp = $obj_form->get_type_connect_to_root(array('connect_to' => $this->row->formTypeConnectTo, 'field_id' => $this->row->form2TypeID));
@@ -5402,7 +5402,7 @@ class mf_form_output
 				}
 
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
-				$field_data['text'] = $this->label;
+				$field_data['text'] = $obj_form->label;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
@@ -5415,7 +5415,7 @@ class mf_form_output
 
 			case 'select':
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
-				$field_data['text'] = $this->label;
+				$field_data['text'] = $obj_form->label;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
@@ -5462,7 +5462,7 @@ class mf_form_output
 			case 'select_multiple':
 				$field_data['name'] .= "[]";
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
-				$field_data['text'] = $this->label;
+				$field_data['text'] = $obj_form->label;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
@@ -5479,7 +5479,7 @@ class mf_form_output
 			case 'checkbox_multiple':
 				$field_data['name'] .= "[]";
 				$field_data['data'] = $this->get_options_for_select($this->row->formTypeText);
-				$field_data['text'] = $this->label;
+				$field_data['text'] = $obj_form->label;
 				$field_data['value'] = $this->answer_text;
 				$field_data['required'] = $this->row->formTypeRequired;
 				$field_data['class'] = $this->row->formTypeClass;
