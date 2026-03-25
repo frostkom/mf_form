@@ -1382,7 +1382,7 @@ class mf_form
 			'exclude_from_search' => true,
 			'menu_position' => 21,
 			'menu_icon' => 'dashicons-forms',
-			'supports' => array('title'),
+			'supports' => array('title', 'revisions'),
 			'rewrite' => array(
 				'slug' => 'form',
 			),
