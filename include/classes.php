@@ -4294,7 +4294,7 @@ class mf_form
 			list($str_label, $str_select) = explode(":", $str_label);
 		}
 
-		if($str_select != '')
+		if(isset($str_select) && $str_select != '')
 		{
 			$arr_options = explode(",", $str_select);
 
