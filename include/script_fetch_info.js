@@ -37,9 +37,9 @@ jQuery(function($)
 				{
 					if(data.success)
 					{
-						$.each(data.response_fields, function(key, value)
+						$.each(data.response_fields, function(key, arr_value)
 						{
-							dom_obj_widget.find("#" + value.id).val(value.value);
+							dom_obj_widget.find("#" + arr_value.id).val(arr_value.value);
 						});
 					}
 				}
