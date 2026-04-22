@@ -2817,6 +2817,7 @@ class mf_form
 	{
 		return array(
 			'' => "-- ".__("Choose Here", 'lang_form')." --",
+			'div' => "div",
 			'h1' => "h1",
 			'h2' => "h2",
 			'h3' => "h3",
