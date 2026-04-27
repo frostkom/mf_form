@@ -1649,9 +1649,7 @@ class mf_form
 	{
 		global $pagenow, $menu, $done_text, $error_text;
 
-		$count_message = $this->get_count_answer_message();
-
-		if($count_message != '' && is_array($menu))
+		if(is_array($menu))
 		{
 			foreach($menu as $key => $menu_item)
 			{
@@ -1659,8 +1657,13 @@ class mf_form
 				{
 					if(!preg_match("/update-plugins/i", $menu[$key][0]))
 					{
-						$menu[$key][0] .= $count_message;
-						break;
+						$count_message = $this->get_count_answer_message();
+
+						if($count_message != '')
+						{
+							$menu[$key][0] .= $count_message;
+							break;
+						}
 					}
 				}
 			}
