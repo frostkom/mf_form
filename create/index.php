@@ -287,7 +287,7 @@ if($obj_form->check_allow_edit())
 
 			else
 			{
-				do_log("There was no formID");
+				do_log("There was no formID when going from ".$_SERVER['HTTP_REFERER']." to create/index.php");
 			}
 
 		echo "</div>
