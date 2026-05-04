@@ -203,13 +203,14 @@ class mf_form
 			#################################
 			if(apply_filters('does_table_exist', false, $wpdb->prefix."form"))
 			{
-				$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID, meta_value FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->prefix."form.postID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE formID != meta_value", $this->meta_prefix.'form_id'));
+				$result = $wpdb->get_results($wpdb->prepare("SELECT formID, postID, meta_value FROM ".$wpdb->prefix."form INNER JOIN ".$wpdb->posts." ON ".$wpdb->prefix."form.postID = ".$wpdb->posts.".ID INNER JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND meta_key = %s WHERE post_type = %s AND formID != meta_value", $this->meta_prefix.'form_id', $this->post_type));
+				$last_query = $wpdb->last_query;
 
 				foreach($result as $r)
 				{
 					if($r->formID != $r->meta_value)
 					{
-						do_log(__FUNCTION__." - Faulty Form Params: #".$r->postID." (".$r->formID." != ".$r->meta_value.", ".$wpdb->last_query.")", 'publish', false);
+						do_log(__FUNCTION__." - Faulty Form Params: #".$r->postID." (postID) (".$r->formID." (formID) != ".$r->meta_value." (meta_value), ".$last_query.")", 'publish', false);
 					}
 				}
 			}
@@ -2645,7 +2646,7 @@ class mf_form
 						$intForm2TypeID,
 						$arrFormTypeSelect_key[$i],
 						$arrFormTypeSelect_value[$i],
-						$arrFormTypeSelect_limit[$i],
+						(isset($arrFormTypeSelect_limit[$i]) ? $arrFormTypeSelect_limit[$i] : ''),
 						$arrFormTypeSelect_action[$i],
 						($intFormOptionOrder_temp + 1)
 					));
