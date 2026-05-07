@@ -125,8 +125,6 @@ class mf_form
 
 		if($obj_cron->is_running == false)
 		{
-			replace_option(array('old' => 'setting_redirect_emails', 'new' => 'setting_form_redirect_emails'));
-
 			// Convert wp_form to wp_posts
 			#################################
 			if(apply_filters('does_table_exist', false, $wpdb->base_prefix."form") && does_column_exist($wpdb->base_prefix."form", "blogID"))
@@ -263,15 +261,15 @@ class mf_form
 			#######################
 			if(apply_filters('does_table_exist', false, $wpdb->prefix."form"))
 			{
-				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2type.formID FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null");
+				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2type.formID FROM ".$wpdb->prefix."form2type LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null GROUP BY formID");
 
 				if($wpdb->num_rows > 0)
 				{
-					do_log(__FUNCTION__." - Dead form2type: ".$wpdb->last_query);
+					//do_log(__FUNCTION__." - Dead form2type: ".$wpdb->last_query, 'publish', false);
 
 					foreach($result as $r)
 					{
-						//$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form2type WHERE formID = '%d'", $r->formID));
+						$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form2type WHERE formID = '%d'", $r->formID));
 					}
 				}
 
@@ -301,11 +299,11 @@ class mf_form
 					$wpdb->query($wpdb->prepare("DELETE FROM ".$wpdb->prefix."form_answer_email WHERE answerID = '%d'", $r->answerID));
 				}
 
-				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2answer.formID FROM ".$wpdb->prefix."form2answer LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null");
+				$result = $wpdb->get_results("SELECT ".$wpdb->prefix."form2answer.formID FROM ".$wpdb->prefix."form2answer LEFT JOIN ".$wpdb->prefix."form USING (formID) WHERE ".$wpdb->prefix."form.formID IS null GROUP BY formID");
 
 				if($wpdb->num_rows > 0)
 				{
-					do_log(__FUNCTION__." - Dead form2answer: ".$wpdb->last_query);
+					do_log(__FUNCTION__." - Dead form2answer: ".$wpdb->last_query, 'publish', false);
 
 					foreach($result as $r)
 					{
