@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: Add forms to any page
-Version: 1.2.3.18
+Version: 1.2.3.19
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -233,7 +233,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 				if($wpdb->num_rows > 0)
 				{
-					do_log(__FUNCTION__.": Form from other blogs still exist and should be deleted (".$wpdb->last_query.")");
+					do_log(__FUNCTION__.": Form from other blogs still exist and should be deleted (".$wpdb->last_query.")", 'publish', false);
 				}
 
 				else
