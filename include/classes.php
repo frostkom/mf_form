@@ -2256,23 +2256,22 @@ class mf_form
 	function admin_menu()
 	{
 		$menu_root = 'mf_form/';
+		$menu_start = "edit.php?post_type=".$this->post_type;
+		$menu_capability = 'edit_pages';
 
-		if(IS_EDITOR)
+		$menu_title = __("Add New", 'lang_form');
+		add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'create/index.php');
+
+		$menu_title = __("Answers", 'lang_form');
+		add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'answer/index.php');
+
+		$menu_title = __("Edit Answer", 'lang_form');
+		add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
+
+		if(IS_ADMINISTRATOR)
 		{
-			$menu_start = "edit.php?post_type=".$this->post_type;
-			$menu_capability = 'edit_posts';
-
 			$menu_title = __("Settings", 'lang_form');
 			add_submenu_page($menu_start, $menu_title, $menu_title, $menu_capability, admin_url("options-general.php?page=settings_mf_base#settings_form"));
-
-			$menu_title = __("Add New", 'lang_form');
-			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'create/index.php');
-
-			$menu_title = __("Answers", 'lang_form');
-			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'answer/index.php');
-
-			$menu_title = __("Edit Answer", 'lang_form');
-			add_submenu_page($menu_root, $menu_title, $menu_title, $menu_capability, $menu_root.'view/index.php');
 		}
 
 		remove_meta_box('commentsdiv', $this->post_type, 'normal');
