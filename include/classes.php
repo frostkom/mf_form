@@ -4620,53 +4620,65 @@ if(class_exists('mf_list_table'))
 			$arr_columns['answerStatus'] = __("Status", 'lang_form');
 
 			$obj_form->answer_column = 0;
+			$column_count = 0;
+			$column_limit = 10;
 
-			$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeText, form2TypeID, formTypeID FROM ".$wpdb->prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder ASC", $obj_form->id));
+			$result = $wpdb->get_results($wpdb->prepare("SELECT formTypeText, form2TypeID, formTypeID FROM ".$wpdb->prefix."form2type WHERE formID = '%d' ORDER BY form2TypeOrder ASC LIMIT 0, ".($column_limit + 1), $obj_form->id));
 
 			foreach($result as $r)
 			{
-				$strFormTypeCode = $obj_form->arr_form_types[$r->formTypeID]['code'];
-				$obj_form->label = $r->formTypeText;
-				$intForm2TypeID2 = $r->form2TypeID;
-
-				if(!in_array($strFormTypeCode, $obj_form->ignore_tags_on_output))
+				if($column_count < $column_limit)
 				{
-					switch($strFormTypeCode)
+					$strFormTypeCode = $obj_form->arr_form_types[$r->formTypeID]['code'];
+					$obj_form->label = $r->formTypeText;
+					$intForm2TypeID2 = $r->form2TypeID;
+
+					if(!in_array($strFormTypeCode, $obj_form->ignore_tags_on_output))
 					{
-						case 'checkbox':
-						case 'radio_button':
-							$label_limit = 10;
-						break;
+						switch($strFormTypeCode)
+						{
+							case 'checkbox':
+							case 'radio_button':
+								$label_limit = 10;
+							break;
 
-						case 'range':
-							$obj_form->parse_range_label();
+							case 'range':
+								$obj_form->parse_range_label();
 
-							$label_limit = 10;
-						break;
+								$label_limit = 10;
+							break;
 
-						case 'datepicker':
-							$label_limit = 15;
-						break;
+							case 'datepicker':
+								$label_limit = 15;
+							break;
 
-						case 'select':
-						case 'select_multiple':
-						case 'checkbox_multiple':
-						case 'radio_multiple':
-							if(strpos($obj_form->label, ":") !== false)
-							{
-								list($obj_form->label, $str_select) = explode(":", $obj_form->label);
-							}
+							case 'select':
+							case 'select_multiple':
+							case 'checkbox_multiple':
+							case 'radio_multiple':
+								if(strpos($obj_form->label, ":") !== false)
+								{
+									list($obj_form->label, $str_select) = explode(":", $obj_form->label);
+								}
 
-							$label_limit = 10;
-						break;
+								$label_limit = 10;
+							break;
 
-						default:
-							$label_limit = 20;
-						break;
+							default:
+								$label_limit = 20;
+							break;
+						}
+
+						$arr_columns[$intForm2TypeID2] = shorten_text(array('string' => trim($obj_form->label, ":"), 'limit' => $label_limit));
 					}
-
-					$arr_columns[$intForm2TypeID2] = shorten_text(array('string' => trim($obj_form->label, ":"), 'limit' => $label_limit));
 				}
+
+				else
+				{
+					$arr_columns[$intForm2TypeID2] = "&hellip;";
+				}
+
+				$column_count++;
 			}
 
 			$arr_columns['answerCreated'] = __("Created", 'lang_form');
@@ -5024,20 +5036,20 @@ if(class_exists('mf_list_table'))
 								if($strAnswerText != '')
 								{
 									$out .= $strAnswerText;
-
-									if($obj_form->answer_column == 0)
-									{
-										$obj_encryption = new mf_encryption("mf_form");
-										$answer_id_encrypted = $obj_encryption->encrypt($intAnswerID, md5(AUTH_KEY));
-
-										$arr_actions['edit'] = "<a href='".admin_url("admin.php?page=mf_form/view/index.php&intFormID=".$obj_form->id."&answer_id_encrypted=".$answer_id_encrypted)."'>".__("Edit", 'lang_form')."</a>";
-										$arr_actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
-
-										$obj_form->answer_column++;
-									}
-
-									$out .= $this->row_actions($arr_actions);
 								}
+
+								if($obj_form->answer_column == 0)
+								{
+									$obj_encryption = new mf_encryption("mf_form");
+									$answer_id_encrypted = $obj_encryption->encrypt($intAnswerID, md5(AUTH_KEY));
+
+									$arr_actions['edit'] = "<a href='".admin_url("admin.php?page=mf_form/view/index.php&intFormID=".$obj_form->id."&answer_id_encrypted=".$answer_id_encrypted)."'>".__("Edit", 'lang_form')."</a>";
+									$arr_actions['delete'] = "<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link'>".__("Delete", 'lang_form')."</a>";
+
+									$obj_form->answer_column++;
+								}
+
+								$out .= $this->row_actions($arr_actions);
 							}
 
 							if(in_array($strFormTypeCode, array('input_field', 'textarea')))
