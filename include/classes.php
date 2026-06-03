@@ -1584,7 +1584,7 @@ class mf_form
 
 		$out = "";
 
-		if(apply_filters('does_table_exist', false, $wpdb->prefix."form"))
+		if(apply_filters('does_table_exist', false, $wpdb->prefix."form") && apply_filters('does_table_exist', false, $wpdb->prefix."form2answer") && apply_filters('does_table_exist', false, $wpdb->prefix."form_answer_email"))
 		{
 			$last_viewed = get_user_meta($data['user_id'], 'meta_forms_viewed', true);
 
@@ -1706,10 +1706,10 @@ class mf_form
 					echo get_notification();
 				}
 
-				/*else if(isset($_GET['btnFormExport']))
+				else if(isset($_GET['btnFormExport']))
 				{
-					new mf_form_export();
-				}*/
+					//new mf_form_export();
+				}
 
 				else if(isset($_GET['btnFormAnswerExport']))
 				{
