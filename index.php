@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: Add forms to any page
-Version: 1.2.3.23
+Version: 1.2.3.24
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -48,7 +48,6 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		add_filter('get_post_types_for_metabox', array($obj_form, 'get_post_types_for_metabox'), 10, 2);
 
 		add_action('wp_delete_post', array($obj_form, 'wp_delete_post'));
-		add_action('deleted_user', array($obj_form, 'deleted_user'));
 
 		add_filter('filter_last_updated_post_types', array($obj_form, 'filter_last_updated_post_types'), 10, 2);
 

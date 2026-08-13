@@ -2290,13 +2290,6 @@ class mf_form
 		}
 	}
 
-	function deleted_user($user_id)
-	{
-		global $wpdb;
-
-		$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."form2type SET userID = '%d' WHERE userID = '%d'", get_current_user_id(), $user_id));
-	}
-
 	function filter_last_updated_post_types($array, $type)
 	{
 		if($type == 'auto')
