@@ -1954,13 +1954,6 @@ class mf_form
 
 						echo format_date($post_modified);
 					break;
-
-					/*default:
-						if(isset($item[$column_name]))
-						{
-							echo $item[$column_name];
-						}
-					break;*/
 				}
 			break;
 		}
@@ -2246,7 +2239,7 @@ class mf_form
 		return $meta_boxes;
 	}
 
-	function get_post_types_for_metabox($array)
+	function get_post_types_ignore($array, $type)
 	{
 		$array[] = $this->post_type;
 
