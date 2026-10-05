@@ -4956,7 +4956,10 @@ if(class_exists('mf_list_table'))
 											break;
 										}
 
-										$strAnswerText_temp = stripslashes(stripslashes($strAnswerText_temp));
+										if($strAnswerText_temp != '')
+										{
+											$strAnswerText_temp = stripslashes(stripslashes($strAnswerText_temp));
+										}
 
 										/*if(substr($strAnswerText, 0, 2) == "--")
 										{
