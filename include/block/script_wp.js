@@ -3,6 +3,7 @@
 	var el = wp.element.createElement,
 		registerBlockType = wp.blocks.registerBlockType,
 		SelectControl = wp.components.SelectControl,
+		PanelBody = wp.components.PanelBody,
 		InspectorControls = wp.blockEditor.InspectorControls;
 
 	registerBlockType('mf/form',
@@ -59,19 +60,23 @@
 				[
 					el(
 						InspectorControls,
-						'div',
+						{key: 'inspector'},
 						el(
-							SelectControl,
-							{
-								label: script_form_block_wp.form_id_label,
-								value: props.attributes.form_id,
-								options: convert_php_array_to_block_js(script_form_block_wp.form_id),
-								onChange: function(value)
+							PanelBody,
+							{title: script_form_block_wp.block_title, initialOpen: true},
+							el(
+								SelectControl,
 								{
-									props.setAttributes({form_id: value});
+									label: script_form_block_wp.form_id_label,
+									value: props.attributes.form_id,
+									options: convert_php_array_to_block_js(script_form_block_wp.form_id),
+									onChange: function(value)
+									{
+										props.setAttributes({form_id: value});
+									}
 								}
-							}
-						),
+							)
+						)
 					),
 					el(
 						'strong',
@@ -141,19 +146,23 @@
 				[
 					el(
 						InspectorControls,
-						'div',
+						{key: 'inspector'},
 						el(
-							SelectControl,
-							{
-								label: script_form_block_wp.form_id_label,
-								value: props.attributes.form_id,
-								options: convert_php_array_to_block_js(script_form_block_wp.form_id),
-								onChange: function(value)
+							PanelBody,
+							{title: script_form_block_wp.block_title_view, initialOpen: true},
+							el(
+								SelectControl,
 								{
-									props.setAttributes({form_id: value});
+									label: script_form_block_wp.form_id_label,
+									value: props.attributes.form_id,
+									options: convert_php_array_to_block_js(script_form_block_wp.form_id),
+									onChange: function(value)
+									{
+										props.setAttributes({form_id: value});
+									}
 								}
-							}
-						),
+							)
+						)
 					),
 					el(
 						'strong',
