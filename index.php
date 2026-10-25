@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: Add forms to any page
-Version: 1.2.3.27
+Version: 1.2.3.28
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -90,33 +90,42 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 
 		// Old
 		############################
-		$arr_update_column[$wpdb->base_prefix."form"] = array(
-			'formDeletedID' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
-			'formCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
-			'formDeletedDate' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
-			'formDeleted' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
-			'formPaymentFile' => "ALTER TABLE [table] DROP COLUMN [column]", //250426
-			'formPaymentCheck' => "ALTER TABLE [table] DROP COLUMN [column]", //250426
-			'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
-		);
+		$main_id = get_main_site_id();
 
-		$arr_add_column[$wpdb->base_prefix."form2type"] = array(
-			'formTypeLength' => "ALTER TABLE [table] ADD [column] SMALLINT DEFAULT NULL AFTER formTypeClass", //240813
-			'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT '0' AFTER formID", //250501
-		);
+		switch_to_blog($main_id);
+		
+		if(is_plugin_active("mf_form/index.php"))
+		{
+			$arr_update_column[$wpdb->base_prefix."form"] = array(
+				'formDeletedID' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+				'formCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+				'formDeletedDate' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+				'formDeleted' => "ALTER TABLE [table] DROP COLUMN [column]", //250424
+				'formPaymentFile' => "ALTER TABLE [table] DROP COLUMN [column]", //250426
+				'formPaymentCheck' => "ALTER TABLE [table] DROP COLUMN [column]", //250426
+				'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
+			);
 
-		$arr_update_column[$wpdb->base_prefix."form2type"] = array(
-			'form2TypeCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
-			'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
-		);
+			$arr_add_column[$wpdb->base_prefix."form2type"] = array(
+				'formTypeLength' => "ALTER TABLE [table] ADD [column] SMALLINT DEFAULT NULL AFTER formTypeClass", //240813
+				'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED DEFAULT '0' AFTER formID", //250501
+			);
 
-		$arr_add_column[$wpdb->base_prefix."form2answer"] = array(
-			'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL AFTER formID", //250501
-		);
+			$arr_update_column[$wpdb->base_prefix."form2type"] = array(
+				'form2TypeCreated' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
+				'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //250428
+			);
 
-		$arr_update_column[$wpdb->base_prefix."form2answer"] = array(
-			'answerToken' => "ALTER TABLE [table] DROP COLUMN [column]", //250429
-		);
+			$arr_add_column[$wpdb->base_prefix."form2answer"] = array(
+				'postID' => "ALTER TABLE [table] ADD [column] INT UNSIGNED NOT NULL AFTER formID", //250501
+			);
+
+			$arr_update_column[$wpdb->base_prefix."form2answer"] = array(
+				'answerToken' => "ALTER TABLE [table] DROP COLUMN [column]", //250429
+			);
+		}
+
+		restore_current_blog();
 		############################
 
 		// New

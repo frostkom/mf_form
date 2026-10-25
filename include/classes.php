@@ -4705,7 +4705,7 @@ if(class_exists('mf_list_table'))
 							}
 						}
 
-						$out .= "<i class='fa fa-ban fa-lg red'".($icon_title != '' ? " title='".$icon_title."'" : "")."></i>";
+						$out .= ($out != '' ? "&nbsp;" : "")."<i class='fa fa-ban fa-lg red'".($icon_title != '' ? " title='".$icon_title."'" : "")."></i>";
 
 						$arr_actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."'".make_link_confirm().">".__("Approve", 'lang_form')."</a>";
 					}
@@ -4719,7 +4719,7 @@ if(class_exists('mf_list_table'))
 							case '':
 							case 'draft':
 							case 'not_spam':
-								$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerStatus&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."&strAnswerStatus=done"), 'answer_status_'.$intAnswerID, '_wpnonce_answer_status')."'".make_link_confirm()."><i class='far fa-star' title='".__("No status so far. Click to mark as done.", 'lang_form')."'></i></a>";
+								$out .= ($out != '' ? "&nbsp;" : "")."<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerStatus&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."&strAnswerStatus=done"), 'answer_status_'.$intAnswerID, '_wpnonce_answer_status')."'".make_link_confirm()."><i class='far fa-star' title='".__("No status so far. Click to mark as done.", 'lang_form')."'></i></a>";
 							break;
 
 							case 'spam':
@@ -4733,17 +4733,17 @@ if(class_exists('mf_list_table'))
 									list($rest, $icon_title) = explode("_", $item[$column_name], 2);
 								}
 
-								$out .= "<i class='fa fa-ban fa-lg red'".($icon_title != '' ? " title='".$icon_title."'" : "")."></i>";
+								$out .= ($out != '' ? "&nbsp;" : "")."<i class='fa fa-ban fa-lg red'".($icon_title != '' ? " title='".$icon_title."'" : "")."></i>";
 
 								$arr_actions['unspam'] = "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerApprove&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID), 'answer_approve_'.$intAnswerID, '_wpnonce_answer_approve')."'".make_link_confirm().">".__("Approve", 'lang_form')."</a>";
 							break;
 
 							case 'done':
-								$out .= "<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerStatus&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."&strAnswerStatus=draft"), 'answer_status_'.$intAnswerID, '_wpnonce_answer_status')."'".make_link_confirm()."><i class='fas fa-star' title='".__("Done. Click to mark as NOT done.", 'lang_form')."'></i></a>";
+								$out .= ($out != '' ? "&nbsp;" : "")."<a href='".wp_nonce_url(admin_url("admin.php?page=mf_form/answer/index.php&btnAnswerStatus&intFormID=".$obj_form->id."&intAnswerID=".$intAnswerID."&strAnswerStatus=draft"), 'answer_status_'.$intAnswerID, '_wpnonce_answer_status')."'".make_link_confirm()."><i class='fas fa-star' title='".__("Done. Click to mark as NOT done.", 'lang_form')."'></i></a>";
 							break;
 
 							default:
-								$out .= "<i class='fa fa-question-circle' title='".__("Unknown Status", 'lang_form')." (".$item[$column_name].")'></i>";
+								$out .= ($out != '' ? "&nbsp;" : "")."<i class='fa fa-question-circle' title='".__("Unknown Status", 'lang_form')." (".$item[$column_name].")'></i>";
 							break;
 						}
 						########################
@@ -4807,7 +4807,7 @@ if(class_exists('mf_list_table'))
 								}
 							}
 
-							$out .= "<i class='fa fa-paper-plane ".($sent_failed > 0 ? "red" : "green")."' title='".($sent_failed > 0 ? $sent_successfully."/" : "").$sent_total."'></i>";
+							$out .= ($out != '' ? "&nbsp;" : "")."<i class='fa fa-paper-plane ".($sent_failed > 0 ? "red" : "green")."' title='".($sent_failed > 0 ? $sent_successfully."/" : "").$sent_total."'></i>";
 
 							foreach($arr_sent as $key => $arr_value)
 							{
@@ -4826,7 +4826,7 @@ if(class_exists('mf_list_table'))
 						// This will remove all answers that have the same field inputs, so it needs to be smarter before use in prod
 						if(count($this->current_row) > 0 && $this->current_row == $this->previous_row)
 						{
-							$out .= "<i class='far fa-copy' title='".__("This is a duplicate", 'lang_form')."'></i>";
+							$out .= ($out != '' ? "&nbsp;" : "")."<i class='far fa-copy' title='".__("This is a duplicate", 'lang_form')."'></i>";
 
 							if(IS_SUPER_ADMIN)
 							{
