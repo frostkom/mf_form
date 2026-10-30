@@ -3,7 +3,7 @@
 Plugin Name: MF Form
 Plugin URI: https://github.com/frostkom/mf_form
 Description: Add forms to any page
-Version: 1.2.3.28
+Version: 1.2.3.29
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -93,7 +93,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		$main_id = get_main_site_id();
 
 		switch_to_blog($main_id);
-		
+
 		if(is_plugin_active("mf_form/index.php"))
 		{
 			$arr_update_column[$wpdb->base_prefix."form"] = array(
@@ -166,6 +166,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 		) DEFAULT CHARSET=".$default_charset);
 
 		$arr_add_column[$wpdb->prefix."form2type"] = array(
+			'formTypeLength' => "ALTER TABLE [table] ADD [column] SMALLINT DEFAULT NULL AFTER formTypeClass",
 			'formTypeEncrypt' => "ALTER TABLE [table] ADD [column] ENUM('no', 'yes') NOT NULL DEFAULT 'no' AFTER formTypeAutofocus",
 		);
 
