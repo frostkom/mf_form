@@ -68,6 +68,40 @@ class mf_form
 		$this->form_nonce_hash = md5((defined('NONCE_SALT') ? NONCE_SALT : '').'form_nonce_hash_'.apply_filters('get_current_visitor_ip', "").'_'.date("Ymd"));
 	}
 
+	function get_post_info($data)
+	{
+		global $wpdb;
+
+		$out = "";
+
+		if(isset($data['form_id']) && $data['form_id'] > 0)
+		{
+			$this->id = $data['form_id'];
+		}
+
+		if(isset($data['post_id']) && $data['post_id'] > 0)
+		{
+			$post_id = $data['post_id'];
+		}
+
+		else if($this->id > 0)
+		{
+			$post_id = $this->get_post_id($this->id);
+		}
+
+		if(isset($post_id) && $post_id > 0)
+		{
+			$out = $wpdb->get_var($wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->posts." WHERE ID = '%d'", $post_id));
+		}
+
+		if($data['select'] == "post_name" && $out == '')
+		{
+			$out = "field";
+		}
+
+		return $out;
+	}
+
 	function check_allow_edit()
 	{
 		global $wpdb;
@@ -3594,40 +3628,6 @@ class mf_form
 		}
 
 		return $this->post_id;
-	}
-
-	function get_post_info($data)
-	{
-		global $wpdb;
-
-		$out = "";
-
-		if(isset($data['form_id']) && $data['form_id'] > 0)
-		{
-			$this->id = $data['form_id'];
-		}
-
-		if(isset($data['post_id']) && $data['post_id'] > 0)
-		{
-			$post_id = $data['post_id'];
-		}
-
-		else if($this->id > 0)
-		{
-			$post_id = $this->get_post_id($this->id);
-		}
-
-		if(isset($post_id) && $post_id > 0)
-		{
-			$out = $wpdb->get_var($wpdb->prepare("SELECT ".$data['select']." FROM ".$wpdb->posts." WHERE ID = '%d'", $post_id));
-		}
-
-		if($data['select'] == "post_name" && $out == '')
-		{
-			$out = "field";
-		}
-
-		return $out;
 	}
 
 	function get_form_email_field()
