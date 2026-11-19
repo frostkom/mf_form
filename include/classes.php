@@ -573,6 +573,18 @@ class mf_form
 		}
 	}
 
+	function get_form_name($id = 0)
+	{
+		if($id > 0)
+		{
+			$this->id = $id;
+		}
+
+		$form_name = $this->get_post_info(array('select' => 'post_title'));
+
+		return ($form_name != '' ? $form_name : __("Unknown", 'lang_form')." (#".$id.")");
+	}
+
 	function process_submit()
 	{
 		global $wpdb, $error_text, $notice_text, $done_text;
@@ -2874,7 +2886,8 @@ class mf_form
 				$this->form2type_order = check_var('intForm2TypeOrder');
 
 				$this->type_id = check_var('intFormTypeID');
-				$this->type_text = (isset($_POST['strFormTypeText']) ? $_POST['strFormTypeText'] : ""); //Allow HTML here
+				//$this->type_text = (isset($_POST['strFormTypeText']) ? $_POST['strFormTypeText'] : "");
+				$this->type_text = (isset($_POST['strFormTypeText']) ? wp_slash(wp_kses_post(wp_unslash($_POST['strFormTypeText']))) : "");
 				$this->type_text2 = check_var('strFormTypeText2');
 				$this->check_id = check_var('intCheckID');
 				$this->type_placeholder = check_var('strFormTypePlaceholder');
@@ -3589,18 +3602,6 @@ class mf_form
 
 		return true;
 	}*/
-
-	function get_form_name($id = 0)
-	{
-		if($id > 0)
-		{
-			$this->id = $id;
-		}
-
-		$form_name = $this->get_post_info(array('select' => 'post_title'));
-
-		return ($form_name != '' ? $form_name : __("Unknown", 'lang_form')." (#".$id.")");
-	}
 
 	function get_form_id($post_id)
 	{
