@@ -2514,73 +2514,76 @@ class mf_form
 		{
 			$value_temp = "";
 
-			switch($arr_value[1])
+			if(isset($arr_value[1]))
 			{
-				case 'address':
-					if(is_user_logged_in())
-					{
-						$value_temp = get_the_author_meta('profile_address_street', get_current_user_id());
-					}
-				break;
-
-				case 'city':
-					if(is_user_logged_in())
-					{
-						$value_temp = get_the_author_meta('profile_address_city', get_current_user_id());
-					}
-				break;
-
-				case 'country':
-					if(is_user_logged_in())
-					{
-						$value_temp = get_the_author_meta('profile_country', get_current_user_id());
-
-						if($value_temp > 0 && is_plugin_active("mf_address/index.php"))
+				switch($arr_value[1])
+				{
+					case 'address':
+						if(is_user_logged_in())
 						{
-							global $obj_address;
-
-							$value_temp = $obj_address->get_countries_for_select()[$value_temp];
+							$value_temp = get_the_author_meta('profile_address_street', get_current_user_id());
 						}
-					}
-				break;
+					break;
 
-				case 'email':
-					if(is_user_logged_in())
-					{
-						$user_data = get_userdata(get_current_user_id());
+					case 'city':
+						if(is_user_logged_in())
+						{
+							$value_temp = get_the_author_meta('profile_address_city', get_current_user_id());
+						}
+					break;
 
-						$value_temp = $user_data->user_email;
-					}
-				break;
+					case 'country':
+						if(is_user_logged_in())
+						{
+							$value_temp = get_the_author_meta('profile_country', get_current_user_id());
 
-				case 'name':
-					if(is_user_logged_in())
-					{
-						$user_data = get_userdata(get_current_user_id());
+							if($value_temp > 0 && is_plugin_active("mf_address/index.php"))
+							{
+								global $obj_address;
 
-						$value_temp = $user_data->display_name;
-					}
-				break;
+								$value_temp = $obj_address->get_countries_for_select()[$value_temp];
+							}
+						}
+					break;
 
-				//case 'tel':
-				case 'telno':
-					if(is_user_logged_in())
-					{
-						$value_temp = get_the_author_meta('profile_phone', get_current_user_id());
-					}
-				break;
+					case 'email':
+						if(is_user_logged_in())
+						{
+							$user_data = get_userdata(get_current_user_id());
 
-				case 'zip':
-					if(is_user_logged_in())
-					{
-						$value_temp = get_the_author_meta('profile_address_zipcode', get_current_user_id());
-					}
-				break;
-			}
+							$value_temp = $user_data->user_email;
+						}
+					break;
 
-			if($value_temp == '')
-			{
-				$value_temp = apply_filters('filter_visitor_'.$arr_value[1], '');
+					case 'name':
+						if(is_user_logged_in())
+						{
+							$user_data = get_userdata(get_current_user_id());
+
+							$value_temp = $user_data->display_name;
+						}
+					break;
+
+					//case 'tel':
+					case 'telno':
+						if(is_user_logged_in())
+						{
+							$value_temp = get_the_author_meta('profile_phone', get_current_user_id());
+						}
+					break;
+
+					case 'zip':
+						if(is_user_logged_in())
+						{
+							$value_temp = get_the_author_meta('profile_address_zipcode', get_current_user_id());
+						}
+					break;
+				}
+
+				if($value_temp == '')
+				{
+					$value_temp = apply_filters('filter_visitor_'.$arr_value[1], '');
+				}
 			}
 
 			if($value_temp != '')
